@@ -55,7 +55,7 @@
 #include <sstream>
 
 //extern CPlugins *g_PluginList;
-#ifndef HAVE_COOL_HARDWARE
+#if !defined HAVE_SPARK_HARDWARE && !defined HAVE_DUCKBOX
 #define LCD_MODE CVFD::MODE_MOVIE
 #else
 #define LCD_MODE CVFD::MODE_MENU_UTF8

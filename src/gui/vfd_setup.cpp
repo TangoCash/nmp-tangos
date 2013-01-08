@@ -120,6 +120,7 @@ int CVfdSetup::showSetup()
 	mf->setHint("", LOCALE_MENU_HINT_VFD_BRIGHTNESS_SETUP);
 	vfds->addItem(mf);
 
+#ifndef HAVE_DUCKBOX
 	//led menu
 	if(cs_get_revision() > 7)
 	{
@@ -129,6 +130,7 @@ int CVfdSetup::showSetup()
 		mf->setHint("", LOCALE_MENU_HINT_POWER_LEDS);
 		vfds->addItem(mf);
 	}
+#endif
 
 	vfds->addItem(GenericMenuSeparatorLine);
 
@@ -188,6 +190,7 @@ void CVfdSetup::showBrightnessSetup(CMenuWidget *mn_widget)
 	mn_widget->addItem(mf);
 }
 
+#ifndef HAVE_DUCKBOX
 void CVfdSetup::showLedSetup(CMenuWidget *mn_led_widget)
 {
 	CMenuOptionChooser * mc;
@@ -213,6 +216,7 @@ void CVfdSetup::showLedSetup(CMenuWidget *mn_led_widget)
 	mc->setHint("", LOCALE_MENU_HINT_LEDS_BLINK);
 	mn_led_widget->addItem(mc);
 }
+#endif
 
 bool CVfdSetup::changeNotify(const neutrino_locale_t OptionName, void */* data */)
 {
@@ -231,9 +235,11 @@ bool CVfdSetup::changeNotify(const neutrino_locale_t OptionName, void */* data *
 	{
 		CVFD::getInstance()->setBrightnessDeepStandby(brightnessdeepstandby);
 	}
+#ifndef HAVE_DUCKBOX
 	else if (ARE_LOCALES_EQUAL(OptionName, LOCALE_LEDCONTROLER_MODE_TV))
 	{
 		CVFD::getInstance()->setled();
 	}
+#endif
 	return false;
 }

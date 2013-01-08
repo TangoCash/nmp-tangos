@@ -42,7 +42,11 @@
 #endif
 #if HAVE_TRIPLEDRAGON || USE_STB_HAL
 #include <record_td.h>
+#if HAVE_DUCKBOX
+#include <driver/vfd.h>
+#else
 #include <driver/lcdd.h>
+#endif
 #endif
 
 #include <OpenThreads/Mutex>

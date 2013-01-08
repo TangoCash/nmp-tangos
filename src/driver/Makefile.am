@@ -45,8 +45,13 @@ if BOXTYPE_SPARK
 libneutrino_driver_a_SOURCES += \
 	framebuffer_spark.cpp
 else
+if BOXTYPE_DUCKBOX
+libneutrino_driver_a_SOURCES += \
+	framebuffer_spark.cpp
+else
 libneutrino_driver_a_SOURCES += \
 	framebuffer.cpp
+endif
 endif
 if BOXTYPE_COOL
 libneutrino_driver_a_SOURCES += \
@@ -54,6 +59,10 @@ libneutrino_driver_a_SOURCES += \
 
 INCLUDES += \
 	-I$(top_srcdir)/lib/libcoolstream
+endif
+if BOXTYPE_DUCKBOX
+libneutrino_driver_a_SOURCES += \
+	vfd.cpp
 endif
 if BOXTYPE_TRIPLE
 libneutrino_driver_a_SOURCES += \

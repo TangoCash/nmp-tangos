@@ -2661,7 +2661,11 @@ _repeat:
 		}
 		recordingstatus = data;
 		autoshift = CRecordManager::getInstance()->TimeshiftOnly();
+#if HAVE_DUCKBOX
+		CVFD::getInstance()->ShowIcon(VFD_ICON_REC, recordingstatus != 0);
+#else
 		CVFD::getInstance()->ShowIcon(VFD_ICON_CAM1, recordingstatus != 0);
+#endif
 
 		if( ( !g_InfoViewer->is_visible ) && data && !autoshift)
 			g_RCInput->postMsg( NeutrinoMessages::SHOW_INFOBAR, 0 );
@@ -3159,7 +3163,11 @@ void CNeutrinoApp::tvMode( bool rezap )
 		}
 		
 		videoDecoder->StopPicture();
+#if HAVE_DUCKBOX
+		CVFD::getInstance()->ShowIcon(VFD_ICON_MUSIC, false);
+#else
 		CVFD::getInstance()->ShowIcon(VFD_ICON_RADIO, false);
+#endif
 		StartSubtitles(!rezap);
 	}
 	g_InfoViewer->setUpdateTimer(LCD_UPDATE_TIME_TV_MODE);
@@ -3167,7 +3175,11 @@ void CNeutrinoApp::tvMode( bool rezap )
 	g_volume->Init();
 
 	CVFD::getInstance()->setMode(CVFD::MODE_TVRADIO);
+#if HAVE_DUCKBOX
+	CVFD::getInstance()->ShowIcon(VFD_ICON_MUSIC, false);
+#else
 	CVFD::getInstance()->ShowIcon(VFD_ICON_TV, true);
+#endif
 
 	if( mode == mode_standby ) {
 		CVFD::getInstance()->setMode(CVFD::MODE_TVRADIO);
@@ -3392,12 +3404,20 @@ void CNeutrinoApp::radioMode( bool rezap)
 	//printf("radioMode: rezap %s\n", rezap ? "yes" : "no");
 	INFO("rezap %d current mode %d", rezap, mode);
 	if (mode == mode_tv) {
+#if HAVE_DUCKBOX
+		CVFD::getInstance()->ShowIcon(VFD_ICON_MUSIC, true);
+#else
 		CVFD::getInstance()->ShowIcon(VFD_ICON_TV, false);
+#endif
 		StopSubtitles();
 	}
 	g_InfoViewer->setUpdateTimer(LCD_UPDATE_TIME_RADIO_MODE);
 	CVFD::getInstance()->setMode(CVFD::MODE_TVRADIO);
+#if HAVE_DUCKBOX
+	CVFD::getInstance()->ShowIcon(VFD_ICON_MUSIC, true);
+#else
 	CVFD::getInstance()->ShowIcon(VFD_ICON_RADIO, true);
+#endif
 
 	if( mode == mode_standby ) {
 		CVFD::getInstance()->setMode(CVFD::MODE_TVRADIO);

@@ -389,7 +389,7 @@ AC_SUBST(CATALOGS)
 
 AC_DEFUN([TUXBOX_BOXTYPE],[
 AC_ARG_WITH(boxtype,
-	[  --with-boxtype          valid values: dbox2,tripledragon,dreambox,ipbox,coolstream,spark,azbox,generic],
+	[  --with-boxtype          valid values: dbox2,tripledragon,dreambox,ipbox,coolstream,spark,azbox,generic,duckbox],
 	[case "${withval}" in
 		dbox2|dreambox|ipbox|tripledragon|coolstream|spark|azbox|generic)
 			BOXTYPE="$withval"
@@ -398,13 +398,30 @@ AC_ARG_WITH(boxtype,
 			BOXTYPE="dreambox"
 			BOXMODEL="$withval"
 			;;
+		ufs*)
+			BOXTYPE="duckbox"
+			BOXMODEL="$withval"
+			;;
+		atevio*)
+			BOXTYPE="duckbox"
+			BOXMODEL="$withval"
+			;;
+		fortis*)
+			BOXTYPE="duckbox"
+			BOXMODEL="$withval"
+			;;
+		octagon*)
+			BOXTYPE="duckbox"
+			BOXMODEL="$withval"
+			;;
 		*)
 			AC_MSG_ERROR([bad value $withval for --with-boxtype]) ;;
 	esac], [BOXTYPE="coolstream"])
 
 AC_ARG_WITH(boxmodel,
 	[  --with-boxmodel         valid for dreambox: dm500, dm500plus, dm600pvr, dm56x0, dm7000, dm7020, dm7025
-                          valid for ipbox: ip200, ip250, ip350, ip400],
+                          valid for ipbox: ip200, ip250, ip350, ip400
+                          valid for duckbox: ufs910, ufs912, ufs913, ufs922, atevio7500, fortis_hdbox, octagon1008],
 	[case "${withval}" in
 		dm500|dm500plus|dm600pvr|dm56x0|dm7000|dm7020|dm7025)
 			if test "$BOXTYPE" = "dreambox"; then
@@ -415,6 +432,13 @@ AC_ARG_WITH(boxmodel,
 			;;
 		ip200|ip250|ip350|ip400)
 			if test "$BOXTYPE" = "ipbox"; then
+				BOXMODEL="$withval"
+			else
+				AC_MSG_ERROR([unknown model $withval for boxtype $BOXTYPE])
+			fi
+			;;
+		ufs910|ufs912|ufs913|ufs922|atevio7500|fortis_hdbox|octagon1008)
+			if test "$BOXTYPE" = "duckbox"; then
 				BOXMODEL="$withval"
 			else
 				AC_MSG_ERROR([unknown model $withval for boxtype $BOXTYPE])
@@ -439,6 +463,7 @@ AM_CONDITIONAL(BOXTYPE_IPBOX, test "$BOXTYPE" = "ipbox")
 AM_CONDITIONAL(BOXTYPE_COOL, test "$BOXTYPE" = "coolstream")
 AM_CONDITIONAL(BOXTYPE_SPARK, test "$BOXTYPE" = "spark")
 AM_CONDITIONAL(BOXTYPE_GENERIC, test "$BOXTYPE" = "generic")
+AM_CONDITIONAL(BOXTYPE_DUCKBOX, test "$BOXTYPE" = "duckbox")
 
 AM_CONDITIONAL(BOXMODEL_DM500,test "$BOXMODEL" = "dm500")
 AM_CONDITIONAL(BOXMODEL_DM500PLUS,test "$BOXMODEL" = "dm500plus")
@@ -450,6 +475,16 @@ AM_CONDITIONAL(BOXMODEL_IP200,test "$BOXMODEL" = "ip200")
 AM_CONDITIONAL(BOXMODEL_IP250,test "$BOXMODEL" = "ip250")
 AM_CONDITIONAL(BOXMODEL_IP350,test "$BOXMODEL" = "ip350")
 AM_CONDITIONAL(BOXMODEL_IP400,test "$BOXMODEL" = "ip400")
+
+AM_CONDITIONAL(BOXMODEL_UFS910, test "$BOXMODEL" = "ufs910")
+AM_CONDITIONAL(BOXMODEL_UFS912,test "$BOXMODEL" = "ufs912")
+AM_CONDITIONAL(BOXMODEL_UFS913,test "$BOXMODEL" = "ufs913")
+AM_CONDITIONAL(BOXMODEL_UFS922,test "$BOXMODEL" = "ufs922")
+
+AM_CONDITIONAL(BOXMODEL_ATEVIO7500, test "$BOXMODEL" = "atevio7500")
+AM_CONDITIONAL(BOXMODEL_FORTIS_HDBOX,test "$BOXMODEL" = "fortis_hdbox")
+AM_CONDITIONAL(BOXMODEL_OCTAGON1008,test "$BOXMODEL" = "octagon1008")
+
 
 if test "$BOXTYPE" = "dbox2"; then
 	AC_DEFINE(HAVE_DBOX_HARDWARE, 1, [building for a dbox2])
@@ -467,6 +502,8 @@ elif test "$BOXTYPE" = "spark"; then
 	AC_DEFINE(HAVE_SPARK_HARDWARE, 1, [building for a goldenmedia 990 or edision pingulux])
 elif test "$BOXTYPE" = "generic"; then
 	AC_DEFINE(HAVE_GENERIC_HARDWARE, 1, [building for a generic device like a standard PC])
+elif test "$BOXTYPE" = "duckbox"; then
+	AC_DEFINE(HAVE_DUCKBOX, 1, [building for a duckbox])
 fi
 
 # TODO: do we need more defines?
@@ -480,6 +517,20 @@ elif test "$BOXMODEL" = "ip350"; then
 	AC_DEFINE(BOXMODEL_IP350, 1, [ipbox 350])
 elif test "$BOXMODEL" = "ip400"; then
 	AC_DEFINE(BOXMODEL_IP400, 1, [ipbox 400])
+elif test "$BOXMODEL" = "ufs910"; then
+	AC_DEFINE(BOXMODEL_UFS910, 1, [ufs910])
+elif test "$BOXMODEL" = "ufs912"; then
+	AC_DEFINE(BOXMODEL_UFS912, 1, [ufs912])
+elif test "$BOXMODEL" = "ufs913"; then
+	AC_DEFINE(BOXMODEL_UFS913, 1, [ufs913])
+elif test "$BOXMODEL" = "ufs922"; then
+	AC_DEFINE(BOXMODEL_UFS922, 1, [ufs922])
+elif test "$BOXMODEL" = "atevio7500"; then
+	AC_DEFINE(BOXMODEL_ATEVIO7500, 1, [atevio7500])
+elif test "$BOXMODEL" = "fortis_hdbox"; then
+	AC_DEFINE(BOXMODEL_FORTIS_HDBOX, 1, [fortis_hdbox])
+elif test "$BOXMODEL" = "octagon1008"; then
+	AC_DEFINE(BOXMODEL_OCTAGON1008, 1, [octagon1008])
 fi
 ])
 
