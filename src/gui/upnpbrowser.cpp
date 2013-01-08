@@ -1048,6 +1048,7 @@ void CUpnpBrowserGui::paintDevice()
 	::paintButtons(m_x, top, 0, 1, &RescanButton, m_width, m_buttonHeight);
 
 	clearItem2DetailsLine(); // clear it
+	m_frameBuffer->blit();
 }
 
 //------------------------------------------------------------------------
@@ -1168,6 +1169,7 @@ void CUpnpBrowserGui::paintItem(std::vector<UPnPEntry> *entry, unsigned int sele
 	top = m_y + (m_height - m_info_height - 2 * m_buttonHeight);
 	m_frameBuffer->paintBoxRel(m_x, top, m_width, m_buttonHeight+2, COL_INFOBAR_SHADOW_PLUS_1, RADIUS_LARGE, CORNER_BOTTOM);
 	::paintButtons(m_x, top, 0, 4, BrowseButtons, m_width, m_buttonHeight);
+	m_frameBuffer->blit();
 }
 
 
