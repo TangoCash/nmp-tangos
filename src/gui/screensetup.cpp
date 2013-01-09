@@ -172,7 +172,7 @@ int CScreenSetup::exec(CMenuTarget* parent, const std::string &)
 			}
 			case CRCInput::RC_down:
 			{
-				int max = (selected == 0 )? 200 : frameBuffer->getScreenHeight(true) - 1;
+				int max = (selected == 0 )? 200 : frameBuffer->getScreenHeight(true);
 				if (y_coord[selected] >= max)
 					y_coord[selected] = max;
 				else
@@ -198,7 +198,7 @@ int CScreenSetup::exec(CMenuTarget* parent, const std::string &)
 			}
 			case CRCInput::RC_right:
 			{
-				int max = (selected == 0) ? 200 : frameBuffer->getScreenWidth(true) - 1;
+				int max = (selected == 0) ? 200 : frameBuffer->getScreenWidth(true);
 				if (x_coord[selected] >= max)
 					x_coord[selected] = max;
 				else
