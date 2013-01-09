@@ -537,7 +537,7 @@ void CVFD::showVolume(const char vol, const bool /*perform_update*/)
                 break;
             }
             //dprintf(DEBUG_DEBUG,"CVFD::showVolume: vol %d - pp %d - fullblocks %d - mod %d - %s\n", vol, pp, j, i, VolumeBar);
-            ShowText(VolumeBar,true);
+            ShowText(VolumeBar);
 
             oldpp = pp;
         }
