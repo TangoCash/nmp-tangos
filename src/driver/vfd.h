@@ -83,13 +83,13 @@ class CVFD
 		bool				muted;
 		bool				showclock;
 		pthread_t			thrTime;
-#ifdef HAVE_DUCKBOX
+#ifdef HAVE_DUCKBOX_HARDWARE
 		pthread_t			thread_start_loop;
 #endif
 		int                             last_toggle_state_power;
 		bool				clearClock;
 		unsigned int                    timeout_cnt;
-		unsigned int                    switch_name_time_cnt;		
+		unsigned int                    switch_name_time_cnt;
 		int fd;
 		int brightness;
 		char text[256];
@@ -100,7 +100,7 @@ class CVFD
 
 		static void* TimeThread(void*);
 		void setlcdparameter(int dimm, int power);
-#ifndef HAVE_DUCKBOX
+#ifndef HAVE_DUCKBOX_HARDWARE
 		void setled(int led1, int led2);
 #endif
 	public:
@@ -108,7 +108,7 @@ class CVFD
 		~CVFD();
 		bool has_lcd;
 		void setlcdparameter(void);
-#ifndef HAVE_DUCKBOX
+#ifndef HAVE_DUCKBOX_HARDWARE
 		void setled(void);
 		void setled(bool on_off);
 #endif
@@ -152,7 +152,7 @@ class CVFD
 		void Unlock();
 		void Clear();
 		void ShowIcon(vfd_icon icon, bool show);
-#ifdef HAVE_DUCKBOX
+#ifdef HAVE_DUCKBOX_HARDWARE
 		void ClearIcons();
 		std::string getServicename(void) { return servicename; }
 #endif

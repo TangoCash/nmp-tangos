@@ -123,7 +123,7 @@ class CFrameBuffer
 		std::map<std::string, rawIcon> icon_cache;
 		int cache_size;
 		void * int_convertRGB2FB(unsigned char *rgbbuff, unsigned long x, unsigned long y, int transp, bool alpha);
-#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX
+#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
 		void blitRect(int x, int y, int width, int height, unsigned long color);
 		void blitIcon(int src_width, int src_height, int fb_x, int fb_y, int width, int height);
 #endif
@@ -143,7 +143,7 @@ class CFrameBuffer
 		void setupGXA(void);
 		#endif
 
-#if HAVE_DUCKBOX
+#if HAVE_DUCKBOX_HARDWARE
 		void init(const char * const fbDevice = "/dev/fb0");
 #else
 		void init(const char * const fbDevice = "/dev/fb/0");
@@ -158,10 +158,10 @@ class CFrameBuffer
 		fb_pixel_t * getBackBufferPointer() const;  // pointer to backbuffer
 		unsigned int getStride() const;             // size of a single line in the framebuffer (in bytes)
 		unsigned int getScreenWidth(bool real = false);
-		unsigned int getScreenHeight(bool real = false); 
+		unsigned int getScreenHeight(bool real = false);
 		unsigned int getScreenX();
 		unsigned int getScreenY();
-		
+
 		bool getActive() const;                     // is framebuffer active?
 		void setActive(bool enable);                     // is framebuffer active?
 
@@ -200,7 +200,7 @@ class CFrameBuffer
 
 		void getIconSize(const char * const filename, int* width, int *height);
 		/* h is the height of the target "window", if != 0 the icon gets centered in that window */
-		bool paintIcon (const std::string & filename, const int x, const int y, 
+		bool paintIcon (const std::string & filename, const int x, const int y,
 				const int h = 0, const unsigned char offset = 1, bool paint = true, bool paintBg = false, const fb_pixel_t colBg = 0);
 		bool paintIcon8(const std::string & filename, const int x, const int y, const unsigned char offset = 0);
 		void loadPal   (const std::string & filename, const unsigned char offset = 0, const unsigned char endidx = 255);
@@ -237,7 +237,7 @@ class CFrameBuffer
 		void add_gxa_sync_marker(void);
 		void waitForIdle(void);
 #else
-#if HAVE_TRIPLEDRAGON || HAVE_SPARK_HARDWARE || HAVE_DUCKBOX
+#if HAVE_TRIPLEDRAGON || HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
 		void waitForIdle(void);
 #else
 		inline void waitForIdle(void) {};
@@ -249,7 +249,7 @@ class CFrameBuffer
 		void blit2FB(void *fbbuff, uint32_t width, uint32_t height, uint32_t xoff, uint32_t yoff, uint32_t xp = 0, uint32_t yp = 0, bool transp = false);
 		bool blitToPrimary(unsigned int * data, int dx, int dy, int sw, int sh);
 
-#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX
+#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
 		void mark(int x, int y, int dx, int dy);
 		void blit(void);
 #elif HAVE_AZBOX_HARDWARE
@@ -261,7 +261,7 @@ class CFrameBuffer
 #endif
 		void paintMuteIcon(bool paint, int ax, int ay, int dx, int dy, bool paintFrame=true);
 
-		enum 
+		enum
 			{
 				TM_EMPTY  = 0,
 				TM_NONE   = 1,

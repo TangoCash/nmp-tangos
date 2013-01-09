@@ -140,7 +140,7 @@ class CRCInput
 #ifdef HAVE_SPARK_HARDWARE
 #define NUMBER_OF_EVENT_DEVICES 2
 #else
-#ifdef HAVE_DUCKBOX
+#ifdef HAVE_DUCKBOX_HARDWARE
 #define NUMBER_OF_EVENT_DEVICES 1
 #else
 #define NUMBER_OF_EVENT_DEVICES 1
@@ -194,14 +194,14 @@ class CRCInput
 			RC_plus		= KEY_VOLUMEUP,     /* /include/linux/input.h: #define KEY_VOLUMEUP		115   */
 			RC_standby	= KEY_POWER,	    /* /include/linux/input.h: #define KEY_POWER		116   */
 			RC_help		= KEY_HELP,	    /* /include/linux/input.h: #define KEY_HELP			138   */
-#ifdef HAVE_DUCKBOX
+#ifdef HAVE_DUCKBOX_HARDWARE
 			RC_home		= KEY_HOME,         /* /include/linux/input.h: #define KEY_HOME			102   */
 #else
 			RC_home		= KEY_EXIT,	    /* /include/linux/input.h: #define KEY_HOME			102   */
 #endif
 			RC_setup	= KEY_MENU,	    /* /include/linux/input.h: #define KEY_SETUP		141   */
-			RC_topleft	= KEY_TOPLEFT,	
-			RC_topright	= KEY_TOPRIGHT,	
+			RC_topleft	= KEY_TOPLEFT,
+			RC_topright	= KEY_TOPRIGHT,
 			RC_page_up	= KEY_PAGEUP,	    /* /include/linux/input.h: #define KEY_PAGEUP		104   */
 			RC_page_down	= KEY_PAGEDOWN,	    /* /include/linux/input.h: #define KEY_PAGEDOWN		109   */
 			RC_ok		= KEY_OK,	    /* /include/linux/input.h: #define KEY_OK			0x160 */ /* in patched input.h */

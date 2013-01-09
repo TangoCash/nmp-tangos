@@ -38,13 +38,13 @@
 #include <time.h>
 #include <unistd.h>
 #include <math.h>
-#include <sys/stat.h> 
+#include <sys/stat.h>
 
 #include <daemonc/remotecontrol.h>
 #include <cs_api.h>
 extern CRemoteControl * g_RemoteControl; /* neutrino.cpp */
 
-#ifdef HAVE_DUCKBOX
+#ifdef HAVE_DUCKBOX_HARDWARE
 #include <stropts.h>
 #define VFD_DEVICE "/dev/vfd"
 
@@ -155,7 +155,7 @@ CVFD::CVFD()
 #endif // VFD_UPDATE
 
 	has_lcd = 1;
-#ifndef HAVE_DUCKBOX
+#ifndef HAVE_DUCKBOX_HARDWARE
 	fd = open("/dev/display", O_RDONLY);
 	if(fd < 0) {
 		perror("/dev/display");
@@ -171,7 +171,7 @@ CVFD::CVFD()
 
 CVFD::~CVFD()
 {
-#ifndef HAVE_DUCKBOX
+#ifndef HAVE_DUCKBOX_HARDWARE
 	if(fd > 0){
 		close(fd);
 		fd = -1;
@@ -271,7 +271,7 @@ void CVFD::setlcdparameter(int dimm, const int power)
 	brightness = dimm;
 
 printf("CVFD::setlcdparameter dimm %d power %d\n", dimm, power);
-#ifndef HAVE_DUCKBOX
+#ifndef HAVE_DUCKBOX_HARDWARE
 	int ret = ioctl(fd, IOC_VFD_SET_BRIGHT, dimm);
 	if(ret < 0)
 		perror("IOC_VFD_SET_BRIGHT");
@@ -309,7 +309,7 @@ void CVFD::setlcdparameter(void)
 			last_toggle_state_power);
 }
 
-#ifndef HAVE_DUCKBOX
+#ifndef HAVE_DUCKBOX_HARDWARE
 void CVFD::setled(int led1, int led2){
 	int ret = -1;
 
@@ -417,7 +417,7 @@ void CVFD::showTime(bool force)
 		return;
 #endif
 	if(has_lcd && mode == MODE_SHUTDOWN) {
-#ifdef HAVE_DUCKBOX
+#ifdef HAVE_DUCKBOX_HARDWARE
 		ShowIcon(VFD_ICON_REC, false);
 #else
 		ShowIcon(VFD_ICON_CAM1, false);
@@ -447,7 +447,7 @@ void CVFD::showTime(bool force)
 		if(clearClock) {
 			clearClock = 0;
 			if(has_lcd)
-#ifdef HAVE_DUCKBOX
+#ifdef HAVE_DUCKBOX_HARDWARE
 				ShowIcon(VFD_ICON_REC, false);
 #else
 				ShowIcon(VFD_ICON_CAM1, false);
@@ -456,7 +456,7 @@ void CVFD::showTime(bool force)
 		} else {
 			clearClock = 1;
 			if(has_lcd)
-#ifdef HAVE_DUCKBOX
+#ifdef HAVE_DUCKBOX_HARDWARE
 				ShowIcon(VFD_ICON_REC, true);
 #else
 				ShowIcon(VFD_ICON_CAM1, true);
@@ -466,7 +466,7 @@ void CVFD::showTime(bool force)
 	} else if(clearClock || (recstatus != tmp_recstatus)) { // in case icon ON after record stopped
 		clearClock = 0;
 		if(has_lcd)
-#ifdef HAVE_DUCKBOX
+#ifdef HAVE_DUCKBOX_HARDWARE
 			ShowIcon(VFD_ICON_REC, false);
 #else
 			ShowIcon(VFD_ICON_CAM1, false);
@@ -478,7 +478,7 @@ void CVFD::showTime(bool force)
 
 void CVFD::showRCLock(int /*duration*/)
 {
-#ifdef HAVE_DUCKBOX
+#ifdef HAVE_DUCKBOX_HARDWARE
 	ShowText("<LOCKED>");
 #endif
 }
@@ -494,7 +494,7 @@ void CVFD::showVolume(const char vol, const bool /*perform_update*/)
 
 	volume = vol;
 	wake_up();
-#ifndef HAVE_DUCKBOX
+#ifndef HAVE_DUCKBOX_HARDWARE
 	ShowIcon(VFD_ICON_FRAME, true);
 #endif
 
@@ -526,7 +526,7 @@ void CVFD::showPercentOver(const unsigned char perc, const bool /*perform_update
 	if ((mode == MODE_TVRADIO) && !(g_settings.lcd_setting[SNeutrinoSettings::LCD_SHOW_VOLUME])) {
 		//if (g_settings.lcd_setting[SNeutrinoSettings::LCD_SHOW_VOLUME] == 0)
 		{
-#ifndef HAVE_DUCKBOX
+#ifndef HAVE_DUCKBOX_HARDWARE
 			ShowIcon(VFD_ICON_FRAME, true);
 #endif
 			int pp;
@@ -586,7 +586,7 @@ void CVFD::showAudioPlayMode(AUDIOMODES m)
 		case AUDIO_MODE_PLAY:
 			ShowIcon(VFD_ICON_PLAY, true);
 			ShowIcon(VFD_ICON_PAUSE, false);
-#ifdef HAVE_DUCKBOX
+#ifdef HAVE_DUCKBOX_HARDWARE
 			ShowIcon(VFD_ICON_FF, false);
 			ShowIcon(VFD_ICON_FR, false);
 #endif
@@ -594,7 +594,7 @@ void CVFD::showAudioPlayMode(AUDIOMODES m)
 		case AUDIO_MODE_STOP:
 			ShowIcon(VFD_ICON_PLAY, false);
 			ShowIcon(VFD_ICON_PAUSE, false);
-#ifdef HAVE_DUCKBOX
+#ifdef HAVE_DUCKBOX_HARDWARE
 			ShowIcon(VFD_ICON_FF, false);
 			ShowIcon(VFD_ICON_FR, false);
 #endif
@@ -602,19 +602,19 @@ void CVFD::showAudioPlayMode(AUDIOMODES m)
 		case AUDIO_MODE_PAUSE:
 			ShowIcon(VFD_ICON_PLAY, false);
 			ShowIcon(VFD_ICON_PAUSE, true);
-#ifdef HAVE_DUCKBOX
+#ifdef HAVE_DUCKBOX_HARDWARE
 			ShowIcon(VFD_ICON_FF, false);
 			ShowIcon(VFD_ICON_FR, false);
 #endif
 			break;
 		case AUDIO_MODE_FF:
-#ifdef HAVE_DUCKBOX
+#ifdef HAVE_DUCKBOX_HARDWARE
 			ShowIcon(VFD_ICON_FF, true);
 			ShowIcon(VFD_ICON_FR, false);
 #endif
 			break;
 		case AUDIO_MODE_REV:
-#ifdef HAVE_DUCKBOX
+#ifdef HAVE_DUCKBOX_HARDWARE
 			ShowIcon(VFD_ICON_FF, false);
 			ShowIcon(VFD_ICON_FR, true);
 #endif
@@ -735,7 +735,7 @@ void CVFD::setMode(const MODES m, const char * const title)
 #endif // VFD_UPDATE
 	}
 	wake_up();
-#ifndef HAVE_DUCKBOX
+#ifndef HAVE_DUCKBOX_HARDWARE
 	setled();
 #endif
 }
@@ -843,7 +843,7 @@ void CVFD::Unlock()
 void CVFD::Clear()
 {
 	if(!has_lcd) return;
-#ifndef HAVE_DUCKBOX
+#ifndef HAVE_DUCKBOX_HARDWARE
 	int ret = ioctl(fd, IOC_VFD_CLEAR_ALL, 0);
 	if(ret < 0)
 		perror("IOC_VFD_SET_TEXT");
@@ -862,7 +862,7 @@ void CVFD::Clear()
 
 void CVFD::ShowIcon(vfd_icon icon, bool show)
 {
-#ifndef HAVE_DUCKBOX
+#ifndef HAVE_DUCKBOX_HARDWARE
 	if(!has_lcd || fd < 0) return;
 //printf("CVFD::ShowIcon %s %x\n", show ? "show" : "hide", (int) icon);
 	int ret = ioctl(fd, show ? IOC_VFD_SET_ICON : IOC_VFD_CLEAR_ICON, icon);
@@ -883,7 +883,7 @@ void CVFD::ShowIcon(vfd_icon icon, bool show)
 #endif
 }
 
-#ifdef HAVE_DUCKBOX
+#ifdef HAVE_DUCKBOX_HARDWARE
 void CVFD::ClearIcons()
 {
 #if defined (BOXMODEL_ATEVIO7500)

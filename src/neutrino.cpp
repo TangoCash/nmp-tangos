@@ -641,7 +641,7 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	g_settings.channellist_extended		= configfile.getBool("channellist_extended"          , true);
 	g_settings.channellist_foot	= configfile.getInt32("channellist_foot"          , 1);//default next Event
 	g_settings.channellist_new_zap_mode = configfile.getInt32("channellist_new_zap_mode", 1);
-	g_settings.channellist_sort_mode  = configfile.getInt32("channellist_sort_mode", 0);//sort mode: alpha, freq, sat 
+	g_settings.channellist_sort_mode  = configfile.getInt32("channellist_sort_mode", 0);//sort mode: alpha, freq, sat
 
 	//screen configuration
 	g_settings.screen_xres = configfile.getInt32("screen_xres", 100);
@@ -758,7 +758,7 @@ int CNeutrinoApp::loadSetup(const char * fname)
 		g_settings.usermenu_text[button] = configfile.getString(txt1, "");
 
 		snprintf(txt1,80,"usermenu_tv_%s",usermenu_button_def[button]);
-		txt2 = configfile.getString(txt1,usermenu_default[button]);	
+		txt2 = configfile.getString(txt1,usermenu_default[button]);
 		txt2ptr = txt2.c_str();
 		for( int pos = 0; pos < SNeutrinoSettings::ITEM_MAX; pos++)
 		{
@@ -1299,7 +1299,7 @@ void CNeutrinoApp::channelsInit(bool bOnly)
 				TVsatList->deleteBouquet(tmp1);
 			if(!ri)
 				RADIOsatList->deleteBouquet(tmp2);
-			
+
 			TIMER_STOP("[neutrino] sat took");
 		}
 		/* new channels */
@@ -2146,18 +2146,18 @@ void CNeutrinoApp::RealRun(CMenuWidget &mainMenu)
 					else if( msg == (neutrino_msg_t) g_settings.key_subchannel_down )
 						g_RemoteControl->subChannelDown();
 					g_InfoViewer->showSubchan();
-				} 
+				}
 				else if ( msg == CRCInput::RC_left || msg == CRCInput::RC_right) {
 					if (g_settings.mode_left_right_key_tv == SNeutrinoSettings::VOLUME) {
 						g_volume->setVolume(msg, true);
-					} 
+					}
 					else if((g_settings.mode_left_right_key_tv == SNeutrinoSettings::VZAP)
 							|| (g_settings.mode_left_right_key_tv == SNeutrinoSettings::INFOBAR)) {
 						if(channelList->getSize()) {
 							showInfo();
 						}
-					} 
-				} 
+					}
+				}
 				else
 					quickZap( msg );
 			}
@@ -2225,7 +2225,7 @@ void CNeutrinoApp::RealRun(CMenuWidget &mainMenu)
 					StartSubtitles();
 				}
 					else
-						ShowHintUTF(LOCALE_MESSAGEBOX_INFO, g_Locale->getText(LOCALE_PERSONALIZE_MENUDISABLEDHINT),450, 10);				
+						ShowHintUTF(LOCALE_MESSAGEBOX_INFO, g_Locale->getText(LOCALE_PERSONALIZE_MENUDISABLEDHINT),450, 10);
 			}
 			else if ((msg == CRCInput::RC_audio) && !g_settings.audio_run_player)
 			{
@@ -2242,7 +2242,7 @@ void CNeutrinoApp::RealRun(CMenuWidget &mainMenu)
 					StartSubtitles();
 				}
 				else
-					ShowHintUTF(LOCALE_MESSAGEBOX_INFO, g_Locale->getText(LOCALE_PERSONALIZE_MENUDISABLEDHINT),450, 10);				
+					ShowHintUTF(LOCALE_MESSAGEBOX_INFO, g_Locale->getText(LOCALE_PERSONALIZE_MENUDISABLEDHINT),450, 10);
 			}
 			else if( msg == CRCInput::RC_yellow ) {       // NVODs
 				if (g_settings.personalize[SNeutrinoSettings::P_MAIN_YELLOW_BUTTON] == CPersonalizeGui::PERSONALIZE_ACTIVE_MODE_ENABLED)
@@ -2252,7 +2252,7 @@ void CNeutrinoApp::RealRun(CMenuWidget &mainMenu)
 					StartSubtitles();
 				}
 				else
-					ShowHintUTF(LOCALE_MESSAGEBOX_INFO, g_Locale->getText(LOCALE_PERSONALIZE_MENUDISABLEDHINT),450, 10);				
+					ShowHintUTF(LOCALE_MESSAGEBOX_INFO, g_Locale->getText(LOCALE_PERSONALIZE_MENUDISABLEDHINT),450, 10);
 			}
 			else if( (msg == CRCInput::RC_green) || ((msg == CRCInput::RC_audio) && !g_settings.audio_run_player) )
 			{
@@ -2661,7 +2661,7 @@ _repeat:
 		}
 		recordingstatus = data;
 		autoshift = CRecordManager::getInstance()->TimeshiftOnly();
-#if HAVE_DUCKBOX
+#if HAVE_DUCKBOX_HARDWARE
 		CVFD::getInstance()->ShowIcon(VFD_ICON_REC, recordingstatus != 0);
 #else
 		CVFD::getInstance()->ShowIcon(VFD_ICON_CAM1, recordingstatus != 0);
@@ -2706,7 +2706,7 @@ _repeat:
 	else if( msg == NeutrinoMessages::ZAPTO) {
 		CTimerd::EventInfo * eventinfo = (CTimerd::EventInfo *) data;
 		if (eventinfo->channel_id != CZapit::getInstance()->GetCurrentChannelID()){
-			if( (recordingstatus == 0) || (recordingstatus && CRecordManager::getInstance()->TimeshiftOnly()) ||  (recordingstatus && CFEManager::getInstance()->haveFreeFrontend()) || 
+			if( (recordingstatus == 0) || (recordingstatus && CRecordManager::getInstance()->TimeshiftOnly()) ||  (recordingstatus && CFEManager::getInstance()->haveFreeFrontend()) ||
 			    (recordingstatus && channelList->SameTP(eventinfo->channel_id)) ) {
 				bool isTVMode = CServiceManager::getInstance()->IsChannelTVChannel(eventinfo->channel_id);
 
@@ -2758,7 +2758,7 @@ _repeat:
 		if( g_settings.recording_zap_on_announce && (mode != mode_standby) && (eventinfo->channel_id != CZapit::getInstance()->GetCurrentChannelID())) {
 			CRecordManager::getInstance()->StopAutoRecord();
 			bool recordingStatus = CRecordManager::getInstance()->RecordingStatus();
-			if ( !recordingStatus || (recordingStatus && CRecordManager::getInstance()->TimeshiftOnly()) ||  (recordingStatus && CFEManager::getInstance()->haveFreeFrontend()) || 
+			if ( !recordingStatus || (recordingStatus && CRecordManager::getInstance()->TimeshiftOnly()) ||  (recordingStatus && CFEManager::getInstance()->haveFreeFrontend()) ||
 			    (recordingStatus && channelList->SameTP(eventinfo->channel_id)) ){
 				dvbsub_stop();
 				t_channel_id channel_id=eventinfo->channel_id;
@@ -2958,7 +2958,7 @@ _repeat:
 	}
 	if ((msg >= CRCInput::RC_WithData) && (msg < CRCInput::RC_WithData + 0x10000000))
 		delete [] (unsigned char*) data;
-	
+
 	return messages_return::unhandled;
 }
 
@@ -3161,9 +3161,9 @@ void CNeutrinoApp::tvMode( bool rezap )
 			delete g_Radiotext;
 			g_Radiotext = NULL;
 		}
-		
+
 		videoDecoder->StopPicture();
-#if HAVE_DUCKBOX
+#if HAVE_DUCKBOX_HARDWARE
 		CVFD::getInstance()->ShowIcon(VFD_ICON_MUSIC, false);
 #else
 		CVFD::getInstance()->ShowIcon(VFD_ICON_RADIO, false);
@@ -3175,7 +3175,7 @@ void CNeutrinoApp::tvMode( bool rezap )
 	g_volume->Init();
 
 	CVFD::getInstance()->setMode(CVFD::MODE_TVRADIO);
-#if HAVE_DUCKBOX
+#if HAVE_DUCKBOX_HARDWARE
 	CVFD::getInstance()->ShowIcon(VFD_ICON_MUSIC, false);
 #else
 	CVFD::getInstance()->ShowIcon(VFD_ICON_TV, true);
@@ -3404,7 +3404,7 @@ void CNeutrinoApp::radioMode( bool rezap)
 	//printf("radioMode: rezap %s\n", rezap ? "yes" : "no");
 	INFO("rezap %d current mode %d", rezap, mode);
 	if (mode == mode_tv) {
-#if HAVE_DUCKBOX
+#if HAVE_DUCKBOX_HARDWARE
 		CVFD::getInstance()->ShowIcon(VFD_ICON_MUSIC, true);
 #else
 		CVFD::getInstance()->ShowIcon(VFD_ICON_TV, false);
@@ -3413,7 +3413,7 @@ void CNeutrinoApp::radioMode( bool rezap)
 	}
 	g_InfoViewer->setUpdateTimer(LCD_UPDATE_TIME_RADIO_MODE);
 	CVFD::getInstance()->setMode(CVFD::MODE_TVRADIO);
-#if HAVE_DUCKBOX
+#if HAVE_DUCKBOX_HARDWARE
 	CVFD::getInstance()->ShowIcon(VFD_ICON_MUSIC, true);
 #else
 	CVFD::getInstance()->ShowIcon(VFD_ICON_RADIO, true);
@@ -3480,7 +3480,7 @@ int CNeutrinoApp::exec(CMenuTarget* parent, const std::string & actionKey)
 {
 	//	printf("ac: %s\n", actionKey.c_str());
 	int returnval = menu_return::RETURN_REPAINT;
-	
+
 	if(actionKey == "help_recording") {
 		ShowLocalizedMessage(LOCALE_SETTINGS_HELP, LOCALE_RECORDINGMENU_HELP, CMessageBox::mbrBack, CMessageBox::mbBack);
 	}
@@ -3529,7 +3529,7 @@ int CNeutrinoApp::exec(CMenuTarget* parent, const std::string & actionKey)
 			tuxtxt_init();
 		} else
 			tuxtxt_close();
-		
+
 		//g_Sectionsd->setEventsAreOldInMinutes((unsigned short) (g_settings.epg_old_hours*60));
 		//g_Sectionsd->setHoursToCache((unsigned short) (g_settings.epg_cache_days*24));
 
@@ -3538,7 +3538,7 @@ int CNeutrinoApp::exec(CMenuTarget* parent, const std::string & actionKey)
 	}
 	else if(actionKey=="recording") {
 		setupRecordingDevice();
-	}	
+	}
 	else if(actionKey=="reloadplugins") {
 		CHintBox * hintBox = new CHintBox(LOCALE_MESSAGEBOX_INFO, g_Locale->getText(LOCALE_SERVICEMENU_GETPLUGINS_HINT));
 		hintBox->paint();

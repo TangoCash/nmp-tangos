@@ -65,7 +65,7 @@
  * TODO: what if another input device is present? */
 const char * const RC_EVENT_DEVICE[NUMBER_OF_EVENT_DEVICES] = {"/dev/input/nevis_ir", "/dev/input/event0"};
 #else
-#if HAVE_DUCKBOX
+#if HAVE_DUCKBOX_HARDWARE
 const char * const RC_EVENT_DEVICE[NUMBER_OF_EVENT_DEVICES] = {"/dev/input/event0"};
 #else
 //const char * const RC_EVENT_DEVICE[NUMBER_OF_EVENT_DEVICES] = {"/dev/input/nevis_ir", "/dev/input/event0"};
@@ -298,7 +298,7 @@ void CRCInput::restartInput()
 	open();
 	input_stopped = false;
 }
-#if 0 
+#if 0
 //never used
 int CRCInput::messageLoop( bool anyKeyCancels, int timeout )
 {
@@ -827,7 +827,7 @@ void CRCInput::getMsg_us(neutrino_msg_t * msg, neutrino_msg_data_t * data, uint6
 								printf("[neutrino] event INITID_CONTROLD - unknown eventID 0x%x\n",  emsg.eventID );
 						}
 					}
-					else 
+					else
 #endif
 					if ( emsg.initiatorID == CEventServer::INITID_HTTPD )
 					{
@@ -899,7 +899,7 @@ void CRCInput::getMsg_us(neutrino_msg_t * msg, neutrino_msg_data_t * data, uint6
 								if (dvbtime) {
 									printf("[neutrino] timeset event. ");
 									time_t difftime = dvbtime - ltv.tv_sec;
-									if (abs(difftime) > 120) 
+									if (abs(difftime) > 120)
 									{
 										printf("difference is %ld s, stepping...\n", difftime);
 										if (stime(&dvbtime))
@@ -1618,7 +1618,7 @@ void CRCInput::close_click()
 void CRCInput::open_click()
 {
 }
-#if 0 
+#if 0
 //never used
 void CRCInput::reset_dsp(int /*rate*/)
 {
@@ -1693,7 +1693,7 @@ void CRCInput::set_rc_hw(void)
 			ir_protocol = IR_PROTOCOL_NECE;
 			ir_address  = 0xFF80;
 	}
-	
+
 	set_rc_hw(ir_protocol, ir_address);
 }
 #else

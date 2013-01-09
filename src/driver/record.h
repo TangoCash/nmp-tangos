@@ -42,7 +42,7 @@
 #endif
 #if HAVE_TRIPLEDRAGON || USE_STB_HAL
 #include <record_td.h>
-#if HAVE_DUCKBOX
+#if HAVE_DUCKBOX_HARDWARE
 #include <driver/vfd.h>
 #else
 #include <driver/lcdd.h>
@@ -115,7 +115,7 @@ class CRecordInstance
 		bool SaveXml();
 		record_error_msg_t Start(CZapitChannel * channel);
 		void WaitRecMsg(time_t StartTime, time_t WaitTime);
-	public:		
+	public:
 		CRecordInstance(const CTimerd::RecordingInfo * const eventinfo, std::string &dir, bool timeshift = false, bool stream_vtxt_pid = false, bool stream_pmt_pid = false);
 		~CRecordInstance();
 
@@ -186,7 +186,7 @@ class CRecordManager : public CMenuTarget /*, public CChangeObserver*/
 			RECMODE_TSHIFT = 2,
 			RECMODE_REC_TSHIFT = 3
 		};
-		
+
 		CRecordManager();
 		~CRecordManager();
 
@@ -194,8 +194,8 @@ class CRecordManager : public CMenuTarget /*, public CChangeObserver*/
 
 		bool Record(const CTimerd::RecordingInfo * const eventinfo, const char * dir = NULL, bool timeshift = false);
 		bool Record(const t_channel_id channel_id, const char * dir = NULL, bool timeshift = false);
-		bool Stop(const t_channel_id channel_id); 
-		bool Stop(const CTimerd::RecordingStopInfo * recinfo); 
+		bool Stop(const t_channel_id channel_id);
+		bool Stop(const CTimerd::RecordingStopInfo * recinfo);
 		bool IsRecording(const CTimerd::RecordingStopInfo * recinfo);
 		bool Update(const t_channel_id channel_id);
 		bool ShowMenu(void);
