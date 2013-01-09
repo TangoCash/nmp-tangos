@@ -517,7 +517,7 @@ bool CFanControlNotifier::changeNotify(const neutrino_locale_t, void * data)
 	setSpeed(speed);
 	return false;
 }
-#elseif HAVE_DUCKBOX_HARDWARE
+#elif HAVE_DUCKBOX_HARDWARE
 void CFanControlNotifier::setSpeed(unsigned int speed)
 {
 	int cfd;
