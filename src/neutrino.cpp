@@ -3719,6 +3719,9 @@ void sighandler (int signum)
 
 int main(int argc, char **argv)
 {
+#if HAVE_DUCKBOX_HARDWARE /* build date */
+	printf(">>> Neutrino (compiled %s %s) <<<\n", __DATE__, __TIME__);
+#endif
 	setDebugLevel(DEBUG_NORMAL);
 	signal(SIGTERM, sighandler);	// TODO: consider the following
 	signal(SIGINT, sighandler);	// NOTES: The effects of signal() in a multithreaded
