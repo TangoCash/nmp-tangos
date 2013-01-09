@@ -501,6 +501,47 @@ void CVFD::showVolume(const char vol, const bool /*perform_update*/)
 #endif
 
 	if ((mode == MODE_TVRADIO) && g_settings.lcd_setting[SNeutrinoSettings::LCD_SHOW_VOLUME]) {
+#if HAVE_DUCKBOX_HARDWARE
+        int pp = (int) round((double) vol / (double) 2);
+        int i;
+        if(oldpp != pp)
+        {
+            int j = pp / 5;
+            // v-lines 0-5 = {0x10,0x11,0x12,0x13,0x14,0x15}
+            char c1[1] = {0x11};
+            char c2[1] = {0x12};
+            char c3[1] = {0x13};
+            char c4[1] = {0x14};
+            char c5[1] = {0x15};
+            char VolumeBar[15];
+            memset (VolumeBar,0,sizeof VolumeBar);
+            strcpy(VolumeBar,"   ");
+            for(i=1; i <= j; i++)
+            {
+                strncat(VolumeBar,c5,1);
+            }
+            i = pp % 5;
+            switch (i)
+            {
+            case 1:
+                strncat(VolumeBar,c1,1);
+                break;
+            case 2:
+                strncat(VolumeBar,c2,1);
+                break;
+            case 3:
+                strncat(VolumeBar,c3,1);
+                break;
+            case 4:
+                strncat(VolumeBar,c4,1);
+                break;
+            }
+            //dprintf(DEBUG_DEBUG,"CVFD::showVolume: vol %d - pp %d - fullblocks %d - mod %d - %s\n", vol, pp, j, i, VolumeBar);
+            ShowText(VolumeBar,true);
+
+            oldpp = pp;
+        }
+#else
 		int pp = (vol * 8 + 50) / 100;
 		if(pp > 8) pp = 8;
 
@@ -518,6 +559,7 @@ printf("CVFD::showVolume: %d, bar %d\n", (int) vol, pp);
 			}
 			oldpp = pp;
 		}
+#endif
 	}
 }
 
