@@ -1344,7 +1344,11 @@ CZapitChannel* CChannelList::getPrevNextChannel(int key, unsigned int &sl)
 		size_t cactive = sl;
 
 		printf("CChannelList::getPrevNextChannel: selected %d total %d active bouquet %d total %d\n", (int)cactive, (int)chanlist.size(), bactive, bsize);
+#if HAVE_DUCKBOX_HARDWARE
+		if ((key == g_settings.key_quickzap_down) || (key == CRCInput::RC_page_down)) {
+#else
 		if ((key == g_settings.key_quickzap_down) || (key == CRCInput::RC_left)) {
+#endif
 			if(cactive == 0) {
 				if(bactive == 0)
 					bactive = bsize - 1;
@@ -1355,7 +1359,11 @@ CZapitChannel* CChannelList::getPrevNextChannel(int key, unsigned int &sl)
 			} else 
 				--cactive;
 		}
+#if HAVE_DUCKBOX_HARDWARE
+		else if ((key == g_settings.key_quickzap_up) || (key == CRCInput::RC_page_up)) {
+#else
 		else if ((key == g_settings.key_quickzap_up) || (key == CRCInput::RC_right)) {
+#endif
 			cactive++;
 			if(cactive >= chanlist.size()) {
 				bactive = (bactive + 1)  % bsize;

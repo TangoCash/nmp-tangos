@@ -2091,7 +2091,11 @@ void CNeutrinoApp::RealRun(CMenuWidget &mainMenu)
 				g_EventList->exec(live_channel_id, channelList->getActiveChannelName());
 				StartSubtitles();
 			}
+#if HAVE_DUCKBOX_HARDWARE
+			else if( ( msg == (neutrino_msg_t) g_settings.key_quickzap_up ) || ( msg == (neutrino_msg_t) g_settings.key_quickzap_down ) || ( msg == CRCInput::RC_page_up ) || ( msg == CRCInput::RC_page_down ) )
+#else
 			else if( ( msg == (neutrino_msg_t) g_settings.key_quickzap_up ) || ( msg == (neutrino_msg_t) g_settings.key_quickzap_down ) )
+#endif
 			{
 				//quickzap
 				quickZap(msg);
