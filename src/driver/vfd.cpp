@@ -283,6 +283,7 @@ printf("CVFD::setlcdparameter dimm %d power %d\n", dimm, power);
 	data.start = setting & 0x07;
 	data.length = 0;
 	write_to_vfd(VFDBRIGHTNESS, &data);
+#if !defined (BOXMODEL_UFS912) && !defined (BOXMODEL_UFS913) && !defined (BOXMODEL_OCTAGON1008)
 // Power on/off
 	if (power) {
 		data.start = 0x01;
@@ -291,6 +292,7 @@ printf("CVFD::setlcdparameter dimm %d power %d\n", dimm, power);
 	}
 	data.length = 0;
 	write_to_vfd(VFDDISPLAYWRITEONOFF, &data, true);
+#endif
 #if defined (BOXMODEL_FORTIS_HDBOX)
 // Brightness VFDPWRLED - HDBox only
 	unsigned char pwrled = PWRLEDBRIGHTNESS;
