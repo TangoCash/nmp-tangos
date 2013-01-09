@@ -27,6 +27,7 @@
 #include <zapit/settings.h> /* CAMD_UDS_NAME         */
 #include <zapit/getservices.h>
 #include <zapit/debug.h>
+#include <zapit/femanager.h>
 
 #include <ca_cs.h>
 
@@ -207,15 +208,19 @@ bool CCamManager::SetMode(t_channel_id channel_id, enum runmode mode, bool start
 
 	switch(mode) {
 		case PLAY:
-			source = DEMUX_SOURCE_0;
-			demux = LIVE_DEMUX;
+			//source = DEMUX_SOURCE_0;
+			source = CFEManager::getInstance()->getLiveFE()->getNumber();
+			//demux = LIVE_DEMUX;
+			demux = LIVE_DEMUX + source;
 			break;
 		case RECORD:
-			source = channel->getRecordDemux(); //DEMUX_SOURCE_0;//FIXME
+			//source = channel->getRecordDemux(); //DEMUX_SOURCE_0;//FIXME
+			source = CFEManager::getInstance()->getLiveFE()->getNumber();
 			demux = channel->getRecordDemux(); //RECORD_DEMUX;//FIXME
 			break;
 		case STREAM:
-			source = DEMUX_SOURCE_0;
+			//source = DEMUX_SOURCE_0;
+			source = CFEManager::getInstance()->getLiveFE()->getNumber();
 			demux = STREAM_DEMUX;//FIXME
 			break;
 	}
