@@ -360,7 +360,7 @@ long CNetAdapter::mac_addr_sys ( u_char *addr) //only for function getMacAddr()
 	int s, i;
 	int ok = 0;
 	s = socket(AF_INET, SOCK_DGRAM, 0);
-	if (s==-1)
+	if (s==-1) 
 	{
 		return -1;
 	}
@@ -372,11 +372,11 @@ long CNetAdapter::mac_addr_sys ( u_char *addr) //only for function getMacAddr()
 	for (i = ifc.ifc_len / sizeof(struct ifreq); --i >= 0; IFR++)
 	{
 		strcpy(ifr.ifr_name, IFR->ifr_name);
-		if (ioctl(s, SIOCGIFFLAGS, &ifr) == 0)
+		if (ioctl(s, SIOCGIFFLAGS, &ifr) == 0) 
 		{
-			if (! (ifr.ifr_flags & IFF_LOOPBACK))
+			if (! (ifr.ifr_flags & IFF_LOOPBACK)) 
 			{
-				if (ioctl(s, SIOCGIFHWADDR, &ifr) == 0)
+				if (ioctl(s, SIOCGIFHWADDR, &ifr) == 0) 
 				{
 					ok = 1;
 					break;
@@ -529,23 +529,23 @@ void CFanControlNotifier::setSpeed(unsigned int speed)
 		return;
 	}
 
-    switch (speed)
-    {
-    case 1:
-        write(cfd,"115",3);
-        break;
-    case 2:
-        write(cfd,"130",3);
-        break;
-    case 3:
-        write(cfd,"145",3);
-        break;
-    case 4:
-        write(cfd,"160",3);
-        break;
-    case 5:
-        write(cfd,"170",3);
-    }
+	switch (speed)
+	{
+	case 1:
+		write(cfd,"115",3);
+		break;
+	case 2:
+		write(cfd,"130",3);
+		break;
+	case 3:
+		write(cfd,"145",3);
+		break;
+	case 4:
+		write(cfd,"160",3);
+		break;
+	case 5:
+		write(cfd,"170",3);
+	}
 
 	close(cfd);
 }

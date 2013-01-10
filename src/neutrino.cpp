@@ -1902,12 +1902,12 @@ fprintf(stderr, "[neutrino start] %d  -> %5ld ms\n", __LINE__, time_monotonic_ms
 	g_info.has_fan = (cs_get_revision()  < 8 && g_info.delivery_system == DVB_S);
 #endif
 #if HAVE_DUCKBOX_HARDWARE
-    FILE* rd = fopen("/proc/stb/fan/fan_ctrl", "r");
-    if (rd!=NULL)
-    {
-        g_info.has_fan = true;
-        fclose(rd);
-    }
+	FILE* rd = fopen("/proc/stb/fan/fan_ctrl", "r");
+	if (rd!=NULL)
+	{
+		g_info.has_fan = true;
+		fclose(rd);
+	}
 #endif
 	dprintf(DEBUG_NORMAL, "g_info.has_fan: %d\n", g_info.has_fan);
 	//fan speed

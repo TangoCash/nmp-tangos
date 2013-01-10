@@ -38,7 +38,7 @@
 #include <time.h>
 #include <unistd.h>
 #include <math.h>
-#include <sys/stat.h>
+#include <sys/stat.h> 
 
 #include <daemonc/remotecontrol.h>
 #include <cs_api.h>
@@ -502,49 +502,49 @@ void CVFD::showVolume(const char vol, const bool /*perform_update*/)
 
 	if ((mode == MODE_TVRADIO) && g_settings.lcd_setting[SNeutrinoSettings::LCD_SHOW_VOLUME]) {
 #if HAVE_DUCKBOX_HARDWARE
-        int pp = (int) round((double) vol / (double) 2);
-        int i;
-        if(oldpp != pp)
-        {
-            unsigned char speaker[5] = {0x1C, 0x1C, 0x1C, 0x3E, 0x7F}; // speaker symbol
-            writeCG(0, speaker);
+		int pp = (int) round((double) vol / (double) 2);
+		int i;
+		if(oldpp != pp)
+		{
+			unsigned char speaker[5] = {0x1C, 0x1C, 0x1C, 0x3E, 0x7F}; // speaker symbol
+			writeCG(0, speaker);
 
-            int j = pp / 5;
-            // v-lines 0-5 = {0x10,0x11,0x12,0x13,0x14,0x15}
-            char c1[1] = {0x11};
-            char c2[1] = {0x12};
-            char c3[1] = {0x13};
-            char c4[1] = {0x14};
-            char c5[1] = {0x15};
-            char VolumeBar[15];
-            memset (VolumeBar,0,sizeof VolumeBar);
-            char act[2] = {0x01, 0x20};
-            strncat(VolumeBar, act, 2);
-            for(i=1; i <= j; i++)
-            {
-                strncat(VolumeBar,c5,1);
-            }
-            i = pp % 5;
-            switch (i)
-            {
-            case 1:
-                strncat(VolumeBar,c1,1);
-                break;
-            case 2:
-                strncat(VolumeBar,c2,1);
-                break;
-            case 3:
-                strncat(VolumeBar,c3,1);
-                break;
-            case 4:
-                strncat(VolumeBar,c4,1);
-                break;
-            }
-            //dprintf(DEBUG_DEBUG,"CVFD::showVolume: vol %d - pp %d - fullblocks %d - mod %d - %s\n", vol, pp, j, i, VolumeBar);
-            ShowText(VolumeBar);
+			int j = pp / 5;
+			// v-lines 0-5 = {0x10,0x11,0x12,0x13,0x14,0x15}
+			char c1[1] = {0x11};
+			char c2[1] = {0x12};
+			char c3[1] = {0x13};
+			char c4[1] = {0x14};
+			char c5[1] = {0x15};
+			char VolumeBar[15];
+			memset (VolumeBar,0,sizeof VolumeBar);
+			char act[2] = {0x01, 0x20};
+			strncat(VolumeBar, act, 2);
+			for(i=1; i <= j; i++)
+			{
+				strncat(VolumeBar,c5,1);
+			}
+			i = pp % 5;
+			switch (i)
+			{
+				case 1:
+					strncat(VolumeBar,c1,1);
+					break;
+				case 2:
+					strncat(VolumeBar,c2,1);
+					break;
+				case 3:
+					strncat(VolumeBar,c3,1);
+					break;
+				case 4:
+					strncat(VolumeBar,c4,1);
+				break;
+			}
+			//dprintf(DEBUG_DEBUG,"CVFD::showVolume: vol %d - pp %d - fullblocks %d - mod %d - %s\n", vol, pp, j, i, VolumeBar);
+			ShowText(VolumeBar);
 
-            oldpp = pp;
-        }
+			oldpp = pp;
+		}
 #else
 		int pp = (vol * 8 + 50) / 100;
 		if(pp > 8) pp = 8;

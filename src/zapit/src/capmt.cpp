@@ -208,19 +208,28 @@ bool CCamManager::SetMode(t_channel_id channel_id, enum runmode mode, bool start
 
 	switch(mode) {
 		case PLAY:
-			//source = DEMUX_SOURCE_0;
+#if HAVE_DUCKBOX_HARDWARE
 			source = CFEManager::getInstance()->getLiveFE()->getNumber();
-			//demux = LIVE_DEMUX;
 			demux = LIVE_DEMUX + source;
+#else
+			source = DEMUX_SOURCE_0;
+			demux = LIVE_DEMUX;
+#endif
 			break;
 		case RECORD:
-			//source = channel->getRecordDemux(); //DEMUX_SOURCE_0;//FIXME
+#if HAVE_DUCKBOX_HARDWARE
 			source = CFEManager::getInstance()->getLiveFE()->getNumber();
+#else
+			source = channel->getRecordDemux(); //DEMUX_SOURCE_0;//FIXME
+#endif
 			demux = channel->getRecordDemux(); //RECORD_DEMUX;//FIXME
 			break;
 		case STREAM:
-			//source = DEMUX_SOURCE_0;
+#if HAVE_DUCKBOX_HARDWARE
 			source = CFEManager::getInstance()->getLiveFE()->getNumber();
+#else
+			source = DEMUX_SOURCE_0;
+endif
 			demux = STREAM_DEMUX;//FIXME
 			break;
 	}
