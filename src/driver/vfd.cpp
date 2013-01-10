@@ -506,6 +506,9 @@ void CVFD::showVolume(const char vol, const bool /*perform_update*/)
         int i;
         if(oldpp != pp)
         {
+            unsigned char speaker[5] = {0x1C, 0x1C, 0x1C, 0x3E, 0x7F}; // speaker symbol
+            writeCG(0, speaker);
+
             int j = pp / 5;
             // v-lines 0-5 = {0x10,0x11,0x12,0x13,0x14,0x15}
             char c1[1] = {0x11};
@@ -515,7 +518,8 @@ void CVFD::showVolume(const char vol, const bool /*perform_update*/)
             char c5[1] = {0x15};
             char VolumeBar[15];
             memset (VolumeBar,0,sizeof VolumeBar);
-            strcpy(VolumeBar,"   ");
+            char act[2] = {0x01, 0x20};
+            strncat(VolumeBar, act, 2);
             for(i=1; i <= j; i++)
             {
                 strncat(VolumeBar,c5,1);
