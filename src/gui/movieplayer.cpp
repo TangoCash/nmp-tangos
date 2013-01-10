@@ -202,7 +202,7 @@ int CMoviePlayerGui::exec(CMenuTarget * parent, const std::string & actionKey)
 	puts("[movieplayer.cpp] executing " MOVIEPLAYER_START_SCRIPT ".");
 	if (my_system(MOVIEPLAYER_START_SCRIPT) != 0)
 		perror(MOVIEPLAYER_START_SCRIPT " failed");
-
+	
 	isMovieBrowser = false;
 	isBookmark = false;
 	timeshift = 0;
@@ -371,7 +371,7 @@ bool CMoviePlayerGui::SelectFile()
 			}
 		} else
 			menu_ret = moviebrowser->getMenuRet();
-	}
+	} 
 	else { // filebrowser
 		if (filebrowser->exec(Path_local.c_str()) == true) {
 			Path_local = filebrowser->getCurrentDir();
@@ -821,7 +821,7 @@ void CMoviePlayerGui::addAudioFormat(int count, std::string &apidtitle, bool fil
 			enabled = false;
 			break;
 		case 3: /*MP2*/
-			apidtitle.append("( MP2)");
+			apidtitle.append(" (MP2)");
 			break;
 		case 4: /*MP3*/
 			apidtitle.append(" (MP3)");
@@ -831,7 +831,7 @@ void CMoviePlayerGui::addAudioFormat(int count, std::string &apidtitle, bool fil
 			break;
 		case 6: /*DTS*/
 			apidtitle.append(" (DTS)");
-#ifndef HAVE_SPARK_HARDWARE
+#if !defined HAVE_SPARK_HARDWARE && !defined HAVE_DUCKBOX_HARDWARE
 			enabled = false;
 #endif
 			break;
@@ -852,7 +852,7 @@ void CMoviePlayerGui::getCurrentAudioName( bool file_player, std::string &audion
 	}
 	bool dumm = true;
 	for (unsigned int count = 0; count < numpida; count++) {
-
+	  
 		if(currentapid == apids[count]){
 			if(!file_player){
 				getAudioName(apids[count], audioname);
@@ -1102,7 +1102,7 @@ void CMoviePlayerGui::handleMovieBrowser(neutrino_msg_t msg, int position)
 			jump_not_until = (position / 1000) + 10; // avoid bookmark jumping for the next 10 seconds, , TODO:  might be moved to another key
 		}
 		return;
-	}
+	} 
 	else if (msg == (neutrino_msg_t) g_settings.mpkey_bookmark) {
 		if (newComHintBox.isPainted() == true) {
 			// yes, let's get the end pos of the jump forward
@@ -1162,7 +1162,7 @@ void CMoviePlayerGui::handleMovieBrowser(neutrino_msg_t msg, int position)
 					DisplayErrorMessage(g_Locale->getText(LOCALE_MOVIEPLAYER_TOOMANYBOOKMARKS));	// UTF-8
 				}
 				cSelectedMenuBookStart[0].selected = false;	// clear for next bookmark menu
-			} else
+			} else 
 #endif
 			if (cSelectedMenuBookStart[1].selected == true) {
 				/* Moviebrowser plain bookmark */
