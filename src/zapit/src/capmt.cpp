@@ -229,7 +229,7 @@ bool CCamManager::SetMode(t_channel_id channel_id, enum runmode mode, bool start
 			source = CFEManager::getInstance()->getLiveFE()->getNumber();
 #else
 			source = DEMUX_SOURCE_0;
-endif
+#endif
 			demux = STREAM_DEMUX;//FIXME
 			break;
 	}
