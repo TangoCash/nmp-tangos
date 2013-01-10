@@ -461,6 +461,11 @@ void CMoviePlayerGui::PlayFile(void)
 	} else {
 		playstate = CMoviePlayerGui::PLAY;
 		CVFD::getInstance()->ShowIcon(VFD_ICON_PLAY, true);
+#if HAVE_DUCKBOX_HARDWARE
+		CVFD::getInstance()->ShowIcon(VFD_ICON_FR, false);
+		CVFD::getInstance()->ShowIcon(VFD_ICON_FF, false);
+		CVFD::getInstance()->ShowIcon(VFD_ICON_PAUSE, false);
+#endif
 		if(timeshift) {
 			first_start_timeshift = true;
 			startposition = -1;
@@ -479,8 +484,15 @@ void CMoviePlayerGui::PlayFile(void)
 			if(timeshift == 3) {
 				startposition = duration;
 			} else {
-				if(g_settings.timeshift_pause)
+				if(g_settings.timeshift_pause) {
 					playstate = CMoviePlayerGui::PAUSE;
+#if HAVE_DUCKBOX_HARDWARE
+					CVFD::getInstance()->ShowIcon(VFD_ICON_PLAY, false);
+					CVFD::getInstance()->ShowIcon(VFD_ICON_FR, false);
+					CVFD::getInstance()->ShowIcon(VFD_ICON_FF, false);
+					CVFD::getInstance()->ShowIcon(VFD_ICON_PAUSE, true);
+#endif
+				}
 				if(timeshift == 1)
 					startposition = 0;
 				else
@@ -547,10 +559,17 @@ void CMoviePlayerGui::PlayFile(void)
 			if (playstate > CMoviePlayerGui::PLAY) {
 				update_lcd = true;
 				playstate = CMoviePlayerGui::PLAY;
+#if HAVE_DUCKBOX_HARDWARE
+				CVFD::getInstance()->ShowIcon(VFD_ICON_PLAY, true);
+				CVFD::getInstance()->ShowIcon(VFD_ICON_PAUSE, false);
+				CVFD::getInstance()->ShowIcon(VFD_ICON_FR, false);
+				CVFD::getInstance()->ShowIcon(VFD_ICON_FF, false);
+#endif
 				speed = 1;
 				playback->SetSpeed(speed);
-				if (!timeshift)
+				if (!timeshift) {
 					callInfoViewer(duration, position);
+				}
 			}
 			if (time_forced) {
 				time_forced = false;
@@ -561,11 +580,23 @@ void CMoviePlayerGui::PlayFile(void)
 			if (playstate == CMoviePlayerGui::PAUSE) {
 				playstate = CMoviePlayerGui::PLAY;
 				//CVFD::getInstance()->ShowIcon(VFD_ICON_PAUSE, false);
+#if HAVE_DUCKBOX_HARDWARE
+				CVFD::getInstance()->ShowIcon(VFD_ICON_PLAY, true);
+				CVFD::getInstance()->ShowIcon(VFD_ICON_PAUSE, false);
+				CVFD::getInstance()->ShowIcon(VFD_ICON_FR, false);
+				CVFD::getInstance()->ShowIcon(VFD_ICON_FF, false);
+#endif
 				speed = 1;
 				playback->SetSpeed(speed);
 			} else {
 				playstate = CMoviePlayerGui::PAUSE;
 				//CVFD::getInstance()->ShowIcon(VFD_ICON_PAUSE, true);
+#if HAVE_DUCKBOX_HARDWARE
+				CVFD::getInstance()->ShowIcon(VFD_ICON_PLAY, false);
+				CVFD::getInstance()->ShowIcon(VFD_ICON_PAUSE, true);
+				CVFD::getInstance()->ShowIcon(VFD_ICON_FR, false);
+				CVFD::getInstance()->ShowIcon(VFD_ICON_FF, false);
+#endif
 				speed = 0;
 				playback->SetSpeed(speed);
 			}
@@ -584,10 +615,22 @@ void CMoviePlayerGui::PlayFile(void)
 
 			if (msg == (neutrino_msg_t) g_settings.mpkey_rewind) {
 				speed = (speed >= 0) ? -1 : speed - 1;
+#if HAVE_DUCKBOX_HARDWARE
+				CVFD::getInstance()->ShowIcon(VFD_ICON_PLAY, true);
+				CVFD::getInstance()->ShowIcon(VFD_ICON_PAUSE, false);
+				CVFD::getInstance()->ShowIcon(VFD_ICON_FR, true);
+				CVFD::getInstance()->ShowIcon(VFD_ICON_FF, false);
+#endif
 				playstate = CMoviePlayerGui::REW;
 			} else {
 				speed = (speed <= 0) ? 2 : speed + 1;
+#if HAVE_DUCKBOX_HARDWARE
+				CVFD::getInstance()->ShowIcon(VFD_ICON_PLAY, true);
+				CVFD::getInstance()->ShowIcon(VFD_ICON_PAUSE, false);
+				CVFD::getInstance()->ShowIcon(VFD_ICON_FR, false);
+				CVFD::getInstance()->ShowIcon(VFD_ICON_FF, true);
 				playstate = CMoviePlayerGui::FF;
+#endif
 			}
 			/* if paused, playback->SetSpeed() start slow motion */
 			playback->SetSpeed(speed);
@@ -718,6 +761,10 @@ void CMoviePlayerGui::PlayFile(void)
 	CVFD::getInstance()->ShowIcon(VFD_ICON_PLAY, false);
 	CVFD::getInstance()->ShowIcon(VFD_ICON_PAUSE, false);
 
+#if HAVE_DUCKBOX_HARDWARE
+	CVFD::getInstance()->ShowIcon(VFD_ICON_FR, false);
+	CVFD::getInstance()->ShowIcon(VFD_ICON_FF, false);
+#endif
 	restoreNeutrino();
 
 	if (g_settings.mode_clock)
