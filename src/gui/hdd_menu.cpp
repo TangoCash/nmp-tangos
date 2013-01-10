@@ -58,6 +58,10 @@
 #include <mymenu.h>
 #include <driver/screen_max.h>
 
+#if HAVE_DUCKBOX_HARDWARE
+#include <driver/vfd.h>
+#endif
+
 #define HDD_NOISE_OPTION_COUNT 4
 const CMenuOptionChooser::keyval HDD_NOISE_OPTIONS[HDD_NOISE_OPTION_COUNT] =
 {
@@ -277,6 +281,9 @@ int CHDDDestExec::exec(CMenuTarget* /*parent*/, const std::string&)
 {
 	char M_opt[50],S_opt[50];
 	char opt[100];
+	char str[256];
+	FILE * f;
+	int removable = 0;
 	struct dirent **namelist;
 	int n = scandir("/sys/block", &namelist, my_filter, alphasort);
 
@@ -291,17 +298,41 @@ int CHDDDestExec::exec(CMenuTarget* /*parent*/, const std::string&)
 			hdparm_link = true;
 
 	for (int i = 0; i < n; i++) {
-		printf("CHDDDestExec: noise %d sleep %d /dev/%s\n",
-			 g_settings.hdd_noise, g_settings.hdd_sleep, namelist[i]->d_name);
-		snprintf(S_opt, sizeof(S_opt),"-S%d", g_settings.hdd_sleep);
-		snprintf(opt, sizeof(opt),"/dev/%s",namelist[i]->d_name);
+		removable = 0;
+		printf("CHDDDestExec: checking /sys/block/%s\n", namelist[i]->d_name);
 
-		if(hdparm_link){
-			//hdparm -M is not included in busybox hdparm!
-			my_system(hdparm, S_opt, opt);
-		}else{
-			snprintf(M_opt, sizeof(M_opt),"-M%d", g_settings.hdd_noise);
-			my_system(hdparm, M_opt, S_opt, opt);
+		sprintf(str, "/sys/block/%s/removable", namelist[i]->d_name);
+		f = fopen(str, "r");
+		if (!f) {
+			printf("Can't open %s\n", str);
+			continue;
+		}
+		fscanf(f, "%d", &removable);
+		fclose(f);
+
+		if (removable) {
+			// show USB icon, no need for hdparm
+#if HAVE_DUCKBOX_HARDWARE
+			CVFD::getInstance()->ShowIcon(VFD_ICON_USB, true);
+#endif
+			printf("CHDDDestExec: /dev/%s is not a hdd, no sleep needed\n", namelist[i]->d_name);
+		} else {
+			//show HDD icon and set hdparm for all hdd's
+#if HAVE_DUCKBOX_HARDWARE
+			CVFD::getInstance()->ShowIcon(VFD_ICON_HDD, true);
+#endif
+			printf("CHDDDestExec: noise %d sleep %d /dev/%s\n",
+				g_settings.hdd_noise, g_settings.hdd_sleep, namelist[i]->d_name);
+			snprintf(S_opt, sizeof(S_opt),"-S%d", g_settings.hdd_sleep);
+			snprintf(opt, sizeof(opt),"/dev/%s",namelist[i]->d_name);
+
+			if(hdparm_link) {
+				//hdparm -M is not included in busybox hdparm!
+				my_system(hdparm, S_opt, opt);
+			} else {
+				snprintf(M_opt, sizeof(M_opt),"-M%d", g_settings.hdd_noise);
+				my_system(hdparm, M_opt, S_opt, opt);
+			}
 		}
 		free(namelist[i]);
 	}
