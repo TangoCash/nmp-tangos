@@ -85,6 +85,15 @@ AC_ARG_ENABLE(freesatepg,
 	[  --enable-freesatepg                  enable Freesat EPG code (experimental)],
 	[AC_DEFINE(ENABLE_FREESATEPG,1,[enable Freesat EPG code])])
 
+AC_ARG_ENABLE(graphlcd,
+	[  --enable-graphlcd                    enable GraphLCD support],
+	[AC_DEFINE(ENABLE_GRAPHLCD,1,[enable GraphLCD support])])
+
+AM_CONDITIONAL(ENABLE_GRAPHLCD,test "$enable_graphlcd" = "yes")
+if test "$enable_graphlcd" = "yes"; then
+	AC_DEFINE(ENABLE_GRAPHLCD,1,[include GraphLCD support])
+fi
+
 AC_ARG_ENABLE(giflib,
 	AS_HELP_STRING(--enable-giflib,use giflib instead of libungif),
 	,[enable_giflib=no])

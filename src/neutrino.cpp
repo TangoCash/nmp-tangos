@@ -104,6 +104,9 @@
 #include <system/setting_helpers.h>
 #include <system/settings.h>
 #include <system/helpers.h>
+#ifdef ENABLE_GRAPHLCD
+#include <driver/nglcd.h>
+#endif
 
 #include <timerdclient/timerdmsg.h>
 
@@ -269,6 +272,10 @@ const lcd_setting_struct_t lcd_setting[SNeutrinoSettings::LCD_SETTING_COUNT] =
 	{"lcd_deepbrightness"   , DEFAULT_VFD_STANDBYBRIGHTNESS }
 #if HAVE_TRIPLEDRAGON || USE_STB_HAL
 	,{ "lcd_epgmode"        , 0 /*DEFAULT_LCD_EPGMODE*/ }
+#endif
+#ifdef ENABLE_GRAPHLCD
+	,{"lcd_displaymode"      , DEFAULT_LCD_DISPLAYMODE    }
+	,{"lcd_standbydisplaymode", DEFAULT_LCD_DISPLAYMODE   }
 #endif
 };
 
@@ -517,6 +524,25 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	g_settings.infobar_Text_red = configfile.getInt32( "infobar_Text_red", 0x64 );
 	g_settings.infobar_Text_green = configfile.getInt32( "infobar_Text_green", 0x64 );
 	g_settings.infobar_Text_blue = configfile.getInt32( "infobar_Text_blue", 0x64 );
+
+#ifdef ENABLE_GRAPHLCD
+	g_settings.glcd_enable = configfile.getInt32("glcd_enable", 0);
+	g_settings.glcd_color_fg = configfile.getInt32("glcd_color_fg", GLCD::cColor::White);
+	g_settings.glcd_color_bg = configfile.getInt32("glcd_color_bg", GLCD::cColor::Black);
+	g_settings.glcd_color_bar = configfile.getInt32("glcd_color_bar", GLCD::cColor::Red);
+	g_settings.glcd_percent_channel = configfile.getInt32("glcd_percent_channel", 20);
+	g_settings.glcd_percent_epg = configfile.getInt32("glcd_percent_epg", 13);
+	g_settings.glcd_percent_bar = configfile.getInt32("glcd_percent_bar", 6);
+	g_settings.glcd_percent_time = configfile.getInt32("glcd_percent_time", 37);
+	g_settings.glcd_percent_time_standby = configfile.getInt32("glcd_percent_time_standby", 50);
+	g_settings.glcd_percent_logo = configfile.getInt32("glcd_percent_logo", 55);
+	g_settings.glcd_time_in_standby = configfile.getInt32("glcd_time_in_standby", 1);
+	g_settings.glcd_show_logo = configfile.getInt32("glcd_show_logo", 1);
+	g_settings.glcd_font = configfile.getString("glcd_font", FONTDIR "/neutrino.ttf");
+	g_settings.glcd_brightness = configfile.getInt32("glcd_brightness", 100);
+	g_settings.glcd_brightness_standby = configfile.getInt32("glcd_brightness_standby", 60);
+	g_settings.glcd_scroll_speed = configfile.getInt32("glcd_scroll_speed", 8);
+#endif
 
 	//personalize
 	strcpy( g_settings.personalize_pincode, configfile.getString( "personalize_pincode", "0000" ).c_str() );
@@ -978,6 +1004,25 @@ void CNeutrinoApp::saveSetup(const char * fname)
 	configfile.setInt32( "infobar_Text_red", g_settings.infobar_Text_red );
 	configfile.setInt32( "infobar_Text_green", g_settings.infobar_Text_green );
 	configfile.setInt32( "infobar_Text_blue", g_settings.infobar_Text_blue );
+
+#ifdef ENABLE_GRAPHLCD
+	configfile.setInt32("glcd_enable", g_settings.glcd_enable);
+	configfile.setInt32("glcd_color_fg", g_settings.glcd_color_fg);
+	configfile.setInt32("glcd_color_bg", g_settings.glcd_color_bg);
+	configfile.setInt32("glcd_color_bar", g_settings.glcd_color_bar);
+	configfile.setInt32("glcd_percent_channel", g_settings.glcd_percent_channel);
+	configfile.setInt32("glcd_percent_epg", g_settings.glcd_percent_epg);
+	configfile.setInt32("glcd_percent_bar", g_settings.glcd_percent_bar);
+	configfile.setInt32("glcd_percent_time", g_settings.glcd_percent_time);
+	configfile.setInt32("glcd_percent_time_standby", g_settings.glcd_percent_time_standby);
+	configfile.setInt32("glcd_percent_logo", g_settings.glcd_percent_logo);
+	configfile.setInt32("glcd_time_in_standby", g_settings.glcd_time_in_standby);
+	configfile.setInt32("glcd_show_logo", g_settings.glcd_show_logo);
+	configfile.setString("glcd_font", g_settings.glcd_font);
+	configfile.setInt32("glcd_brightness", g_settings.glcd_brightness);
+	configfile.setInt32("glcd_brightness_standby", g_settings.glcd_brightness_standby);
+	configfile.setInt32("glcd_scroll_speed", g_settings.glcd_scroll_speed);
+#endif
 
 	//personalize
 	configfile.setString("personalize_pincode", g_settings.personalize_pincode);
@@ -1784,6 +1829,10 @@ void wake_up(long &wakeup)
 	}
 }
 
+#if HAVE_DUCKBOX_HARDWARE
+extern bool timer_wakeup;//timermanager.cpp
+#endif
+
 int CNeutrinoApp::run(int argc, char **argv)
 {
 time_t starttime = time_monotonic_ms();
@@ -1827,6 +1876,10 @@ fprintf(stderr, "[neutrino start] %d  -> %5ld ms\n", __LINE__, time_monotonic_ms
 	CVFD::getInstance()->Clear();
 	CVFD::getInstance()->ShowText(g_Locale->getText(LOCALE_NEUTRINO_STARTING));
 fprintf(stderr, "[neutrino start] %d  -> %5ld ms\n", __LINE__, time_monotonic_ms() - starttime);
+
+#ifdef ENABLE_GRAPHLCD
+	nGLCD::getInstance();
+#endif
 
 	/* set service manager options before starting zapit */
 	CServiceManager::getInstance()->KeepNumbers(g_settings.keep_channel_numbers);
@@ -2313,6 +2366,12 @@ void CNeutrinoApp::RealRun(CMenuWidget &mainMenu)
 				if(show_info && channelList->getSize()) {
 					showInfo();
 				}
+#ifdef ENABLE_GRAPHLCD
+				if (msg == NeutrinoMessages::EVT_CURRENTNEXT_EPG)
+					nGLCD::Update();
+			} else if (msg == NeutrinoMessages::EVT_CURRENTNEXT_EPG) {
+				nGLCD::Update();
+#endif
 			}
 			else if (msg == CRCInput::RC_timer)
 			{
@@ -2357,6 +2416,9 @@ int CNeutrinoApp::handleMsg(const neutrino_msg_t _msg, neutrino_msg_data_t data)
 		if(g_settings.audio_AnalogMode < 0 || g_settings.audio_AnalogMode > 2)
 			g_settings.audio_AnalogMode = 0;
 
+#ifdef ENABLE_GRAPHLCD
+		nGLCD::Update();
+#endif
 		g_RCInput->killTimer(scrambled_timer);
 
 		scrambled_timer = g_RCInput->addTimer(10*1000*1000, true);
@@ -3117,6 +3179,13 @@ void CNeutrinoApp::ExitRun(const bool /*write_si*/, int retcode)
 			delete CVFD::getInstance();
 			delete SHTDCNT::getInstance();
 			stop_video();
+#if HAVE_DUCKBOX_HARDWARE
+			if (retcode == 1) {
+#ifdef ENABLE_GRAPHLCD
+				nGLCD::SetBrightness(0);
+#endif
+			}
+#endif
 
 			printf("[neutrino] This is the end. exiting with code %d\n", retcode);
 			Cleanup();
@@ -3281,6 +3350,9 @@ void CNeutrinoApp::standbyMode( bool bOnOff, bool fromDeepStandby )
 	lockStandbyCall = true;
 
 	if( bOnOff ) {
+#ifdef ENABLE_GRAPHLCD
+		nGLCD::StandbyMode(true);
+#endif
 		CVFD::getInstance()->ShowText("standby...        ");
 		if( mode == mode_scart ) {
 			//g_Controld->setScartMode( 0 );
@@ -3357,6 +3429,14 @@ void CNeutrinoApp::standbyMode( bool bOnOff, bool fromDeepStandby )
 		videoDecoder->Standby(false);
 		CSectionsdClient::CurrentNextInfo dummy;
 		g_InfoViewer->getEPG(0, dummy);
+
+#if HAVE_DUCKBOX_HARDWARE
+		if (!timer_wakeup) {
+#ifdef ENABLE_GRAPHLCD
+			nGLCD::StandbyMode(false);
+#endif
+		}
+#endif
 
 		if(init_cec_setting){
 			//init cec settings
@@ -3654,6 +3734,10 @@ void stop_daemons(bool stopall)
 	dvbsub_close();
 	tuxtxt_stop();
 	tuxtxt_close();
+
+#ifdef ENABLE_GRAPHLCD
+	nGLCD::Exit();
+#endif
 
 	if (g_Radiotext) {
 		delete g_Radiotext;

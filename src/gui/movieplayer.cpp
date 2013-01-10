@@ -42,6 +42,9 @@
 #endif
 #include <driver/volume.h>
 #include <system/helpers.h>
+#ifdef ENABLE_GRAPHLCD
+#include <driver/nglcd.h>
+#endif
 
 #include <unistd.h>
 #include <stdlib.h>

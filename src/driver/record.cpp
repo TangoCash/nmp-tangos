@@ -51,6 +51,9 @@
 
 
 #include <driver/record.h>
+#ifdef ENABLE_GRAPHLCD
+#include <driver/nglcd.h>
+#endif
 #include <driver/streamts.h>
 #include <zapit/capmt.h>
 #include <zapit/channel.h>
@@ -1685,6 +1688,9 @@ bool CRecordManager::doGuiRecord()
 		}
 	} else {
 		int recording_id = 0;
+#ifdef ENABLE_GRAPHLCD
+		nGLCD::Update();
+#endif
 		mutex.lock();
 		CRecordInstance * inst = FindInstance(live_channel_id);
 		if(inst)
@@ -1710,6 +1716,9 @@ bool CRecordManager::changeNotify(const neutrino_locale_t OptionName, void * /*d
 			if(recordingstatus)
 				ret = true;
 			recordingstatus = 0;
+#ifdef ENABLE_GRAPHLCD
+			nGLCD::Update();
+#endif
 		}
 	}
 	return ret;

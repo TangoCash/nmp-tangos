@@ -35,6 +35,9 @@
 
 
 #include "vfd_setup.h"
+#ifdef ENABLE_GRAPHLCD
+#include "glcdsetup.h"
+#endif
 
 #include <global.h>
 #include <neutrino.h>
@@ -113,6 +116,11 @@ int CVfdSetup::showSetup()
 	CMenuWidget *vfds = new CMenuWidget(LOCALE_MAINMENU_SETTINGS, NEUTRINO_ICON_LCD, width, MN_WIDGET_ID_VFDSETUP);
 	vfds->addIntroItems(LOCALE_LCDMENU_HEAD);
 
+#ifdef ENABLE_GRAPHLCD
+	GLCD_Menu *glcdMenu = new GLCD_Menu();
+	vfds->addItem(new CMenuForwarder(LOCALE_GLCD_HEAD, true, NULL, glcdMenu, NULL, CRCInput::RC_blue, NEUTRINO_ICON_BUTTON_BLUE));
+#endif
+
 	//vfd brightness menu
 	CMenuWidget lcd_sliders(LOCALE_LCDMENU_HEAD, NEUTRINO_ICON_LCD,width, MN_WIDGET_ID_VFDSETUP_LCD_SLIDERS);
 	showBrightnessSetup(&lcd_sliders);
@@ -144,6 +152,9 @@ int CVfdSetup::showSetup()
 
 	int res = vfds->exec(NULL, "");
 
+#ifdef ENABLE_GRAPHLCD
+	delete glcdMenu;
+#endif
 	delete vfds;
 	return res;
 }

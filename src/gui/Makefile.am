@@ -110,6 +110,11 @@ libneutrino_gui_a_SOURCES = \
 	videosettings.cpp \
 	zapit_setup.cpp
 
+if ENABLE_GRAPHLCD
+libneutrino_gui_a_SOURCES += \
+	glcdsetup.cpp
+endif
+
 libneutrino_gui2_a_SOURCES = \
 	cam_menu.cpp \
 	color.cpp \

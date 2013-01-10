@@ -107,6 +107,10 @@ else
 neutrino_LDADD += -lungif
 endif
 
+if ENABLE_GRAPHLCD
+neutrino_LDADD += -lglcddrivers -lglcdgraphics
+endif
+
 if ENABLE_UPNP
 neutrino_LDADD += \
 	$(top_builddir)/lib/libupnpclient/libtuxbox-upnpclient.a

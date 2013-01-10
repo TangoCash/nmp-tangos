@@ -141,6 +141,25 @@ struct SNeutrinoSettings
 	std::string network_ntprefresh;
 	int network_ntpenable;
 	char ifname[10];
+#ifdef ENABLE_GRAPHLCD
+	int glcd_enable;
+	uint32_t glcd_color_fg;
+	uint32_t glcd_color_bg;
+	uint32_t glcd_color_bar;
+	std::string glcd_font;
+	int glcd_percent_channel;
+	int glcd_percent_epg;
+	int glcd_percent_bar;
+	int glcd_percent_time;
+	int glcd_percent_time_standby;
+	int glcd_percent_logo;
+	int glcd_mirror_osd;
+	int glcd_time_in_standby;
+	int glcd_show_logo;
+	int glcd_brightness;
+	int glcd_brightness_standby;
+	int glcd_scroll_speed;
+#endif
 	
 	//personalize
 	enum PERSONALIZE_SETTINGS  //settings.h
@@ -508,6 +527,10 @@ struct SNeutrinoSettings
 #if HAVE_TRIPLEDRAGON || USE_STB_HAL
 		LCD_EPGMODE            ,
 #endif
+#ifdef ENABLE_GRAPHLCD
+		LCD_DISPLAYMODE,
+		LCD_STANDBY_DISPLAYMODE,
+#endif
 		LCD_SETTING_COUNT
 	};
 	int lcd_setting[LCD_SETTING_COUNT];
@@ -638,6 +661,13 @@ const time_settings_struct_t timing_setting[SNeutrinoSettings::TIMING_SETTING_CO
 #define DEFAULT_LCD_INVERSE			0x00
 #define DEFAULT_LCD_AUTODIMM			0x00
 #define DEFAULT_LCD_SHOW_VOLUME			0x01
+#ifdef ENABLE_GRAPHLCD
+#define LCD_DISPLAYMODE_OFF			0
+#define LCD_DISPLAYMODE_ON			1
+#define LCD_DISPLAYMODE_TIMEONLY		2
+#define LCD_DISPLAYMODE_TIMEOFF			3
+#define DEFAULT_LCD_DISPLAYMODE			LCD_DISPLAYMODE_ON
+#endif
 
 #define CORNER_RADIUS_LARGE             11
 #define CORNER_RADIUS_MID               7

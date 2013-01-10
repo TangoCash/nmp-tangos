@@ -37,6 +37,11 @@ libneutrino_driver_a_SOURCES = \
 	volume.cpp
 #	screenshot.cpp
 
+if ENABLE_GRAPHLCD
+libneutrino_driver_a_SOURCES += \
+	nglcd.cpp
+endif
+
 if BOXTYPE_GENERIC
 libneutrino_driver_a_SOURCES += \
 	glthread.cpp
