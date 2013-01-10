@@ -2693,6 +2693,9 @@ _repeat:
 				g_CamHandler->exec(NULL, "ca_ci_reset1");
 			}
 		}
+#if HAVE_DUCKBOX_HARDWARE
+		CVFD::getInstance()->ShowIcon(VFD_ICON_REC, true);
+#endif
 		CRecordManager::getInstance()->Record((CTimerd::RecordingInfo *) data);
 		autoshift = CRecordManager::getInstance()->TimeshiftOnly();
 
@@ -2700,6 +2703,9 @@ _repeat:
 		return messages_return::handled | messages_return::cancel_all;
 	}
 	else if( msg == NeutrinoMessages::RECORD_STOP) {
+#if HAVE_DUCKBOX_HARDWARE
+		CVFD::getInstance()->ShowIcon(VFD_ICON_REC, false);
+#endif
 		CTimerd::RecordingStopInfo* recinfo = (CTimerd::RecordingStopInfo*)data;
 		printf("NeutrinoMessages::RECORD_STOP: eventID %d channel_id %" PRIx64 "\n", recinfo->eventID, recinfo->channel_id);
 		CRecordManager::getInstance()->Stop(recinfo);
