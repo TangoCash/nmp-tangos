@@ -48,7 +48,7 @@ extern CRemoteControl * g_RemoteControl; /* neutrino.cpp */
 #include <stropts.h>
 #define VFD_DEVICE "/dev/vfd"
 
-#ifdef BOXMODEL_OCTAGON1008
+#if defined (BOXMODEL_OCTAGON1008)
 	#define VFDLENGTH 8
 #elif defined (BOXMODEL_FORTIS_HDBOX)
 	extern int PWRLEDBRIGHTNESS;
@@ -898,9 +898,9 @@ void CVFD::Clear()
 	else
 		text[0] = 0;
 #else
-#if defined(BOXMODEL_OCTAGON1008)
+#if defined (BOXMODEL_OCTAGON1008)
 	ShowText("        ");
-#elif defined(BOXMODEL_FORTIS_HDBOX) || defined (BOXMODEL_ATEVIO7500)
+#elif defined (BOXMODEL_FORTIS_HDBOX) || defined (BOXMODEL_ATEVIO7500)
 	ShowText("            ");
 #else
 	ShowText("                ");
@@ -938,7 +938,7 @@ void CVFD::ClearIcons()
 	return;
 #endif
 	for (int id = 0x10; id < VFD_ICON_MAX; id++) {
-#if defined(BOXMODEL_OCTAGON1008) || defined(BOXMODEL_FORTIS_HDBOX)
+#if defined (BOXMODEL_OCTAGON1008) || defined(BOXMODEL_FORTIS_HDBOX)
 		if (id != 0x16)
 #else
 		if (id != 0x10 && id != 0x12)
