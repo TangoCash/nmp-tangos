@@ -28,7 +28,7 @@
 #define KEY_TTZOOM	KEY_FN_2
 #define KEY_REVEAL	KEY_FN_D
 
-#ifdef HAVE_SPARK_HARDWARE
+#if defined HAVE_SPARK_HARDWARE || defined HAVE_DUCKBOX_HARDWARE
 #define MARK_FB(a, b, c, d) if (p == lfb) CFrameBuffer::getInstance()->mark(a, b, (a) + (c), (b) + (d))
 #else
 #define MARK_FB(a, b, c, d)
@@ -5623,7 +5623,7 @@ void CopyBB2FB()
 {
 	unsigned char *src, *dst, *topsrc;
 	int fillcolor, i, screenwidth, swtmp;
-#ifdef HAVE_SPARK_HARDWARE
+#if defined HAVE_SPARK_HARDWARE || defined HAVE_DUCKBOX_HARDWARE
 	CFrameBuffer *f = CFrameBuffer::getInstance();
 #endif
 
@@ -5646,7 +5646,7 @@ void CopyBB2FB()
 		if (ioctl(fb, FBIOPAN_DISPLAY, &var_screeninfo) == -1)
 			perror("TuxTxt <FBIOPAN_DISPLAY>");
 #else
-#ifdef HAVE_SPARK_HARDWARE
+#if defined HAVE_SPARK_HARDWARE || defined HAVE_DUCKBOX_HARDWARE
 		f->blit2FB(lbb, var_screeninfo.xres, var_screeninfo.yres, 0, 0, 0, 0, true);
 		f->blit();
 #else
@@ -5697,7 +5697,7 @@ void CopyBB2FB()
 	if (screenmode == 1)
 	{
 		screenwidth = ( TV43STARTX ) * 4;
-#ifdef HAVE_SPARK_HARDWARE
+#if defined HAVE_SPARK_HARDWARE || defined HAVE_DUCKBOX_HARDWARE
 		int cx = var_screeninfo.xres - TV43STARTX;	/* x start */
 		int cw = TV43STARTX;				/* width */
 		int cy = StartY;
@@ -5746,7 +5746,7 @@ void CopyBB2FB()
 			memmove(dst + fix_screeninfo.line_length*(fontheight+i)+swtmp*4, bgra[fillcolor], 4);
 		}
 	}
-#ifdef HAVE_SPARK_HARDWARE
+#if defined HAVE_SPARK_HARDWARE || defined HAVE_DUCKBOX_HARDWARE
 	f->mark(0, 0, var_screeninfo.xres, var_screeninfo.yres);
 	f->blit();
 #endif

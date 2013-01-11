@@ -282,7 +282,7 @@ const lcd_setting_struct_t lcd_setting[SNeutrinoSettings::LCD_SETTING_COUNT] =
 /**************************************************************************************
 *          CNeutrinoApp -  loadSetup, load the application-settings                   *
 **************************************************************************************/
-#if HAVE_TRIPLEDRAGON || HAVE_SPARK_HARDWARE || HAVE_GENERIC_HARDWARE
+#if HAVE_TRIPLEDRAGON || HAVE_SPARK_HARDWARE || HAVE_GENERIC_HARDWARE || HAVE_DUCKBOX_HARDWARE
 #define DEFAULT_X_START_SD	32
 #define DEFAULT_Y_START_SD	26
 #define DEFAULT_X_END_SD	694
@@ -685,7 +685,7 @@ int CNeutrinoApp::loadSetup(const char * fname)
 #if HAVE_TRIPLEDRAGON
 	g_settings.screen_preset = 0; /* does not make sense to have two configurations for that... */
 #endif
-#if HAVE_SPARK_HARDWARE || HAVE_AZBOX_HARDWARE
+#if HAVE_SPARK_HARDWARE || HAVE_AZBOX_HARDWARE || HAVE_DUCKBOX_HARDWARE
 	g_settings.screen_preset = 1; /* spark is now always using 1280x720 framebuffer */
 #endif
 	g_settings.screen_StartX = g_settings.screen_preset ? g_settings.screen_StartX_lcd : g_settings.screen_StartX_crt;

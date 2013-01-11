@@ -208,7 +208,7 @@ bool CCamManager::SetMode(t_channel_id channel_id, enum runmode mode, bool start
 
 	switch(mode) {
 		case PLAY:
-#if HAVE_DUCKBOX_HARDWARE
+#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
 			source = CFEManager::getInstance()->getLiveFE()->getNumber();
 			demux = LIVE_DEMUX + source;
 #else
@@ -217,7 +217,7 @@ bool CCamManager::SetMode(t_channel_id channel_id, enum runmode mode, bool start
 #endif
 			break;
 		case RECORD:
-#if HAVE_DUCKBOX_HARDWARE
+#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
 			source = CFEManager::getInstance()->getLiveFE()->getNumber();
 #else
 			source = channel->getRecordDemux(); //DEMUX_SOURCE_0;//FIXME
@@ -225,7 +225,7 @@ bool CCamManager::SetMode(t_channel_id channel_id, enum runmode mode, bool start
 			demux = channel->getRecordDemux(); //RECORD_DEMUX;//FIXME
 			break;
 		case STREAM:
-#if HAVE_DUCKBOX_HARDWARE
+#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
 			source = CFEManager::getInstance()->getLiveFE()->getNumber();
 #else
 			source = DEMUX_SOURCE_0;
