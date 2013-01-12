@@ -126,13 +126,18 @@ static void writeCG (unsigned char adress, unsigned char pixeldata[5])
 static void ShowNormalText(const char * str)
 {
 	int ws = 0; // needed whitespace for centering
-	int i = strlen(str);
-	if (i > VFDLENGTH) i = VFDLENGTH;
 	struct vfd_ioctl_data data;
-	memset(data.data, ' ', VFDLENGTH);
-	memcpy(data.data, str, i);
-	data.start = 0;
-	data.length = i;
+	if (strlen(str)<VFDLENGTH)
+		ws=(VFDLENGTH-strlen(str))/2;
+	else
+		ws=0;
+	memset(data.data, ' ', 63);
+        memcpy (data.data+ws, str, VFDLENGTH-ws);
+        data.start = 0;
+        if ((strlen(str) % 2) == 1)
+            data.length = VFDLENGTH-ws-1;
+        else
+            data.length = VFDLENGTH-ws;
 	write_to_vfd(VFDDISPLAYCHARS, &data);
 	return;
 }
