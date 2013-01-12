@@ -51,7 +51,6 @@ extern CRemoteControl * g_RemoteControl; /* neutrino.cpp */
 #if defined (BOXMODEL_OCTAGON1008)
 	#define VFDLENGTH 8
 #elif defined (BOXMODEL_FORTIS_HDBOX)
-	extern int PWRLEDBRIGHTNESS;
 	#define VFDLENGTH 12
 #elif defined (BOXMODEL_ATEVIO7500)
 	#define VFDLENGTH 12
@@ -292,13 +291,6 @@ printf("CVFD::setlcdparameter dimm %d power %d\n", dimm, power);
 	}
 	data.length = 0;
 	write_to_vfd(VFDDISPLAYWRITEONOFF, &data, true);
-#endif
-#if defined (BOXMODEL_FORTIS_HDBOX)
-// Brightness VFDPWRLED - HDBox only
-	unsigned char pwrled = PWRLEDBRIGHTNESS;
-	data.start = pwrled & 0x07;
-	data.length = 0;
-	write_to_vfd(VFDPWRLED, &data);
 #endif
 #endif
 }
