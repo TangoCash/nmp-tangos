@@ -741,6 +741,7 @@ void CInfoViewerBB::showIcon_CA_Status(int notfirst)
 	int caids[] = {  0x900, 0xD00, 0xB00, 0x1800, 0x0500, 0x0100, 0x600,  0x2600, 0x4a00, 0x0E00 };
 	const char * white = (char *) "white";
 	const char * yellow = (char *) "yellow";
+	const char * green = (char *) "green";
 	int icon_space_offset = 0;
 
 	if(!g_InfoViewer->chanready) {
@@ -774,6 +775,19 @@ void CInfoViewerBB::showIcon_CA_Status(int notfirst)
 			icon_space_offset = 0;
 		}
 #endif
+		int acaid = 0;
+		int ecm = 0;
+		FILE *f = fopen("/tmp/ecm.info", "rt");
+		if (f) {
+			char buf[80];
+			if (fgets(buf, sizeof(buf), f) != NULL) {
+				while (buf[ecm] != '0')
+					ecm++;
+				sscanf(&buf[ecm], "%X", &acaid);
+			}
+			fclose(f);
+		}
+
 		for (int i = 0; i < (int)(sizeof(caids)/sizeof(int)); i++) {
 			bool found = false;
 			for(casys_map_iterator_t it = channel->camap.begin(); it != channel->camap.end(); ++it) {
@@ -784,9 +798,15 @@ void CInfoViewerBB::showIcon_CA_Status(int notfirst)
 					break;
 			}
 			if(g_settings.casystem_display == 0)
-				paint_ca_icons(caids[i], (char *) (found ? yellow : white), icon_space_offset);
+				if ((caids[i] & 0xFF00) == (acaid & 0xFF00) || (caids[i] == 0x1700 && (acaid & 0xFF00) == 0x0600))
+					paint_ca_icons(caids[i], (char *) (found ? green : white), icon_space_offset);
+				else
+					paint_ca_icons(caids[i], (char *) (found ? yellow : white), icon_space_offset);
 			else if(found)
-				paint_ca_icons(caids[i], (char *) yellow, icon_space_offset);
+				if ((caids[i] & 0xFF00) == (acaid & 0xFF00) || (caids[i] == 0x1700 && (acaid & 0xFF00) == 0x0600))
+					paint_ca_icons(caids[i], (char *) green, icon_space_offset);
+				else
+					paint_ca_icons(caids[i], (char *) yellow, icon_space_offset);
 		}
 	}
 }
