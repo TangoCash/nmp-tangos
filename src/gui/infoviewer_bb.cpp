@@ -63,6 +63,10 @@
 #include <zapit/zapit.h>
 
 #include <video.h>
+#if HAVE_DUCKBOX_HARDWARE
+#include <driver/vfd.h>
+#endif
+
 
 extern CRemoteControl *g_RemoteControl;	/* neutrino.cpp */
 extern cVideo * videoDecoder;
@@ -446,7 +450,13 @@ void CInfoViewerBB::showIcon_DD()
 		dd_icon = NEUTRINO_ICON_DD;
 	else 
 		dd_icon = g_RemoteControl->has_ac3 ? NEUTRINO_ICON_DD_AVAIL : NEUTRINO_ICON_DD_GREY;
-
+#if HAVE_DUCKBOX_HARDWARE
+	if ((g_RemoteControl->current_PIDs.PIDs.selected_apid < g_RemoteControl->current_PIDs.APIDs.size()) && 
+	    (g_RemoteControl->current_PIDs.APIDs[g_RemoteControl->current_PIDs.PIDs.selected_apid].is_ac3))
+		CVFD::getInstance()->ShowIcon(VFD_ICON_DD,1);
+	else
+		CVFD::getInstance()->ShowIcon(VFD_ICON_DD,0);
+#endif
 	showBBIcons(CInfoViewerBB::ICON_DD, dd_icon);
 }
 
@@ -553,6 +563,9 @@ void CInfoViewerBB::showIcon_Resolution()
 			else
 				icon_name = NEUTRINO_ICON_RESOLUTION_000;
 		}
+#if HAVE_DUCKBOX_HARDWARE
+	CVFD::getInstance()->ShowIcon(VFD_ICON_HD,yres > 576);
+#endif
 	}
 	showBBIcons(CInfoViewerBB::ICON_RES, icon_name);
 }
@@ -712,6 +725,9 @@ void CInfoViewerBB::paint_ca_icons(int caid, char * icon, int &icon_space_offset
 
 void CInfoViewerBB::showIcon_CA_Status(int notfirst)
 {
+#if HAVE_DUCKBOX_HARDWARE
+	CVFD::getInstance()->ShowIcon(VFD_ICON_LOCK,!CZapit::getInstance()->GetCurrentChannel()->camap.empty());
+#endif
 	if (g_settings.casystem_display == 3)
 		return;
 	if(NeutrinoMessages::mode_ts == CNeutrinoApp::getInstance()->getMode() && !CMoviePlayerGui::getInstance().timeshift){
