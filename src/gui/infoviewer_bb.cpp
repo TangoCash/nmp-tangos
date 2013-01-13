@@ -500,7 +500,11 @@ void CInfoViewerBB::showIcon_Resolution()
 #if 0
 	if ((scrambledNoSig) || ((!fta) && (scrambledErr)))
 #else
+#if BOXMODEL_UFS910
+	if (!g_InfoViewer->chanready)
+#else
 	if (!g_InfoViewer->chanready || videoDecoder->getBlank())
+#endif
 #endif
 	{
 		icon_name = NEUTRINO_ICON_RESOLUTION_000;
