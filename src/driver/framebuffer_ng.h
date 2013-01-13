@@ -166,7 +166,11 @@ class CFrameBuffer
 		void setupGXA(void);
 #endif
 
+#if HAVE_DUCKBOX_HARDWARE
+		void init(const char * const fbDevice = "/dev/fb0");
+#else
 		void init(const char * const fbDevice = "/dev/fb/0");
+#endif
 		int setMode(unsigned int xRes, unsigned int yRes, unsigned int bpp);
 
 
