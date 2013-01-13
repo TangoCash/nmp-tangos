@@ -461,7 +461,11 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	g_settings.epg_extendedcache    = configfile.getString("epg_extendedcache_time", "360");
 	g_settings.epg_old_events       = configfile.getString("epg_old_events", "1");
 	g_settings.epg_max_events       = configfile.getString("epg_max_events", "30000");
+#if HAVE_DUCKBOX_HARDWARE
+	g_settings.epg_dir              = configfile.getString("epg_dir", "/hdd/epg");
+#else
 	g_settings.epg_dir              = configfile.getString("epg_dir", "/media/sda1/epg");
+#endif
 	// NTP-Server for sectionsd
 	g_settings.network_ntpserver    = configfile.getString("network_ntpserver", "time.fu-berlin.de");
 	g_settings.network_ntprefresh   = configfile.getString("network_ntprefresh", "30" );
@@ -581,10 +585,17 @@ int CNeutrinoApp::loadSetup(const char * fname)
 		sprintf(cfg_key, "network_nfs_mac_%d", i);
 		strcpy( g_settings.network_nfs_mac[i], configfile.getString( cfg_key, "11:22:33:44:55:66").c_str() );
 	}
+#if HAVE_DUCKBOX_HARDWARE
+	strcpy( g_settings.network_nfs_audioplayerdir, configfile.getString( "network_nfs_audioplayerdir", "/hdd/music" ).c_str() );
+	strcpy( g_settings.network_nfs_picturedir, configfile.getString( "network_nfs_picturedir", "/hdd/pictures" ).c_str() );
+	strcpy( g_settings.network_nfs_moviedir, configfile.getString( "network_nfs_moviedir", "/hdd/movies" ).c_str() );
+	strcpy( g_settings.network_nfs_recordingdir, configfile.getString( "network_nfs_recordingdir", "/hdd/movies" ).c_str() );
+#else
 	strcpy( g_settings.network_nfs_audioplayerdir, configfile.getString( "network_nfs_audioplayerdir", "/media/sda1/music" ).c_str() );
 	strcpy( g_settings.network_nfs_picturedir, configfile.getString( "network_nfs_picturedir", "/media/sda1/pictures" ).c_str() );
 	strcpy( g_settings.network_nfs_moviedir, configfile.getString( "network_nfs_moviedir", "/media/sda1/movies" ).c_str() );
 	strcpy( g_settings.network_nfs_recordingdir, configfile.getString( "network_nfs_recordingdir", "/media/sda1/movies" ).c_str() );
+#endif
 	strcpy( g_settings.timeshiftdir, configfile.getString( "timeshiftdir", "" ).c_str() );
 
 	g_settings.temp_timeshift = configfile.getInt32( "temp_timeshift", 0 );
@@ -657,7 +668,11 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	g_settings.screenshot_video = configfile.getInt32( "screenshot_video",  1);
 	g_settings.screenshot_scale = configfile.getInt32( "screenshot_scale",  0);
 
+#if HAVE_DUCKBOX_HARDWARE
+	g_settings.screenshot_dir = configfile.getString( "screenshot_dir", "/hdd/movies" );
+#else
 	g_settings.screenshot_dir = configfile.getString( "screenshot_dir", "/media/sda1/movies" );
+#endif
 	g_settings.cacheTXT = configfile.getInt32( "cacheTXT",  0);
 	g_settings.minimode = configfile.getInt32( "minimode",  0);
 	g_settings.mode_clock = configfile.getInt32( "mode_clock",  0);
@@ -1996,11 +2011,13 @@ fprintf(stderr, "[neutrino start] %d  -> %5ld ms\n", __LINE__, time_monotonic_ms
 	g_CamHandler = new CCAMMenuHandler();
 	g_CamHandler->init();
 
+#if !HAVE_DUCKBOX_HARDWARE
 #ifndef ASSUME_MDEV
 	mkdir("/media/sda1", 0755);
 	mkdir("/media/sdb1", 0755);
 	my_system("mount", "/dev/sda1", "/media/sda1");
 	my_system("mount", "/dev/sdb1", "/media/sdb1");
+#endif
 #endif
 
 	CFSMounter::automount();
