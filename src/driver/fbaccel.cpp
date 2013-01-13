@@ -47,7 +47,7 @@
 #include <cs_api.h>
 #include <cnxtfb.h>
 #endif
-#if HAVE_SPARK_HARDWARE
+#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
 #include <linux/stmfb.h>
 #include <bpamem.h>
 #endif
@@ -151,7 +151,7 @@ void CFbAccel::waitForIdle(void)
 	printf("STB04GFX_ENGINE_SYNC took %lld us\n", (te.tv_sec * 1000000LL + te.tv_usec) - (ts.tv_sec * 1000000LL + ts.tv_usec));
 #endif
 }
-#elif HAVE_SPARK_HARDWARE
+#elif HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
 
 static int bpafd = -1;
 static size_t lbb_sz = 1920 * 1080;	/* offset from fb start in 'pixels' */
@@ -174,7 +174,7 @@ CFbAccel::CFbAccel(CFrameBuffer *_fb)
 	fb = _fb;
 	lastcol = 0xffffffff;
 	lbb = fb->lfb;	/* the memory area to draw to... */
-#ifdef HAVE_SPARK_HARDWARE
+#ifdef HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
 	if (fb->available < 12*1024*1024)
 	{
 		/* for old installations that did not upgrade their module config
@@ -256,7 +256,7 @@ CFbAccel::CFbAccel(CFrameBuffer *_fb)
 
 CFbAccel::~CFbAccel()
 {
-#if HAVE_SPARK_HARDWARE
+#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
 	if (backbuffer)
 	{
 		fprintf(stderr, "CFbAccel: unmap backbuffer\n");
@@ -279,7 +279,7 @@ CFbAccel::~CFbAccel()
 
 void CFbAccel::update()
 {
-#ifndef HAVE_SPARK_HARDWARE
+#ifndef HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
 	int needmem = fb->stride * fb->yRes * 2;
 	if (fb->available >= needmem)
 	{
@@ -328,7 +328,7 @@ void CFbAccel::paintRect(const int x, const int y, const int dx, const int dy, c
 	/* the GXA seems to do asynchronous rendering, so we add a sync marker
 	   to which the fontrenderer code can synchronize */
 	add_gxa_sync_marker();
-#elif HAVE_SPARK_HARDWARE
+#elif HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
 	if (dx <= 0 || dy <= 0)
 		return;
 
@@ -440,7 +440,7 @@ void CFbAccel::paintLine(int xa, int ya, int xb, int yb, const fb_pixel_t col)
 #else
 	int dx = abs (xa - xb);
 	int dy = abs (ya - yb);
-#if HAVE_SPARK_HARDWARE
+#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
 	if (dy == 0) /* horizontal line */
 	{
 		paintRect(xa, ya, xb - xa, 1, col);
@@ -560,7 +560,7 @@ void CFbAccel::blit2FB(void *fbbuff, uint32_t width, uint32_t height, uint32_t x
 
 		return;
 	}
-#elif HAVE_SPARK_HARDWARE
+#elif HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
 	int x, y, dw, dh;
 	x = xoff;
 	y = yoff;
@@ -695,7 +695,7 @@ void CFbAccel::setupGXA()
 }
 #endif
 
-#if HAVE_SPARK_HARDWARE
+#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
 void CFbAccel::blit()
 {
 #ifdef PARTIAL_BLIT
