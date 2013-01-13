@@ -588,8 +588,8 @@ int CNeutrinoApp::loadSetup(const char * fname)
 #if HAVE_DUCKBOX_HARDWARE
 	strcpy( g_settings.network_nfs_audioplayerdir, configfile.getString( "network_nfs_audioplayerdir", "/hdd/music" ).c_str() );
 	strcpy( g_settings.network_nfs_picturedir, configfile.getString( "network_nfs_picturedir", "/hdd/pictures" ).c_str() );
-	strcpy( g_settings.network_nfs_moviedir, configfile.getString( "network_nfs_moviedir", "/hdd/movies" ).c_str() );
-	strcpy( g_settings.network_nfs_recordingdir, configfile.getString( "network_nfs_recordingdir", "/hdd/movies" ).c_str() );
+	strcpy( g_settings.network_nfs_moviedir, configfile.getString( "network_nfs_moviedir", "/hdd/movie" ).c_str() );
+	strcpy( g_settings.network_nfs_recordingdir, configfile.getString( "network_nfs_recordingdir", "/hdd/movie" ).c_str() );
 #else
 	strcpy( g_settings.network_nfs_audioplayerdir, configfile.getString( "network_nfs_audioplayerdir", "/media/sda1/music" ).c_str() );
 	strcpy( g_settings.network_nfs_picturedir, configfile.getString( "network_nfs_picturedir", "/media/sda1/pictures" ).c_str() );
@@ -669,7 +669,7 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	g_settings.screenshot_scale = configfile.getInt32( "screenshot_scale",  0);
 
 #if HAVE_DUCKBOX_HARDWARE
-	g_settings.screenshot_dir = configfile.getString( "screenshot_dir", "/hdd/movies" );
+	g_settings.screenshot_dir = configfile.getString( "screenshot_dir", "/hdd/movie" );
 #else
 	g_settings.screenshot_dir = configfile.getString( "screenshot_dir", "/media/sda1/movies" );
 #endif
