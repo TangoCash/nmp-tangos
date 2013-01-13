@@ -21,10 +21,12 @@ libneutrino_driver_a_SOURCES = \
 	audiofile.cpp \
 	audiometadata.cpp \
 	audioplay.cpp \
-	fader.cpp \
+	fade.cpp \
 	fb_window.cpp \
+	fbaccel.cpp \
 	file.cpp \
 	fontrenderer.cpp \
+	framebuffer_ng.cpp \
 	genpsi.cpp \
 	radiotext.cpp \
 	radiotools.cpp \
@@ -32,10 +34,10 @@ libneutrino_driver_a_SOURCES = \
 	record.cpp \
 	ringbuffer.c \
 	screen_max.cpp \
+	screenshot.cpp \
 	shutdown_count.cpp \
 	streamts.cpp \
 	volume.cpp
-#	screenshot.cpp
 
 if ENABLE_GRAPHLCD
 libneutrino_driver_a_SOURCES += \
@@ -46,18 +48,7 @@ if BOXTYPE_GENERIC
 libneutrino_driver_a_SOURCES += \
 	glthread.cpp
 endif
-if BOXTYPE_SPARK
-libneutrino_driver_a_SOURCES += \
-	framebuffer_spark.cpp
-else
-if BOXTYPE_DUCKBOX
-libneutrino_driver_a_SOURCES += \
-	framebuffer_spark.cpp
-else
-libneutrino_driver_a_SOURCES += \
-	framebuffer.cpp
-endif
-endif
+
 if BOXTYPE_COOL
 libneutrino_driver_a_SOURCES += \
 	vfd.cpp
