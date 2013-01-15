@@ -367,7 +367,11 @@ int UTF8ToUnicode(const char * &text, const bool utf8_encoded) // returns -1 on 
 	return unicode_value;
 }
 
+#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+void Font::RenderString(int x, int y, const int width, const char *text, const unsigned char color, const int boxheight, const bool utf8_encoded, uint32_t _fgcol, uint32_t _bgcol)
+#else
 void Font::RenderString(int x, int y, const int width, const char *text, const unsigned char color, const int boxheight, const bool utf8_encoded)
+#endif
 {
 	if (!frameBuffer->getActive())
 		return;
@@ -432,8 +436,29 @@ void Font::RenderString(int x, int y, const int width, const char *text, const u
 	static fb_pixel_t oldbgcolor = 0, oldfgcolor = 0;
 	static fb_pixel_t colors[256]={0};
 
+#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+	fb_pixel_t bgcolor;
+	fb_pixel_t fgcolor;
+
+	if (_fgcol) {
+		if (_bgcol)
+			bgcolor = _bgcol;
+		else {
+			int yoff = y - height/2;
+			if (yoff < 0)
+				yoff  = 0;
+			uint32_t *lfb = frameBuffer->getFrameBufferPointer();
+			bgcolor = *(lfb + yoff * frameBuffer->getStride()/sizeof(fb_pixel_t) + x);
+		}
+		fgcolor = _fgcol;
+	} else {
+		bgcolor = frameBuffer->realcolor[color];
+		fgcolor = frameBuffer->realcolor[(((((int)color) + 2) | 7) - 2)];
+	}
+#else
 	fb_pixel_t bgcolor = frameBuffer->realcolor[color];
 	fb_pixel_t fgcolor = frameBuffer->realcolor[(((((int)color) + 2) | 7) - 2)];
+#endif
 
 	if((oldbgcolor != bgcolor) || (oldfgcolor != fgcolor)) {
 
@@ -618,10 +643,17 @@ void Font::RenderString(int x, int y, const int width, const char *text, const u
 	frameBuffer->mark(left, y + lower - height, x, y + lower);
 }
 
+#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+void Font::RenderString(int x, int y, const int width, const std::string & text, const unsigned char color, const int boxheight, const bool utf8_encoded, uint32_t _fgcol, uint32_t _bgcol)
+{
+	RenderString(x, y, width, text.c_str(), color, boxheight, utf8_encoded, _fgcol, _bgcol);
+}
+#else
 void Font::RenderString(int x, int y, const int width, const std::string & text, const unsigned char color, const int boxheight, const bool utf8_encoded)
 {
 	RenderString(x, y, width, text.c_str(), color, boxheight, utf8_encoded);
 }
+#endif
 
 int Font::getRenderWidth(const char *text, const bool utf8_encoded)
 {

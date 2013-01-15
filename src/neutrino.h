@@ -45,6 +45,9 @@
 #include "gui/rc_lock.h"
 #include "gui/user_menue.h"
 #include "gui/timerlist.h"
+#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+#include <gui/psisetup.h>
+#endif
 
 #include <string>
 
@@ -187,6 +190,9 @@ public:
 	CChannelList			*TVchannelList;
 	CChannelList			*RADIOchannelList;
 	CChannelList			*channelList;
+#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+	CPSISetup			*chPSISetup;
+#endif
 
 	static CNeutrinoApp* getInstance();
 

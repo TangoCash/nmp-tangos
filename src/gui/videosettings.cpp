@@ -228,6 +228,17 @@ CMenuOptionChooser::keyval_ext VIDEOMENU_VIDEOMODE_OPTIONS[VIDEOMENU_VIDEOMODE_O
 };
 #endif
 
+#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+/* hdmi color space */
+#define VIDEOMENU_HDMI_COLOR_SPACE_OPTION_COUNT 3
+const CMenuOptionChooser::keyval_ext VIDEOMENU_HDMI_COLOR_SPACE_OPTIONS[VIDEOMENU_HDMI_COLOR_SPACE_OPTION_COUNT] =
+{
+	{ 0, NONEXISTANT_LOCALE, "RGB" },
+	{ 1, NONEXISTANT_LOCALE, "YUV" },
+	{ 2, NONEXISTANT_LOCALE, "422" }
+};
+#endif
+
 #if HAVE_TRIPLEDRAGON
 #define VIDEOMENU_VIDEOFORMAT_OPTION_COUNT 2
 #else
@@ -329,6 +340,16 @@ int CVideoSettings::showVideoSetup()
 		vs_videomodes_fw->setHint("", LOCALE_MENU_HINT_VIDEO_MODES);
 	}
 
+#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+	CMenuOptionNumberChooser * vs_psi_steps = new CMenuOptionNumberChooser(LOCALE_VIDEOMENU_PSI_STEP, (int *)&g_settings.psi_step, true, 0, 100, NULL);
+	CMenuOptionNumberChooser * vs_psi_contrast = new CMenuOptionNumberChooser(LOCALE_VIDEOMENU_PSI_CONTRAST, (int *)&g_settings.psi_contrast, true, 0, 255, NULL);
+	CMenuOptionNumberChooser * vs_psi_saturation = new CMenuOptionNumberChooser(LOCALE_VIDEOMENU_PSI_SATURATION, (int *)&g_settings.psi_saturation, true, 0, 255, NULL);
+	CMenuOptionNumberChooser * vs_psi_brightness = new CMenuOptionNumberChooser(LOCALE_VIDEOMENU_PSI_BRIGHTNESS, (int *)&g_settings.psi_brightness, true, 0, 255, NULL);
+	CMenuOptionNumberChooser * vs_psi_tint = new CMenuOptionNumberChooser(LOCALE_VIDEOMENU_PSI_TINT, (int *)&g_settings.psi_tint, true, 0, 255, NULL);
+	/* video hdmi space colour */
+	CMenuOptionChooser * vs_hdmispace_ch = new CMenuOptionChooser(LOCALE_VIDEOMENU_HDMI_COLOR_SPACE, &g_settings.hdmi_color_space, VIDEOMENU_HDMI_COLOR_SPACE_OPTIONS, VIDEOMENU_HDMI_COLOR_SPACE_OPTION_COUNT, true, this);
+#endif
+
 	neutrino_locale_t tmp_locale = NONEXISTANT_LOCALE;
 	if (vs_analg_ch != NULL || vs_scart_ch != NULL || vs_chinch_ch != NULL)
 		tmp_locale = LOCALE_VIDEOMENU_TV_SCART;
@@ -353,8 +374,24 @@ int CVideoSettings::showVideoSetup()
 	if (vs_videomodes_fw != NULL)
 		videosetup->addItem(vs_videomodes_fw);	  //video modes submenue
 
+#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+	videosetup->addItem(GenericMenuSeparatorLine);
+	videosetup->addItem(new CMenuForwarder(LOCALE_VIDEOMENU_PSI, true, NULL, CNeutrinoApp::getInstance()->chPSISetup, NULL));;
+	CPSISetupNotifier *psiNotifier = new CPSISetupNotifier(CNeutrinoApp::getInstance()->chPSISetup);
+	videosetup->addItem(vs_psi_steps);
+//	videosetup->addItem(vs_psi_contrast);
+//	videosetup->addItem(vs_psi_saturation);
+//	videosetup->addItem(vs_psi_brightness);
+//	videosetup->addItem(vs_psi_tint);
+	videosetup->addItem(GenericMenuSeparatorLine);
+	videosetup->addItem(vs_hdmispace_ch); //hdmi space color
+#endif
+
 	int res = videosetup->exec(NULL, "");
 	selected = videosetup->getSelected();
+#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+	delete psiNotifier;
+#endif
 	delete videosetup;
 	return res;
 }
@@ -448,6 +485,12 @@ bool CVideoSettings::changeNotify(const neutrino_locale_t OptionName, void * /* 
 		setupVideoSystem(true/*ask*/);
 		return true;
 	}
+#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+	else if (ARE_LOCALES_EQUAL(OptionName, LOCALE_VIDEOMENU_HDMI_COLOR_SPACE))
+	{
+		videoDecoder->SetSpaceColour(g_settings.hdmi_color_space);
+	}
+#endif
 #if 0
         else if (ARE_LOCALES_EQUAL(OptionName, LOCALE_VIDEOMENU_CONTRAST))
 	{
