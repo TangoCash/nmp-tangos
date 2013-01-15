@@ -503,7 +503,7 @@ void CVFD::showVolume(const char vol, const bool /*perform_update*/)
 		int i;
 		if(oldpp != pp)
 		{
-#if defined (BOXMODEL_UFS910)
+#if defined (BOXMODEL_UFS910) || defined (BOXMODEL_UFS922)
 			unsigned char speaker[5] = {0x1C, 0x1C, 0x1C, 0x3E, 0x7F}; // speaker symbol
 			writeCG(0, speaker);
 
@@ -514,7 +514,7 @@ void CVFD::showVolume(const char vol, const bool /*perform_update*/)
 			char c3[1] = {0x13};
 			char c4[1] = {0x14};
 			char c5[1] = {0x15};
-			char VolumeBar[15];
+			char VolumeBar[16];
 			memset (VolumeBar,0,sizeof VolumeBar);
 			char act[2] = {0x01, 0x20};
 			strncat(VolumeBar, act, 2);
