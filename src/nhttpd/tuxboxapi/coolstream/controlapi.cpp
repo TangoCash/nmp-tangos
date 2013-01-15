@@ -721,7 +721,11 @@ static const struct key keynames[] = {
 	{"KEY_SETUP",		KEY_MENU},
 	{"KEY_EPG",			KEY_EPG},
 	{"KEY_FAVORITES",	KEY_FAVORITES},
+#if HAVE_DUCKBOX_HARDWARE
+	{"KEY_HOME",		KEY_HOME},
+#else
 	{"KEY_HOME",		KEY_EXIT},
+#endif
 	{"KEY_UP",			KEY_UP},
 	{"KEY_LEFT",		KEY_LEFT},
 	{"KEY_OK",			KEY_OK},
