@@ -69,6 +69,7 @@ install_DATA =	accept.png \
 		rc.gif \
 		rc.jpg \
 		rc_sagem.jpg \
+		rc_ufs910.jpg \
 		record.gif \
 		record.png \
 		reload.gif \
