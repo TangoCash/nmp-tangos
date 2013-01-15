@@ -127,9 +127,9 @@ void CFbAccel::waitForIdle(void)
 		   so use sched_yield to at least give other threads a chance to run */
 		sched_yield();
 		//fprintf(stderr, "%s: read  %02x, expected %02x\n", __FUNCTION__, cfg, _mark);
-	} while(++count < 2048); /* don't deadlock here if there is an error */
+	} while(++count < 8192); /* don't deadlock here if there is an error */
 
-	if (count > 512) /* more than 100 are unlikely, */
+	if (count > 2048) /* more than 2000 are unlikely, even for large BMP6 blits */
 		fprintf(stderr, "CFbAccel::waitForIdle: count is big (%d)!\n", count);
 }
 #elif HAVE_TRIPLEDRAGON
@@ -413,8 +413,11 @@ void CFbAccel::paintRect(const int x, const int y, const int dx, const int dy, c
 
 void CFbAccel::paintPixel(const int x, const int y, const fb_pixel_t col)
 {
-#if HAVE_TRIPLEDRAGON || defined (USE_NEVIS_GXA)
-	paintLine(x, y, x, y, col);
+#if HAVE_TRIPLEDRAGON
+	setColor(col);
+	dfbdest->DrawLine(dfbdest, x, y, x, y);
+#elif defined (USE_NEVIS_GXA)
+	paintLine(x, y, x + 1, y, col);
 #else
 	fb_pixel_t *pos = fb->getFrameBufferPointer();
 	pos += (fb->stride / sizeof(fb_pixel_t)) * y;
@@ -569,7 +572,7 @@ void CFbAccel::blit2FB(void *fbbuff, uint32_t width, uint32_t height, uint32_t x
 
 	size_t mem_sz = width * height * sizeof(fb_pixel_t);
 	unsigned long ulFlags = 0;
-	if (transp) /* transp == false (default) means: color "0x0" is transparent (??) */
+	if (!transp) /* transp == false (default): use transparency from source alphachannel */
 		ulFlags = BLT_OP_FLAGS_BLEND_SRC_ALPHA|BLT_OP_FLAGS_BLEND_DST_MEMORY; // we need alpha blending
 
 	STMFBIO_BLT_EXTERN_DATA blt_data;
@@ -616,7 +619,7 @@ void CFbAccel::blit2FB(void *fbbuff, uint32_t width, uint32_t height, uint32_t x
 		d2 = (fb_pixel_t *) d;
 		for (int count2 = 0; count2 < xc; count2++ ) {
 			fb_pixel_t pix = *(pixpos + xp);
-			if (!transp || (pix & 0xff000000) == 0xff000000)
+			if (transp || (pix & 0xff000000) == 0xff000000)
 				*d2 = pix;
 			else {
 				uint8_t *in = (uint8_t *)(pixpos + xp);
@@ -672,7 +675,8 @@ void CFbAccel::blit2FB(void *fbbuff, uint32_t width, uint32_t height, uint32_t x
 		dfbdest->SetBlittingFlags(dfbdest, DSBLIT_SRC_COLORKEY);
 	}
 	else
-		dfbdest->SetBlittingFlags(dfbdest, DSBLIT_NOFX);
+		dfbdest->SetBlittingFlags(dfbdest, DSBLIT_BLEND_ALPHACHANNEL);
+
 	dfbdest->Blit(dfbdest, surf, &src, xoff, yoff);
 	surf->Release(surf);
 	return;
