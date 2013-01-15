@@ -2669,6 +2669,11 @@ _repeat:
 	else if ((msg == CRCInput::RC_plus) || (msg == CRCInput::RC_minus))
 	{
 		g_volume->setVolume(msg, (mode != mode_scart));
+#if HAVE_DUCKBOX_HARDWARE
+		if((mode == mode_tv) || (mode == mode_radio)) {
+			CVFD::getInstance()->showServicename(channelList->getActiveChannelName());
+		}
+#endif
 		return messages_return::handled;
 	}
 	else if( msg == CRCInput::RC_spkr ) {
