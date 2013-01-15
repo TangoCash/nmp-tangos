@@ -691,6 +691,9 @@ std::string  CNeutrinoYParser::func_get_boxtype(CyhookHandler *, std::string)
 	}
 
 	boxname += (g_info.delivery_system == DVB_S || (system_rev == 1)) ? " SAT":" CABLE";
+#if BOXMODEL_UFS910 ||  BOXMODEL_UFS922
+	boxname = "ufs910"
+#endif
 	return boxname;
 }
 //-------------------------------------------------------------------------
