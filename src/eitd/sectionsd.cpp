@@ -1311,7 +1311,12 @@ void CTimeThread::setSystemTime(time_t tim)
 		timediff = 0;
 		return;
 	}
-
+#if HAVE_DUCKBOX_HARDWARE
+	if(timediff < -157934573100000 /*~5 years*/) {
+		timediff = 0;
+		return;
+	}
+#endif
 	tv.tv_sec = tim;
 	tv.tv_usec = 0;
 	if (settimeofday(&tv, NULL) < 0)
