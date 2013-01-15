@@ -50,8 +50,11 @@
 
 extern CPlugins *g_PluginList;//for relodplugins
 extern CBouquetManager *g_bouquetManager;
+#if HAVE_DUCKBOX_HARDWARE
+#define EVENTDEV "/dev/input/event0"
+#else
 #define EVENTDEV "/dev/input/input0"
-
+#endif
 //-----------------------------------------------------------------------------
 enum {	// not defined in input.h but used like that, at least in 2.4.22
 	KEY_RELEASED = 0,
@@ -716,7 +719,11 @@ static const struct key keynames[] = {
 	{"KEY_SETUP",		KEY_MENU},
 	{"KEY_EPG",			KEY_EPG},
 	{"KEY_FAVORITES",	KEY_FAVORITES},
+#if HAVE_DUCKBOX_HARDWARE
+	{"KEY_HOME",		KEY_HOME},
+#else
 	{"KEY_HOME",		KEY_EXIT},
+#endif
 	{"KEY_UP",			KEY_UP},
 	{"KEY_LEFT",		KEY_LEFT},
 	{"KEY_OK",			KEY_OK},

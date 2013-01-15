@@ -503,6 +503,7 @@ void CVFD::showVolume(const char vol, const bool /*perform_update*/)
 		int i;
 		if(oldpp != pp)
 		{
+#if defined (BOXMODEL_UFS910) || defined (BOXMODEL_UFS922)
 			unsigned char speaker[5] = {0x1C, 0x1C, 0x1C, 0x3E, 0x7F}; // speaker symbol
 			writeCG(0, speaker);
 
@@ -513,7 +514,7 @@ void CVFD::showVolume(const char vol, const bool /*perform_update*/)
 			char c3[1] = {0x13};
 			char c4[1] = {0x14};
 			char c5[1] = {0x15};
-			char VolumeBar[15];
+			char VolumeBar[16];
 			memset (VolumeBar,0,sizeof VolumeBar);
 			char act[2] = {0x01, 0x20};
 			strncat(VolumeBar, act, 2);
@@ -539,7 +540,19 @@ void CVFD::showVolume(const char vol, const bool /*perform_update*/)
 			}
 			//dprintf(DEBUG_DEBUG,"CVFD::showVolume: vol %d - pp %d - fullblocks %d - mod %d - %s\n", vol, pp, j, i, VolumeBar);
 			ShowText(VolumeBar);
-
+#elif defined (BOXMODEL_OCTAGON1008)
+			char vol_chr[64] = "";
+			snprintf(vol_chr, sizeof(vol_chr)-1, "VOL: %d%%", (int)vol);
+			ShowText(vol_chr);
+#elif defined (BOXMODEL_SPARK)
+			char vol_chr[64] = "";
+			snprintf(vol_chr, sizeof(vol_chr)-1, "%d", (int)vol);
+			ShowText(vol_chr);
+#elif defined (BOXMODEL_FORTIS_HDBOX) || defined (BOXMODEL_ATEVIO7500) || defined (BOXMODEL_UFS912) || defined (BOXMODEL_UFS913) || defined (BOXMODEL_CUBEREVO_MINI2)
+			char vol_chr[64] = "";
+			snprintf(vol_chr, sizeof(vol_chr)-1, "Volume: %d%%", (int)vol);
+			ShowText(vol_chr);
+#endif
 			oldpp = pp;
 		}
 #else

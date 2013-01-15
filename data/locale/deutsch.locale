@@ -1103,6 +1103,7 @@ menu.hint_volume_digits Zifferndarstellung der Lautstärkeanzeige ein/ausschalte
 menu.hint_volume_pos Hier können Sie die Anzeigeposition der Lautstärkeanzeige auswählen
 menu.hint_zap_cycle Dadurch wird nur innerhalb des aktiven Bouquets gezappt
 menu.next Weiter (Menü zum Beenden)
+messagebox.accept Wollen Sie die Änderungen beibehalten?
 messagebox.back Zurück
 messagebox.cancel Abbruch
 messagebox.discard Wollen Sie die Änderungen verwerfen?
@@ -1840,10 +1841,18 @@ videomenu.hdmi_cec_mode_recorder als Sat/Kabel PVR
 videomenu.hdmi_cec_mode_tuner als Sat/Kabel STB
 videomenu.hdmi_cec_standby Aktiviere CEC Standby
 videomenu.hdmi_cec_view_on Aktiviere CEC View on
+videomenu.hdmi_color_space HDMI Farbraum
 videomenu.hue Farbton
 videomenu.letterbox Letterbox
 videomenu.panscan Pan & Scan
 videomenu.panscan2 14:9 Pan & Scan
+videomenu.psi Farbeinstellungen
+videomenu.psi.brightness Helligkeit
+videomenu.psi.contrast Kontrast
+videomenu.psi.reset Standard-Einstellungen
+videomenu.psi.saturation Sättigung
+videomenu.psi.step Videoregler-Schrittweite
+videomenu.psi.tint Farbton
 videomenu.saturation Sättigung
 videomenu.scart Scart
 videomenu.screensetup Bildbereich

@@ -496,7 +496,7 @@ end-block~frame_live_epg
 
 # ------- Remote
 start-block~remote
-{=if-equal:Coolstream Neo SAT~{=if-equal:{=ini-get:/var/tuxbox/config/Y-Web.conf;fb;default=}~default~{=func:get_boxtype=}~{=ini-get:/var/tuxbox/config/Y-Web.conf;fb;default=}=}~{=include-block:Y_Blocks.txt;remote_neo=}~{=if-equal:{=func:get_boxtype=}~Coolstream Neo CABLE~{=include-block:Y_Blocks.txt;remote_neo=}~{=if-equal:{=func:get_boxtype=}~Coolstream Zee SAT~{=include-block:Y_Blocks.txt;remote_zee=}~{=if-equal:{=func:get_boxtype=}~Coolstream Zee CABLE~{=include-block:Y_Blocks.txt;remote_zee=}~{=include-block:Y_Blocks.txt;remote_hd1=}=}=}=}=}
+{=if-equal:Coolstream Neo SAT~{=if-equal:{=ini-get:/var/tuxbox/config/Y-Web.conf;fb;default=}~default~{=func:get_boxtype=}~{=ini-get:/var/tuxbox/config/Y-Web.conf;fb;default=}=}~{=include-block:Y_Blocks.txt;remote_neo=}~{=if-equal:{=func:get_boxtype=}~Coolstream Neo CABLE~{=include-block:Y_Blocks.txt;remote_neo=}~{=if-equal:{=func:get_boxtype=}~Coolstream Zee SAT~{=include-block:Y_Blocks.txt;remote_zee=}~{=if-equal:{=func:get_boxtype=}~Coolstream Zee CABLE~{=include-block:Y_Blocks.txt;remote_zee=}~{=if-equal:{=func:get_boxtype=}~ufs910~{=include-block:Y_Blocks.txt;remote_ufs910=}~{=include-block:Y_Blocks.txt;remote_hd1=}=}=}=}=}=}
 end-block~remote
 
 # ------- Remote Coolstream Neo
@@ -659,3 +659,46 @@ start-block~remote_hd1
   <area shape="rect" href="javascript:rcsim('KEY_GAMES')" coords="318, 422, 360, 455" />
 </map>
 end-block~remote_hd1
+
+# ------- Remote UFS910
+start-block~remote_ufs910
+<img src="images/rc_910.jpg" usemap="#rc"/>
+<map name="rc" id="rc"> 
+  <area shape="rect" href="javascript:rcsim('KEY_MUTE')" coords="28, 33, 50, 50" />
+  <area shape="rect" href="javascript:rcsim('KEY_POWER')" coords="128, 33, 148, 52" />
+  <area shape="rect" href="javascript:rcsim('KEY_1')" coords="30, 68, 50, 88" />
+  <area shape="rect" href="javascript:rcsim('KEY_2')" coords="77, 67, 100, 87" />
+  <area shape="rect" href="javascript:rcsim('KEY_3')" coords="127, 70, 146, 87" />
+  <area shape="rect" href="javascript:rcsim('KEY_4')" coords="31, 105, 51, 125" />
+  <area shape="rect" href="javascript:rcsim('KEY_5')" coords="77, 100, 100, 120" />
+  <area shape="rect" href="javascript:rcsim('KEY_6')" coords="126, 105, 145, 125" />
+  <area shape="rect" href="javascript:rcsim('KEY_7')" coords="32, 140, 52, 160" />
+  <area shape="rect" href="javascript:rcsim('KEY_8')" coords="77, 137, 100, 157" />
+  <area shape="rect" href="javascript:rcsim('KEY_9')" coords="125, 140, 144, 160" />
+  <area shape="rect" href="javascript:rcsim('KEY_0')" coords="77, 173, 100, 193" />
+  <area shape="rect" href="javascript:rcsim('KEY_SETUP')" coords="32, 176, 55, 195" />
+  <area shape="rect" href="javascript:rcsim('KEY_TEXT')" coords="125, 176, 145, 195" />
+  <area shape="rect" href="javascript:rcsim('KEY_RED')" coords="32, 222, 44, 245" />
+  <area shape="rect" href="javascript:rcsim('KEY_GREEN')" coords="67, 218, 79, 241" />
+  <area shape="rect" href="javascript:rcsim('KEY_YELLOW')" coords="101, 218, 114, 241" />
+  <area shape="rect" href="javascript:rcsim('KEY_BLUE')" coords="135, 222, 146, 245" />
+  <area shape="rect" href="javascript:rcsim('KEY_VOLUMEUP')" coords="35, 265, 55, 286" />
+  <area shape="rect" href="javascript:rcsim('KEY_VOLUMEDOWN')" coords="35, 312, 55, 332" />
+  <area shape="rect" href="javascript:rcsim('KEY_INFO')" coords="80, 265, 100, 285" />
+  <area shape="rect" href="javascript:rcsim('KEY_PAGEUP')" coords="125, 265, 145, 285" />
+  <area shape="rect" href="javascript:rcsim('KEY_PAGEDOWN')" coords="125, 312, 145, 332" />
+  <area shape="rect" href="javascript:rcsim('KEY_UP')" coords="80, 310, 100, 330" />
+  <area shape="rect" href="javascript:rcsim('KEY_LEFT')" coords="35, 350, 55, 370" />
+  <area shape="rect" href="javascript:rcsim('KEY_OK')" coords="78, 350, 100, 370" />
+  <area shape="rect" href="javascript:rcsim('KEY_RIGHT')" coords="122, 350, 145, 370" />
+  <area shape="rect" href="javascript:rcsim('KEY_HOME')" coords="35, 390, 55, 410" />
+  <area shape="rect" href="javascript:rcsim('KEY_DOWN')" coords="80, 390, 100, 410" />
+  <area shape="rect" href="javascript:rcsim('KEY_EPG')" coords="125, 390, 145, 410" />
+  <area shape="rect" href="javascript:rcsim('KEY_REWIND')" coords="35, 430, 55, 448" />
+  <area shape="rect" href="javascript:rcsim('KEY_PLAY')" coords="80, 435, 100, 452" />
+  <area shape="rect" href="javascript:rcsim('KEY_FORWARD')" coords="125, 430, 145, 448" />
+  <area shape="rect" href="javascript:rcsim('KEY_PAUSE')" coords="35, 465, 55, 485" />
+  <area shape="rect" href="javascript:rcsim('KEY_RECORD')" coords="80, 470, 100, 490" />
+  <area shape="rect" href="javascript:rcsim('KEY_STOP')" coords="125, 465, 155, 485" />
+</map>
+end-block~remote_ufs910
