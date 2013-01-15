@@ -52,8 +52,11 @@
 
 extern CPlugins *g_PluginList;//for relodplugins
 extern CBouquetManager *g_bouquetManager;
+#if HAVE_DUCKBOX_HARDWARE
+#define EVENTDEV "/dev/input/event0"
+#else
 #define EVENTDEV "/dev/input/input0"
-
+#endif
 //-----------------------------------------------------------------------------
 enum {	// not defined in input.h but used like that, at least in 2.4.22
 	KEY_RELEASED = 0,
