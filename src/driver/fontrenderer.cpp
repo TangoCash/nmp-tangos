@@ -87,7 +87,9 @@ FBFontRenderClass::FBFontRenderClass(const int xr, const int yr)
 		printf(" imagecache failed!\n");
 	}
 */
+#if !HAVE_DUCKBOX_HARDWARE
 	pthread_mutex_init( &render_mutex, NULL );
+#endif
 }
 
 FBFontRenderClass::~FBFontRenderClass()
@@ -376,13 +378,19 @@ void Font::RenderString(int x, int y, const int width, const char *text, const u
 	if (!frameBuffer->getActive())
 		return;
 
+#if HAVE_DUCKBOX_HARDWARE
+	OpenThreads::ScopedLock<OpenThreads::Mutex> m_lock(renderer->render_mutex);
+#else
 	pthread_mutex_lock( &renderer->render_mutex );
+#endif
 
 	FT_Error err = FTC_Manager_LookupSize(renderer->cacheManager, &scaler, &size);
 	if (err != 0)
 	{
 		dprintf(DEBUG_NORMAL, "%s:FTC_Manager_LookupSize failed (0x%x)\n", __FUNCTION__, err);
+#if !HAVE_DUCKBOX_HARDWARE
 		pthread_mutex_unlock(&renderer->render_mutex);
+#endif
 		return;
 	}
 	face = size->face;
@@ -638,7 +646,9 @@ void Font::RenderString(int x, int y, const int width, const char *text, const u
 		lastindex=index;
 	}
 //printf("RenderStat: %d %d %d \n", renderer->cacheManager->num_nodes, renderer->cacheManager->num_bytes, renderer->cacheManager->max_bytes);
+#if !HAVE_DUCKBOX_HARDWARE
 	pthread_mutex_unlock( &renderer->render_mutex );
+#endif
 	/* x is the rightmost position of the last drawn character */
 	frameBuffer->mark(left, y + lower - height, x, y + lower);
 }
@@ -657,13 +667,19 @@ void Font::RenderString(int x, int y, const int width, const std::string & text,
 
 int Font::getRenderWidth(const char *text, const bool utf8_encoded)
 {
+#if HAVE_DUCKBOX_HARDWARE
+    OpenThreads::ScopedLock<OpenThreads::Mutex> m_lock(renderer->render_mutex);
+#else
 	pthread_mutex_lock( &renderer->render_mutex );
+#endif
 
 	FT_Error err = FTC_Manager_LookupSize(renderer->cacheManager, &scaler, &size);
 	if (err != 0)
 	{
 		dprintf(DEBUG_NORMAL, "%s:FTC_Manager_LookupSize failed (0x%x)\n", __FUNCTION__, err);
+#if !HAVE_DUCKBOX_HARDWARE
 		pthread_mutex_unlock(&renderer->render_mutex);
+#endif
 		return -1;
 	}
 	face = size->face;
@@ -714,7 +730,9 @@ int Font::getRenderWidth(const char *text, const bool utf8_encoded)
 		x += spread_by;
 	}
 
+#if !HAVE_DUCKBOX_HARDWARE
 	pthread_mutex_unlock( &renderer->render_mutex );
+#endif
 
 	return x;
 }

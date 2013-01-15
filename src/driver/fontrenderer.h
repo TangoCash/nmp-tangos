@@ -25,7 +25,12 @@
 #ifndef __FONTRENDERER__
 #define __FONTRENDERER__
 
+#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+#include <OpenThreads/Mutex>
+#include <OpenThreads/ScopedLock>
+#else
 #include <pthread.h>
+#endif
 #include <string>
 
 #include <ft2build.h>
@@ -106,7 +111,11 @@ class FBFontRenderClass
 		int yres;	/* defaults to 72 dpi */
 
 	public:
+#if HAVE_DUCKBOX_HARDWARE
+		OpenThreads::Mutex  render_mutex;
+#else
 		pthread_mutex_t     render_mutex;
+#endif
 
 		FT_Error FTC_Face_Requester(FTC_FaceID face_id, FT_Face* aface);
 
