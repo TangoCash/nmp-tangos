@@ -545,6 +545,9 @@ struct SNeutrinoSettings
 	int lcd_info_line;
 	char lcd_setting_dim_time[4];
 	int lcd_setting_dim_brightness;
+#if HAVE_DUCKBOX_HARDWARE
+	int lcd_vfd_scroll;
+#endif
 	int led_tv_mode;
 	int led_standby_mode;
 	int led_deep_mode;

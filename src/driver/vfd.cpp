@@ -66,6 +66,8 @@ bool blocked = false;
 int blocked_counter = 0;
 int file_vfd = -1;
 
+pthread_t vfd_scrollText;
+
 struct vfd_ioctl_data {
 	unsigned char start;
 	unsigned char data[64];
@@ -122,23 +124,100 @@ static void writeCG (unsigned char adress, unsigned char pixeldata[5])
 	return;
 }
 
-static void ShowNormalText(const char * str)
+static void ShowNormalText(char * str, bool fromScrollThread = false)
 {
 	int ws = 0; // needed whitespace for centering
 	struct vfd_ioctl_data data;
+
+    if (!fromScrollThread)
+    {
+        if(vfd_scrollText != 0)
+        {
+            pthread_cancel(vfd_scrollText);
+            pthread_join(vfd_scrollText, NULL);
+
+            vfd_scrollText = 0;
+        }
+    }
+    if ((strlen(str) > VFDLENGTH && !fromScrollThread) && (	g_settings.lcd_vfd_scroll == 1))
+    {
+        CVFD::getInstance()->ShowScrollText(str);
+        return;
+    }
+
 	if (strlen(str)<VFDLENGTH)
 		ws=(VFDLENGTH-strlen(str))/2;
 	else
 		ws=0;
 	memset(data.data, ' ', 63);
+	if (!fromScrollThread) {
         memcpy (data.data+ws, str, VFDLENGTH-ws);
         data.start = 0;
         if ((strlen(str) % 2) == 1)
             data.length = VFDLENGTH-ws-1;
         else
             data.length = VFDLENGTH-ws;
+	}
+	else
+	{
+        memcpy ( data.data, str, VFDLENGTH);
+        data.start = 0;
+        data.length = VFDLENGTH;
+	}
 	write_to_vfd(VFDDISPLAYCHARS, &data);
 	return;
+}
+void CVFD::ShowScrollText(char *str)
+{
+    printf("CVFD::ShowScrollText: [%s]\n", str);
+
+    //stop scrolltextthread
+    if(vfd_scrollText != 0)
+    {
+        pthread_cancel(vfd_scrollText);
+        pthread_join(vfd_scrollText, NULL);
+
+        vfd_scrollText = 0;
+    }
+
+    //scroll text thread
+    char *str2 = strdup( str );
+    pthread_create(&vfd_scrollText, NULL, ThreadScrollText, (void *)str2);
+}
+
+void* CVFD::ThreadScrollText(void * arg)
+{
+    pthread_setcanceltype(PTHREAD_CANCEL_ASYNCHRONOUS, NULL);
+
+    int i;
+    char *str = (char *)arg;
+    int len= strlen(str);
+    char out[VFDLENGTH+1];
+
+    memset(out, 0, VFDLENGTH+1);
+
+    int retries = 1;
+
+    while(retries--)
+    {
+        usleep(500000);
+
+        for (i=0; i<=(len-VFDLENGTH); i++)
+        {
+            // scroll text till end
+            memset(out, ' ', VFDLENGTH);
+            memcpy(out, str+i, VFDLENGTH);
+            ShowNormalText(out,true);
+            usleep(500000);
+        }
+
+        memcpy(out, str, VFDLENGTH); // display first VFDLENGTH-1 chars after scrolling
+        ShowNormalText(out,true);
+    }
+
+    pthread_exit(0);
+
+    return NULL;
 }
 
 #endif
@@ -539,7 +618,7 @@ void CVFD::showVolume(const char vol, const bool /*perform_update*/)
 				break;
 			}
 			//dprintf(DEBUG_DEBUG,"CVFD::showVolume: vol %d - pp %d - fullblocks %d - mod %d - %s\n", vol, pp, j, i, VolumeBar);
-			ShowText(VolumeBar);
+			ShowNormalText(VolumeBar,true);
 #elif defined (BOXMODEL_OCTAGON1008)
 			char vol_chr[64] = "";
 			snprintf(vol_chr, sizeof(vol_chr)-1, "VOL: %d%%", (int)vol);

@@ -153,6 +153,8 @@ class CVFD
 		void Clear();
 		void ShowIcon(vfd_icon icon, bool show);
 #ifdef HAVE_DUCKBOX_HARDWARE
+		void ShowScrollText(char * str);
+		static void* ThreadScrollText(void * arg);
 		void ClearIcons();
 		std::string getServicename(void) { return servicename; }
 #endif

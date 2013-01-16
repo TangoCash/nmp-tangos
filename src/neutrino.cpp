@@ -755,6 +755,9 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	strcpy(g_settings.lcd_setting_dim_time, configfile.getString("lcd_dim_time","0").c_str());
 	g_settings.lcd_setting_dim_brightness = configfile.getInt32("lcd_dim_brightness", 0);
 	g_settings.lcd_info_line = configfile.getInt32("lcd_info_line", 0);//channel name or clock
+#if HAVE_DUCKBOX_HARDWARE
+	g_settings.lcd_vfd_scroll = configfile.getInt32("lcd_vfd_scroll", 1);//VFD scrolling default on
+#endif
 
 	//Picture-Viewer
 	strcpy( g_settings.picviewer_slide_time, configfile.getString( "picviewer_slide_time", "10" ).c_str() );
@@ -1189,6 +1192,9 @@ void CNeutrinoApp::saveSetup(const char * fname)
 	configfile.setString("lcd_dim_time", g_settings.lcd_setting_dim_time);
 	configfile.setInt32("lcd_dim_brightness", g_settings.lcd_setting_dim_brightness);
 	configfile.setInt32("lcd_info_line", g_settings.lcd_info_line);//channel name or clock
+#if HAVE_DUCKBOX_HARDWARE
+	configfile.setInt32("lcd_vfd_scroll", g_settings.lcd_vfd_scroll);
+#endif
 
 	//Picture-Viewer
 	configfile.setString( "picviewer_slide_time", g_settings.picviewer_slide_time );

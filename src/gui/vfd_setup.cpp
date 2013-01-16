@@ -110,6 +110,14 @@ const CMenuOptionChooser::keyval LCD_INFO_OPTIONS[LCD_INFO_OPTION_COUNT] =
 	{ 0, LOCALE_LCD_INFO_LINE_CHANNEL },
 	{ 1, LOCALE_LCD_INFO_LINE_CLOCK }
 };
+#if HAVE_DUCKBOX_HARDWARE
+#define OPTIONS_OFF_ON_OPTION_COUNT 2
+const CMenuOptionChooser::keyval OPTIONS_OFF_ON_OPTIONS[OPTIONS_OFF_ON_OPTION_COUNT] =
+{
+    { 0, LOCALE_OPTIONS_OFF  },
+    { 1, LOCALE_OPTIONS_ON }
+};
+#endif
 
 int CVfdSetup::showSetup()
 {
@@ -128,6 +136,9 @@ int CVfdSetup::showSetup()
 	mf->setHint("", LOCALE_MENU_HINT_VFD_BRIGHTNESS_SETUP);
 	vfds->addItem(mf);
 
+#if HAVE_DUCKBOX_HARDWARE
+	vfds->addItem(new CMenuOptionChooser(LOCALE_LCDMENU_VFD_SCROLL, &g_settings.lcd_vfd_scroll, OPTIONS_OFF_ON_OPTIONS, OPTIONS_OFF_ON_OPTION_COUNT, true, NULL));
+#endif
 #ifndef HAVE_DUCKBOX_HARDWARE
 	//led menu
 	if(cs_get_revision() > 7)

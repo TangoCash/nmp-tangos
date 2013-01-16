@@ -682,6 +682,7 @@ lcdmenu.statusline Statuszeile
 lcdmenu.statusline.both Lautstärke/Fortschritt
 lcdmenu.statusline.playtime Sendungsfortschritt
 lcdmenu.statusline.volume Lautstärke
+lcdmenu.vfd_scroll Laufschrift
 ledcontroler.blink Blinke im Deep-Standby, wenn Timer aktiv
 ledcontroler.menu Power Button LEDs
 ledcontroler.mode.deepstandby Deep-Standby
