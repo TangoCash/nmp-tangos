@@ -588,37 +588,42 @@ void CVFD::showVolume(const char vol, const bool /*perform_update*/)
 
 			int j = pp / 5;
 			// v-lines 0-5 = {0x10,0x11,0x12,0x13,0x14,0x15}
+			char c0[1] = {0x5F};
 			char c1[1] = {0x11};
 			char c2[1] = {0x12};
 			char c3[1] = {0x13};
 			char c4[1] = {0x14};
 			char c5[1] = {0x15};
-			char VolumeBar[16];
-			memset (VolumeBar,0,sizeof VolumeBar);
+			char VolumeBar[17];
+			memset (VolumeBar, 0, sizeof(VolumeBar));
 			char act[2] = {0x01, 0x20};
 			strncat(VolumeBar, act, 2);
 			for(i=1; i <= j; i++)
 			{
-				strncat(VolumeBar,c5,1);
+				strncat(VolumeBar, c5, 1);
 			}
 			i = pp % 5;
 			switch (i)
 			{
 				case 1:
-					strncat(VolumeBar,c1,1);
+					strncat(VolumeBar, c1, 1);
 					break;
 				case 2:
-					strncat(VolumeBar,c2,1);
+					strncat(VolumeBar, c2, 1);
 					break;
 				case 3:
-					strncat(VolumeBar,c3,1);
+					strncat(VolumeBar, c3, 1);
 					break;
 				case 4:
-					strncat(VolumeBar,c4,1);
+					strncat(VolumeBar, c4, 1);
 				break;
 			}
 			//dprintf(DEBUG_DEBUG,"CVFD::showVolume: vol %d - pp %d - fullblocks %d - mod %d - %s\n", vol, pp, j, i, VolumeBar);
-			ShowNormalText(VolumeBar,true);
+			if (strlen(VolumeBar) < 12) {
+				for (int a=strlen(VolumeBar); a < 12; a++)
+					strncat(VolumeBar, c0, 1);
+			}
+			ShowText(VolumeBar);
 #elif defined (BOXMODEL_OCTAGON1008)
 			char vol_chr[64] = "";
 			snprintf(vol_chr, sizeof(vol_chr)-1, "VOL: %d%%", (int)vol);
