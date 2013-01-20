@@ -838,7 +838,11 @@ void CFbAccel::mark(int, int, int, int)
 #if HAVE_DUCKBOX_HARDWARE
 bool CFbAccel::OSDShot(const std::string &name)
 {
-    struct timeval ts, te;
+   	fb_var_screeninfo s;
+	if (ioctl(fb->fd, FBIOGET_VSCREENINFO, &s) == -1)
+		perror("CFbAccel <FBIOGET_VSCREENINFO>");
+
+	struct timeval ts, te;
 
     gettimeofday(&ts, NULL);
 
@@ -858,7 +862,7 @@ bool CFbAccel::OSDShot(const std::string &name)
 
         return false;
 
-    png_bytep row_pointers[fb->yRes];
+    png_bytep row_pointers[s.yres];
 
     png_structp png_ptr = png_create_write_struct( PNG_LIBPNG_VER_STRING,
 
@@ -868,15 +872,15 @@ bool CFbAccel::OSDShot(const std::string &name)
 
     png_init_io(png_ptr, out);
 
-    for (unsigned int y = 0; y < fb->yRes; y++)
+    for (unsigned int y = 0; y < s.yres; y++)
 
-        row_pointers[y] = (png_bytep) ((fb_pixel_t *)fb->lfb + y * fb->xRes);
+        row_pointers[y] = (png_bytep) ((fb_pixel_t *)fb->lfb + y * s.xres);
 
     png_set_compression_level(png_ptr, 1);
 
     png_set_bgr(png_ptr);
 
-    png_set_IHDR(png_ptr, info_ptr, fb->xRes, fb->yRes, 8, PNG_COLOR_TYPE_RGBA,
+    png_set_IHDR(png_ptr, info_ptr, s.xres, s.yres, 8, PNG_COLOR_TYPE_RGBA,
 
                  PNG_INTERLACE_NONE, PNG_COMPRESSION_TYPE_BASE, PNG_FILTER_TYPE_BASE);
 
