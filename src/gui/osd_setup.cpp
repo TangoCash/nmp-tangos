@@ -506,6 +506,12 @@ int COsdSetup::showOsdSetup()
 	mc->setHint("", LOCALE_MENU_HINT_PROGRESSBAR_COLOR);
 	osd_menu->addItem(mc);
 
+#if HAVE_DUCKBOX_HARDWARE
+	// OSDShot
+	mc = new CMenuOptionChooser(LOCALE_EXTRA_OSDSHOT, &g_settings.osd_shotmode, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true);
+	mc->setHint("", LOCALE_MENU_HINT_OSDSHOT);
+	osd_menu->addItem(mc);
+#endif
 	int res = osd_menu->exec(NULL, "");
 
 	delete osd_menu;

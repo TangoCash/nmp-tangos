@@ -719,6 +719,9 @@ int CNeutrinoApp::loadSetup(const char * fname)
 
 	g_settings.bigFonts = configfile.getInt32("bigFonts", 0);
 	g_settings.big_windows = configfile.getInt32("big_windows", 0);
+#if HAVE_DUCKBOX_HARDWARE
+	g_settings.osd_shotmode = configfile.getInt32("osd_shotmode", 0);
+#endif
 
 	g_settings.remote_control_hardware = configfile.getInt32( "remote_control_hardware",  CRCInput::RC_HW_COOLSTREAM);
 	g_settings.audiochannel_up_down_enable = configfile.getBool("audiochannel_up_down_enable", false);
@@ -1248,6 +1251,9 @@ void CNeutrinoApp::saveSetup(const char * fname)
 
 	configfile.setInt32("bigFonts", g_settings.bigFonts);
 	configfile.setInt32("big_windows", g_settings.big_windows);
+#if HAVE_DUCKBOX_HARDWARE
+	configfile.setInt32("osd_shotmode", 0); //always save off !!
+#endif
 #if 0
 	configfile.setInt32("pip_x", g_settings.pip_x);
 	configfile.setInt32("pip_y", g_settings.pip_y);

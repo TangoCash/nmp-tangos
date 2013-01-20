@@ -835,3 +835,67 @@ void CFbAccel::mark(int, int, int, int)
 }
 #endif
 
+#if HAVE_DUCKBOX_HARDWARE
+bool CFbAccel::OSDShot(const std::string &name)
+{
+    struct timeval ts, te;
+
+    gettimeofday(&ts, NULL);
+
+    size_t l = name.find_last_of(".");
+
+    if(l == std::string::npos)
+
+        return false;
+
+    if (name.substr(l) != ".png")
+
+        return false;
+
+    FILE *out = fopen(name.c_str(), "w");
+
+    if (!out)
+
+        return false;
+
+    png_bytep row_pointers[fb->yRes];
+
+    png_structp png_ptr = png_create_write_struct( PNG_LIBPNG_VER_STRING,
+
+                          (png_voidp) NULL, (png_error_ptr) NULL, (png_error_ptr) NULL);
+
+    png_infop info_ptr = png_create_info_struct(png_ptr);
+
+    png_init_io(png_ptr, out);
+
+    for (unsigned int y = 0; y < fb->yRes; y++)
+
+        row_pointers[y] = (png_bytep) ((fb_pixel_t *)fb->lfb + y * fb->xRes);
+
+    png_set_compression_level(png_ptr, 1);
+
+    png_set_bgr(png_ptr);
+
+    png_set_IHDR(png_ptr, info_ptr, fb->xRes, fb->yRes, 8, PNG_COLOR_TYPE_RGBA,
+
+                 PNG_INTERLACE_NONE, PNG_COMPRESSION_TYPE_BASE, PNG_FILTER_TYPE_BASE);
+
+    png_write_info(png_ptr, info_ptr);
+
+    png_write_image(png_ptr, row_pointers);
+
+    png_write_end(png_ptr, info_ptr);
+
+    png_destroy_write_struct(&png_ptr, &info_ptr);
+
+    fclose(out);
+
+    gettimeofday(&te, NULL);
+
+    fprintf(stderr, "%s took %lld us\n", __func__, (te.tv_sec * 1000000LL + te.tv_usec) - (ts.tv_sec * 1000000LL + ts.tv_usec));
+
+    return true;
+
+}
+#endif
+

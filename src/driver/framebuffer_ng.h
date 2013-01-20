@@ -36,6 +36,10 @@
 #include <OpenThreads/Mutex>
 #include <OpenThreads/ScopedLock>
 
+#if HAVE_DUCKBOX_HARDWARE
+#include <png.h>
+#endif
+
 #define fb_pixel_t uint32_t
 
 typedef struct fb_var_screeninfo t_fb_var_screeninfo;
@@ -90,6 +94,9 @@ class CFbAccel
 		void update();
 #ifdef USE_NEVIS_GXA
 		void setupGXA(void);
+#endif
+#if HAVE_DUCKBOX_HARDWARE
+		bool OSDShot(const std::string &name);
 #endif
 };
 
@@ -276,6 +283,9 @@ class CFrameBuffer
 			};
 		void SetTransparent(int t){ m_transparent = t; }
 		void SetTransparentDefault(){ m_transparent = m_transparent_default; }
+#if HAVE_DUCKBOX_HARDWARE
+		bool OSDShot(const std::string &name) { accel->OSDShot(name); };
+#endif
 };
 
 #endif

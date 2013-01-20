@@ -432,6 +432,9 @@ const char * locale_real_names[] =
 	"extra.zapit_motor_speed",
 	"extra.zapit_scanpids",
 	"extra.zapit_sdt_changed",
+#if HAVE_DUCKBOX_HARDWARE
+	"extra.osdshot",
+#endif
 	"fan_speed",
 	"favorites.addchannel",
 	"favorites.bouquetname",
@@ -1132,6 +1135,9 @@ const char * locale_real_names[] =
 	"menu.hint_volume_digits",
 	"menu.hint_volume_pos",
 	"menu.hint_zap_cycle",
+#if HAVE_DUCKBOX_HARDWARE
+	"menu.hint_osdshot",
+#endif
 	"menu.next",
 	"messagebox.accept",
 	"messagebox.back",

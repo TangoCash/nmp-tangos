@@ -1281,7 +1281,24 @@ printf("[neutrino] CSectionsdClient::EVT_GOT_CN_EPG\n");
 #endif
 						{
 							last_keypress = now_pressed;
+#if HAVE_DUCKBOX_HARDWARE
+							if ((g_settings.osd_shotmode && trkey == RC_spkr )) {
 
+								char d[80];
+								char p[255];
+								char *vfdtext;
+								time_t now = time(NULL);
+								struct tm *tm = localtime(&now);
+
+								strftime(d, sizeof(d), "%%s/osdshot-%Y%m%d%H%M%S.png", tm);
+								snprintf(p, sizeof(p), d, g_settings.network_nfs_picturedir);
+
+								CVFD::getInstance()->ShowText("OSD SHOT");
+								CFrameBuffer::getInstance()->OSDShot(p);
+
+								continue;
+							}
+#endif
 							*msg = trkey;
 							*data = 0; /* <- button pressed */
 							if(g_settings.key_click)

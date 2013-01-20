@@ -477,6 +477,10 @@ struct SNeutrinoSettings
 	int screen_xres;
 	int screen_yres;
 
+#if HAVE_DUCKBOX_HARDWARE
+	int osd_shotmode;
+#endif
+
 	//Software-update
 	int softupdate_mode;
 	char softupdate_url_file[31];

@@ -405,6 +405,7 @@ extra.zapit_make_bouquet Make Remaining Channels list
 extra.zapit_motor_speed Motor moving speed (10 = 1deg/sec)
 extra.zapit_scanpids Scan/Use pids
 extra.zapit_sdt_changed Channels changed, reload settings.
+extra.osdshot Screenshot from OSD with Mute
 fan_speed CPU Fan speed
 favorites.addchannel The current channel will be added \nto the bouquet "My Favorites". \n This will take a few seconds...
 favorites.bouquetname My Favorites
