@@ -262,7 +262,11 @@ int COsdSetup::exec(CMenuTarget* parent, const std::string &actionKey)
 	}
 	else if(actionKey=="screenshot_dir") {
 		const char *action_str = "screenshot";
+#if HAVE_DUCKBOX_HARDWARE
+		chooserDir(g_settings.screenshot_dir, false, action_str);
+#else
 		chooserDir(g_settings.screenshot_dir, true, action_str);
+#endif
 		return menu_return::RETURN_REPAINT;
 	}
 	else if(strncmp(actionKey.c_str(), "fontsize.d", 10) == 0) {
@@ -511,6 +515,11 @@ int COsdSetup::showOsdSetup()
 	mc = new CMenuOptionChooser(LOCALE_EXTRA_OSDSHOT, &g_settings.osd_shotmode, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true);
 	mc->setHint("", LOCALE_MENU_HINT_OSDSHOT);
 	osd_menu->addItem(mc);
+
+	mf = new CMenuForwarder(LOCALE_SCREENSHOT_DEFDIR, true, g_settings.screenshot_dir, this, "screenshot_dir");
+	mf->setHint("", LOCALE_MENU_HINT_SCREENSHOT_DIR);
+	osd_menu->addItem(mf);
+
 #endif
 	int res = osd_menu->exec(NULL, "");
 

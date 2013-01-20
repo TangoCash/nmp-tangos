@@ -1291,7 +1291,7 @@ printf("[neutrino] CSectionsdClient::EVT_GOT_CN_EPG\n");
 								struct tm *tm = localtime(&now);
 
 								strftime(d, sizeof(d), "%%s/osdshot-%Y%m%d%H%M%S.png", tm);
-								snprintf(p, sizeof(p), d, g_settings.network_nfs_picturedir);
+								snprintf(p, sizeof(p), d, g_settings.screenshot_dir.c_str());
 
 								CVFD::getInstance()->ShowText("OSD SHOT");
 								CFrameBuffer::getInstance()->OSDShot(p);

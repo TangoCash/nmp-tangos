@@ -675,7 +675,7 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	g_settings.screenshot_scale = configfile.getInt32( "screenshot_scale",  0);
 
 #if HAVE_DUCKBOX_HARDWARE
-	g_settings.screenshot_dir = configfile.getString( "screenshot_dir", "/hdd/movie" );
+	g_settings.screenshot_dir = configfile.getString( "screenshot_dir", g_settings.network_nfs_picturedir );
 #else
 	g_settings.screenshot_dir = configfile.getString( "screenshot_dir", "/media/sda1/movies" );
 #endif
