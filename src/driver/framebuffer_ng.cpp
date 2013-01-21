@@ -977,6 +977,7 @@ _display:
 
 	if (paintBg)
 		paintBoxRel(x, yy, width, height, colBg);
+	waitForIdle();
 	blit2FB(data, width, height, x, yy);
 	return true;
  
