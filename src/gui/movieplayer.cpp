@@ -126,7 +126,7 @@ void CMoviePlayerGui::Init(void)
 	tsfilefilter.addFilter("mov");
 	tsfilefilter.addFilter("m3u");
 	tsfilefilter.addFilter("pls");
-#if defined HAVE_SPARK_HARDWARE || defined HAVE_DUCKBOX_HARDWARE
+#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
 	tsfilefilter.addFilter("vdr");
 	tsfilefilter.addFilter("mp3");
 	tsfilefilter.addFilter("flv");
@@ -539,8 +539,12 @@ void CMoviePlayerGui::PlayFile(void)
 				printf("CMoviePlayerGui::PlayFile: speed %d position %d duration %d (%d, %d%%)\n", speed, position, duration, duration-position, file_prozent);
 #endif
 				/* in case ffmpeg report incorrect values */
+#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+				if (duration - position < 1000 && !timeshift)
+#else
 				int posdiff = duration - position;
 				if ((posdiff > 0) && (posdiff < 1000) && !timeshift)
+#endif
 				{
 					/* 10 seconds after end-of-file, stop */
 					if (++eof > 10)
