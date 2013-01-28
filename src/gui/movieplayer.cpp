@@ -947,7 +947,7 @@ void CMoviePlayerGui::selectAudioPid(bool file_player)
 	delete selector;
 	printf("CMoviePlayerGui::selectAudioPid: selected %d (%x) current %x\n", select, (select >= 0) ? apids[select] : -1, currentapid);
 	if((select >= 0) && (currentapid != apids[select])) {
-		currentapid = apids[select];
+		currentapid = select; /*apids[select];*/
 		currentac3 = ac3flags[select];
 		playback->SetAPid(currentapid, currentac3);
 		printf("[movieplayer] apid changed to %d type %d\n", currentapid, currentac3);
