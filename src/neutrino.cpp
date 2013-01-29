@@ -429,6 +429,7 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	g_settings.infobar_show  = configfile.getInt32("infobar_show", 1);
 	g_settings.infobar_show_channellogo   = configfile.getInt32("infobar_show_channellogo"  , 3 );
 	g_settings.casystem_display = configfile.getInt32("casystem_display", 2 );//mini ca mode default
+	g_settings.dotmatrix = configfile.getInt32("infobar_dotmatrix", 0 );//default off
 	g_settings.scrambled_message = configfile.getBool("scrambled_message", false );
 	g_settings.volume_pos = configfile.getInt32("volume_pos", 0 );
 	g_settings.volume_digits = configfile.getBool("volume_digits", true);
@@ -940,6 +941,7 @@ void CNeutrinoApp::saveSetup(const char * fname)
 	configfile.setInt32("infobar_show", g_settings.infobar_show);
 	configfile.setInt32("infobar_show_channellogo"  , g_settings.infobar_show_channellogo  );
 	configfile.setInt32("casystem_display"  , g_settings.casystem_display  );
+	configfile.setInt32("infobar_dotmatrix", g_settings.dotmatrix );
 	configfile.setBool("scrambled_message"  , g_settings.scrambled_message  );
 	configfile.setInt32("volume_pos"  , g_settings.volume_pos  );
 	configfile.setBool("volume_digits", g_settings.volume_digits);

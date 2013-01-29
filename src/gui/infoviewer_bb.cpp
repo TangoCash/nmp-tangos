@@ -824,8 +824,10 @@ void CInfoViewerBB::paintCA_bar(int left, int right)
 	if (left)
 		left =  xcnt - ((left/4)-1);
 
-	frameBuffer->paintBox(g_InfoViewer->ChanInfoX + (right*4), g_InfoViewer->BoxEndY, g_InfoViewer->BoxEndX - (left*4), g_InfoViewer->BoxEndY + bottom_bar_offset, COL_BLACK);
+	frameBuffer->paintBox(g_InfoViewer->ChanInfoX + (right*4), g_InfoViewer->BoxEndY, g_InfoViewer->BoxEndX - (left*4), g_InfoViewer->BoxEndY + bottom_bar_offset, (g_settings.dotmatrix == 1) ? COL_BLACK : COL_INFOBAR_PLUS_0);
 
+	if (g_settings.dotmatrix == 1)
+	{
 	if (left)
 		left -= 1;
 
@@ -833,6 +835,7 @@ void CInfoViewerBB::paintCA_bar(int left, int right)
 		for (int j = 0; j < ycnt; j++) {
 			frameBuffer->paintBoxRel((g_InfoViewer->ChanInfoX + 2) + i*4, g_InfoViewer->BoxEndY + 2 + j*4, 2, 2, COL_INFOBAR_PLUS_1);
 		}
+	}
 	}
 }
 
