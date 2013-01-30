@@ -1441,6 +1441,8 @@ void CInfoViewer::display_Info(const char *current, const char *next,
 	xStart = InfoX;
 	if (starttimes)
 		xStart += info_time_width + 10;
+	if (g_settings.dotmatrix == 0)
+		NextInfoY += 8;
 
 	//colored_events init
 	bool colored_event_C = false;
@@ -1457,9 +1459,21 @@ void CInfoViewer::display_Info(const char *current, const char *next,
 		int pb_h = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->getHeight() - 4;
 		if (pb_p > pb_w)
 			pb_p = pb_w;
+		if (g_settings.dotmatrix == 1)
+		{
 		timescale->paintProgressBar(BoxEndX - pb_w - SHADOW_OFFSET, ChanNameY - (pb_h + 10) , pb_w, pb_h, pb_p, pb_w,
 					    0, 0, g_settings.progressbar_color ? COL_INFOBAR_SHADOW_PLUS_0 : COL_INFOBAR_PLUS_0, COL_INFOBAR_SHADOW_PLUS_0, "", COL_INFOBAR);
 		//printf("paintProgressBar(%d, %d, %d, %d)\n", BoxEndX - pb_w - SHADOW_OFFSET, ChanNameY - (pb_h + 10) , pb_w, pb_h);
+	}
+		else
+		{
+		int length = BoxEndX - 10 - xStart;
+		int runninglength = (BoxEndX - 10 - xStart) * pb_p / 100;
+		if (runninglength > length) runninglength = 0;
+		frameBuffer->paintBoxRel (xStart, CurrInfoY, length, 8, COL_INFOBAR_PLUS_0);
+		frameBuffer->paintBoxRel (xStart, CurrInfoY, length, 5, COL_INFOBAR_SHADOW_PLUS_1);
+		frameBuffer->paintBoxRel (xStart, CurrInfoY, runninglength, 5, COL_MENUCONTENT_PLUS_6);
+		}
 	}
 
 	int currTimeW = 0;
