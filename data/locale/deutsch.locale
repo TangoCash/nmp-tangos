@@ -1884,3 +1884,6 @@ zapitsetup.last_radio Radio Kanal
 zapitsetup.last_tv TV Kanal
 zapitsetup.last_use Kanal beim Runterfahren speichern
 zaptotimer.announce In einer Minute wird umgeschaltet.
+channellist.minitv Kanalliste mit MiniTV
+miscsettings.infobar_dotmatrix_display Punktmatrix anzeigen
+
