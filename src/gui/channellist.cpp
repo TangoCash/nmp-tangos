@@ -2111,11 +2111,11 @@ std::string  CChannelList::MaxChanNr()
 	return maxchansize;
 }
 
-void CChannelList::paint_pig (int x, int y, int w, int h)
+void CChannelList::paint_pig (int _x, int _y, int w, int h)
 {
-    frameBuffer->paintBackgroundBoxRel (x, y, w, h);
-    printf("CChannelList::paint_pig x %d y %d w %d h %d osd_w %d osd_w %d\n", x, y, w, h, frameBuffer->getScreenWidth(true), frameBuffer->getScreenHeight(true));
-    videoDecoder->Pig(x, y, w, h, frameBuffer->getScreenWidth(true), frameBuffer->getScreenHeight(true));
+    frameBuffer->paintBackgroundBoxRel (_x, _y, w, h);
+    //printf("CChannelList::paint_pig x %d y %d w %d h %d osd_w %d osd_w %d\n", _x, _y, w, h, frameBuffer->getScreenWidth(true), frameBuffer->getScreenHeight(true));
+    videoDecoder->Pig(_x, _y, w, h, frameBuffer->getScreenWidth(true), frameBuffer->getScreenHeight(true));
 }
 
 void CChannelList::paint_events(int index)
