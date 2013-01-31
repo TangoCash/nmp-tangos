@@ -473,11 +473,13 @@ void CChannelList::calcSize()
 	int  fw = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->getWidth();
 	width  = w_max (((g_settings.channellist_extended)?(frameBuffer->getScreenWidth() / 20 * (fw+6)):(frameBuffer->getScreenWidth() / 20 * (fw+5))), 100);
 	widthDetails = width;
-	if (g_settings.channellist_minitv)
+	if (g_settings.channellist_minitv){
 		widthDetails = frameBuffer->getScreenWidth() - frameBuffer->getScreenX();
+		infozone_width = widthDetails - width;
+	}
 	height = h_max ((frameBuffer->getScreenHeight() / 20 * 16), (frameBuffer->getScreenHeight() / 20 * 2));
 	if (g_settings.channellist_minitv)
-		height = h_max ((frameBuffer->getScreenHeight() / 20 * 18), 0);
+		height = h_max ((frameBuffer->getScreenHeight() / 20 * 17), 0);
 
 	CVFD::getInstance()->setMode(CVFD::MODE_MENU_UTF8, name.c_str());
 
@@ -511,19 +513,18 @@ void CChannelList::calcSize()
 
 	if (g_settings.channellist_minitv)
 	{
-	width = frameBuffer->getScreenWidth() / 3 * 2;
-    x = frameBuffer->getScreenX() + (frameBuffer->getScreenWidth() - widthDetails) / 2;
-    y = frameBuffer->getScreenY();
-    pig_width  = widthDetails / 3 - 16;
-    pig_height = pig_width / 16 * 9;
+		width = frameBuffer->getScreenWidth() / 3 * 2;
+		x = frameBuffer->getScreenX() + (frameBuffer->getScreenWidth() - widthDetails) / 2;
+		y = frameBuffer->getScreenY();
+		pig_width  = widthDetails / 3 - 16;
+		pig_height = pig_width / 16 * 9;
 
-    infozone_width  = pig_width - 8;
-    infozone_height = height - theight - pig_height;
+		infozone_height = height - theight - pig_height;
 	}
 	else
 	{
-	x = frameBuffer->getScreenX() + (frameBuffer->getScreenWidth() - width) / 2;
-	y = frameBuffer->getScreenY() + (frameBuffer->getScreenHeight() - (height+ info_height)) / 2;
+		x = frameBuffer->getScreenX() + (frameBuffer->getScreenWidth() - width) / 2;
+		y = frameBuffer->getScreenY() + (frameBuffer->getScreenHeight() - (height+ info_height)) / 2;
 	}
 }
 
@@ -916,7 +917,6 @@ void CChannelList::hide()
 {
     if (g_settings.channellist_minitv)
 	{
-	widthDetails = frameBuffer->getScreenWidth() - frameBuffer->getScreenX();
 	videoDecoder->Pig(-1, -1, -1, -1);
 	}
 	frameBuffer->paintBackgroundBoxRel(x, y, widthDetails, height+ info_height+ 5);
@@ -2006,10 +2006,10 @@ void CChannelList::paintHead()
 	if (gotTime) {
 		int iw3x = (g_settings.channellist_new_zap_mode) ? iw3 : -4;
 		if (g_settings.channellist_minitv)
-		g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->RenderString(x + widthDetails - 16 -timestr_len,
+			g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->RenderString(x + widthDetails - 16 -timestr_len,
 				y+theight, timestr_len, timestr, COL_MENUHEAD, 0, true); // UTF-8
 		else
-		g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->RenderString(x + width - iw1 - iw2 - iw3x - 16 -timestr_len,
+			g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->RenderString(x + width - iw1 - iw2 - iw3x - 16 -timestr_len,
 				y+theight, timestr_len, timestr, COL_MENUHEAD, 0, true); // UTF-8
 		timestr_len += 4;
 	}
@@ -2129,7 +2129,7 @@ void CChannelList::paint_events(int index)
     time(&azeit);
     int ffheight = g_Font[SNeutrinoSettings::FONT_TYPE_EPG_INFO1]->getHeight();
 
-    if ( evtlist.size() == 0 )
+    if ( evtlist.empty() )
     {
         CChannelEvent evt;
 
@@ -2138,7 +2138,6 @@ void CChannelList::paint_events(int index)
         evtlist.push_back(evt);
 
     }
-
     int i=1;
     for (e=evtlist.begin(); e!=evtlist.end(); ++e )
     {
@@ -2149,7 +2148,8 @@ void CChannelList::paint_events(int index)
             do
             {
                 //printf("%d seconds in the past - deleted %s\n", dif, e->description.c_str());
-                e = evtlist.erase(e);
+				if(!evtlist.empty())
+				e = evtlist.erase(e);
                 dif = azeit - e->startTime;
             }
             while ( dif > 0 );
@@ -2167,7 +2167,8 @@ void CChannelList::paint_events(int index)
         else break;
         i++;
     }
-	evtlist.clear();
+	if ( !evtlist.empty() )
+		evtlist.clear();
 }
 
 static bool sortByDateTime (const CChannelEvent& a, const CChannelEvent& b)
