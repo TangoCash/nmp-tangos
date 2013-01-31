@@ -1884,3 +1884,4 @@ zapitsetup.last_radio Radio Channel
 zapitsetup.last_tv TV Channel
 zapitsetup.last_use from last Channel
 zaptotimer.announce Zapto timer in one minute
+channellist.minitv Channellist with MiniTV
