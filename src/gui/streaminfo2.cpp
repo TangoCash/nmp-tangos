@@ -481,7 +481,11 @@ void CStreamInfo2::paint_techinfo(int xpos, int ypos)
 	}
 	average_bitrate_offset = spaceoffset+=4;
 
+#if BOXMODEL_UFS910
+	if(channel->getVideoPid()){
+#else
 	if(channel->getVideoPid() && !(videoDecoder->getBlank())){
+#endif
 		 videoDecoder->getPictureInfo(xres, yres, framerate);
 		 aspectRatio = videoDecoder->getAspectRatio();
 	}
