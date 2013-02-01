@@ -94,7 +94,7 @@ extern int old_b_id;
 
 extern cVideo * videoDecoder;
 
-#define ConnectLineBox_Width   16
+#define ConnectLineBox_Width	16
 
 CChannelList::CChannelList(const char * const pName, bool phistoryMode, bool _vlist, bool )
 {
@@ -330,7 +330,6 @@ int CChannelList::doChannelMenu(void)
 	if (g_settings.parentallock_prompt == PARENTALLOCK_PROMPT_CHANGETOLOCKED &&
 	    chanlist[selected]->bAlwaysLocked != g_settings.parentallock_defaultlocked)
 		unlocked = (chanlist[selected]->last_unlocked_time + 3600 > time_monotonic());
-
 	snprintf(cnt, sizeof(cnt), "%d", i);
 	menu->addItem(new CMenuForwarder(LOCALE_BOUQUETEDITOR_DELETE, enabled && unlocked, NULL, selector, cnt, CRCInput::RC_red, NEUTRINO_ICON_BUTTON_RED), old_selected == i++);
 	snprintf(cnt, sizeof(cnt), "%d", i);
@@ -477,7 +476,7 @@ void CChannelList::calcSize()
 	widthDetails = width;
 	height = h_max ((frameBuffer->getScreenHeight() / 20 * 16), (frameBuffer->getScreenHeight() / 20 * 2));
 	if (g_settings.channellist_minitv)
-		height = h_max ((frameBuffer->getScreenHeight() / 20 * 18), 0);
+		height = h_max ((frameBuffer->getScreenHeight() / 20 * 17), 0);
 
 	CVFD::getInstance()->setMode(CVFD::MODE_MENU_UTF8, name.c_str());
 
@@ -582,7 +581,7 @@ int CChannelList::show()
 
 	if (g_settings.channellist_minitv)
 	{
-    frameBuffer->paintBoxRel(x,y,widthDetails,height + info_height,COL_MENUHEAD_PLUS_0, RADIUS_LARGE, CORNER_ALL);
+		frameBuffer->paintBoxRel(x+width,y+theight,infozone_width,pig_height+infozone_height,COL_MENUHEAD_PLUS_0, RADIUS_LARGE, CORNER_BOTTOM);
 	}
 
 	paintHead();
@@ -918,9 +917,10 @@ int CChannelList::show()
 
 void CChannelList::hide()
 {
-    if (g_settings.channellist_minitv)
+	if (g_settings.channellist_minitv)
 	{
-	videoDecoder->Pig(-1, -1, -1, -1);
+// 		widthDetails = frameBuffer->getScreenWidth() - frameBuffer->getScreenX();
+		videoDecoder->Pig(-1, -1, -1, -1);
 	}
 	frameBuffer->paintBackgroundBoxRel(x, y, widthDetails, height+ info_height+ 5);
 	clearItem2DetailsLine();
@@ -2034,7 +2034,7 @@ void CChannelList::paint()
 {
 	if (g_settings.channellist_minitv)
 	{
-    paint_pig(x+width, y+theight+1, pig_width, pig_height);
+		paint_pig(x+width, y+theight+1, pig_width, pig_height);
 	}
 
 	numwidth = g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST_NUMBER]->getRenderWidth(MaxChanNr().c_str());
@@ -2123,69 +2123,70 @@ std::string  CChannelList::MaxChanNr()
 
 void CChannelList::paint_pig (int _x, int _y, int w, int h)
 {
-    frameBuffer->paintBackgroundBoxRel (_x, _y, w, h);
-    //printf("CChannelList::paint_pig x %d y %d w %d h %d osd_w %d osd_w %d\n", _x, _y, w, h, frameBuffer->getScreenWidth(true), frameBuffer->getScreenHeight(true));
-    videoDecoder->Pig(_x, _y, w, h, frameBuffer->getScreenWidth(true), frameBuffer->getScreenHeight(true));
+	frameBuffer->paintBackgroundBoxRel (_x, _y, w, h);
+	printf("CChannelList::paint_pig x %d y %d w %d h %d osd_w %d osd_w %d\n", _x, _y, w, h, frameBuffer->getScreenWidth(true), frameBuffer->getScreenHeight(true));
+	videoDecoder->Pig(_x, _y, w, h, frameBuffer->getScreenWidth(true), frameBuffer->getScreenHeight(true));
 }
 
 void CChannelList::paint_events(int index)
 {
-    readEvents(chanlist[index]->channel_id);
-    frameBuffer->paintBoxRel(x+ width,y+ theight+pig_height, infozone_width, infozone_height,COL_MENUHEAD_PLUS_0);
-    char text1[10];
-    CChannelEventList::iterator e;
-    time_t azeit;
-    time(&azeit);
-    int ffheight = g_Font[SNeutrinoSettings::FONT_TYPE_EPG_INFO1]->getHeight();
+	readEvents(chanlist[index]->channel_id);
+	frameBuffer->paintBoxRel(x+ width,y+ theight+pig_height, infozone_width, infozone_height,COL_MENUHEAD_PLUS_0);
 
-    if ( evtlist.empty() )
-    {
-        CChannelEvent evt;
+	char text1[10];
+	CChannelEventList::iterator e;
+	time_t azeit;
+	time(&azeit);
+	int ffheight = g_Font[SNeutrinoSettings::FONT_TYPE_EPG_INFO1]->getHeight();
 
-        evt.description = g_Locale->getText(LOCALE_EPGLIST_NOEVENTS);
-        evt.eventID = 0;
-        evtlist.push_back(evt);
+	if ( evtlist.empty() )
+	{
+		CChannelEvent evt;
 
-    }
-    int i=1;
-    for (e=evtlist.begin(); e!=evtlist.end(); ++e )
-    {
-        //Remove events in the past
-        time_t dif = azeit - e->startTime;
-        if ( (dif > 0) && (!(e->eventID == 0)))
-        {
-            do
-            {
-                //printf("%d seconds in the past - deleted %s\n", dif, e->description.c_str());
-                e = evtlist.erase( e );
-                if (e == evtlist.end())
-                    break;
-                dif = azeit - e->startTime;
-            }
-            while ( dif > 0 );
-        }
-        if (e == evtlist.end())
-            break;
-        //Display the remaining events
-        struct tm *tmStartZeit = localtime(&e->startTime);
-        strftime(text1, sizeof(text1), "%H:%M", tmStartZeit );
-        //printf("%s %s\n", text1, e->description.c_str());
-        int timewidth = g_Font[SNeutrinoSettings::FONT_TYPE_EPG_INFO1]->getRenderWidth(text1, true);
-        if ((y+ theight+ pig_height + i*ffheight) < (y+ height))
-        {
-            g_Font[SNeutrinoSettings::FONT_TYPE_EPG_INFO1]->RenderString(x+ width+5, y+ theight+ pig_height + i*ffheight, timewidth, text1, COL_MENUCONTENTDARK, 0, true);
-            g_Font[SNeutrinoSettings::FONT_TYPE_EPG_INFO1]->RenderString(x+ width+5+timewidth+5, y+ theight+ pig_height + i*ffheight, infozone_width - timewidth - 20, e->description, COL_MENUCONTENTDARK, 0, true);
-        }
+		evt.description = g_Locale->getText(LOCALE_EPGLIST_NOEVENTS);
+		evt.eventID = 0;
+		evtlist.push_back(evt);
+	}
+
+	int i=1;
+	for (e=evtlist.begin(); e!=evtlist.end(); ++e )
+	{
+		//Remove events in the past
+		time_t dif = azeit - e->startTime;
+		if ( (dif > 0) && (!(e->eventID == 0)))
+		{
+			do
+			{
+				//printf("%d seconds in the past - deleted %s\n", dif, e->description.c_str());
+				e = evtlist.erase( e );
+				if (e == evtlist.end())
+					break;
+				dif = azeit - e->startTime;
+			}
+			while ( dif > 0 );
+		}
+		if (e == evtlist.end()) 
+			break;
+		//Display the remaining events
+		struct tm *tmStartZeit = localtime(&e->startTime);
+		strftime(text1, sizeof(text1), "%H:%M", tmStartZeit );
+		//printf("%s %s\n", text1, e->description.c_str());
+		int timewidth = g_Font[SNeutrinoSettings::FONT_TYPE_EPG_INFO1]->getRenderWidth(text1, true);
+		if ((y+ theight+ pig_height + i*ffheight) < (y+ height))
+		{
+			g_Font[SNeutrinoSettings::FONT_TYPE_EPG_INFO1]->RenderString(x+ width+5, y+ theight+ pig_height + i*ffheight, timewidth, text1, COL_MENUCONTENTDARK, 0, true);
+			g_Font[SNeutrinoSettings::FONT_TYPE_EPG_INFO1]->RenderString(x+ width+5+timewidth+5, y+ theight+ pig_height + i*ffheight, infozone_width - timewidth - 20, e->description, COL_MENUCONTENTDARK, 0, true);
+		}
         else break;
-        i++;
-    }
-    if ( !evtlist.empty() )
-        evtlist.clear();
+		i++;
+	}
+	if ( !evtlist.empty() )
+		evtlist.clear();
 }
 
 static bool sortByDateTime (const CChannelEvent& a, const CChannelEvent& b)
 {
-    return a.startTime < b.startTime;
+	return a.startTime < b.startTime;
 }
 
 void CChannelList::readEvents(const t_channel_id channel_id)
