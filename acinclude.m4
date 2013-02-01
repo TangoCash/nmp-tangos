@@ -389,10 +389,14 @@ AC_SUBST(CATALOGS)
 
 AC_DEFUN([TUXBOX_BOXTYPE],[
 AC_ARG_WITH(boxtype,
-	[  --with-boxtype          valid values: dbox2,tripledragon,dreambox,ipbox,coolstream,spark,azbox,generic,duckbox],
+	[  --with-boxtype          valid values: dbox2,tripledragon,dreambox,ipbox,coolstream,spark,azbox,generic,duckbox,spark7162],
 	[case "${withval}" in
 		dbox2|dreambox|ipbox|tripledragon|coolstream|spark|azbox|generic)
 			BOXTYPE="$withval"
+			;;
+		spark7162)
+			BOXTYPE="spark"
+			BOXMODEL="$withval"
 			;;
 		dm*)
 			BOXTYPE="dreambox"
@@ -485,6 +489,8 @@ AM_CONDITIONAL(BOXMODEL_UFS912,test "$BOXMODEL" = "ufs912")
 AM_CONDITIONAL(BOXMODEL_UFS913,test "$BOXMODEL" = "ufs913")
 AM_CONDITIONAL(BOXMODEL_UFS922,test "$BOXMODEL" = "ufs922")
 
+AM_CONDITIONAL(BOXMODEL_SPARK7162,test "$BOXMODEL" = "spark7162")
+
 AM_CONDITIONAL(BOXMODEL_ATEVIO7500, test "$BOXMODEL" = "atevio7500")
 AM_CONDITIONAL(BOXMODEL_FORTIS_HDBOX,test "$BOXMODEL" = "fortis_hdbox")
 AM_CONDITIONAL(BOXMODEL_OCTAGON1008,test "$BOXMODEL" = "octagon1008")
@@ -529,6 +535,8 @@ elif test "$BOXMODEL" = "ufs913"; then
 	AC_DEFINE(BOXMODEL_UFS913, 1, [ufs913])
 elif test "$BOXMODEL" = "ufs922"; then
 	AC_DEFINE(BOXMODEL_UFS922, 1, [ufs922])
+elif test "$BOXMODEL" = "spark7162"; then
+	AC_DEFINE(BOXMODEL_SPARK7162, 1, [spark7162])
 elif test "$BOXMODEL" = "atevio7500"; then
 	AC_DEFINE(BOXMODEL_ATEVIO7500, 1, [atevio7500])
 elif test "$BOXMODEL" = "fortis_hdbox"; then
