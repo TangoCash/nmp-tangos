@@ -581,7 +581,7 @@ int CChannelList::show()
 
 	if (g_settings.channellist_minitv)
 	{
-		frameBuffer->paintBoxRel(x+width,y+theight,infozone_width,pig_height+infozone_height,COL_MENUHEAD_PLUS_0, RADIUS_LARGE, CORNER_BOTTOM);
+		frameBuffer->paintBoxRel(x+width,y+theight,infozone_width,pig_height+infozone_height,COL_MENUCONTENT_PLUS_0, RADIUS_LARGE, CORNER_BOTTOM);
 	}
 
 	paintHead();
@@ -2131,7 +2131,7 @@ void CChannelList::paint_pig (int _x, int _y, int w, int h)
 void CChannelList::paint_events(int index)
 {
 	readEvents(chanlist[index]->channel_id);
-	frameBuffer->paintBoxRel(x+ width,y+ theight+pig_height, infozone_width, infozone_height,COL_MENUHEAD_PLUS_0);
+	frameBuffer->paintBoxRel(x+ width,y+ theight+pig_height, infozone_width, infozone_height,COL_MENUCONTENT_PLUS_0, RADIUS_LARGE, CORNER_BOTTOM);
 
 	char text1[10];
 	CChannelEventList::iterator e;
@@ -2177,7 +2177,10 @@ void CChannelList::paint_events(int index)
 			g_Font[SNeutrinoSettings::FONT_TYPE_EPG_INFO1]->RenderString(x+ width+5, y+ theight+ pig_height + i*ffheight, timewidth, text1, COL_MENUCONTENTDARK, 0, true);
 			g_Font[SNeutrinoSettings::FONT_TYPE_EPG_INFO1]->RenderString(x+ width+5+timewidth+5, y+ theight+ pig_height + i*ffheight, infozone_width - timewidth - 20, e->description, COL_MENUCONTENTDARK, 0, true);
 		}
-        else break;
+		else
+		{
+			break;
+		}
 		i++;
 	}
 	if ( !evtlist.empty() )
