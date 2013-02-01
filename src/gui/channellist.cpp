@@ -477,7 +477,7 @@ void CChannelList::calcSize()
 	widthDetails = width;
 	height = h_max ((frameBuffer->getScreenHeight() / 20 * 16), (frameBuffer->getScreenHeight() / 20 * 2));
 	if (g_settings.channellist_minitv)
-		height = h_max ((frameBuffer->getScreenHeight() / 20 * 17), 0);
+		height = h_max ((frameBuffer->getScreenHeight() / 20 * 18), 0);
 
 	CVFD::getInstance()->setMode(CVFD::MODE_MENU_UTF8, name.c_str());
 
@@ -521,6 +521,8 @@ void CChannelList::calcSize()
 		pig_width  = infozone_width;
 		pig_height = (pig_width * 9) / 16;
 		infozone_height = height - theight - pig_height;
+		if (g_settings.channellist_foot != 0)
+			info_height = 2*fheight + 10;
 	}
 	else
 	{
@@ -1597,7 +1599,7 @@ void CChannelList::paintDetails(int index)
 
 		g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST]->RenderString(x+ 10, y+ height+ 5+ 3*fheight, widthDetails - 30, desc.c_str(), COL_MENUCONTENTDARK, 0, true);
 	}
-	else if( !displayNext && g_settings.channellist_foot == 1) { // next Event
+	else if( !displayNext && g_settings.channellist_foot == 1 && !g_settings.channellist_minitv) { // next Event
 		char buf[128] = {0};
 		char cFrom[50] = {0}; // UTF-8
 		CSectionsdClient::CurrentNextInfo CurrentNext;
