@@ -1853,15 +1853,23 @@ void CChannelList::paintItem(int pos)
 	
 		//calculating icons
 		int  icon_x = (x+width-15-2) - RADIUS_LARGE/2;
-		int r_icon_w=0;  int s_icon_h=0; int s_icon_w=0;
-		frameBuffer->getIconSize(NEUTRINO_ICON_SCRAMBLED, &s_icon_w, &s_icon_h);
+		int r_icon_w=0;  int s_icon_h=0; int s_icon_w=0; int h_icon_w=0;
 		r_icon_w = ChannelList_Rec;
 		int r_icon_x = icon_x;
 		
 		//paint scramble icon
-		if(chan->scrambled)
+		if(chan->scrambled) {
+			frameBuffer->getIconSize(NEUTRINO_ICON_SCRAMBLED, &s_icon_w, &s_icon_h);
 			if (frameBuffer->paintIcon(NEUTRINO_ICON_SCRAMBLED, icon_x - s_icon_w, ypos, fheight))//ypos + (fheight - 16)/2);
 				r_icon_x = r_icon_x - s_icon_w;
+			}
+
+		//paint HD Icon
+		if(chan->isHD() && g_settings.channellist_hdicon) {
+			frameBuffer->getIconSize(NEUTRINO_ICON_RESOLUTION_HD, &h_icon_w, &s_icon_h);
+			if (frameBuffer->paintIcon(NEUTRINO_ICON_RESOLUTION_HD, icon_x - s_icon_w - h_icon_w, ypos, fheight))//ypos + (fheight - 16)/2);
+				r_icon_x = r_icon_x - h_icon_w;
+			}
 		
  		//paint recording icon
 		if (rec_mode != CRecordManager::RECMODE_OFF)
@@ -1871,7 +1879,7 @@ void CChannelList::paintItem(int pos)
 		if (paintbuttons)
 			paintButtonBar(iscurrent);
 		
-		int icon_space = r_icon_w+s_icon_w;
+		int icon_space = r_icon_w+s_icon_w+h_icon_w+8; //+8 to be sure
 
 		//number
 		int numpos = x+5+numwidth- g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST_NUMBER]->getRenderWidth(tmp);
