@@ -1650,8 +1650,8 @@ void CChannelList::paintItem2DetailsLine (int pos, int /*ch_index*/)
 
 void CChannelList::showChannelLogo()
 {
-	if (g_settings.channellist_minitv)
-		return;
+	//if (g_settings.channellist_minitv)
+	//	return;
 	if(g_settings.infobar_show_channellogo){
 		static int logo_w = 0;
 		static int logo_h = 0;
@@ -1751,7 +1751,10 @@ void CChannelList::paintButtonBar(bool is_current)
 
 	//paint buttons
 	int y_foot = y + (height - footerHeight);
+#if 0
 	::paintButtons(x, y_foot, widthDetails,num_buttons, Button, footerHeight,0,false,COL_INFOBAR_SHADOW,NULL,0,true, buttonID_rest);
+#endif
+	::paintButtons(x, y_foot, widthDetails, num_buttons, Button, width, footerHeight);
 }
 
 void CChannelList::paintItem(int pos)
