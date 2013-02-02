@@ -195,6 +195,7 @@ class CZapitChannel
 		t_original_network_id	getOriginalNetworkId(void) 	const { return original_network_id; }
 		unsigned char        	getServiceType(bool real=false);
 		bool			isHD();
+		bool			is3DTV();
 		t_channel_id         	getChannelID(void)         	const { return channel_id; }
 		transponder_id_t        getTransponderId(void)          const { return CREATE_TRANSPONDER_ID64(freq, satellitePosition,original_network_id,transport_stream_id); }
 		freq_id_t		getFreqId()			const { return freq; }

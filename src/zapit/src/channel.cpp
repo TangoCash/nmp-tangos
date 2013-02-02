@@ -161,10 +161,12 @@ unsigned char CZapitChannel::getServiceType(bool real)
 bool CZapitChannel::isHD()
 {
 	switch(serviceType) {
-		case 0x11: case 0x19:
-//printf("[zapit] HD channel: %s type 0x%X\n", name.c_str(), serviceType);
+		case ST_MPEG_2_HD_TELEVISION_SERVICE: 
+		case ST_MPEG_4_HD_TELEVISION_SERVICE:
 			return true;
-		case ST_DIGITAL_TELEVISION_SERVICE: {
+			
+		case ST_DIGITAL_TELEVISION_SERVICE: 
+		case ST_MPEG_4_SD_TELEVISION_SERVICE: {
 				  char * temp = (char *) name.c_str();
 				  int len = name.size();
 				  if((len > 1) && temp[len-2] == 'H' && temp[len-1] == 'D') {
@@ -177,6 +179,20 @@ bool CZapitChannel::isHD()
 			return false;
 		default:
 			//printf("[zapit] Unknown channel type 0x%X name %s !!!!!!\n", serviceType, name.c_str());
+			return false;
+	}
+}
+
+bool CZapitChannel::is3DTV()
+{
+	switch(serviceType) 
+	{
+		case ST_3DTV1_TELEVISION_SERVICE: 
+		case ST_3DTV2_TELEVISION_SERVICE:
+		case ST_3DTV3_TELEVISION_SERVICE:
+			return true;
+				
+		default:
 			return false;
 	}
 }
