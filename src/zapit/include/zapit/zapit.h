@@ -44,8 +44,9 @@ typedef struct ZAPIT_start_arg
         t_channel_id startchannelradio_id;
         int uselastchannel;
         int video_mode;
-	int volume;
+		int volume;
         int ci_clock;
+		const char* bootlogo;
 } Z_start_arg;
 
 typedef struct Zapit_config {

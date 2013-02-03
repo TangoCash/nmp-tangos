@@ -133,6 +133,7 @@ char zapit_long[20];
 bool autoshift = false;
 uint32_t scrambled_timer;
 t_channel_id standby_channel_id;
+const char * bootlogo;
 
 //NEW
 static pthread_t timer_thread;
@@ -1601,6 +1602,11 @@ void CNeutrinoApp::CmdParser(int argc, char **argv)
 		else if ((!strcmp(argv[x], "-zd"))) {
 			zapit_debug = 1;
 		}
+		else if (((!strcmp(argv[x], "-b"))) && (x+1 < argc)) {
+			bootlogo = argv[x+ 1];
+			printf("showing bootlogo %s", bootlogo);
+			x++;
+		}
 		else if (!strcmp(argv[x], "-r")) {
 			printf("[neutrino] WARNING: parameter -r ignored\n");
 			x++;
@@ -1938,6 +1944,7 @@ fprintf(stderr, "[neutrino start] %d  -> %5ld ms\n", __LINE__, time_monotonic_ms
 	ZapStart_arg.video_mode = g_settings.video_Mode;
 	ZapStart_arg.ci_clock = g_settings.ci_clock;
 	ZapStart_arg.volume = g_settings.current_volume;
+	ZapStart_arg.bootlogo = bootlogo;
 
 	/* create decoders, read channels */
 	bool zapit_init = CZapit::getInstance()->Start(&ZapStart_arg);
