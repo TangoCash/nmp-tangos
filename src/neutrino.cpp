@@ -2900,8 +2900,8 @@ _repeat:
 			for(int i=0 ; i < NETWORK_NFS_NR_OF_ENTRIES ; i++) {
 				if (strcmp(g_settings.network_nfs_local_dir[i],recordingDir) == 0) {
 					printf("[neutrino] waking up %s (%s)\n",g_settings.network_nfs_ip[i].c_str(),recordingDir);
-					if(my_system("etherwake",g_settings.network_nfs_mac[i]) != 0)
-						perror("etherwake failed");
+					if(my_system("ether-wake",g_settings.network_nfs_mac[i]) != 0)
+						perror("ether-wake failed");
 					break;
 				}
 			}
