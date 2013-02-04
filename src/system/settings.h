@@ -5,7 +5,6 @@
   Homepage: http://dbox.cyberphoria.org/
 
   Copyright (C) 2007-2012 Stefan Seyfried
-
   Kommentar:
 
   Diese GUI wurde von Grund auf neu programmiert und sollte nun vom
@@ -41,7 +40,6 @@
 #include <zapit/client/zapittools.h>
 
 #include <hardware_caps.h>
-
 #include <string>
 
 #define VIDEOMENU_VIDEOMODE_OPTION_COUNT 13
@@ -449,12 +447,12 @@ struct SNeutrinoSettings
 	int pip_y;
 	int bigFonts;
 	int big_windows;
+	int channellist_additional;
 	int channellist_epgtext_align_right;
 	int channellist_extended;
 	int channellist_foot;
 	int channellist_new_zap_mode;
 	int channellist_sort_mode;
-	int channellist_minitv;
 	int channellist_hdicon;
 	char repeat_blocker[4];
 	char repeat_genericblocker[4];
@@ -479,7 +477,6 @@ struct SNeutrinoSettings
 	int screen_height;
 	int screen_xres;
 	int screen_yres;
-
 #if HAVE_DUCKBOX_HARDWARE
 	int osd_shotmode;
 #endif

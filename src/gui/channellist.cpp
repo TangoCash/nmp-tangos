@@ -475,7 +475,7 @@ void CChannelList::calcSize()
 	width  = w_max (((g_settings.channellist_extended)?(frameBuffer->getScreenWidth() / 20 * (fw+6)):(frameBuffer->getScreenWidth() / 20 * (fw+5))), 100);
 	widthDetails = width;
 	height = h_max ((frameBuffer->getScreenHeight() / 20 * 16), (frameBuffer->getScreenHeight() / 20 * 2));
-	if (g_settings.channellist_minitv)
+	if (g_settings.channellist_additional)
 		height = h_max ((frameBuffer->getScreenHeight() / 20 * 17), 0);
 
 	CVFD::getInstance()->setMode(CVFD::MODE_MENU_UTF8, name.c_str());
@@ -508,7 +508,7 @@ void CChannelList::calcSize()
 	height = theight + footerHeight + listmaxshow * fheight;
 	info_height = 2*fheight + g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST_DESCR]->getHeight() + 10;
 
-	if (g_settings.channellist_minitv)
+	if (g_settings.channellist_additional)
 	{
 		width = frameBuffer->getScreenWidth() / 3 * 2;
 		widthDetails = frameBuffer->getScreenWidth() - frameBuffer->getScreenX() - 2*ConnectLineBox_Width;
@@ -518,7 +518,10 @@ void CChannelList::calcSize()
 		y = frameBuffer->getScreenY();
 		infozone_width  = widthDetails - width;
 		pig_width  = infozone_width;
-		pig_height = (pig_width * 9) / 16;
+		if (g_settings.channellist_additional == 2) // with miniTV
+			pig_height = (pig_width * 9) / 16;
+		else
+			pig_height = 0;
 		infozone_height = height - theight - pig_height - footerHeight;
 		if (g_settings.channellist_foot != 0)
 			info_height = 2*fheight + 10;	
@@ -579,7 +582,7 @@ int CChannelList::show()
 	COSDFader fader(g_settings.menu_Content_alpha);
 	fader.StartFadeIn();
 
-	if (g_settings.channellist_minitv)
+	if (g_settings.channellist_additional)
 	{
 		frameBuffer->paintBoxRel(x+width,y+theight,infozone_width,pig_height+infozone_height,COL_MENUCONTENT_PLUS_0);
 	}
@@ -917,9 +920,8 @@ int CChannelList::show()
 
 void CChannelList::hide()
 {
-	if (g_settings.channellist_minitv)
+	if (g_settings.channellist_additional == 2) // with miniTV
 	{
-// 		widthDetails = frameBuffer->getScreenWidth() - frameBuffer->getScreenX();
 		videoDecoder->Pig(-1, -1, -1, -1);
 	}
 	frameBuffer->paintBackgroundBoxRel(x, y, widthDetails, height+ info_height+ 5);
@@ -1599,7 +1601,7 @@ void CChannelList::paintDetails(int index)
 
 		g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST]->RenderString(x+ 10, y+ height+ 5+ 3*fheight, widthDetails - 30, desc.c_str(), COL_MENUCONTENTDARK, 0, true);
 	}
-	else if( !displayNext && g_settings.channellist_foot == 1 && !g_settings.channellist_minitv) { // next Event
+	else if( !displayNext && g_settings.channellist_foot == 1 && g_settings.channellist_additional > 0) { // next Event
 		char buf[128] = {0};
 		char cFrom[50] = {0}; // UTF-8
 		CSectionsdClient::CurrentNextInfo CurrentNext;
@@ -1614,7 +1616,7 @@ void CChannelList::paintDetails(int index)
 			g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST_DESCR]->RenderString(x+ widthDetails- 10- from_len, y+ height+ 5+ 3*fheight, from_len, cFrom, colored_event_N ? COL_COLORED_EVENTS_CHANNELLIST : COL_MENUCONTENTDARK, 0, true); // UTF-8
 		}
 	}
-	if ((g_settings.channellist_minitv) && (p_event != NULL))
+	if ((g_settings.channellist_additional) && (p_event != NULL))
 		paint_events(index);
 }
 
@@ -1650,8 +1652,6 @@ void CChannelList::paintItem2DetailsLine (int pos, int /*ch_index*/)
 
 void CChannelList::showChannelLogo()
 {
-	//if (g_settings.channellist_minitv)
-	//	return;
 	if(g_settings.infobar_show_channellogo){
 		static int logo_w = 0;
 		static int logo_h = 0;
@@ -2028,9 +2028,10 @@ void CChannelList::paintHead()
 
 void CChannelList::paint()
 {
-	if (g_settings.channellist_minitv)
+	if (g_settings.channellist_additional == 2) // with miniTV
 	{
-		paint_pig(x+width, y+theight+1, pig_width, pig_height);
+		// 5px offset - same value as in list below
+		paint_pig(x+width+5, y+theight+5, pig_width-10, pig_height-10);
 	}
 
 	numwidth = g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST_NUMBER]->getRenderWidth(MaxChanNr().c_str());
@@ -2170,7 +2171,7 @@ void CChannelList::paint_events(int index)
 		int timewidth = g_Font[SNeutrinoSettings::FONT_TYPE_EPG_INFO1]->getRenderWidth(text1, true);
 		if ((y+ theight+ pig_height + i*ffheight) < (y+ theight+ pig_height + infozone_height))
 		{
-			g_Font[SNeutrinoSettings::FONT_TYPE_EPG_INFO1]->RenderString(x+ width+5, y+ theight+ pig_height + i*ffheight, timewidth, text1, COL_MENUCONTENTDARK, 0, true);
+			g_Font[SNeutrinoSettings::FONT_TYPE_EPG_INFO1]->RenderString(x+ width+5, y+ theight+ pig_height + i*ffheight, timewidth, text1, COL_MENUCONTENTINACTIVE, 0, true);
 			g_Font[SNeutrinoSettings::FONT_TYPE_EPG_INFO1]->RenderString(x+ width+5+timewidth+5, y+ theight+ pig_height + i*ffheight, infozone_width - timewidth - 20, e->description, COL_MENUCONTENTDARK, 0, true);
 		}
 		else
