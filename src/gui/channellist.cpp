@@ -1601,7 +1601,7 @@ void CChannelList::paintDetails(int index)
 
 		g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST]->RenderString(x+ 10, y+ height+ 5+ 3*fheight, widthDetails - 30, desc.c_str(), COL_MENUCONTENTDARK, 0, true);
 	}
-	else if( !displayNext && g_settings.channellist_foot == 1 && g_settings.channellist_additional > 0) { // next Event
+	else if( !displayNext && g_settings.channellist_foot == 1 && g_settings.channellist_additional == 0) { // next Event
 		char buf[128] = {0};
 		char cFrom[50] = {0}; // UTF-8
 		CSectionsdClient::CurrentNextInfo CurrentNext;
