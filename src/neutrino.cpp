@@ -1604,7 +1604,10 @@ void CNeutrinoApp::CmdParser(int argc, char **argv)
 		}
 		else if (((!strcmp(argv[x], "-b"))) && (x+1 < argc)) {
 			bootlogo = argv[x+ 1];
-			printf("showing bootlogo %s", bootlogo);
+			if (strstr(bootlogo,".mvi") || strstr(bootlogo,".m2v"))
+				printf("showing bootlogo %s\n", bootlogo);
+			else
+				bootlogo="";
 			x++;
 		}
 		else if (!strcmp(argv[x], "-r")) {
