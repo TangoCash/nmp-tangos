@@ -2142,7 +2142,6 @@ void CChannelList::paint_events(int index)
 
 		evt.description = g_Locale->getText(LOCALE_EPGLIST_NOEVENTS);
 		evt.eventID = 0;
-		evt.startTime = time_t(82800);
 		evtlist.push_back(evt);
 	}
 
@@ -2172,7 +2171,8 @@ void CChannelList::paint_events(int index)
 		int timewidth = g_Font[SNeutrinoSettings::FONT_TYPE_EPG_INFO1]->getRenderWidth(text1, true);
 		if ((y+ theight+ pig_height + i*ffheight) < (y+ theight+ pig_height + infozone_height))
 		{
-			g_Font[SNeutrinoSettings::FONT_TYPE_EPG_INFO1]->RenderString(x+ width+5, y+ theight+ pig_height + i*ffheight, timewidth, text1, COL_MENUCONTENTINACTIVE, 0, true);
+			if (e->eventID)
+				g_Font[SNeutrinoSettings::FONT_TYPE_EPG_INFO1]->RenderString(x+ width+5, y+ theight+ pig_height + i*ffheight, timewidth, text1, COL_MENUCONTENTINACTIVE, 0, true);
 			g_Font[SNeutrinoSettings::FONT_TYPE_EPG_INFO1]->RenderString(x+ width+5+timewidth+5, y+ theight+ pig_height + i*ffheight, infozone_width - timewidth - 20, e->description, COL_MENUCONTENTDARK, 0, true);
 		}
 		else
@@ -2199,7 +2199,6 @@ void CChannelList::readEvents(const t_channel_id channel_id)
 		CChannelEvent evt;
 		evt.description = g_Locale->getText(LOCALE_EPGLIST_NOEVENTS);
 		evt.eventID = 0;
-		evt.startTime = time_t(82800);
 		evtlist.push_back(evt);
 	}
 	else
