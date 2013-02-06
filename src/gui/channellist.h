@@ -82,10 +82,12 @@ private:
 	int				pig_height;
 	int				infozone_width;
 	int				infozone_height;
+	CEPGData		epgData;
 
 	bool historyMode;
 	bool vlist; // "virtual" list, not bouquet
 	bool displayNext;
+	bool displayList;
 
 	int info_height;
 	bool new_mode_active;
@@ -107,6 +109,12 @@ private:
     void paint_events(int index);
     CChannelEventList	evtlist;
     void readEvents(const t_channel_id channel_id);
+	void showdescription(int index);
+	typedef std::pair<std::string,int> epg_pair;
+	std::vector<epg_pair> epgText;
+	int	emptyLineCount;
+	void addTextToArray( const std::string & text, int screening );
+	void processTextToArray(std::string text, int screening = 0);
 
 public:
 	CChannelList(const char * const Name, bool historyMode = false, bool _vlist = false, bool new_mode_active = false );
