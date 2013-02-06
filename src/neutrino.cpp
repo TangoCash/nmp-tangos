@@ -1602,14 +1602,6 @@ void CNeutrinoApp::CmdParser(int argc, char **argv)
 		else if ((!strcmp(argv[x], "-zd"))) {
 			zapit_debug = 1;
 		}
-		else if (((!strcmp(argv[x], "-b"))) && (x+1 < argc)) {
-			bootlogo = argv[x+ 1];
-			if (strstr(bootlogo,".mvi") || strstr(bootlogo,".m2v"))
-				printf("showing bootlogo %s\n", bootlogo);
-			else
-				bootlogo="";
-			x++;
-		}
 		else if (!strcmp(argv[x], "-r")) {
 			printf("[neutrino] WARNING: parameter -r ignored\n");
 			x++;
@@ -1947,7 +1939,6 @@ fprintf(stderr, "[neutrino start] %d  -> %5ld ms\n", __LINE__, time_monotonic_ms
 	ZapStart_arg.video_mode = g_settings.video_Mode;
 	ZapStart_arg.ci_clock = g_settings.ci_clock;
 	ZapStart_arg.volume = g_settings.current_volume;
-	ZapStart_arg.bootlogo = bootlogo;
 
 	/* create decoders, read channels */
 	bool zapit_init = CZapit::getInstance()->Start(&ZapStart_arg);
@@ -2091,6 +2082,8 @@ fprintf(stderr, "[neutrino start] %d  -> %5ld ms\n", __LINE__, time_monotonic_ms
 #ifndef DISABLE_SECTIONSD
 	InitSectiondClient();
 #endif
+
+	videoDecoder->Stop(1); //stopping videodecoder before 1st tune
 
 	/* wait until timerd is ready... */
 	time_t timerd_wait = time_monotonic_ms();

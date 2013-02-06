@@ -2163,7 +2163,7 @@ bool CZapit::Start(Z_start_arg *ZapStart_arg)
 	audioDecoder = new cAudio(audioDemux->getBuffer(), videoDecoder->GetTVEnc(), NULL /*videoDecoder->GetTVEncSD()*/);
 	videoDecoder->SetAudioHandle(audioDecoder->GetHandle());
 
-	videoDecoder->ShowBootLogo(ZapStart_arg->bootlogo);
+    videoDecoder->ShowPicture(DATADIR "/neutrino/icons/start.jpg");
 
 	/* set initial volume with 100% */
 	SetVolumePercent(100);
@@ -2237,7 +2237,7 @@ bool CZapit::Start(Z_start_arg *ZapStart_arg)
 	leaveStandby();
 #endif
 	started = true;
-	videoDecoder->Stop(1);
+	videoDecoder->StopPicture();
 	int ret = start();
 	return (ret == 0);
 }

@@ -46,7 +46,6 @@ typedef struct ZAPIT_start_arg
         int video_mode;
 		int volume;
         int ci_clock;
-		const char* bootlogo;
 } Z_start_arg;
 
 typedef struct Zapit_config {
