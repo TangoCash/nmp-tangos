@@ -73,15 +73,16 @@ private:
 	CZapProtection* 	zapProtection;
 
 	int 			width;
-	int				widthDetails;
+	int			full_width;
 	int 			height;
 	int 			x;
 	int 			y;
 	int			logo_off;
-	int				pig_width;
-	int				pig_height;
-	int				infozone_width;
-	int				infozone_height;
+	int			pig_width;
+	int			pig_height;
+	int			infozone_width;
+	int			infozone_height;
+	int			previous_channellist_additional;
 	CEPGData		epgData;
 
 	bool historyMode;
@@ -106,9 +107,9 @@ private:
 	void calcSize();
 	std::string   MaxChanNr();
 	void paint_pig(int x, int y, int w, int h);
-    void paint_events(int index);
-    CChannelEventList	evtlist;
-    void readEvents(const t_channel_id channel_id);
+	void paint_events(int index);
+	CChannelEventList	evtlist;
+	void readEvents(const t_channel_id channel_id);
 	void showdescription(int index);
 	typedef std::pair<std::string,int> epg_pair;
 	std::vector<epg_pair> epgText;
