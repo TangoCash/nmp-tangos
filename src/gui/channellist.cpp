@@ -708,6 +708,7 @@ int CChannelList::show()
 		}
 		else if (msg == CRCInput::RC_up || (int) msg == g_settings.key_channelList_pageup)
 		{
+			displayList = 1;
 			int step = ((int) msg == g_settings.key_channelList_pageup) ? listmaxshow : 1;  // browse or step 1
 			int new_selected = selected - step;
 			if (new_selected < 0) {
@@ -717,10 +718,10 @@ int CChannelList::show()
 					new_selected = chanlist.size() - 1;
 			}
 			actzap = updateSelection(new_selected);
-			displayList = 1;
 		}
 		else if (msg == CRCInput::RC_down || (int) msg == g_settings.key_channelList_pagedown)
 		{
+			displayList = 1;
 			int step =  ((int) msg == g_settings.key_channelList_pagedown) ? listmaxshow : 1;  // browse or step 1
 			int new_selected = selected + step;
 			if (new_selected >= (int) chanlist.size()) {
@@ -732,7 +733,6 @@ int CChannelList::show()
 					new_selected = ((step == (int) listmaxshow) && (new_selected < (int) (((chanlist.size() / listmaxshow)+1) * listmaxshow))) ? (chanlist.size() - 1) : 0;
 			}
 			actzap = updateSelection(new_selected);
-			displayList = 1;
 		}
 		else if (msg == (neutrino_msg_t)g_settings.key_bouquet_up) {
 			if (!bouquetList->Bouquets.empty()) {
