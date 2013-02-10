@@ -66,6 +66,7 @@
 #include <gui/widget/stringinput_ext.h>
 
 #include "gui/pictureviewer.h"
+extern CPictureViewer * g_PicViewer;
 
 #include <system/settings.h>
 #include <system/helpers.h>
@@ -273,6 +274,9 @@ int CAudioPlayerGui::exec(CMenuTarget* parent, const std::string &actionKey)
 		m_current = -1;
 	else
 		m_current = 0;
+
+    int ret;
+    ret = remove("/tmp/cover.jpg");
 
 	m_selected = 0;
 	m_width=(g_settings.screen_EndX - g_settings.screen_StartX) - ConnectLineBox_Width - 5;
@@ -1857,6 +1861,8 @@ void CAudioPlayerGui::paintInfo()
 			tmp += " / ";
 			tmp += m_curr_audiofile.MetaData.title;
 		}
+        SaveCover(m_curr_audiofile);
+        g_PicViewer->DisplayImage("/tmp/cover.jpg",m_x+2,m_y+2,m_title_height-14,m_title_height-14);
 		w = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(tmp, true); // UTF-8
 		xstart=(m_width-w)/2;
 		if (xstart < 10)
@@ -2208,7 +2214,7 @@ void CAudioPlayerGui::updateMetaData(bool screen_saver)
 	
 	if (updateMeta || updateScreen)
 	{
-		m_frameBuffer->paintBoxRel(m_x + 10, m_y + 4 + 2*m_fheight, m_width - 20,
+        m_frameBuffer->paintBoxRel(m_x + 10 + m_title_height, m_y + 4 + 2*m_fheight, m_width - 20 - m_title_height,
 					   m_sheight, COL_MENUCONTENTSELECTED_PLUS_0);
 		int xstart = ((m_width - 20 - g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->getRenderWidth(m_metainfo))/2)+10;
 		g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]
@@ -2901,4 +2907,12 @@ std::string CAudioPlayerGui::absPath2Rel(const std::string& fromDir,
 
 	res = res + relFilepath;
 	return res;
+}
+
+void CAudioPlayerGui::SaveCover(CAudiofileExt &File)
+{
+    bool ret = 1;
+    ret = CAudioPlayer::getInstance()->readCoverData(&File,
+            m_state != CAudioPlayerGui::STOP &&
+            !g_settings.audioplayer_highprio);
 }
