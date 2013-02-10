@@ -166,6 +166,9 @@
 
 #define DUMMY_ICON			"dummy"
 
+#define NEUTRINO_ICON_MOVIE		"movie"
+#define NEUTRINO_ICON_PICTURE		"picture"
+
 
 #define NEUTRINO_ICON_BUTTON_MUTE_ZAP_ACTIVE "mute_zap_green"
 #define NEUTRINO_ICON_BUTTON_MUTE_ZAP_INACTIVE "mute_zap_gray"

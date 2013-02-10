@@ -70,7 +70,10 @@ public:
 		FILE_PLAYLIST,
 		STREAM_AUDIO,
 		FILE_PICTURE,
-		STREAM_PICTURE
+		STREAM_PICTURE,
+		FILE_VOB,
+		FILE_MPG,
+		FILE_TS
 	};
 
 	FileType	getType(void) const;

@@ -1297,6 +1297,18 @@ void CFileBrowser::paintItem(unsigned int pos)
 				break;
 
 			case CFile::FILE_PICTURE:
+				fileicon = NEUTRINO_ICON_PICTURE;
+				break;
+
+			case CFile::FILE_AVI:
+			case CFile::FILE_ASF:
+			case CFile::FILE_MKV:
+			case CFile::FILE_VOB:
+			case CFile::FILE_MPG:
+			case CFile::FILE_TS:
+				fileicon = NEUTRINO_ICON_MOVIE;
+				break;
+
 			case CFile::FILE_TEXT:
 			default:
 				fileicon = NEUTRINO_ICON_FILE;
