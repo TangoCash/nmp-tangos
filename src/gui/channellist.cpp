@@ -1886,14 +1886,14 @@ void CChannelList::paintItem(int pos)
 			frameBuffer->getIconSize(NEUTRINO_ICON_SCRAMBLED, &s_icon_w, &s_icon_h);
 			if (frameBuffer->paintIcon(NEUTRINO_ICON_SCRAMBLED, icon_x - s_icon_w, ypos, fheight))//ypos + (fheight - 16)/2);
 				r_icon_x = r_icon_x - s_icon_w;
-			}
+		}
 
 		//paint HD Icon
 		if(chan->isHD() && g_settings.channellist_hdicon) {
 			frameBuffer->getIconSize(NEUTRINO_ICON_RESOLUTION_HD, &h_icon_w, &s_icon_h);
 			if (frameBuffer->paintIcon(NEUTRINO_ICON_RESOLUTION_HD, icon_x - s_icon_w - h_icon_w, ypos, fheight))//ypos + (fheight - 16)/2);
 				r_icon_x = r_icon_x - h_icon_w;
-			}
+		}
 		
  		//paint recording icon
 		if (rec_mode != CRecordManager::RECMODE_OFF)

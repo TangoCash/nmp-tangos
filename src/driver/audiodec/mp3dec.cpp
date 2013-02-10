@@ -191,56 +191,56 @@ unsigned long prng(unsigned long state)
 
 inline signed short CMP3Dec::MadFixedToSShort(const mad_fixed_t Fixed, bool left)
 {
-  unsigned int scalebits;
-  mad_fixed_t output, mask, random;
-  struct audio_dither *dither = left ? &left_dither : &right_dither;
-  unsigned int bits = 16;
-  mad_fixed_t sample = Fixed;
+	unsigned int scalebits;
+	mad_fixed_t output, mask, random;
+	struct audio_dither *dither = left ? &left_dither : &right_dither;
+	unsigned int bits = 16;
+	mad_fixed_t sample = Fixed;
 
-  enum {
-    MIN = -MAD_F_ONE,
-    MAX =  MAD_F_ONE - 1
-  };
+	enum {
+		MIN = -MAD_F_ONE,
+		MAX =  MAD_F_ONE - 1
+	};
 
-  /* noise shape */
-  sample += dither->error[0] - dither->error[1] + dither->error[2];
+	/* noise shape */
+	sample += dither->error[0] - dither->error[1] + dither->error[2];
 
-  dither->error[2] = dither->error[1];
-  dither->error[1] = dither->error[0] / 2;
+	dither->error[2] = dither->error[1];
+	dither->error[1] = dither->error[0] / 2;
 
-  /* bias */
-  output = sample + (1L << (MAD_F_FRACBITS + 1 - bits - 1));
+	/* bias */
+	output = sample + (1L << (MAD_F_FRACBITS + 1 - bits - 1));
 
-  scalebits = MAD_F_FRACBITS + 1 - bits;
-  mask = (1L << scalebits) - 1;
+	scalebits = MAD_F_FRACBITS + 1 - bits;
+	mask = (1L << scalebits) - 1;
 
-  /* dither */
-  random  = prng(dither->random);
-  output += (random & mask) - (dither->random & mask);
+	/* dither */
+	random  = prng(dither->random);
+	output += (random & mask) - (dither->random & mask);
 
-  dither->random = random;
+	dither->random = random;
 
-  /* clip */
+	/* clip */
 #if 0
-  if (output >= MAD_F_ONE)
-        output = 32767;
-  else if (output < -MAD_F_ONE)
-        output = -32768;
+	if (output >= MAD_F_ONE)
+		output = 32767;
+	else if (output < -MAD_F_ONE)
+		output = -32768;
 #endif
 
-  if (output > MAX)
-        output = MAX;
-  else if (output < MIN)
-        output = MIN;
+	if (output > MAX)
+		output = MAX;
+	else if (output < MIN)
+		output = MIN;
 
-  /* quantize */
-  output &= ~mask;
+	/* quantize */
+	output &= ~mask;
 
-  /* error feedback */
-  dither->error[0] = sample - output;
+	/* error feedback */
+	dither->error[0] = sample - output;
 
-  /* scale */
-  return (signed short) (output >> scalebits);
+	/* scale */
+	return (signed short) (output >> scalebits);
 }
 #else
 
