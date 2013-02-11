@@ -8,7 +8,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/types.h>
-
+#include <sys/stat.h>
+#include <curl/curl.h>
 #include <cs_api.h>
 
 #ifdef FBV_SUPPORT_GIF
@@ -101,7 +102,7 @@ CPictureViewer::CFormathandler * CPictureViewer::fh_getsize (const char *name, i
 	return (NULL);
 }
 
-bool CPictureViewer::DecodeImage (const std::string & name, bool showBusySign, bool unscaled)
+bool CPictureViewer::DecodeImage (const std::string & _name, bool showBusySign, bool unscaled)
 {
 	// dbout("DecodeImage {\n"); 
 #if 0 // quick fix for issue #245. TODO more smart fix for this problem
@@ -118,6 +119,28 @@ bool CPictureViewer::DecodeImage (const std::string & name, bool showBusySign, b
 	// Show red block for "next ready" in view state
 	if (showBusySign)
 		showBusy (m_startx + 3, m_starty + 3, 10, 0xff, 00, 00);
+
+		std::string name = _name;
+
+		if (strstr(name.c_str(), "://")) {
+			std::string tmpname;
+			tmpname = "/tmp/pictureviewer" + name.substr(name.find_last_of("."));
+			FILE *tmpFile = fopen(tmpname.c_str(), "wb");
+			if (tmpFile) {
+				CURL *ch = curl_easy_init();
+				curl_easy_setopt(ch, CURLOPT_VERBOSE, 0L);
+				curl_easy_setopt(ch, CURLOPT_NOPROGRESS, 1L);
+				curl_easy_setopt(ch, CURLOPT_NOSIGNAL, 1L);
+				curl_easy_setopt(ch, CURLOPT_WRITEFUNCTION, NULL);
+				curl_easy_setopt(ch, CURLOPT_WRITEDATA, tmpFile);
+				curl_easy_setopt(ch, CURLOPT_FAILONERROR, 1L);
+				curl_easy_setopt(ch, CURLOPT_URL, name.c_str());
+				curl_easy_perform(ch);
+				curl_easy_cleanup(ch);
+				fclose(tmpFile);
+				}
+				name = tmpname;
+		}
 
 	CFormathandler *fh;
 	if (unscaled)
@@ -364,6 +387,11 @@ CPictureViewer::CPictureViewer ()
 	m_aspect_ratio_correction = m_aspect / ((double) xs / ys);
 
 	m_busy_buffer = NULL;
+	logo_hdd_dir = string(g_settings.logo_hdd_dir);
+	pthread_mutexattr_t attr;
+	pthread_mutexattr_init(&attr);
+	pthread_mutexattr_settype(&attr, PTHREAD_MUTEX_ERRORCHECK_NP);
+	pthread_mutex_init(&logo_map_mutex, &attr);
 
 	init_handlers ();
 }
@@ -464,6 +492,102 @@ void CPictureViewer::getSize(const char* name, int* width, int *height)
 #define LOGO_DIR1 "/share/tuxbox/neutrino/icons/logo"
 #define LOGO_FMT ".jpg"
 
+#if 1
+bool CPictureViewer::GetLogoName(uint64_t channel_id, std::string ChannelName, std::string & name, int *width, int *height)
+{
+	char strChanId[16];
+
+	name = "";
+
+	pthread_mutex_lock(&logo_map_mutex);
+
+	if ((logo_hdd_dir != g_settings.logo_hdd_dir)) {
+		logo_map.clear();
+		logo_hdd_dir = g_settings.logo_hdd_dir;
+	}
+
+	std::map<uint64_t, logo_data>::iterator it;
+	it = logo_map.find(channel_id);
+	if (it != logo_map.end()) {
+		if (it->second.name == "") {
+			pthread_mutex_unlock(&logo_map_mutex);
+			return false;
+		} else {
+			name = it->second.name;
+			if (width)
+				*width = it->second.width;
+			if (height)
+				*height = it->second.height;
+			pthread_mutex_unlock(&logo_map_mutex);
+			return true;
+		}
+	}
+
+	sprintf(strChanId, "%llx", channel_id & 0xFFFFFFFFFFFFULL);
+
+	std::string strLogoE2[2] = { "", "" };
+	CZapitChannel * cc = NULL;
+	if (CNeutrinoApp::getInstance()->channelList)
+		cc = CNeutrinoApp::getInstance()->channelList->getChannel(channel_id);
+	if (cc) {
+		char fname[255];
+		snprintf(fname, sizeof(fname), "1_0_%X_%X_%X_%X_%X0000_0_0_0.png",
+			(u_int) cc->getServiceType(true),
+			(u_int) channel_id & 0xFFFF,
+			(u_int) (channel_id >> 32) & 0xFFFF,
+			(u_int) (channel_id >> 16) & 0xFFFF,
+			(u_int) cc->getSatellitePosition());
+		strLogoE2[0] = std::string(fname);
+		snprintf(fname, sizeof(fname), "1_0_%X_%X_%X_%X_%X0000_0_0_0.png",
+			(u_int) 1,
+			(u_int) channel_id & 0xFFFF,
+			(u_int) (channel_id >> 32) & 0xFFFF,
+			(u_int) (channel_id >> 16) & 0xFFFF,
+			(u_int) cc->getSatellitePosition());
+		strLogoE2[1] = std::string(fname);
+	}
+	/* first the channel-id, then the channelname */
+	std::string strLogoName[2] = { (std::string)strChanId, ChannelName };
+	/* first png, then jpg, then gif */
+	std::string strLogoExt[3] = { ".png", ".jpg" , ".gif" };
+	std::string dirs[1] = { g_settings.logo_hdd_dir };
+
+	std::string tmp;
+
+	for (int k = 0; k < 2; k++) {
+		if (dirs[k].length() < 1)
+			continue;
+		for (int i = 0; i < 2; i++)
+			for (int j = 0; j < 3; j++) {
+				tmp = dirs[k] + "/" + strLogoName[i] + strLogoExt[j];
+				if (!access(tmp.c_str(), R_OK))
+					goto found;
+			}
+		if (!cc)
+			continue;
+		for (int i = 0; i < 2; i++) {
+			tmp = dirs[k] + "/" + strLogoE2[i];
+			if (!access(tmp.c_str(), R_OK))
+				goto found;
+		}
+	}
+	logo_map[channel_id].name = "";
+	pthread_mutex_unlock(&logo_map_mutex);
+	return false;
+
+found:
+	int w, h;
+	getSize(tmp.c_str(), &w, &h);
+	if(width && height)
+		*width = w, *height = h;
+	name = tmp;
+	logo_map[channel_id].name = name;
+	logo_map[channel_id].width = w;
+	logo_map[channel_id].height = h;
+	pthread_mutex_unlock(&logo_map_mutex);
+	return true;
+}
+#else
 bool CPictureViewer::GetLogoName(uint64_t channel_id, std::string ChannelName, std::string & name, int *width, int *height)
 {
 	int i, j;
@@ -505,6 +629,7 @@ bool CPictureViewer::GetLogoName(uint64_t channel_id, std::string ChannelName, s
         }
 	return false;
 }
+#endif
 
 bool CPictureViewer::DisplayLogo (uint64_t channel_id, int posx, int posy, int width, int height)
 {
