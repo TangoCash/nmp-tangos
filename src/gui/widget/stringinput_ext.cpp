@@ -619,6 +619,31 @@ CTimeInput::CTimeInput(const neutrino_locale_t Name, char* Value, const neutrino
 	: CExtendedInput(Name, Value, Hint_1, Hint_2, Observ, Cancel)
 {
 	frameBuffer = CFrameBuffer::getInstance();
+#if 1
+	// As nobody else seems to use this class I feel free to make some minor (and mostly backwards-compatible)
+	// adjustments to make it suitable for movieplayer playtime selection ... --martii
+
+	char *v = Value;
+	if (!isdigit(*v)) {
+		addInputField( new CExtendedInput_Item_Char("=+-") );
+		addInputField( new CExtendedInput_Item_Spacer(20) );
+	}
+	addInputField( new CExtendedInput_Item_Char("0123456789") );
+	addInputField( new CExtendedInput_Item_Char("0123456789") );
+	v = strstr(v, ":");
+	if (v) {
+		v++;
+		addInputField( new CExtendedInput_Item_Char(":",false) );
+		addInputField( new CExtendedInput_Item_Char("0123456789") );
+		addInputField( new CExtendedInput_Item_Char("0123456789") );
+		v = strstr(v, ":");
+		if (v) {
+			addInputField( new CExtendedInput_Item_Char(":",false) );
+			addInputField( new CExtendedInput_Item_Char("0123456789") );
+			addInputField( new CExtendedInput_Item_Char("0123456789") );
+		}
+	}
+#else
 	addInputField( new CExtendedInput_Item_Char("=+-") );
 	addInputField( new CExtendedInput_Item_Spacer(20) );
 	addInputField( new CExtendedInput_Item_Char("0123456789") );
@@ -629,20 +654,26 @@ CTimeInput::CTimeInput(const neutrino_locale_t Name, char* Value, const neutrino
 	addInputField( new CExtendedInput_Item_Char(":",false) );
 	addInputField( new CExtendedInput_Item_Char("0123456789") );
 	addInputField( new CExtendedInput_Item_Char("0123456789") );
+#endif
+
 	addInputField( new CExtendedInput_Item_newLiner(30) );
 	calculateDialog();
 }
 
 void CTimeInput::onBeforeExec()
 {
+#if 0
 	strcpy(value, "= 00:00:00");
+#endif
 }
 
 void CTimeInput::onAfterExec()
 {
+#if 0
 	char tmp[10+1];
 	strcpy(tmp, value);
 	strcpy(value+1, tmp+2);
+#endif
 }
 //-----------------------------#################################-------------------------------------------------------
 

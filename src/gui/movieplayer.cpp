@@ -673,6 +673,26 @@ void CMoviePlayerGui::PlayFile(void)
 			playback->SetPosition(-10 * 1000);
 		} else if (msg == CRCInput::RC_0) {	// cancel bookmark jump
 			handleMovieBrowser(CRCInput::RC_0, position);
+		} else if (msg == CRCInput::RC_text) {
+			char Value[10];
+			bool cancel = true;
+			playback->GetPosition(position, duration);
+			int ss = position/1000;
+			int hh = ss/3600;
+			ss -= hh * 3600;
+			int mm = ss/60;
+			ss -= mm * 60;
+#if 1 // eplayer lacks precision, omit seconds
+			snprintf(Value, sizeof(Value), "%.2d:%.2d", hh, mm);
+			ss = 0;
+#else
+			snprintf(Value, sizeof(Value), "%.2d:%.2d:%.2d", hh, mm, ss);
+#endif
+			CTimeInput jumpTime (LOCALE_MPKEY_TIME, Value, NONEXISTANT_LOCALE, NONEXISTANT_LOCALE, NULL, &cancel);
+			jumpTime.exec(NULL, "");
+			jumpTime.hide();
+			if (!cancel && ((3 == sscanf(Value, "%d:%d:%d", &hh, &mm, &ss)) || (2 == sscanf(Value, "%d:%d", &hh, &mm))) && (1000 * (hh * 3600 + mm * 60 + ss) < duration))
+				playback->SetPosition(1000 * (hh * 3600 + mm * 60 + ss), true);
 		} else if (msg == CRCInput::RC_help || msg == CRCInput::RC_info) {
 			callInfoViewer(duration, position);
 			update_lcd = true;
