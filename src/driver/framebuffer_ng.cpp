@@ -413,7 +413,7 @@ unsigned int CFrameBuffer::getStride() const
 	return stride;
 }
 
-#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+#if 0 //HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
 unsigned int CFrameBuffer::getScreenWidth(bool)
 {
 	return DEFAULT_XRES;
