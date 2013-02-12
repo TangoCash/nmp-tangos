@@ -798,8 +798,10 @@ void CMoviePlayerGui::PlayFile(void)
 
 #if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
 	frameBuffer->set3DMode(old3dmode);
+#ifdef ENABLE_GRAPHLCD
 	if (p_movie_info)
 		nGLCD::unlockChannel();
+#endif
 #endif
 	FileTime.hide();
 
