@@ -807,10 +807,6 @@ void CMoviePlayerGui::PlayFile(void)
 
 	playback->SetSpeed(1);
 	playback->Close();
-#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
-	delete playback;
-	playback = NULL;
-#endif
 
 	CVFD::getInstance()->ShowIcon(VFD_ICON_PLAY, false);
 	CVFD::getInstance()->ShowIcon(VFD_ICON_PAUSE, false);
