@@ -54,6 +54,11 @@
 
 #include <cs_api.h>
 #include <video.h>
+#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+#include <zapit/zapit.h>
+#include "3dsetup.h"
+#include "screensetup.h"
+#endif
 
 extern cVideo *videoDecoder;
 extern int prev_video_mode;
@@ -385,6 +390,8 @@ int CVideoSettings::showVideoSetup()
 //	videosetup->addItem(vs_psi_tint);
 	videosetup->addItem(GenericMenuSeparatorLine);
 	videosetup->addItem(vs_hdmispace_ch); //hdmi space color
+	videosetup->addItem(GenericMenuSeparatorLine);
+	videosetup->addItem(new CMenuForwarder(LOCALE_THREE_D_SETTINGS, true, NULL, CNeutrinoApp::getInstance()->threeDSetup, NULL, CRCInput::RC_green, NEUTRINO_ICON_BUTTON_GREEN));
 #endif
 
 	int res = videosetup->exec(NULL, "");
@@ -429,6 +436,9 @@ void CVideoSettings::setupVideoSystem(bool do_ask)
 {
 	printf("[neutrino VideoSettings] %s setup videosystem...\n", __FUNCTION__);
 	videoDecoder->SetVideoSystem(g_settings.video_Mode); //FIXME
+#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+	frameBuffer->resChange();
+#endif
 
 	if (do_ask)
 	{
@@ -439,6 +449,9 @@ void CVideoSettings::setupVideoSystem(bool do_ask)
 			{
 				g_settings.video_Mode = prev_video_mode;
 				videoDecoder->SetVideoSystem(g_settings.video_Mode);
+#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+				frameBuffer->resChange();
+#endif
 			}
 			else
 				prev_video_mode = g_settings.video_Mode;
@@ -609,12 +622,18 @@ void CVideoSettings::nextMode(void)
 			g_settings.video_Mode = VIDEOMENU_VIDEOMODE_OPTIONS[curmode].key;
 			//CVFD::getInstance()->ShowText(text);
 			videoDecoder->SetVideoSystem(g_settings.video_Mode);
+#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+			frameBuffer->resChange();
+#endif
 			//return;
 			disp_cur = 1;
 		}
 		else
 			break;
 	}
+#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+	frameBuffer->resChange();
+#endif
 	CVFD::getInstance()->showServicename(g_RemoteControl->getCurrentChannelName());
 	//ShowHintUTF(LOCALE_VIDEOMENU_VIDEOMODE, text, 450, 2);
 }

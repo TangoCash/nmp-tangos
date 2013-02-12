@@ -47,6 +47,7 @@
 #include "gui/timerlist.h"
 #if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
 #include <gui/psisetup.h>
+#include <gui/3dsetup.h>
 #endif
 
 #include <string>
@@ -192,6 +193,7 @@ public:
 	CChannelList			*channelList;
 #if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
 	CPSISetup			*chPSISetup;
+	C3DSetup			*threeDSetup;
 #endif
 
 	static CNeutrinoApp* getInstance();

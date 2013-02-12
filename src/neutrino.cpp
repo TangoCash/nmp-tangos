@@ -717,6 +717,16 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	g_settings.screen_StartY = g_settings.screen_preset ? g_settings.screen_StartY_lcd : g_settings.screen_StartY_crt;
 	g_settings.screen_EndX = g_settings.screen_preset ? g_settings.screen_EndX_lcd : g_settings.screen_EndX_crt;
 	g_settings.screen_EndY = g_settings.screen_preset ? g_settings.screen_EndY_lcd : g_settings.screen_EndY_crt;
+#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+	g_settings.screen_StartX_int = g_settings.screen_StartX;
+	g_settings.screen_StartY_int = g_settings.screen_StartY;
+	g_settings.screen_EndX_int = g_settings.screen_EndX;
+	g_settings.screen_EndY_int = g_settings.screen_EndY;
+	g_settings.screen_StartX = 0;
+	g_settings.screen_StartY = 0;
+	g_settings.screen_EndX = frameBuffer->getScreenWidth() - 1;
+	g_settings.screen_EndY = frameBuffer->getScreenHeight() - 1;
+#endif
 
 	g_settings.screen_width = configfile.getInt32("screen_width", 0);
 	g_settings.screen_height = configfile.getInt32("screen_height", 0);
@@ -2067,6 +2077,9 @@ fprintf(stderr, "[neutrino start] %d  -> %5ld ms\n", __LINE__, time_monotonic_ms
 	g_PluginList->loadPlugins();
 
 	MoviePluginChanger        = new CMoviePluginChangeExec;
+#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+	threeDSetup               = new C3DSetup;
+#endif
 
 	// setup recording device
 	setupRecordingDevice();
@@ -2123,6 +2136,7 @@ fprintf(stderr, "[neutrino start] %d  -> %5ld ms\n", __LINE__, time_monotonic_ms
 
 	g_volume->AudioMute(current_muted, true);
 #if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+	threeDSetup->exec(NULL, "zapped");
 	chPSISetup = new CPSISetup(LOCALE_VIDEOMENU_PSI);
 	chPSISetup->blankScreen(false);
 #endif
@@ -2478,6 +2492,9 @@ int CNeutrinoApp::handleMsg(const neutrino_msg_t _msg, neutrino_msg_data_t data)
 		if(g_settings.audio_AnalogMode < 0 || g_settings.audio_AnalogMode > 2)
 			g_settings.audio_AnalogMode = 0;
 
+#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+		threeDSetup->exec(NULL, "zapped");
+#endif
 #ifdef ENABLE_GRAPHLCD
 		nGLCD::Update();
 #endif
@@ -3958,6 +3975,9 @@ void CNeutrinoApp::loadKeys(const char * fname)
 	g_settings.mpkey_time = tconfig.getInt32( "mpkey.time", CRCInput::RC_setup );
 	g_settings.mpkey_bookmark = tconfig.getInt32( "mpkey.bookmark", CRCInput::RC_blue );
 	g_settings.mpkey_plugin = tconfig.getInt32( "mpkey.plugin", CRCInput::RC_red );
+#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+	g_settings.mpkey_next3dmode = tconfig.getInt32( "mpkey.next3dmode", CRCInput::RC_nokey );
+#endif
 
 	/* options */
 	g_settings.menu_left_exit = tconfig.getInt32( "menu_left_exit", 0 );
@@ -4016,6 +4036,9 @@ void CNeutrinoApp::saveKeys(const char * fname)
 	tconfig.setInt32( "mpkey.time", g_settings.mpkey_time );
 	tconfig.setInt32( "mpkey.bookmark", g_settings.mpkey_bookmark );
 	tconfig.setInt32( "mpkey.plugin", g_settings.mpkey_plugin );
+#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+	tconfig.setInt32( "mpkey.next3dmode", g_settings.mpkey_next3dmode );
+#endif
 
 	tconfig.setInt32( "menu_left_exit", g_settings.menu_left_exit );
 	tconfig.setInt32( "audio_run_player", g_settings.audio_run_player );

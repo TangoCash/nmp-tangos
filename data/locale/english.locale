@@ -1355,6 +1355,7 @@ movieplayer.tsplayback Play TS
 mpkey.audio Audio track
 mpkey.bookmark save bookmark
 mpkey.forward Forward
+mpkey.next3dmode nNxt 3D mode
 mpkey.pause Pause
 mpkey.play Play
 mpkey.plugin Run plugin
@@ -1722,6 +1723,13 @@ stringinput.clear clear all
 subtitles.head Subtitles
 subtitles.stop Stop subtitles
 terrestrialsetup.provider Terrestrial Provider
+three.d.off Inactive
+three.d.save Remember for this channel
+three.d.settings 3D Settings
+three.d.settings.general Variant
+three.d.sideside Side-by-Side
+three.d.tile Tile
+three.d.topbottom Top-and-Bottom
 timer.eventrecord.msg   ... TO be DONE, or not to be done
 timer.eventrecord.title Schedule Record
 timer.eventtimed.msg The event is scheduled.\nThe box will power on and \nswitch to this channel at the given time.

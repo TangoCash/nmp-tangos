@@ -122,6 +122,28 @@ CFrameBuffer::CFrameBuffer()
 #endif
 }
 
+#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+void CFrameBuffer::setBorder(int sx, int sy, int ex, int ey)
+{
+	accel->startX = sx;
+	accel->startY = sy;
+	accel->endX = ex;
+	accel->endY = ey;
+	accel->sX = (accel->startX * accel->s.xres)/DEFAULT_XRES;
+	accel->sY = (accel->startY * accel->s.yres)/DEFAULT_YRES;
+	accel->eX = (accel->endX * accel->s.xres)/DEFAULT_XRES;
+	accel->eY = (accel->endY * accel->s.yres)/DEFAULT_YRES;
+	accel->borderColorOld = 0x01010101;
+};
+
+void CFrameBuffer::setBorderColor(fb_pixel_t col)
+{
+	if (!col && accel->borderColor)
+		accel->blitBoxFB(0, 0, accel->s.xres - 1, accel->s.yres - 1, 0);
+	accel->borderColor = col;
+}
+#endif
+
 CFrameBuffer* CFrameBuffer::getInstance()
 {
 	static CFrameBuffer* frameBuffer = NULL;
@@ -314,6 +336,15 @@ void CFrameBuffer::init(const char * const fbDevice)
 	}
 #endif
 	accel = new CFbAccel(this);
+#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+	accel->startX = 0;
+	accel->startY = 0;
+	accel->endX = DEFAULT_XRES - 1;
+	accel->endY = DEFAULT_YRES - 1;
+	accel->borderColor = 0;
+	accel->borderColorOld = 0x01010101;
+	resChange();
+#endif
 	return;
 
 nolfb:
@@ -382,6 +413,27 @@ unsigned int CFrameBuffer::getStride() const
 	return stride;
 }
 
+#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+unsigned int CFrameBuffer::getScreenWidth(bool)
+{
+	return DEFAULT_XRES;
+}
+
+unsigned int CFrameBuffer::getScreenHeight(bool)
+{
+	return DEFAULT_YRES;
+}
+
+unsigned int CFrameBuffer::getScreenX()
+{
+	return 0;
+}
+
+unsigned int CFrameBuffer::getScreenY()
+{
+	return 0;
+}
+#else
 unsigned int CFrameBuffer::getScreenWidth(bool real)
 {
 	if(real)
@@ -407,9 +459,18 @@ unsigned int CFrameBuffer::getScreenY()
 {
 	return g_settings.screen_StartY;
 }
+#endif
 
+#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+fb_pixel_t * CFrameBuffer::getFrameBufferPointer(bool real)
+#else
 fb_pixel_t * CFrameBuffer::getFrameBufferPointer() const
+#endif
 {
+#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+	if (real)
+		return lfb;
+#endif
 	if (active || (virtual_fb == NULL))
 		return accel->lbb;
 	else
@@ -1326,3 +1387,23 @@ void CFrameBuffer::paintMuteIcon(bool paint, int ax, int ay, int dx, int dy, boo
 		paintBackgroundBoxRel(ax, ay, dx, dy);
 	blit();
 }
+
+#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+CFrameBuffer::Mode3D CFrameBuffer::get3DMode() {
+	return mode3D;
+}
+
+void CFrameBuffer::set3DMode(Mode3D m) {
+	if (mode3D != m) {
+		accel->blitBoxFB(0, 0, accel->s.xres - 1, accel->s.yres - 1, 0);
+		mode3D = m;
+		accel->borderColorOld = 0x01010101;
+		blit();
+	}
+}
+
+void CFrameBuffer::blitIcon(int src_width, int src_height, int fb_x, int fb_y, int width, int height)
+{
+	accel->blitIcon(src_width, src_height, fb_x, fb_y, width, height);
+}
+#endif

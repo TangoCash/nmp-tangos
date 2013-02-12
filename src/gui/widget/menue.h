@@ -227,6 +227,10 @@ class CMenuForwarder : public CMenuItem
 		{
 			return active;
 		}
+#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+	void setOptionValue(const char * const Option);
+	void setOptionValue(const std::string &Option);
+#endif
 };
 
 class CMenuDForwarder : public CMenuForwarder

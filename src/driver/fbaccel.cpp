@@ -30,6 +30,9 @@
 #endif
 
 #include <driver/framebuffer.h>
+#ifdef ENABLE_GRAPHLCD
+#include <driver/nglcd.h>
+#endif
 
 #include <stdio.h>
 #include <fcntl.h>
@@ -538,10 +541,12 @@ void CFbAccel::paintLine(int xa, int ya, int xb, int yb, const fb_pixel_t col)
 #if !HAVE_TRIPLEDRAGON
 void CFbAccel::blit2FB(void *fbbuff, uint32_t width, uint32_t height, uint32_t xoff, uint32_t yoff, uint32_t xp, uint32_t yp, bool transp)
 {
+#if !defined HAVE_SPARK_HARDWARE && !defined HAVE_DUCKBOX_HARDWARE
 	int  xc, yc;
 
 	xc = (width > fb->xRes) ? fb->xRes : width;
 	yc = (height > fb->yRes) ? fb->yRes : height;
+#endif
 
 #ifdef USE_NEVIS_GXA
 	u32 cmd;
@@ -700,6 +705,138 @@ void CFbAccel::setupGXA()
 #endif
 
 #if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+void CFbAccel::blitBB2FB(int fx0, int fy0, int fx1, int fy1, int tx0, int ty0, int tx1, int ty1)
+{
+	STMFBIO_BLT_DATA  bltData;
+	memset(&bltData, 0, sizeof(STMFBIO_BLT_DATA));
+	bltData.operation  = BLT_OP_COPY;
+	bltData.srcOffset  = lbb_off;
+	bltData.srcPitch   = fb->stride;
+	bltData.src_left   = fx0;
+	bltData.src_top    = fy0;
+	bltData.src_right  = fx1;
+	bltData.src_bottom = fy1;
+	bltData.srcFormat = SURF_BGRA8888;
+	bltData.srcMemBase = STMFBGP_FRAMEBUFFER;
+	bltData.dstPitch   = s.xres * 4;
+	bltData.dstFormat = SURF_BGRA8888;
+	bltData.dstMemBase = STMFBGP_FRAMEBUFFER;
+	bltData.dst_left   = tx0;
+	bltData.dst_top    = ty0;
+	bltData.dst_right  = tx1;
+	bltData.dst_bottom = ty1;
+	if (ioctl(fb->fd, STMFBIO_BLT, &bltData ) < 0)
+		perror("STMFBIO_BLT");
+}
+
+void CFbAccel::blitFB2FB(int fx0, int fy0, int fx1, int fy1, int tx0, int ty0, int tx1, int ty1)
+{
+	STMFBIO_BLT_DATA  bltData;
+	memset(&bltData, 0, sizeof(STMFBIO_BLT_DATA));
+	bltData.operation  = BLT_OP_COPY;
+	bltData.srcPitch   = s.xres * 4;
+	bltData.src_left   = fx0;
+	bltData.src_top    = fy0;
+	bltData.src_right  = fx1;
+	bltData.src_bottom = fy1;
+	bltData.srcFormat = SURF_BGRA8888;
+	bltData.srcMemBase = STMFBGP_FRAMEBUFFER;
+	bltData.dstPitch   = bltData.srcPitch;
+	bltData.dstFormat = SURF_BGRA8888;
+	bltData.dstMemBase = STMFBGP_FRAMEBUFFER;
+	bltData.dst_left   = tx0;
+	bltData.dst_top    = ty0;
+	bltData.dst_right  = tx1;
+	bltData.dst_bottom = ty1;
+	if (ioctl(fb->fd, STMFBIO_BLT, &bltData ) < 0)
+		perror("STMFBIO_BLT");
+}
+
+void CFbAccel::blitBoxFB(int x0, int y0, int x1, int y1, fb_pixel_t color)
+{
+	if (x0 > -1 && y0 > -1 && x0 < x1 && y0 < y1) {
+		STMFBIO_BLT_DATA  bltData;
+		memset(&bltData, 0, sizeof(STMFBIO_BLT_DATA));
+		bltData.operation  = BLT_OP_FILL;
+		bltData.dstPitch   = s.xres * 4;
+		bltData.dstFormat  = SURF_ARGB8888;
+		bltData.srcFormat  = SURF_ARGB8888;
+		bltData.dstMemBase = STMFBGP_FRAMEBUFFER;
+		bltData.srcMemBase = STMFBGP_FRAMEBUFFER;
+		bltData.colour     = color;
+		bltData.dst_left   = x0;
+		bltData.dst_top    = y0;
+		bltData.dst_right  = x1;
+		bltData.dst_bottom = y1;
+		if (ioctl(fb->fd, STMFBIO_BLT, &bltData ) < 0)
+			perror("STMFBIO_BLT");
+	}
+}
+
+void CFbAccel::blit()
+{
+#ifdef ENABLE_GRAPHLCD
+	nGLCD::Blit();
+#endif
+	msync(lbb, DEFAULT_XRES * 4 * DEFAULT_YRES, MS_SYNC);
+
+	if (borderColor != borderColorOld || (borderColor != 0x00000000 && borderColor != 0xFF000000)) {
+		borderColorOld = borderColor;
+		switch(fb->mode3D) {
+		case CFrameBuffer::Mode3D_off:
+		default:
+			blitBoxFB(0, 0, s.xres - 1, sY - 1, borderColor);			// top
+			blitBoxFB(0, 0, sX, s.yres - 1, borderColor);				// left
+			blitBoxFB(eX, 0, s.xres - 1, s.yres - 1, borderColor);			// right
+			blitBoxFB(0, eY, s.xres - 1, s.yres - 1, borderColor);			// bottom
+			break;
+		case CFrameBuffer::Mode3D_SideBySide:
+			blitBoxFB(0, 0, s.xres - 1, sY - 1, borderColor);			// top
+			blitBoxFB(0, 0, sX/2 - 1, s.yres - 1, borderColor);			// left
+			blitBoxFB(eX/2 + 1, 0, s.xres/2 + sX/2 - 1, s.yres - 1, borderColor);	// middle
+			blitBoxFB(s.xres/2 + eX/2 + 1, 0, s.xres - 1, s.yres - 1, borderColor);	// right
+			blitBoxFB(0, eY, s.xres - 1, s.yres - 1, borderColor);			// bottom
+			break;
+		case CFrameBuffer::Mode3D_TopAndBottom:
+			blitBoxFB(0, 0, s.xres - 1, sY/2 - 1, borderColor); 			// top
+			blitBoxFB(0, eY/2 + 1, s.xres - 1, s.yres/2 + sY/2 - 1, borderColor); 	// middle
+			blitBoxFB(0, s.yres/2 + eY/2 + 1, s.xres - 1, s.yres - 1, borderColor); // bottom
+			blitBoxFB(0, 0, sX - 1, s.yres - 1, borderColor);			// left
+			blitBoxFB(eX, 0, s.xres - 1, s.yres - 1, borderColor);			// right
+			break;
+		case CFrameBuffer::Mode3D_Tile:
+			blitBoxFB(0, 0, (s.xres * 2)/3, (sY * 2)/3, borderColor);		// top
+			blitBoxFB(0, 0, (sX * 2)/3, (s.yres * 2)/3, borderColor);		// left
+			blitBoxFB((eX * 2)/3, 0, (s.xres * 2)/3, (s.yres * 2)/3, borderColor);	// right
+			blitBoxFB(0, (eY * 2)/3, (s.xres * 2)/3, (s.yres * 2)/3, borderColor);	// bottom
+			break;
+		}
+	}
+	switch(fb->mode3D) {
+	case CFrameBuffer::Mode3D_off:
+	default:
+		blitBB2FB(0, 0, DEFAULT_XRES - 1, DEFAULT_YRES - 1, sX, sY, eX, eY);
+		break;
+	case CFrameBuffer::Mode3D_SideBySide:
+		blitBB2FB(0, 0, DEFAULT_XRES - 1, DEFAULT_YRES - 1, sX/2, sY, eX/2, eY);
+		blitBB2FB(0, 0, DEFAULT_XRES - 1, DEFAULT_YRES - 1, s.xres/2 + sX/2, sY, s.xres/2 + eX/2, eY);
+		break;
+	case CFrameBuffer::Mode3D_TopAndBottom:
+		blitBB2FB(0, 0, DEFAULT_XRES - 1, DEFAULT_YRES - 1, sX, sY/2, eX, eY/2);
+		blitBB2FB(0, 0, DEFAULT_XRES - 1, DEFAULT_YRES - 1, sX, s.yres/2 + sY/2, eX, s.yres/2 + eY/2);
+		break;
+	case CFrameBuffer::Mode3D_Tile:
+		blitBB2FB(0, 0, DEFAULT_XRES - 1, DEFAULT_YRES - 1, (sX * 2)/3, (sY * 2)/3, (eX * 2)/3, (eY * 2)/3);
+		blitFB2FB(0, 0, s.xres/3, (s.yres * 2)/3, (s.xres * 2)/3, 0, s.xres - 1, (s.yres * 2)/3);
+		blitFB2FB(s.xres/3, 0, (s.xres * 2)/3, s.yres/3, 0, (s.yres * 2)/3, s.xres/3, s.yres - 1);
+		blitFB2FB(s.xres/3, s.yres/3, (s.xres * 2)/3, (s.yres * 2)/3, s.xres/3, (s.yres * 2)/3, (s.xres * 2)/3, s.yres - 1);
+		break;
+	}
+	if(ioctl(fb->fd, STMFBIO_SYNC_BLITTER) < 0)
+		perror("CFrameBuffer::blit ioctl STMFBIO_SYNC_BLITTER 2");
+}
+
+#if 0
 void CFbAccel::blit()
 {
 #ifdef PARTIAL_BLIT
@@ -793,6 +930,7 @@ void CFbAccel::blit()
 	to_blit.xe = to_blit.ye = 0;
 #endif
 }
+#endif
 
 #elif HAVE_AZBOX_HARDWARE
 
@@ -835,7 +973,52 @@ void CFbAccel::mark(int, int, int, int)
 }
 #endif
 
-#if HAVE_DUCKBOX_HARDWARE
+#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+void CFbAccel::blitIcon(int src_width, int src_height, int fb_x, int fb_y, int width, int height)
+{
+	if (!src_width || !src_height)
+		return;
+	STMFBIO_BLT_EXTERN_DATA blt_data;
+	memset(&blt_data, 0, sizeof(STMFBIO_BLT_EXTERN_DATA));
+	blt_data.operation  = BLT_OP_COPY;
+	blt_data.ulFlags    = BLT_OP_FLAGS_BLEND_SRC_ALPHA | BLT_OP_FLAGS_BLEND_DST_MEMORY;	// we need alpha blending
+	blt_data.srcOffset  = 0;
+	blt_data.srcPitch   = src_width * 4;
+	blt_data.dstOffset  = lbb_off;
+	blt_data.dstPitch   = fb->stride;
+	blt_data.src_top    = 0;
+	blt_data.src_left   = 0;
+	blt_data.src_right  = src_width;
+	blt_data.src_bottom = src_height;
+	blt_data.dst_left   = fb_x;
+	blt_data.dst_top    = fb_y;
+	blt_data.dst_right  = fb_x + width;
+	blt_data.dst_bottom = fb_y + height;
+	blt_data.srcFormat  = SURF_ARGB8888;
+	blt_data.dstFormat  = SURF_ARGB8888;
+	blt_data.srcMemBase = (char *)backbuffer;
+	blt_data.dstMemBase = (char *)fb->lfb;
+	blt_data.srcMemSize = backbuf_sz;
+	blt_data.dstMemSize = fb->stride * DEFAULT_YRES + lbb_off;
+
+	msync(backbuffer, blt_data.srcPitch * src_height, MS_SYNC);
+
+	if(ioctl(fb->fd, STMFBIO_BLT_EXTERN, &blt_data) < 0)
+		perror("blit_icon FBIO_BLIT");
+}
+
+void CFbAccel::resChange(void)
+{
+	if (ioctl(fb->fd, FBIOGET_VSCREENINFO, &s) == -1)
+		perror("frameBuffer <FBIOGET_VSCREENINFO>");
+
+	sX = (startX * s.xres)/DEFAULT_XRES;
+	sY = (startY * s.yres)/DEFAULT_YRES;
+	eX = (endX * s.xres)/DEFAULT_XRES;
+	eY = (endY * s.yres)/DEFAULT_YRES;
+	borderColorOld = 0x01010101;
+}
+
 bool CFbAccel::OSDShot(const std::string &name)
 {
 	fb_var_screeninfo s;

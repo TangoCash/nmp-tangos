@@ -458,6 +458,13 @@ void CMoviePlayerGui::PlayFile(void)
 	}
 
 	file_prozent = 0;
+#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+	CFrameBuffer::Mode3D old3dmode = frameBuffer->get3DMode();
+#ifdef ENABLE_GRAPHLCD
+	if (p_movie_info)
+		nGLCD::lockChannel(p_movie_info->epgChannel, p_movie_info->epgTitle);
+#endif
+#endif
 	if(!playback->Start((char *) full_name.c_str(), vpid, vtype, currentapid, currentac3, duration)) {
 		playback->Close();
 	} else {
@@ -515,6 +522,10 @@ void CMoviePlayerGui::PlayFile(void)
 
 	while (playstate >= CMoviePlayerGui::PLAY)
 	{
+#ifdef ENABLE_GRAPHLCD
+		if (p_movie_info)
+			nGLCD::lockChannel(p_movie_info->epgChannel, p_movie_info->epgTitle, duration ? (100 * position / duration) : 0);
+#endif
 		if (update_lcd) {
 			update_lcd = false;
 			updateLcd();
@@ -561,6 +572,12 @@ void CMoviePlayerGui::PlayFile(void)
 			//g_PluginList->start_plugin_by_name (g_settings.movieplayer_plugin.c_str (), pidt);
 		} else if (msg == (neutrino_msg_t) g_settings.mpkey_stop) {
 			playstate = CMoviePlayerGui::STOPPED;
+#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+		} else if (msg == (neutrino_msg_t) CRCInput::RC_home) {
+			playstate = CMoviePlayerGui::STOPPED;
+		} else if (msg == (neutrino_msg_t) g_settings.mpkey_next3dmode) {
+			frameBuffer->set3DMode((CFrameBuffer::Mode3D)(((frameBuffer->get3DMode()) + 1) % CFrameBuffer::Mode3D_SIZE));
+#endif
 		} else if (msg == (neutrino_msg_t) g_settings.mpkey_play) {
 			if (playstate > CMoviePlayerGui::PLAY) {
 				update_lcd = true;
@@ -779,10 +796,19 @@ void CMoviePlayerGui::PlayFile(void)
 		}
 	}
 
+#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+	frameBuffer->set3DMode(old3dmode);
+	if (p_movie_info)
+		nGLCD::unlockChannel();
+#endif
 	FileTime.hide();
 
 	playback->SetSpeed(1);
 	playback->Close();
+#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+	delete playback;
+	playback = NULL;
+#endif
 
 	CVFD::getInstance()->ShowIcon(VFD_ICON_PLAY, false);
 	CVFD::getInstance()->ShowIcon(VFD_ICON_PAUSE, false);

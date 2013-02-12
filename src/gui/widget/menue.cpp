@@ -1730,6 +1730,20 @@ CMenuForwarder::CMenuForwarder(const neutrino_locale_t Text, const bool Active, 
 	iconName_Info_right = IconName_Info_right ? IconName_Info_right : "";
 }
 
+#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+void CMenuForwarder::setOptionValue(const char * const Option)
+{
+	option = Option;
+	option_string = NULL;
+}
+
+void CMenuForwarder::setOptionValue(const std::string &Option)
+{
+	option = NULL;
+	option_string = &Option;
+}
+#endif
+
 int CMenuForwarder::getHeight(void) const
 {
 	return g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getHeight();

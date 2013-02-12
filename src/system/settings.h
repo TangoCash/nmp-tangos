@@ -411,6 +411,9 @@ struct SNeutrinoSettings
 	int mpkey_time;
 	int mpkey_bookmark;
 	int mpkey_plugin;
+#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+	int mpkey_next3dmode;
+#endif
 	int key_timeshift;
 	int key_plugin;
 
@@ -472,6 +475,12 @@ struct SNeutrinoSettings
 	int screen_StartY_lcd;
 	int screen_EndX_lcd;
 	int screen_EndY_lcd;
+#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+	int screen_StartX_int;
+	int screen_StartY_int;
+	int screen_EndX_int;
+	int screen_EndY_int;
+#endif
 	int screen_preset;
 	int screen_width;
 	int screen_height;
@@ -634,6 +643,9 @@ struct SNeutrinoSettings
 		ITEM_SCRIPTS = 21,
 #if 0
 		ITEM_MOVIEPLAYER_TS,
+#endif
+#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+		ITEM_THREE_D_MODE,
 #endif
 		ITEM_MAX   // MUST be always the last in the list
 	} USER_ITEM;

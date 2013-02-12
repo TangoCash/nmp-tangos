@@ -71,6 +71,9 @@ class CKeybindSetup : public CMenuTarget, public CChangeObserver
 			MPKEY_AUDIO,
 			MPKEY_TIME,
 			MPKEY_BOOKMARK,
+#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+			MPKEY_NEXT3DMODE,
+#endif
 			KEY_TIMESHIFT,
 			MPKEY_PLUGIN,
 			/*KEY_PLUGIN,*/
