@@ -247,7 +247,7 @@ class CAudioPlayerGui : public CMenuTarget
 	bool shufflePlaylist(void);
 
 	bool pictureviewer;
-	void SaveCover(CAudiofileExt &File);
+	bool SaveCover(CAudiofileExt &File);
 
  public:
 	CAudioPlayerGui(bool inetmode = false);

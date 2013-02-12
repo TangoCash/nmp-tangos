@@ -1861,8 +1861,12 @@ void CAudioPlayerGui::paintInfo()
 			tmp += " / ";
 			tmp += m_curr_audiofile.MetaData.title;
 		}
-		SaveCover(m_curr_audiofile);
-		g_PicViewer->DisplayImage("/tmp/cover.jpg",m_x+2,m_y+2,m_title_height-14,m_title_height-14);
+		if (SaveCover(m_curr_audiofile))
+			if (!g_PicViewer->DisplayImage("/tmp/cover.jpg",m_x+2,m_y+2,m_title_height-14,m_title_height-14))
+			{
+				std::string FolderCover = m_curr_audiofile.Filename.substr(0, m_curr_audiofile.Filename.rfind('/')) + "/folder.jpg";
+				g_PicViewer->DisplayImage(FolderCover,m_x+2,m_y+2,m_title_height-14,m_title_height-14);
+			}
 		w = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(tmp, true); // UTF-8
 		xstart=(m_width-w)/2;
 		if (xstart < 10)
@@ -2205,6 +2209,8 @@ void CAudioPlayerGui::updateMetaData(bool screen_saver)
 	if (CAudioPlayer::getInstance()->hasMetaDataChanged() != 0)
 		updateLcd = true;
 
+	if (CAudioPlayer::getInstance()->hasMetaDataChanged() != 0)
+		remove("/tmp/cover.jpg");
 	//printf("CAudioPlayerGui::updateMetaData: updateLcd %d\n", updateLcd);
 	if (updateLcd)
 		paintLCD();
@@ -2909,10 +2915,7 @@ std::string CAudioPlayerGui::absPath2Rel(const std::string& fromDir,
 	return res;
 }
 
-void CAudioPlayerGui::SaveCover(CAudiofileExt &File)
+bool CAudioPlayerGui::SaveCover(CAudiofileExt &File)
 {
-	bool ret = 1;
-	ret = CAudioPlayer::getInstance()->readCoverData(&File,
-		m_state != CAudioPlayerGui::STOP &&
-		!g_settings.audioplayer_highprio);
+	return CAudioPlayer::getInstance()->readCoverData(&File, m_state != CAudioPlayerGui::STOP && !g_settings.audioplayer_highprio);
 }
