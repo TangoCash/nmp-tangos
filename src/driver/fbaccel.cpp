@@ -778,7 +778,7 @@ void CFbAccel::blit()
 #ifdef ENABLE_GRAPHLCD
 	nGLCD::Blit();
 #endif
-	msync(lbb, s.xres * 4 * s.yres, MS_SYNC);
+	msync(lbb, DEFAULT_XRES * 4 * DEFAULT_YRES, MS_SYNC);
 
 	if (borderColor != borderColorOld || (borderColor != 0x00000000 && borderColor != 0xFF000000)) {
 		borderColorOld = borderColor;
@@ -815,18 +815,18 @@ void CFbAccel::blit()
 	switch(fb->mode3D) {
 	case CFrameBuffer::Mode3D_off:
 	default:
-		blitBB2FB(0, 0, s.xres - 1, s.yres - 1, sX, sY, eX, eY);
+		blitBB2FB(0, 0, DEFAULT_XRES - 1, DEFAULT_YRES - 1, sX, sY, eX, eY);
 		break;
 	case CFrameBuffer::Mode3D_SideBySide:
-		blitBB2FB(0, 0, s.xres - 1, s.yres - 1, sX/2, sY, eX/2, eY);
-		blitBB2FB(0, 0, s.xres - 1, s.yres - 1, s.xres/2 + sX/2, sY, s.xres/2 + eX/2, eY);
+		blitBB2FB(0, 0, DEFAULT_XRES - 1, DEFAULT_YRES - 1, sX/2, sY, eX/2, eY);
+		blitBB2FB(0, 0, DEFAULT_XRES - 1, DEFAULT_YRES - 1, s.xres/2 + sX/2, sY, s.xres/2 + eX/2, eY);
 		break;
 	case CFrameBuffer::Mode3D_TopAndBottom:
-		blitBB2FB(0, 0, s.xres - 1, s.yres - 1, sX, sY/2, eX, eY/2);
-		blitBB2FB(0, 0, s.xres - 1, s.yres - 1, sX, s.yres/2 + sY/2, eX, s.yres/2 + eY/2);
+		blitBB2FB(0, 0, DEFAULT_XRES - 1, DEFAULT_YRES - 1, sX, sY/2, eX, eY/2);
+		blitBB2FB(0, 0, DEFAULT_XRES - 1, DEFAULT_YRES - 1, sX, s.yres/2 + sY/2, eX, s.yres/2 + eY/2);
 		break;
 	case CFrameBuffer::Mode3D_Tile:
-		blitBB2FB(0, 0, s.xres - 1, s.yres - 1, (sX * 2)/3, (sY * 2)/3, (eX * 2)/3, (eY * 2)/3);
+		blitBB2FB(0, 0, DEFAULT_XRES - 1, DEFAULT_YRES - 1, (sX * 2)/3, (sY * 2)/3, (eX * 2)/3, (eY * 2)/3);
 		blitFB2FB(0, 0, s.xres/3, (s.yres * 2)/3, (s.xres * 2)/3, 0, s.xres - 1, (s.yres * 2)/3);
 		blitFB2FB(s.xres/3, 0, (s.xres * 2)/3, s.yres/3, 0, (s.yres * 2)/3, s.xres/3, s.yres - 1);
 		blitFB2FB(s.xres/3, s.yres/3, (s.xres * 2)/3, (s.yres * 2)/3, s.xres/3, (s.yres * 2)/3, (s.xres * 2)/3, s.yres - 1);
@@ -976,9 +976,6 @@ void CFbAccel::mark(int, int, int, int)
 #if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
 void CFbAccel::blitIcon(int src_width, int src_height, int fb_x, int fb_y, int width, int height)
 {
-	if (ioctl(fb->fd, FBIOGET_VSCREENINFO, &s) == -1)
-		perror("frameBuffer <FBIOGET_VSCREENINFO>");
-
 	if (!src_width || !src_height)
 		return;
 	STMFBIO_BLT_EXTERN_DATA blt_data;
@@ -1002,7 +999,7 @@ void CFbAccel::blitIcon(int src_width, int src_height, int fb_x, int fb_y, int w
 	blt_data.srcMemBase = (char *)backbuffer;
 	blt_data.dstMemBase = (char *)fb->lfb;
 	blt_data.srcMemSize = backbuf_sz;
-	blt_data.dstMemSize = fb->stride * s.yres + lbb_off;
+	blt_data.dstMemSize = fb->stride * DEFAULT_YRES + lbb_off;
 
 	msync(backbuffer, blt_data.srcPitch * src_height, MS_SYNC);
 
@@ -1015,10 +1012,10 @@ void CFbAccel::resChange(void)
 	if (ioctl(fb->fd, FBIOGET_VSCREENINFO, &s) == -1)
 		perror("frameBuffer <FBIOGET_VSCREENINFO>");
 
-	sX = (startX );//* s.xres)/DEFAULT_XRES;
-	sY = (startY );//* s.yres)/DEFAULT_YRES;
-	eX = (endX );//* s.xres)/DEFAULT_XRES;
-	eY = (endY );//* s.yres)/DEFAULT_YRES;
+	sX = (startX * s.xres)/DEFAULT_XRES;
+	sY = (startY * s.yres)/DEFAULT_YRES;
+	eX = (endX * s.xres)/DEFAULT_XRES;
+	eY = (endY * s.yres)/DEFAULT_YRES;
 	borderColorOld = 0x01010101;
 }
 
