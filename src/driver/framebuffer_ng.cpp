@@ -339,8 +339,8 @@ void CFrameBuffer::init(const char * const fbDevice)
 #if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
 	accel->startX = 0;
 	accel->startY = 0;
-	accel->endX = DEFAULT_XRES - 1;
-	accel->endY = DEFAULT_YRES - 1;
+	accel->endX = screeninfo.xres;//DEFAULT_XRES - 1;
+	accel->endY = screeninfo.yres;//DEFAULT_YRES - 1;
 	accel->borderColor = 0;
 	accel->borderColorOld = 0x01010101;
 	resChange();
