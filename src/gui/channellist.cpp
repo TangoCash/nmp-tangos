@@ -517,6 +517,9 @@ void CChannelList::calcSize()
 	listmaxshow = (height - theight - footerHeight -0)/fheight;
 	height = theight + footerHeight + listmaxshow * fheight;
 	info_height = 2*fheight + g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST_DESCR]->getHeight() + 10;
+	if (g_settings.channellist_foot != 0)
+		info_height = 2*fheight + 10;	
+	y += (frameBuffer->getScreenHeight() - height - info_height) / 2;
 
 	infozone_width = full_width - width;
 	pig_width = infozone_width;
@@ -525,8 +528,6 @@ void CChannelList::calcSize()
 	else
 		pig_height = 0;
 	infozone_height = height - theight - pig_height - footerHeight;
-	if (g_settings.channellist_foot != 0)
-		info_height = 2*fheight + 10;	
 }
 
 bool CChannelList::updateSelection(int newpos)
