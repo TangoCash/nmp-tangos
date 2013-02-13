@@ -1412,13 +1412,21 @@ CZapitChannel* CChannelList::getPrevNextChannel(int key, unsigned int &sl)
 		printf("CChannelList::getPrevNextChannel: selected %d total %d active bouquet %d total %d channel %p (%s)\n",
 				(int)cactive, (int)chanlist.size(), bactive, bsize, channel, channel ? channel->getName().c_str(): "");
 	} else {
+#if HAVE_DUCKBOX_HARDWARE
+		if ((key == g_settings.key_quickzap_down) || (key == CRCInput::RC_page_down)) {
+#else
 		if ((key == g_settings.key_quickzap_down) || (key == CRCInput::RC_left)) {
+#endif
 			if(sl == 0)
 				sl = chanlist.size()-1;
 			else
 				sl--;
 		}
-		else if ((key==g_settings.key_quickzap_up) || (key == CRCInput::RC_right)) {
+#if HAVE_DUCKBOX_HARDWARE
+		else if ((key == g_settings.key_quickzap_up) || (key == CRCInput::RC_page_up)) {
+#else
+		else if ((key == g_settings.key_quickzap_up) || (key == CRCInput::RC_right)) {
+#endif
 			sl = (sl+1)%chanlist.size();
 		}
 		channel = chanlist[sl];
