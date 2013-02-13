@@ -146,6 +146,15 @@ const CMenuOptionChooser::keyval KEYBINDINGMENU_BOUQUETHANDLING_OPTIONS[KEYBINDI
 	{ 2, LOCALE_KEYBINDINGMENU_ALLCHANNELS_ON_OK     }
 };
 
+#define KEYBINDINGMENU_PLAYBUTTON_OPTIONS_COUNT 4
+const CMenuOptionChooser::keyval KEYBINDINGMENU_PLAYBUTTON_OPTIONS[KEYBINDINGMENU_PLAYBUTTON_OPTIONS_COUNT] =
+{
+	{ 0, LOCALE_MOVIEPLAYER_TSPLAYBACK	},
+	{ 1, LOCALE_MOVIEPLAYER_FILEPLAYBACK},
+	{ 2, LOCALE_AUDIOPLAYER_NAME		},
+	{ 3, LOCALE_INETRADIO_NAME			}
+};
+
 typedef struct key_settings_t
 {
 	const neutrino_locale_t keydescription;
@@ -329,6 +338,11 @@ void CKeybindSetup::showKeyBindSetup(CMenuWidget *bindSettings)
 	// audio for audio player
 	mc = new CMenuOptionChooser(LOCALE_EXTRA_AUDIO_RUN_PLAYER, &g_settings.audio_run_player, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true);
 	mc->setHint("", LOCALE_MENU_HINT_KEY_AUDIO);
+	bindSettings->addItem(mc);
+
+	//play button starts....
+	mc = new CMenuOptionChooser(LOCALE_MPKEY_PLAY, &g_settings.key_playbutton, KEYBINDINGMENU_PLAYBUTTON_OPTIONS, KEYBINDINGMENU_PLAYBUTTON_OPTIONS_COUNT, true);
+	mc->setHint("", LOCALE_MENU_HINT_KEY_MPPLAY);
 	bindSettings->addItem(mc);
 
 	// right key

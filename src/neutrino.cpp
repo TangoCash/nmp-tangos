@@ -667,6 +667,8 @@ int CNeutrinoApp::loadSetup(const char * fname)
 
 	loadKeys();
 
+	g_settings.key_playbutton = configfile.getInt32("key_playbutton", 0);
+
 	g_settings.timeshift_pause = configfile.getInt32( "timeshift_pause", 1 );
 
 	g_settings.screenshot_count = configfile.getInt32( "screenshot_count",  1);
@@ -1140,6 +1142,8 @@ void CNeutrinoApp::saveSetup(const char * fname)
 	configfile.setString ( "logo_hdd_dir", g_settings.logo_hdd_dir );
 
 	saveKeys();
+
+	configfile.setInt32 ("key_playbutton", g_settings.key_playbutton );
 
 	configfile.setInt32( "timeshift_pause", g_settings.timeshift_pause );
 	configfile.setInt32( "temp_timeshift", g_settings.temp_timeshift );
@@ -2423,9 +2427,27 @@ void CNeutrinoApp::RealRun(CMenuWidget &mainMenu)
 				media->setUsageMode(CMediaPlayerMenu::MODE_AUDIO);
 				media->exec(NULL, "");
 			}
-			else if( msg == CRCInput::RC_video || msg == CRCInput::RC_play ) {
+			else if( msg == CRCInput::RC_video ) {
 				//open moviebrowser via media player menu object
 				CMediaPlayerMenu::getInstance()->exec(NULL,"movieplayer");
+				}
+			else if( msg == CRCInput::RC_play ) {
+				switch (g_settings.key_playbutton)
+				{
+				default:
+				case 0:
+					CMediaPlayerMenu::getInstance()->exec(NULL, "movieplayer");
+					break;
+				case 1:
+					CMoviePlayerGui::getInstance().exec(NULL, "fileplayback");
+					break;
+				case 2:
+					CMediaPlayerMenu::getInstance()->exec(NULL, "audioplayer");
+					break;
+				case 3:
+					CMediaPlayerMenu::getInstance()->exec(NULL, "inetplayer");
+					break;
+				}
 			}
 			else if (CRCInput::isNumeric(msg) && g_RemoteControl->director_mode ) {
 				g_RemoteControl->setSubChannel(CRCInput::getNumericValue(msg));
