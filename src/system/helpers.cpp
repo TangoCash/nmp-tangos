@@ -181,7 +181,9 @@ int check_dir(const char * dir)
 			case 0x0187:		/* AUTOFS_SUPER_MAGIC */
 			case 0x858458f6L: 	/*ramfs*/
 			case 0x3153464AL:	/*jfs*/
+#if 0
 			case 0x72b6L:		/*jffs2*/
+#endif
 				ret = 0;
 				break; //ok
 			default:
