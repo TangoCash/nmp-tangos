@@ -1286,7 +1286,6 @@ printf("[neutrino] CSectionsdClient::EVT_GOT_CN_EPG\n");
 
 								char d[80];
 								char p[255];
-								char *vfdtext;
 								time_t now = time(NULL);
 								struct tm *tm = localtime(&now);
 
@@ -1295,6 +1294,7 @@ printf("[neutrino] CSectionsdClient::EVT_GOT_CN_EPG\n");
 
 								CVFD::getInstance()->ShowText("OSD SHOT");
 								CFrameBuffer::getInstance()->OSDShot(p);
+								CVFD::getInstance()->ShowText("DONE");
 
 								continue;
 							}
