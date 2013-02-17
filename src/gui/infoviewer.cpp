@@ -832,7 +832,7 @@ void CInfoViewer::loop(bool show_dot)
 				showRadiotext();
 
 			infoViewerBB->showIcon_16_9();
-			//infoViewerBB->showIcon_CA_Status(0);
+			infoViewerBB->showIcon_CA_Status(0);
 			infoViewerBB->showIcon_Resolution();
 		} else if ((g_settings.mode_left_right_key_tv == SNeutrinoSettings::VZAP) && ((msg == CRCInput::RC_right) || (msg == CRCInput::RC_left ))) {
 			virtual_zap_mode = true;

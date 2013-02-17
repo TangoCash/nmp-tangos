@@ -762,7 +762,7 @@ void CInfoViewerBB::showIcon_CA_Status(int notfirst)
 			icon_space_offset = 0;
 		}
 #endif
-		int acaid = 0;
+		int ecm_caid = 0;
 		int ecm = 0;
 		FILE *f = fopen("/tmp/ecm.info", "rt");
 		if (f) {
@@ -770,7 +770,7 @@ void CInfoViewerBB::showIcon_CA_Status(int notfirst)
 			if (fgets(buf, sizeof(buf), f) != NULL) {
 				while (buf[ecm] != '0')
 					ecm++;
-				sscanf(&buf[ecm], "%X", &acaid);
+				sscanf(&buf[ecm], "%X", &ecm_caid);
 			}
 			fclose(f);
 		}
@@ -785,15 +785,9 @@ void CInfoViewerBB::showIcon_CA_Status(int notfirst)
 					break;
 			}
 			if(g_settings.casystem_display == 0)
-				if ((caids[i] & 0xFF00) == (acaid & 0xFF00) || (caids[i] == 0x1700 && (acaid & 0xFF00) == 0x0600))
-					paint_ca_icons(caids[i], (char *) (found ? green : white), icon_space_offset);
-				else
-					paint_ca_icons(caids[i], (char *) (found ? yellow : white), icon_space_offset);
+				paint_ca_icons(caids[i], (char *) (found ? (caids[i] == (ecm_caid & 0xFF00) ? green : yellow) : white), icon_space_offset);
 			else if(found)
-				if ((caids[i] & 0xFF00) == (acaid & 0xFF00) || (caids[i] == 0x1700 && (acaid & 0xFF00) == 0x0600))
-					paint_ca_icons(caids[i], (char *) green, icon_space_offset);
-				else
-					paint_ca_icons(caids[i], (char *) yellow, icon_space_offset);
+				paint_ca_icons(caids[i], (char *) ( caids[i] == (ecm_caid & 0xFF00) ? green : yellow), icon_space_offset);
 		}
 	}
 }
