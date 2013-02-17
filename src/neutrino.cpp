@@ -421,8 +421,11 @@ int CNeutrinoApp::loadSetup(const char * fname)
 
 	strcpy(g_settings.shutdown_min, "000");
 	if (can_deepstandby || cs_get_revision() == 1)
+#if HAVE_DUCKBOX_HARWARE
+		strcpy(g_settings.shutdown_min, configfile.getString("shutdown_min","000").c_str());
+#else
 		strcpy(g_settings.shutdown_min, configfile.getString("shutdown_min","180").c_str());
-
+#endif
 	g_settings.infobar_sat_display   = configfile.getBool("infobar_sat_display"  , true );
 	g_settings.infobar_show_channeldesc   = configfile.getBool("infobar_show_channeldesc"  , false );
 	g_settings.infobar_subchan_disp_pos = configfile.getInt32("infobar_subchan_disp_pos"  , 0 );
@@ -586,6 +589,19 @@ int CNeutrinoApp::loadSetup(const char * fname)
 		strcpy( g_settings.network_nfs_username[i], configfile.getString( cfg_key, "" ).c_str() );
 		sprintf(cfg_key, "network_nfs_password_%d", i);
 		strcpy( g_settings.network_nfs_password[i], configfile.getString( cfg_key, "" ).c_str() );
+#if HAVE_DUCKBOX_HARDWARE
+		sprintf(cfg_key, "network_nfs_mount_options1_%d", i);
+		strcpy( g_settings.network_nfs_mount_options1[i], configfile.getString( cfg_key, "rw,soft,udp" ).c_str() );
+		sprintf(cfg_key, "network_nfs_mount_options2_%d", i);
+		strcpy( g_settings.network_nfs_mount_options2[i], configfile.getString( cfg_key, "nolock,rsize=32768,wsize=32768" ).c_str() );
+		sprintf(cfg_key, "network_nfs_mac_%d", i);
+		strcpy( g_settings.network_nfs_mac[i], configfile.getString( cfg_key, "11:22:33:44:55:66").c_str() );
+	}
+	strcpy( g_settings.network_nfs_audioplayerdir, configfile.getString( "network_nfs_audioplayerdir", "/hdd/music" ).c_str() );
+	strcpy( g_settings.network_nfs_picturedir, configfile.getString( "network_nfs_picturedir", "/hdd/pictures" ).c_str() );
+	strcpy( g_settings.network_nfs_moviedir, configfile.getString( "network_nfs_moviedir", "/hdd/movie" ).c_str() );
+	strcpy( g_settings.network_nfs_recordingdir, configfile.getString( "network_nfs_recordingdir", "/hdd/movie" ).c_str() );
+#else
 		sprintf(cfg_key, "network_nfs_mount_options1_%d", i);
 		strcpy( g_settings.network_nfs_mount_options1[i], configfile.getString( cfg_key, "ro,soft,udp" ).c_str() );
 		sprintf(cfg_key, "network_nfs_mount_options2_%d", i);
@@ -593,12 +609,6 @@ int CNeutrinoApp::loadSetup(const char * fname)
 		sprintf(cfg_key, "network_nfs_mac_%d", i);
 		strcpy( g_settings.network_nfs_mac[i], configfile.getString( cfg_key, "11:22:33:44:55:66").c_str() );
 	}
-#if HAVE_DUCKBOX_HARDWARE
-	strcpy( g_settings.network_nfs_audioplayerdir, configfile.getString( "network_nfs_audioplayerdir", "/hdd/music" ).c_str() );
-	strcpy( g_settings.network_nfs_picturedir, configfile.getString( "network_nfs_picturedir", "/hdd/pictures" ).c_str() );
-	strcpy( g_settings.network_nfs_moviedir, configfile.getString( "network_nfs_moviedir", "/hdd/movie" ).c_str() );
-	strcpy( g_settings.network_nfs_recordingdir, configfile.getString( "network_nfs_recordingdir", "/hdd/movie" ).c_str() );
-#else
 	strcpy( g_settings.network_nfs_audioplayerdir, configfile.getString( "network_nfs_audioplayerdir", "/media/sda1/music" ).c_str() );
 	strcpy( g_settings.network_nfs_picturedir, configfile.getString( "network_nfs_picturedir", "/media/sda1/pictures" ).c_str() );
 	strcpy( g_settings.network_nfs_moviedir, configfile.getString( "network_nfs_moviedir", "/media/sda1/movies" ).c_str() );
@@ -662,7 +672,11 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	// default plugin for movieplayer
 	g_settings.movieplayer_plugin = configfile.getString( "movieplayer_plugin", "Teletext" );
 	g_settings.onekey_plugin = configfile.getString( "onekey_plugin", "noplugin" );
+#if HAVE_DUCKBOX_HARDWARE
+	g_settings.plugin_hdd_dir = configfile.getString( "plugin_hdd_dir", "/var/plugins" );
+#else
 	g_settings.plugin_hdd_dir = configfile.getString( "plugin_hdd_dir", "/hdd/tuxbox/plugins" );
+#endif
 	g_settings.logo_hdd_dir = configfile.getString( "logo_hdd_dir", "/var/share/icons/logo" );
 
 	loadKeys();
@@ -719,16 +733,6 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	g_settings.screen_StartY = g_settings.screen_preset ? g_settings.screen_StartY_lcd : g_settings.screen_StartY_crt;
 	g_settings.screen_EndX = g_settings.screen_preset ? g_settings.screen_EndX_lcd : g_settings.screen_EndX_crt;
 	g_settings.screen_EndY = g_settings.screen_preset ? g_settings.screen_EndY_lcd : g_settings.screen_EndY_crt;
-#if 0//HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
-	g_settings.screen_StartX_int = g_settings.screen_StartX;
-	g_settings.screen_StartY_int = g_settings.screen_StartY;
-	g_settings.screen_EndX_int = g_settings.screen_EndX;
-	g_settings.screen_EndY_int = g_settings.screen_EndY;
-	g_settings.screen_StartX = 0;
-	g_settings.screen_StartY = 0;
-	g_settings.screen_EndX = frameBuffer->getScreenWidth() - 1;
-	g_settings.screen_EndY = frameBuffer->getScreenHeight() - 1;
-#endif
 
 	g_settings.screen_width = configfile.getInt32("screen_width", 0);
 	g_settings.screen_height = configfile.getInt32("screen_height", 0);
