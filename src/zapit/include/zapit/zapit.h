@@ -21,8 +21,6 @@
 
 #define PAL	0
 #define NTSC	1
-#define AUDIO_CONFIG_FILE "/var/tuxbox/config/zapit/audio.conf"
-#define VOLUME_CONFIG_FILE "/var/tuxbox/config/zapit/volume.conf"
 
 typedef std::map<t_channel_id, audio_map_set_t> audio_map_t;
 typedef audio_map_t::iterator audio_map_iterator_t;
@@ -35,7 +33,7 @@ typedef volume_map_t::iterator volume_map_iterator_t;
 typedef std::pair<volume_map_iterator_t,volume_map_iterator_t> volume_map_range_t;
 
 #define VOLUME_PERCENT_AC3 100
-#define VOLUME_PERCENT_PCM 100
+#define VOLUME_PERCENT_PCM 75
 
 /* complete zapit start thread-parameters in a struct */
 typedef struct ZAPIT_start_arg

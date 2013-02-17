@@ -32,6 +32,9 @@
 #endif
 
 #define CONFIGFILE      CONFIGDIR "/zapit/zapit.conf"
+#define AUDIO_CONFIG_FILE CONFIGDIR "/zapit/audio.conf"
+#define VOLUME_CONFIG_FILE CONFIGDIR "/zapit/volume.conf"
+
 #define MOTORCONFIGFILE CONFIGDIR "/zapit/motor.conf"
 #define SATCONFIG CONFIGDIR "/zapit/sat.conf"
 #define SERVICES_XML    CONFIGDIR "/zapit/services.xml"
