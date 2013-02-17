@@ -2277,6 +2277,9 @@ void CNeutrinoApp::RealRun(CMenuWidget &mainMenu)
 						g_volume->AudioMute(current_muted, true);
 					if(g_settings.mode_clock)
 						InfoClock->StartClock();
+#if HAVE_DUCKBOX_HARDWARE
+					CVFD::getInstance()->UpdateIcons();
+#endif
 					StartSubtitles();
 					saveSetup(NEUTRINO_SETTINGS_FILE);
 				}
@@ -2388,6 +2391,9 @@ void CNeutrinoApp::RealRun(CMenuWidget &mainMenu)
 				{
 					StopSubtitles();
 					usermenu.showUserMenu(SNeutrinoSettings::BUTTON_GREEN);
+#if HAVE_DUCKBOX_HARDWARE
+					CVFD::getInstance()->UpdateIcons();
+#endif
 					StartSubtitles();
 				}
 				else
