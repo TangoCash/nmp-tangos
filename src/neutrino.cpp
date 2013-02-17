@@ -2452,6 +2452,9 @@ void CNeutrinoApp::RealRun(CMenuWidget &mainMenu)
 					CMediaPlayerMenu::getInstance()->exec(NULL, "inetplayer");
 					break;
 				}
+#if HAVE_DUCKBOX_HARDWARE
+				CVFD::getInstance()->UpdateIcons();
+#endif
 			}
 			else if (CRCInput::isNumeric(msg) && g_RemoteControl->director_mode ) {
 				g_RemoteControl->setSubChannel(CRCInput::getNumericValue(msg));
@@ -2520,6 +2523,9 @@ int CNeutrinoApp::handleMsg(const neutrino_msg_t _msg, neutrino_msg_data_t data)
 
 #if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
 		threeDSetup->exec(NULL, "zapped");
+#endif
+#if HAVE_DUCKBOX_HARDWARE
+		CVFD::getInstance()->UpdateIcons();
 #endif
 #ifdef ENABLE_GRAPHLCD
 		nGLCD::Update();

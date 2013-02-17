@@ -520,6 +520,11 @@ void CMoviePlayerGui::PlayFile(void)
 		}
 	}
 
+#if HAVE_DUCKBOX_HARDWARE
+	int xres, yres, framerate;
+	CVFD::getInstance()->ShowIcon(VFD_ICON_LOCK, false);
+#endif
+
 	while (playstate >= CMoviePlayerGui::PLAY)
 	{
 #ifdef ENABLE_GRAPHLCD
@@ -549,8 +554,16 @@ void CMoviePlayerGui::PlayFile(void)
 #ifdef DEBUG
 				printf("CMoviePlayerGui::PlayFile: speed %d position %d duration %d (%d, %d%%)\n", speed, position, duration, duration-position, file_prozent);
 #endif
+#if HAVE_DUCKBOX_HARDWARE
+				if ((position > 100) && (file_prozent < 3))
+				{
+					videoDecoder->getPictureInfo(xres, yres, framerate);
+					CVFD::getInstance()->ShowIcon(VFD_ICON_HD, (yres > 576));
+				}
+#endif
 				/* in case ffmpeg report incorrect values */
 #if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+
 				if (duration - position < 1000 && !timeshift)
 #else
 				int posdiff = duration - position;
@@ -994,6 +1007,9 @@ void CMoviePlayerGui::selectAudioPid(bool file_player)
 		currentapid = select; /*apids[select];*/
 		currentac3 = ac3flags[select];
 		playback->SetAPid(currentapid, currentac3);
+#if HAVE_DUCKBOX_HARDWARE
+		CVFD::getInstance()->ShowIcon(VFD_ICON_DD, currentac3);
+#endif
 		printf("[movieplayer] apid changed to %d type %d\n", currentapid, currentac3);
 	}
 }
