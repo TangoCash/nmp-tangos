@@ -551,7 +551,7 @@ fprintf(stderr, "CFrameBuffer::setMode avail: %d active: %d\n", available, activ
 		       screeninfo.xres, screeninfo.yres, screeninfo.bits_per_pixel);
 	}
 #endif
-#if HAVE_SPARK_HARDWARE
+#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
 	/* it's all fake... :-) */
 	screeninfo.xres = screeninfo.xres_virtual = DEFAULT_XRES;
 	screeninfo.yres = screeninfo.yres_virtual = DEFAULT_YRES;
