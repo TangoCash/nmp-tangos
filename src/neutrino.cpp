@@ -819,7 +819,11 @@ int CNeutrinoApp::loadSetup(const char * fname)
 		"2,3,4,13",                     // RED
 		"6",                            // GREEN
 		"7",                       // YELLOW
+#if HAVE_DUCKBOX_HARDWARE
+		"12,11,20,21,19,14,15,22"    // BLUE
+#else
 		"12,11,20,21,19,14,15"    // BLUE
+#endif
 	};
 	char txt1[81];
 	std::string txt2;
