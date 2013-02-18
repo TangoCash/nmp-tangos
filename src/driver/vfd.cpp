@@ -560,9 +560,12 @@ void CVFD::showTime(bool force)
 void CVFD::UpdateIcons()
 {
 	CZapitChannel * chan = CZapit::getInstance()->GetCurrentChannel();
-	ShowIcon(VFD_ICON_HD,chan->isHD());
-	ShowIcon(VFD_ICON_LOCK,!chan->camap.empty());
-	ShowIcon(VFD_ICON_DD, chan->getAudioChannel()->audioChannelType == CZapitAudioChannel::AC3);
+	if (chan)
+	{
+		ShowIcon(VFD_ICON_HD,chan->isHD());
+		ShowIcon(VFD_ICON_LOCK,!chan->camap.empty());
+		ShowIcon(VFD_ICON_DD, chan->getAudioChannel()->audioChannelType == CZapitAudioChannel::AC3);
+	}
 }
 #endif
 void CVFD::showRCLock(int /*duration*/)
