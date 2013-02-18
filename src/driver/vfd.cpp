@@ -564,7 +564,8 @@ void CVFD::UpdateIcons()
 	{
 		ShowIcon(VFD_ICON_HD,chan->isHD());
 		ShowIcon(VFD_ICON_LOCK,!chan->camap.empty());
-		ShowIcon(VFD_ICON_DD, chan->getAudioChannel()->audioChannelType == CZapitAudioChannel::AC3);
+		if (chan->getAudioChannel() != NULL)
+			ShowIcon(VFD_ICON_DD, chan->getAudioChannel()->audioChannelType == CZapitAudioChannel::AC3);
 	}
 }
 #endif
