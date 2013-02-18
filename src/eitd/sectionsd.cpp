@@ -55,7 +55,7 @@
 //#define ENABLE_SDT //FIXME
 
 //#define DEBUG_SDT_THREAD
-#define DEBUG_TIME_THREAD
+//#define DEBUG_TIME_THREAD
 
 #define DEBUG_SECTION_THREADS
 #define DEBUG_CN_THREAD
@@ -900,7 +900,7 @@ static void commandserviceChanged(int connfd, char *data, const unsigned dataLen
 
 	t_channel_id uniqueServiceKey = (((sectionsd::commandSetServiceChanged *)data)->channel_id);
 
-	xprintf("[sectionsd] commandserviceChanged: Service change to " PRINTF_CHANNEL_ID_TYPE "\n\n", uniqueServiceKey);
+	xprintf("[sectionsd] commandserviceChanged: Service change to " PRINTF_CHANNEL_ID_TYPE "\n", uniqueServiceKey);
 
 	static t_channel_id time_trigger_last = 0;
 
@@ -943,7 +943,7 @@ static void commandserviceChanged(int connfd, char *data, const unsigned dataLen
 	else
 		dprintf("[sectionsd] commandserviceChanged: no change...\n");
 
-	xprintf("[sectionsd] commandserviceChanged: Service changed to " PRINTF_CHANNEL_ID_TYPE "\n\n", uniqueServiceKey);
+	dprintf("[sectionsd] commandserviceChanged: Service changed to " PRINTF_CHANNEL_ID_TYPE "\n", uniqueServiceKey);
 }
 
 static void commandGetIsScanningActive(int connfd, char* /*data*/, const unsigned /*dataLength*/)
@@ -1295,7 +1295,8 @@ void CTimeThread::sendTimeEvent(bool ntp, time_t tim)
 	eventServer->sendEvent(CSectionsdClient::EVT_TIMESET, CEventServer::INITID_SECTIONSD, &actTime, sizeof(actTime) );
 #endif
 	if(ntp || tim) {}
-	eventServer->sendEvent(CSectionsdClient::EVT_TIMESET, CEventServer::INITID_SECTIONSD, &timediff, sizeof(timediff));
+	if (timediff)
+		eventServer->sendEvent(CSectionsdClient::EVT_TIMESET, CEventServer::INITID_SECTIONSD, &timediff, sizeof(timediff));
 	setTimeSet();
 }
 
@@ -1328,9 +1329,23 @@ void CTimeThread::setSystemTime(time_t tim)
 	xprintf("%s: timediff %" PRId64 ", current: %02d.%02d.%04d %02d:%02d:%02d, dvb: %s", name.c_str(), timediff,
 			tmTime->tm_mday, tmTime->tm_mon+1, tmTime->tm_year+1900, 
 			tmTime->tm_hour, tmTime->tm_min, tmTime->tm_sec, ctime(&tim));
-
+#if 0
 	/* if new time less than current for less than 1 second, ignore */
 	if(timediff < 0 && timediff > (int64_t) -1000000) {
+		timediff = 0;
+		return;
+	}
+#endif
+	if (timediff == 0) /* very unlikely... :-) */
+		return;
+	if (abs(timediff) < 120000000LL) {
+		struct timeval oldd;
+		tv.tv_sec = timediff / 1000000LL;
+		tv.tv_usec = timediff % 1000000LL;
+		if (adjtime(&tv, &oldd))
+			perror("adjtime");
+		xprintf("difference is < 120s, using adjtime(%d, %d). oldd(%d, %d)\n",
+			(int)tv.tv_sec, (int)tv.tv_usec, (int)oldd.tv_sec, (int)oldd.tv_usec);
 		timediff = 0;
 		return;
 	}
@@ -1390,7 +1405,12 @@ void CTimeThread::run()
 				change(0);
 
 			xprintf("%s: getting DVB time (isOpen %d)\n", name.c_str(), isOpen());
-			int rc = dmx->Read(static_buf, MAX_SECTION_LENGTH, timeoutInMSeconds);
+			int rc;
+			time_t start = time_monotonic_ms();
+			/* speed up shutdown by looping around Read() */
+			do {
+				rc = dmx->Read(static_buf, MAX_SECTION_LENGTH, timeoutInMSeconds / 12);
+			} while (running && rc == 0 && (time_monotonic_ms() - start) < timeoutInMSeconds);
 			xprintf("%s: getting DVB time done : %d messaging_neutrino_sets_time %d\n", name.c_str(), rc, messaging_neutrino_sets_time);
 			if (rc > 0) {
 				SIsectionTIME st(static_buf);
@@ -1445,7 +1465,7 @@ int CSectionThread::Sleep()
 		TIMEVAL_TO_TIMESPEC(&now, &abs_wait);
 		abs_wait.tv_sec += sleep_time;
 	}
-	xprintf("%s: going to sleep for %d seconds...\n", name.c_str(), sleep_time);
+	dprintf("%s: going to sleep for %d seconds...\n", name.c_str(), sleep_time);
 	pthread_mutex_lock(&start_stop_mutex);
 
 	beforeWait();
@@ -1493,7 +1513,7 @@ void CSectionThread::run()
 				real_pause();
 				rs = Sleep();
 #ifdef DEBUG_SECTION_THREADS
-				xprintf("%s: wakeup, running %d scanning %d blacklisted %d reason %d\n\n",
+				xprintf("%s: wakeup, running %d scanning %d blacklisted %d reason %d\n",
 						name.c_str(), running, scanning, channel_is_blacklisted, rs);
 #endif
 			} while (checkSleep());
@@ -1583,6 +1603,23 @@ bool CEventsThread::addEvents()
 	return true;
 }
 
+bool CCNThread::shouldSleep()
+{
+	if (!scanning || channel_is_blacklisted)
+		return true;
+	if (!sendToSleepNow)
+		return false;
+	if (eit_version != 0xff)
+		return true;
+
+	if (++eit_retry > 1) {
+		xprintf("%s::%s eit_retry > 1 (%d) -> going to sleep\n", name.c_str(), __func__, eit_retry);
+		return true;
+	}
+	sendToSleepNow = false;
+	return false;
+}
+
 /* default check if thread should go to sleep */
 bool CEventsThread::shouldSleep()
 {
@@ -1656,6 +1693,7 @@ CCNThread::CCNThread()
 
 	updating = false;
 	eitDmx = new cDemux(0);
+	eit_retry = 0;
 }
 
 /* CN thread hooks */
@@ -1721,6 +1759,7 @@ void CCNThread::beforeSleep()
 		/* send a "no epg" event anyway before going to sleep */
 		sendCNEvent();
 	}
+	eit_retry = 0;
 }
 
 void CCNThread::processSection()
@@ -1738,7 +1777,7 @@ void CCNThread::processSection()
 		unlockMessaging();
 
 #ifdef DEBUG_CN_THREAD
-		xprintf("%s: have CN: timeoutsDMX %d messaging_have_CN %x messaging_got_CN %x\n\n",
+		xprintf("%s: have CN: timeoutsDMX %d messaging_have_CN %x messaging_got_CN %x\n",
 				name.c_str(), timeoutsDMX, messaging_have_CN, messaging_got_CN);
 #endif
 		dprintf("[cnThread] got current_next (0x%x) - sending event!\n", messaging_have_CN);
