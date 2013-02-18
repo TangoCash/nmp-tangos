@@ -4,13 +4,7 @@
 	Copyright (C) 2001 Steffen Hehn 'McClean'
 	Homepage: http://dbox.cyberphoria.org/
 
-	Kommentar:
-
-	Diese GUI wurde von Grund auf neu programmiert und sollte nun vom
-	Aufbau und auch den Ausbaumoeglichkeiten gut aussehen. Neutrino basiert
-	auf der Client-Server Idee, diese GUI ist also von der direkten DBox-
-	Steuerung getrennt. Diese wird dann von Daemons uebernommen.
-
+	Copyright (C) 2012-2013 Stefan Seyfried
 
 	License: GPL
 
@@ -112,6 +106,13 @@ void CInfoViewerBB::Init()
 
 	for (int i = 0; i < CInfoViewerBB::BUTTON_MAX; i++) {
 		tmp_bbButtonInfoText[i] = "";
+	}
+
+	// get HDD info in a separate thread
+	if (g_settings.infobar_show_sysfs_hdd && !hddperTflag) {
+		hddperTflag=true;
+		pthread_create(&hddperT, NULL, hddperThread, (void*) this);
+		pthread_detach(hddperT);
 	}
 
 	InfoHeightY_Info = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->getHeight() + 5;
@@ -280,7 +281,7 @@ void CInfoViewerBB::getBBButtonInfo()
 	minX = std::min(bbIconMinX, g_InfoViewer->ChanInfoX + (((g_InfoViewer->BoxEndX - g_InfoViewer->ChanInfoX) * 75) / 100));
 	int MaxBr = minX - (g_InfoViewer->ChanInfoX + 10);
 	bbButtonMaxX = g_InfoViewer->ChanInfoX + 10;
-	int br = 0;
+	int br = 0, count = 0;
 	for (int i = 0; i < CInfoViewerBB::BUTTON_MAX; i++) {
 		if ((i == CInfoViewerBB::BUTTON_SUBS) && (g_RemoteControl->subChannels.empty())) { // no subchannels
 			bbButtonInfo[i].paint = false;
@@ -288,15 +289,17 @@ void CInfoViewerBB::getBBButtonInfo()
 //			continue;
 		}
 		else
+		{
+			count++;
 			bbButtonInfo[i].paint = true;
-		br += bbButtonInfo[i].w;
-		bbButtonInfo[i].x = bbButtonMaxX;
-		bbButtonMaxX += bbButtonInfo[i].w;
-		bbButtonMaxW = std::max(bbButtonMaxW, bbButtonInfo[i].w);
+			br += bbButtonInfo[i].w;
+			bbButtonInfo[i].x = bbButtonMaxX;
+			bbButtonMaxX += bbButtonInfo[i].w;
+			bbButtonMaxW = std::max(bbButtonMaxW, bbButtonInfo[i].w);
+		}
 	}
-	if (br > MaxBr) { // TODO: Cut to long strings
-		printf("[infoviewer.cpp - %s, line #%d] width ColorButtons (%d) > MaxBr (%d)\n", __FUNCTION__, __LINE__, br, MaxBr);
-	}
+	if (br > MaxBr)
+		printf("[infoviewer_bb:%s#%d] width br (%d) > MaxBr (%d) count %d\n", __func__, __LINE__, br, MaxBr, count);
 #if 0
 	int Btns = 0;
 	// counting buttons
@@ -325,14 +328,25 @@ void CInfoViewerBB::getBBButtonInfo()
 								bbButtonInfo[CInfoViewerBB::BUTTON_AUDIO].w + rest;
 	}
 #endif
-#if 1
 	bbButtonMaxX = g_InfoViewer->ChanInfoX + 10;
 	int step = MaxBr / 4;
-	bbButtonInfo[CInfoViewerBB::BUTTON_EPG].x   = bbButtonMaxX;
-	bbButtonInfo[CInfoViewerBB::BUTTON_AUDIO].x = bbButtonMaxX + step;
-	bbButtonInfo[CInfoViewerBB::BUTTON_SUBS].x  = bbButtonMaxX + 2*step;
-	bbButtonInfo[CInfoViewerBB::BUTTON_FEAT].x  = bbButtonMaxX + 3*step;
-#endif
+	if (count > 0) { /* avoid div-by-zero :-) */
+		step = MaxBr / count;
+		count = 0;
+		for (int i = 0; i < BUTTON_MAX; i++) {
+			if (!bbButtonInfo[i].paint)
+				continue;
+			bbButtonInfo[i].x = bbButtonMaxX + step * count;
+			// printf("%s: i = %d count = %d b.x = %d\n", __func__, i, count, bbButtonInfo[i].x);
+			count++;
+		}
+	} else {
+		printf("[infoviewer_bb:%s#%d: count <= 0???\n", __func__, __LINE__);
+		bbButtonInfo[BUTTON_EPG].x   = bbButtonMaxX;
+		bbButtonInfo[BUTTON_AUDIO].x = bbButtonMaxX + step;
+		bbButtonInfo[BUTTON_SUBS].x  = bbButtonMaxX + 2*step;
+		bbButtonInfo[BUTTON_FEAT].x  = bbButtonMaxX + 3*step;
+	}
 }
 
 void CInfoViewerBB::showBBButtons(const int modus)
@@ -351,12 +365,21 @@ void CInfoViewerBB::showBBButtons(const int modus)
 	}
 
 	if (paint) {
+		int last_x = minX;
 		frameBuffer->paintBoxRel(g_InfoViewer->ChanInfoX, BBarY, minX - g_InfoViewer->ChanInfoX, InfoHeightY_Info, COL_INFOBAR_BUTTONS_BACKGROUND, RADIUS_SMALL, CORNER_BOTTOM); //round
-		for (i = 0; i < CInfoViewerBB::BUTTON_MAX; i++) {
+		for (i = BUTTON_MAX; i > 0;) {
+			--i;
 			if ((bbButtonInfo[i].x <= g_InfoViewer->ChanInfoX) || (bbButtonInfo[i].x >= g_InfoViewer->BoxEndX) || (!bbButtonInfo[i].paint))
 				continue;
-			if ((bbButtonInfo[i].x > 0) && ((bbButtonInfo[i].x + bbButtonInfo[i].w) <= minX)) {
-				
+			if (bbButtonInfo[i].x > 0) {
+				if (bbButtonInfo[i].x + bbButtonInfo[i].w > last_x) /* text too long */
+					bbButtonInfo[i].w = last_x - bbButtonInfo[i].x;
+				last_x = bbButtonInfo[i].x;
+				if (bbButtonInfo[i].w - bbButtonInfo[i].cx <= 0) {
+					printf("[infoviewer_bb:%d cannot paint icon %d (not enough space)\n",
+							__LINE__, i);
+					continue;
+				}
 				frameBuffer->paintIcon(bbButtonInfo[i].icon, bbButtonInfo[i].x, BBarY, InfoHeightY_Info);
 
 				g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->RenderString(bbButtonInfo[i].x + bbButtonInfo[i].cx, BBarFontY, 
@@ -605,13 +628,6 @@ void CInfoViewerBB::showSysfsHdd()
 			percent = (u * 100ULL) / t;
 		showBarSys(percent);
 
-		//HDD info in a seperate thread
-		if(!hddperTflag) {
-			hddperTflag=true;
-			pthread_create(&hddperT, NULL, hddperThread, (void*) this);
-			pthread_detach(hddperT);
-		}
-
 		if (check_dir(g_settings.network_nfs_recordingdir) == 0)
 			showBarHdd(hddpercent);
 		else
@@ -622,12 +638,11 @@ void CInfoViewerBB::showSysfsHdd()
 void* CInfoViewerBB::hddperThread(void *arg)
 {
 	CInfoViewerBB *infoViewerBB = (CInfoViewerBB*) arg;
-
-	infoViewerBB->hddpercent = 0;
 	long t, u;
 	if (get_fs_usage(g_settings.network_nfs_recordingdir, t, u))
 		infoViewerBB->hddpercent = (u * 100ULL) / t;
-
+	else
+		infoViewerBB->hddpercent = 0;
 	infoViewerBB->hddperTflag=false;
 	pthread_exit(NULL);
 }
@@ -762,7 +777,7 @@ void CInfoViewerBB::showIcon_CA_Status(int notfirst)
 			icon_space_offset = 0;
 		}
 #endif
-		int acaid = 0;
+		int ecm_caid = 0;
 		int ecm = 0;
 		FILE *f = fopen("/tmp/ecm.info", "rt");
 		if (f) {
@@ -770,7 +785,7 @@ void CInfoViewerBB::showIcon_CA_Status(int notfirst)
 			if (fgets(buf, sizeof(buf), f) != NULL) {
 				while (buf[ecm] != '0')
 					ecm++;
-				sscanf(&buf[ecm], "%X", &acaid);
+				sscanf(&buf[ecm], "%X", &ecm_caid);
 			}
 			fclose(f);
 		}
@@ -785,15 +800,9 @@ void CInfoViewerBB::showIcon_CA_Status(int notfirst)
 					break;
 			}
 			if(g_settings.casystem_display == 0)
-				if ((caids[i] & 0xFF00) == (acaid & 0xFF00) || (caids[i] == 0x1700 && (acaid & 0xFF00) == 0x0600))
-					paint_ca_icons(caids[i], (char *) (found ? green : white), icon_space_offset);
-				else
-					paint_ca_icons(caids[i], (char *) (found ? yellow : white), icon_space_offset);
+				paint_ca_icons(caids[i], (char *) (found ? (caids[i] == (ecm_caid & 0xFF00) ? green : yellow) : white), icon_space_offset);
 			else if(found)
-				if ((caids[i] & 0xFF00) == (acaid & 0xFF00) || (caids[i] == 0x1700 && (acaid & 0xFF00) == 0x0600))
-					paint_ca_icons(caids[i], (char *) green, icon_space_offset);
-				else
-					paint_ca_icons(caids[i], (char *) yellow, icon_space_offset);
+				paint_ca_icons(caids[i], (char *) ( caids[i] == (ecm_caid & 0xFF00) ? green : yellow), icon_space_offset);
 		}
 	}
 }
