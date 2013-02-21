@@ -108,7 +108,7 @@ CScanSettings::CScanSettings(void)
 {
 	delivery_system = DVB_S;
 	bouquetMode     = CZapitClient::BM_UPDATEBOUQUETS;
-	scanType = CServiceScan::SCAN_TVRADIO;
+	scanType = CServiceScan::SCAN_ALL;
 	strcpy(satNameNoDiseqc, "none");
 }
 
