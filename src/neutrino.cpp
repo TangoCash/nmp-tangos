@@ -705,10 +705,11 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	g_settings.onekey_plugin = configfile.getString( "onekey_plugin", "noplugin" );
 #if HAVE_DUCKBOX_HARDWARE
 	g_settings.plugin_hdd_dir = configfile.getString( "plugin_hdd_dir", "/var/plugins" );
+	g_settings.logo_hdd_dir = configfile.getString( "logo_hdd_dir", "/logos" );
 #else
 	g_settings.plugin_hdd_dir = configfile.getString( "plugin_hdd_dir", "/hdd/tuxbox/plugins" );
-#endif
 	g_settings.logo_hdd_dir = configfile.getString( "logo_hdd_dir", "/var/share/icons/logo" );
+#endif
 
 	loadKeys();
 
