@@ -356,11 +356,19 @@ int CNeutrinoApp::loadSetup(const char * fname)
 
 	g_settings.video_Format = configfile.getInt32("video_Format", DISPLAY_AR_16_9);
 	g_settings.video_43mode = configfile.getInt32("video_43mode", DISPLAY_AR_MODE_LETTERBOX);
+#if HAVE_DUCKBOX_HARDWARE
+	g_settings.current_volume = configfile.getInt32("current_volume", 100);
+#else
 	g_settings.current_volume = configfile.getInt32("current_volume", 50);
+#endif
 	g_settings.current_volume_step = configfile.getInt32("current_volume_step", 2);
+#if HAVE_DUCKBOX_HARDWARE
+	g_settings.channel_mode = configfile.getInt32("channel_mode", LIST_MODE_FAV);
+	g_settings.channel_mode_radio = configfile.getInt32("channel_mode_radio", LIST_MODE_FAV);
+#else
 	g_settings.channel_mode = configfile.getInt32("channel_mode", LIST_MODE_PROV);
 	g_settings.channel_mode_radio = configfile.getInt32("channel_mode_radio", LIST_MODE_PROV);
-
+#endif
 	g_settings.fan_speed = configfile.getInt32( "fan_speed", 1);
 	if(g_settings.fan_speed < 1) g_settings.fan_speed = 1;
 
@@ -412,7 +420,11 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	g_settings.led_blink = configfile.getInt32( "led_blink", 1);
 
 	g_settings.hdd_fs = configfile.getInt32( "hdd_fs", 0);
+#if HAVE_DUCKBOX_HARDWARE
+	g_settings.hdd_sleep = configfile.getInt32( "hdd_sleep", 0);
+#else
 	g_settings.hdd_sleep = configfile.getInt32( "hdd_sleep", 120);
+#endif
 	g_settings.hdd_noise = configfile.getInt32( "hdd_noise", 254);
 
 	g_settings.shutdown_real         = configfile.getBool("shutdown_real"        , false );
@@ -421,7 +433,7 @@ int CNeutrinoApp::loadSetup(const char * fname)
 
 	strcpy(g_settings.shutdown_min, "000");
 	if (can_deepstandby || cs_get_revision() == 1)
-#if HAVE_DUCKBOX_HARWARE
+#if HAVE_DUCKBOX_HARDWARE
 		strcpy(g_settings.shutdown_min, configfile.getString("shutdown_min","000").c_str());
 #else
 		strcpy(g_settings.shutdown_min, configfile.getString("shutdown_min","180").c_str());
@@ -541,6 +553,24 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	g_settings.infobar_Text_blue = configfile.getInt32( "infobar_Text_blue", 0x64 );
 
 #ifdef ENABLE_GRAPHLCD
+#if HAVE_DUCKBOX_HARDWARE
+	g_settings.glcd_enable = configfile.getInt32("glcd_enable", 0);
+	g_settings.glcd_color_fg = configfile.getInt32("glcd_color_fg", GLCD::cColor::White);
+	g_settings.glcd_color_bg = configfile.getInt32("glcd_color_bg", GLCD::cColor::Black);
+	g_settings.glcd_color_bar = configfile.getInt32("glcd_color_bar", GLCD::cColor::Blue);
+	g_settings.glcd_percent_channel = configfile.getInt32("glcd_percent_channel", 22);
+	g_settings.glcd_percent_epg = configfile.getInt32("glcd_percent_epg", 16);
+	g_settings.glcd_percent_bar = configfile.getInt32("glcd_percent_bar", 8);
+	g_settings.glcd_percent_time = configfile.getInt32("glcd_percent_time", 32);
+	g_settings.glcd_percent_time_standby = configfile.getInt32("glcd_percent_time_standby", 50);
+	g_settings.glcd_percent_logo = configfile.getInt32("glcd_percent_logo", 50);
+	g_settings.glcd_time_in_standby = configfile.getInt32("glcd_time_in_standby", 1);
+	g_settings.glcd_show_logo = configfile.getInt32("glcd_show_logo", 1);
+	g_settings.glcd_font = configfile.getString("glcd_font", FONTDIR "/neutrino.ttf");
+	g_settings.glcd_brightness = configfile.getInt32("glcd_brightness", 75);
+	g_settings.glcd_brightness_standby = configfile.getInt32("glcd_brightness_standby", 45);
+	g_settings.glcd_scroll_speed = configfile.getInt32("glcd_scroll_speed", 5);
+#else
 	g_settings.glcd_enable = configfile.getInt32("glcd_enable", 0);
 	g_settings.glcd_color_fg = configfile.getInt32("glcd_color_fg", GLCD::cColor::White);
 	g_settings.glcd_color_bg = configfile.getInt32("glcd_color_bg", GLCD::cColor::Black);
@@ -557,6 +587,7 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	g_settings.glcd_brightness = configfile.getInt32("glcd_brightness", 100);
 	g_settings.glcd_brightness_standby = configfile.getInt32("glcd_brightness_standby", 60);
 	g_settings.glcd_scroll_speed = configfile.getInt32("glcd_scroll_speed", 8);
+#endif
 #endif
 
 	//personalize
@@ -674,10 +705,11 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	g_settings.onekey_plugin = configfile.getString( "onekey_plugin", "noplugin" );
 #if HAVE_DUCKBOX_HARDWARE
 	g_settings.plugin_hdd_dir = configfile.getString( "plugin_hdd_dir", "/var/plugins" );
+	g_settings.logo_hdd_dir = configfile.getString( "logo_hdd_dir", "/logos" );
 #else
 	g_settings.plugin_hdd_dir = configfile.getString( "plugin_hdd_dir", "/hdd/tuxbox/plugins" );
-#endif
 	g_settings.logo_hdd_dir = configfile.getString( "logo_hdd_dir", "/var/share/icons/logo" );
+#endif
 
 	loadKeys();
 
@@ -737,7 +769,11 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	g_settings.screen_width = configfile.getInt32("screen_width", 0);
 	g_settings.screen_height = configfile.getInt32("screen_height", 0);
 
+#if HAVE_DUCKBOX_HARDWARE
+	g_settings.bigFonts = configfile.getInt32("bigFonts", 1);
+#else
 	g_settings.bigFonts = configfile.getInt32("bigFonts", 0);
+#endif
 	g_settings.big_windows = configfile.getInt32("big_windows", 0);
 #if HAVE_DUCKBOX_HARDWARE
 	g_settings.osd_shotmode = configfile.getInt32("osd_shotmode", 0);

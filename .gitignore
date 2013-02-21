@@ -30,7 +30,6 @@ INSTALL
 *.rej
 *~
 
-
 ### binaries that fall out of the build
 lib/sectionsdclient/sectionsdcontrol
 src/neutrino
