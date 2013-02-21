@@ -553,6 +553,24 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	g_settings.infobar_Text_blue = configfile.getInt32( "infobar_Text_blue", 0x64 );
 
 #ifdef ENABLE_GRAPHLCD
+#if HAVE_DUCKBOX_HARDWARE
+	g_settings.glcd_enable = configfile.getInt32("glcd_enable", 0);
+	g_settings.glcd_color_fg = configfile.getInt32("glcd_color_fg", GLCD::cColor::White);
+	g_settings.glcd_color_bg = configfile.getInt32("glcd_color_bg", GLCD::cColor::Black);
+	g_settings.glcd_color_bar = configfile.getInt32("glcd_color_bar", GLCD::cColor::Blue);
+	g_settings.glcd_percent_channel = configfile.getInt32("glcd_percent_channel", 22);
+	g_settings.glcd_percent_epg = configfile.getInt32("glcd_percent_epg", 16);
+	g_settings.glcd_percent_bar = configfile.getInt32("glcd_percent_bar", 8);
+	g_settings.glcd_percent_time = configfile.getInt32("glcd_percent_time", 32);
+	g_settings.glcd_percent_time_standby = configfile.getInt32("glcd_percent_time_standby", 50);
+	g_settings.glcd_percent_logo = configfile.getInt32("glcd_percent_logo", 50);
+	g_settings.glcd_time_in_standby = configfile.getInt32("glcd_time_in_standby", 1);
+	g_settings.glcd_show_logo = configfile.getInt32("glcd_show_logo", 1);
+	g_settings.glcd_font = configfile.getString("glcd_font", FONTDIR "/neutrino.ttf");
+	g_settings.glcd_brightness = configfile.getInt32("glcd_brightness", 75);
+	g_settings.glcd_brightness_standby = configfile.getInt32("glcd_brightness_standby", 45);
+	g_settings.glcd_scroll_speed = configfile.getInt32("glcd_scroll_speed", 5);
+#else
 	g_settings.glcd_enable = configfile.getInt32("glcd_enable", 0);
 	g_settings.glcd_color_fg = configfile.getInt32("glcd_color_fg", GLCD::cColor::White);
 	g_settings.glcd_color_bg = configfile.getInt32("glcd_color_bg", GLCD::cColor::Black);
@@ -569,6 +587,7 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	g_settings.glcd_brightness = configfile.getInt32("glcd_brightness", 100);
 	g_settings.glcd_brightness_standby = configfile.getInt32("glcd_brightness_standby", 60);
 	g_settings.glcd_scroll_speed = configfile.getInt32("glcd_scroll_speed", 8);
+#endif
 #endif
 
 	//personalize
