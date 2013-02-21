@@ -768,7 +768,11 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	g_settings.screen_width = configfile.getInt32("screen_width", 0);
 	g_settings.screen_height = configfile.getInt32("screen_height", 0);
 
+#if HAVE_DUCKBOX_HARDWARE
+	g_settings.bigFonts = configfile.getInt32("bigFonts", 1);
+#else
 	g_settings.bigFonts = configfile.getInt32("bigFonts", 0);
+#endif
 	g_settings.big_windows = configfile.getInt32("big_windows", 0);
 #if HAVE_DUCKBOX_HARDWARE
 	g_settings.osd_shotmode = configfile.getInt32("osd_shotmode", 0);
