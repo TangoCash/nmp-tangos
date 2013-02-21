@@ -2491,7 +2491,46 @@ bool CMovieBrowser::loadTsFileNamesFromDir(const std::string & dirname)
 			}
 			else
 			{
-				int test=flist[i].getFileName().find(".ts");
+//				int test=flist[i].getFileName().find(".ts");
+
+				// dirty way to use filter ;-8
+				int test = -1;
+				int ext_pos = 0;
+				ext_pos = flist[i].getFileName().rfind('.');
+				if (ext_pos > 0) {
+					std::string extension;
+					extension = flist[i].getFileName().substr(ext_pos + 1, flist[i].getFileName().length() - ext_pos);
+					if (
+					    (strcasecmp("ts", extension.c_str()) == 0) ||
+#if HAVE_TRIPLEDRAGON
+					    (strcasecmp("vdr", extension.c_str()) == 0) ||
+#else
+					    (strcasecmp("avi", extension.c_str()) == 0) ||
+					    (strcasecmp("mkv", extension.c_str()) == 0) ||
+					    (strcasecmp("wav", extension.c_str()) == 0) ||
+					    (strcasecmp("asf", extension.c_str()) == 0) ||
+					    (strcasecmp("aiff", extension.c_str()) == 0) ||
+#endif
+					    (strcasecmp("mpg", extension.c_str()) == 0) ||
+					    (strcasecmp("mpeg", extension.c_str()) == 0) ||
+					    (strcasecmp("m2p", extension.c_str()) == 0) ||
+					    (strcasecmp("mpv", extension.c_str()) == 0) ||
+					    (strcasecmp("vob", extension.c_str()) == 0) ||
+					    (strcasecmp("m2ts", extension.c_str()) == 0) ||
+					    (strcasecmp("mp4", extension.c_str()) == 0) ||
+					    (strcasecmp("mov", extension.c_str()) == 0) ||
+					    (strcasecmp("m3u", extension.c_str()) == 0) ||
+					    (strcasecmp("pls", extension.c_str()) == 0) ||
+#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+					    (strcasecmp("vdr", extension.c_str()) == 0) ||
+					    (strcasecmp("mp3", extension.c_str()) == 0) ||
+					    (strcasecmp("flv", extension.c_str()) == 0) ||
+					    (strcasecmp("wmv", extension.c_str()) == 0)
+#endif
+					   )
+					    test = 0;
+				}
+
 				if( test == -1)
 				{
 					//TRACE("[mb] other file: '%s'\r\n",movieInfo.file.Name.c_str());
@@ -2500,7 +2539,8 @@ bool CMovieBrowser::loadTsFileNamesFromDir(const std::string & dirname)
 				{
 					m_movieInfo.clearMovieInfo(&movieInfo); // refresh structure
 					movieInfo.file.Name = flist[i].Name;
-					if(m_movieInfo.loadMovieInfo(&movieInfo)) { //FIXME atm we show only ts+xml (records) here
+//					if(m_movieInfo.loadMovieInfo(&movieInfo)) { //FIXME atm we show only ts+xml (records) here
+					m_movieInfo.loadMovieInfo(&movieInfo);
 						movieInfo.file.Mode = flist[i].Mode;
 						//movieInfo.file.Size = flist[i].Size;
 						movieInfo.file.Size = get_full_len((char *)flist[i].Name.c_str());
@@ -2518,7 +2558,7 @@ bool CMovieBrowser::loadTsFileNamesFromDir(const std::string & dirname)
 						}
 						movieInfo.dirItNr = m_dirNames.size()-1;
 						m_vMovieInfo.push_back(movieInfo);
-					}
+//					}
 				}
 			}
 		}
