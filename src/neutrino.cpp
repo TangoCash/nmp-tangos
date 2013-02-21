@@ -356,13 +356,13 @@ int CNeutrinoApp::loadSetup(const char * fname)
 
 	g_settings.video_Format = configfile.getInt32("video_Format", DISPLAY_AR_16_9);
 	g_settings.video_43mode = configfile.getInt32("video_43mode", DISPLAY_AR_MODE_LETTERBOX);
-#if HAVE_DUCKBOX_HARWARE
+#if HAVE_DUCKBOX_HARDWARE
 	g_settings.current_volume = configfile.getInt32("current_volume", 100);
 #else
 	g_settings.current_volume = configfile.getInt32("current_volume", 50);
 #endif
 	g_settings.current_volume_step = configfile.getInt32("current_volume_step", 2);
-#if HAVE_DUCKBOX_HARWARE
+#if HAVE_DUCKBOX_HARDWARE
 	g_settings.channel_mode = configfile.getInt32("channel_mode", LIST_MODE_FAV);
 	g_settings.channel_mode_radio = configfile.getInt32("channel_mode_radio", LIST_MODE_FAV);
 #else
@@ -420,7 +420,7 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	g_settings.led_blink = configfile.getInt32( "led_blink", 1);
 
 	g_settings.hdd_fs = configfile.getInt32( "hdd_fs", 0);
-#if HAVE_DUCKBOX_HARWARE
+#if HAVE_DUCKBOX_HARDWARE
 	g_settings.hdd_sleep = configfile.getInt32( "hdd_sleep", 0);
 #else
 	g_settings.hdd_sleep = configfile.getInt32( "hdd_sleep", 120);
@@ -433,7 +433,7 @@ int CNeutrinoApp::loadSetup(const char * fname)
 
 	strcpy(g_settings.shutdown_min, "000");
 	if (can_deepstandby || cs_get_revision() == 1)
-#if HAVE_DUCKBOX_HARWARE
+#if HAVE_DUCKBOX_HARDWARE
 		strcpy(g_settings.shutdown_min, configfile.getString("shutdown_min","000").c_str());
 #else
 		strcpy(g_settings.shutdown_min, configfile.getString("shutdown_min","180").c_str());
