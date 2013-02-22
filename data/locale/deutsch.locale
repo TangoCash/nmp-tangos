@@ -367,8 +367,8 @@ extra.key_timeshift Timeshift
 extra.key_unlock Entsperrtaste
 extra.ladirection Breitengrad-Ausrichtung
 extra.latitude Breitengrad
-extra.loadconfig Neutrino Einstellungen: Laden von
-extra.loadkeys Lade Tastenbelegung von
+extra.loadconfig Laden von
+extra.loadkeys Laden von
 extra.lodirection Längengrad-Ausrichtung
 extra.longitude Längengrad
 extra.menu_left_exit "links" = Menü zurück
@@ -378,8 +378,8 @@ extra.rotor_swap Rotor dreht Ost/West
 extra.rounded_corners Eckendarstellung
 extra.rounded_corners_off eckig
 extra.rounded_corners_on abgerundet
-extra.saveconfig Neutrino Einstellungen: Sichern als
-extra.savekeys Speichere Tastenbelegung als
+extra.saveconfig Sichern als
+extra.savekeys Speichern als
 extra.scrambled_message Verschlüsselung melden
 extra.show_mute_icon Mute-Icon bei Lautstärke 0
 extra.sms_channel SMS-Modus Kanal
@@ -1886,6 +1886,8 @@ videomenu.videoformat_149 14:9
 videomenu.videoformat_169 16:9
 videomenu.videoformat_43 4:3
 videomenu.videomode Videosystem
+webtv.head WebTV
+webtv.xml WebTV-XML-Datei
 wizard.initial_settings Grundeinstellungen gefunden
 wizard.install_settings Kanalliste für Astra 19.2°E installieren?
 wizard.welcome_head Willkommen zur Ersteinrichtung Ihres Receivers!

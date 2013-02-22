@@ -214,6 +214,7 @@ data/lcd/clock/Makefile
 data/locale/Makefile
 data/scripts/Makefile
 data/themes/Makefile
+data/webtv/Makefile
 src/eitd/Makefile
 src/timerd/Makefile
 src/zapit/Makefile

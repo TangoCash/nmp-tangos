@@ -83,6 +83,8 @@ class CMoviePlayerGui : public CMenuTarget
 	unsigned short ac3flags[REC_MAX_APIDS];
 	unsigned short currentapid, currentac3;
 
+	bool isWebTV;
+
 	/* playback from MB */
 	bool isMovieBrowser;
 	CMovieBrowser* moviebrowser;

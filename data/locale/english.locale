@@ -1886,6 +1886,8 @@ videomenu.videoformat_149 14:9
 videomenu.videoformat_169 16:9
 videomenu.videoformat_43 4:3
 videomenu.videomode Digital video mode
+webtv.head WebTV
+webtv.xml WebTV XML file
 wizard.initial_settings Initial settings found
 wizard.install_settings Do you want to install channels for Astra 19.2°E?
 wizard.welcome_head Welcome to the Setup Wizard

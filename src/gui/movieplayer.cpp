@@ -206,6 +206,8 @@ int CMoviePlayerGui::exec(CMenuTarget * parent, const std::string & actionKey)
 		perror(MOVIEPLAYER_START_SCRIPT " failed");
 	
 	isMovieBrowser = false;
+	bool isHTTP = false;
+	isWebTV = false;
 	isBookmark = false;
 	timeshift = 0;
 	if (actionKey == "tsmoviebrowser") {
@@ -227,6 +229,17 @@ int CMoviePlayerGui::exec(CMenuTarget * parent, const std::string & actionKey)
 		isBookmark = true;
 	}
 #endif
+	else if (actionKey == "netstream" || actionKey == "webtv")
+	{
+		isHTTP = true;
+		isWebTV = actionKey == "webtv";
+		full_name = g_settings.streaming_server_url;
+		file_name = (isWebTV ? g_settings.streaming_server_name : g_settings.streaming_server_url);
+		p_movie_info = NULL;
+		is_file_player = 1;
+		PlayFile ();
+		return menu_return::RETURN_EXIT_ALL;
+	}
 	else {
 		return menu_return::RETURN_REPAINT;
 	}
@@ -543,6 +556,7 @@ void CMoviePlayerGui::PlayFile(void)
 		g_RCInput->getMsg(&msg, &data, 10);	// 1 secs..
 
 		if ((playstate >= CMoviePlayerGui::PLAY) && (timeshift || (playstate != CMoviePlayerGui::PAUSE))) {
+			if (!isWebTV)
 			if(playback->GetPosition(position, duration)) {
 				if(duration > 100)
 					file_prozent = (unsigned char) (position / (duration / 100));

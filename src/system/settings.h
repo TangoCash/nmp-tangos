@@ -143,6 +143,11 @@ struct SNeutrinoSettings
 	std::string epg_extendedcache;
 	std::string epg_dir;
 
+	// WebTV
+	std::string streaming_server_url;
+	std::string streaming_server_name;
+	std::string webtv_xml;
+
 	//network
 	std::string network_ntpserver;
 	std::string network_ntprefresh;
@@ -232,6 +237,7 @@ struct SNeutrinoSettings
 		//movieplayer menu
 		P_MPLAYER_MBROWSER,
 		P_MPLAYER_FILEPLAY,
+		P_MPLAYER_INETPLAY,
 		
 		//feature keys
 		P_FEAT_KEY_FAVORIT,

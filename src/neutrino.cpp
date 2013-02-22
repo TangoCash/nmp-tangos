@@ -710,6 +710,9 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	g_settings.plugin_hdd_dir = configfile.getString( "plugin_hdd_dir", "/hdd/tuxbox/plugins" );
 	g_settings.logo_hdd_dir = configfile.getString( "logo_hdd_dir", "/var/share/icons/logo" );
 #endif
+	g_settings.streaming_server_url = configfile.getString("streaming_server_url", "http://podfiles.zdf.de/podcast/zdf_podcasts/110924_hjo_p.mp4?2011-09-24+21-25");
+	g_settings.webtv_xml = configfile.getString( "webtv_xml", "/var/tuxbox/config/webtv.xml" );
+
 
 	loadKeys();
 
@@ -1184,6 +1187,9 @@ void CNeutrinoApp::saveSetup(const char * fname)
 	configfile.setString ( "onekey_plugin", g_settings.onekey_plugin );
 	configfile.setString ( "plugin_hdd_dir", g_settings.plugin_hdd_dir );
 	configfile.setString ( "logo_hdd_dir", g_settings.logo_hdd_dir );
+
+	configfile.setString ( "streaming_server_url", g_settings.streaming_server_url);
+	configfile.setString ( "webtv_xml", g_settings.webtv_xml);
 
 	saveKeys();
 
