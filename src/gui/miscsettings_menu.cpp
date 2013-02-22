@@ -137,7 +137,7 @@ const CMenuOptionChooser::keyval CHANNELLIST_NEW_ZAP_MODE_OPTIONS[CHANNELLIST_NE
 {
 	{ 0, LOCALE_CHANNELLIST_NEW_ZAP_MODE_OFF	},
 	{ 1, LOCALE_CHANNELLIST_NEW_ZAP_MODE_ALLOW	},
-	{ 2, LOCALE_CHANNELLIST_NEW_ZAP_MODE_ALWAYS	}
+	{ 2, LOCALE_CHANNELLIST_NEW_ZAP_MODE_ACTIVE	}
 };
 
 #ifdef CPU_FREQ
@@ -264,11 +264,7 @@ void CMiscMenue::showMiscSettingsMenuGeneral(CMenuWidget *ms_general)
 	//fan speed
 	if (g_info.has_fan)
 	{
-#if HAVE_DUCKBOX_HARDWARE
-		CMenuOptionNumberChooser * mn = new CMenuOptionNumberChooser(LOCALE_FAN_SPEED, &g_settings.fan_speed, true, 1,  5, fanNotifier, 0, 0, LOCALE_OPTIONS_OFF);
-#else
 		CMenuOptionNumberChooser * mn = new CMenuOptionNumberChooser(LOCALE_FAN_SPEED, &g_settings.fan_speed, true, 1, 14, fanNotifier, 0, 0, LOCALE_OPTIONS_OFF);
-#endif
 		mn->setHint("", LOCALE_MENU_HINT_FAN_SPEED);
 		ms_general->addItem(mn);
 	}
@@ -300,7 +296,7 @@ void CMiscMenue::showMiscSettingsMenuEnergy(CMenuWidget *ms_energy)
 	CStringInput * miscSettings_shutdown_count = new CStringInput(LOCALE_MISCSETTINGS_SHUTDOWN_COUNT, g_settings.shutdown_count, 3, LOCALE_MISCSETTINGS_SHUTDOWN_COUNT_HINT1, LOCALE_MISCSETTINGS_SHUTDOWN_COUNT_HINT2, "0123456789 ");
 	CMenuForwarder *m2 = new CMenuDForwarder(LOCALE_MISCSETTINGS_SHUTDOWN_COUNT, !g_settings.shutdown_real, g_settings.shutdown_count, miscSettings_shutdown_count);
 	m2->setHint("", LOCALE_MENU_HINT_SHUTDOWN_COUNT);
-
+	
 	miscNotifier = new COnOffNotifier(1);
 	miscNotifier->addItem(m1);
 	miscNotifier->addItem(m2);

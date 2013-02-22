@@ -1380,8 +1380,10 @@ void CTimeThread::run()
 				if(!scanning)
 					sleep_time = 0;
 				real_pause();
+#ifndef DEBUG_TIME_THREAD
+				Sleep();
+#else
 				int rs = Sleep();
-#ifdef DEBUG_TIME_THREAD
 				xprintf("%s: wakeup, running %d scanning %d channel %" PRIx64 " reason %d\n",
 						name.c_str(), running, scanning, current_service, rs);
 #endif
@@ -1410,6 +1412,10 @@ void CTimeThread::run()
 			/* speed up shutdown by looping around Read() */
 			do {
 				rc = dmx->Read(static_buf, MAX_SECTION_LENGTH, timeoutInMSeconds / 12);
+#if HAVE_COOL_HARDWARE
+				if (rc < 0)	/* libcoolstream returns -1 on timeout ??? ... */
+					rc = 0;	/* ...and does not set a useful errno (EINVAL) */
+#endif
 			} while (running && rc == 0 && (time_monotonic_ms() - start) < timeoutInMSeconds);
 			xprintf("%s: getting DVB time done : %d messaging_neutrino_sets_time %d\n", name.c_str(), rc, messaging_neutrino_sets_time);
 			if (rc > 0) {
@@ -1576,8 +1582,19 @@ bool CEventsThread::addEvents()
 
 	for (SIevents::const_iterator e = eit.events().begin(); e != eit.events().end(); ++e) {
 		if (!(e->times.empty())) {
+#if 0
 			if ( ( e->times.begin()->startzeit < zeit + secondsToCache ) &&
-					( ( e->times.begin()->startzeit + (long)e->times.begin()->dauer ) > zeit - oldEventsAre ) )
+					( ( e->times.begin()->startzeit + (long)e->times.begin()->dauer ) > zeit - oldEventsAre ) &&
+					( e->times.begin()->dauer < 60 ) ) {
+				char x_startTime[10];
+				struct tm *x_tmStartTime = localtime(&e->times.begin()->startzeit);
+				strftime(x_startTime, sizeof(x_startTime)-1, "%H:%M", x_tmStartTime );
+				printf("####[%s - #%d] - startzeit: %s, dauer: %d, channel_id: 0x%llX\n", __FUNCTION__, __LINE__, x_startTime, e->times.begin()->dauer, e->get_channel_id());
+			}
+#endif
+			if ( ( e->times.begin()->startzeit < zeit + secondsToCache ) &&
+					( ( e->times.begin()->startzeit + (long)e->times.begin()->dauer ) > zeit - oldEventsAre ) &&
+					( e->times.begin()->dauer > 1 ) )
 			{
 				addEvent(*e, wait_for_time ? zeit: 0, e->table_id == 0x4e);
 				event_count++;
