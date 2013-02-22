@@ -46,6 +46,7 @@
 
 #include <gui/audioplayer_setup.h>
 #include <gui/pictureviewer_setup.h>
+#include <gui/webtv_setup.h>
 
 
 #include <driver/screen_max.h>
@@ -93,6 +94,9 @@ int CMediaPlayerSetup::showMediaPlayerSetup()
 	mediaSetup->addItem(new CMenuForwarder(LOCALE_PICTUREVIEWER_HEAD, true, NULL, &psetup, "", CRCInput::RC_red, NEUTRINO_ICON_BUTTON_RED));
 	CAudioPlayerSetup asetup;
 	mediaSetup->addItem(new CMenuForwarder(LOCALE_AUDIOPLAYER_NAME, true, NULL, &asetup, "", CRCInput::RC_green, NEUTRINO_ICON_BUTTON_GREEN));
+	CWebTVSetup wsetup;
+	mediaSetup->addItem(new CMenuForwarder(LOCALE_WEBTV_HEAD, true, NULL, &wsetup, "show_menu", CRCInput::RC_yellow, NEUTRINO_ICON_BUTTON_YELLOW));
+
 
 	int res = mediaSetup->exec (NULL, "");
 	selected = mediaSetup->getSelected();

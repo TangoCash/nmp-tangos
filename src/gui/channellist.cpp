@@ -527,8 +527,9 @@ void CChannelList::calcSize()
 	listmaxshow = (height - theight - footerHeight -0)/fheight;
 	height = theight + footerHeight + listmaxshow * fheight;
 	info_height = 2*fheight + g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST_DESCR]->getHeight() + 10;
-	if (g_settings.channellist_foot != 0)
-		info_height = 2*fheight + 10;	
+	if (g_settings.channellist_additional != 0)
+		if (g_settings.channellist_foot != 0)
+			info_height = 2*fheight + 10;	
 	y += (frameBuffer->getScreenHeight() - height - info_height) / 2;
 
 	int sh = frameBuffer->getScreenHeight();

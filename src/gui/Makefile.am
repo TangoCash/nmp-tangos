@@ -109,6 +109,8 @@ libneutrino_gui_a_SOURCES = \
 	user_menue_setup.cpp \
 	vfd_setup.cpp \
 	videosettings.cpp \
+	webtv.cpp \
+	webtv_setup.cpp \
 	zapit_setup.cpp
 
 if ENABLE_GRAPHLCD

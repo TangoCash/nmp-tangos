@@ -61,6 +61,7 @@ CMediaPlayerMenu::CMediaPlayerMenu()
 	
 	audioPlayer 	= NULL;
 	inetPlayer 	= NULL;
+	webPlayer = NULL;
 }
 
 CMediaPlayerMenu* CMediaPlayerMenu::getInstance()
@@ -78,6 +79,7 @@ CMediaPlayerMenu::~CMediaPlayerMenu()
 {
 	delete audioPlayer ;
 	delete inetPlayer ;
+	delete webPlayer ;
 }
 
 int CMediaPlayerMenu::exec(CMenuTarget* parent, const std::string &actionKey)
@@ -111,6 +113,12 @@ int CMediaPlayerMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 		int res = CMoviePlayerGui::getInstance().exec(NULL, "tsmoviebrowser");
 		if( mode == NeutrinoMessages::mode_radio )
 			videoDecoder->ShowPicture(DATADIR "/neutrino/icons/radiomode.jpg");
+		return res;
+	}
+	else if (actionKey == "webtv") {
+		if (webPlayer == NULL)
+			webPlayer = new CWebTV();
+		int res = webPlayer->exec(NULL, "");
 		return res;
 	}
 	
@@ -250,6 +258,10 @@ void CMediaPlayerMenu::showMoviePlayer(CMenuWidget *moviePlayer, CPersonalizeGui
 	
 	//fileplayback
 	p->addItem(moviePlayer, fw_file, &g_settings.personalize[SNeutrinoSettings::P_MPLAYER_FILEPLAY]);
+
+	//networkplayback
+	CMenuForwarder *fw_network = new CMenuForwarder(LOCALE_WEBTV_HEAD, true, NULL, this, "webtv");
+	p->addItem(moviePlayer, fw_network, &g_settings.personalize[SNeutrinoSettings::P_MPLAYER_INETPLAY]);
 
 // #if 0
 // 	//moviePlayer->addItem(new CMenuForwarder(LOCALE_MOVIEPLAYER_PESPLAYBACK, true, NULL, moviePlayerGui, "pesplayback"));
