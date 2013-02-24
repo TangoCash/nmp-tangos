@@ -2,7 +2,7 @@
 	Neutrino-GUI  -   DBoxII-Project
 
 	Copyright (C) 2011 CoolStream International Ltd
-	Copyright (C) 2012 Stefan Seyfried
+	Copyright (C) 2012,2013 Stefan Seyfried
 
 	License: GPLv2
 
@@ -59,6 +59,7 @@ bool CFEManager::Init()
 	CFrontend * fe;
 	unsigned short fekey;
 
+	int idx = 0;
 	other_fe.clear();
 	for(int i = 0; i < MAX_ADAPTERS; i++) {
 		for(int j = 0; j < MAX_FE; j++) {
@@ -72,6 +73,7 @@ bool CFEManager::Init()
 					INFO("add fe %d", fe->fenumber);
 					if(livefe == NULL)
 						livefe = fe;
+					fe->setIndex(idx++);
 				} else {
 					/* neutrino can not yet handle differing mixed frontend types... */
 					INFO("not adding fe %d of different type", fe->fenumber);
@@ -290,6 +292,7 @@ void CFEManager::setMode(fe_mode_t newmode, bool initial)
 	if(!initial && (newmode == mode))
 		return;
 
+	fe_mode_t oldmode = mode;
 	mode = newmode;
 	if(femap.size() == 1)
 		mode = FE_MODE_SINGLE;
@@ -298,8 +301,15 @@ void CFEManager::setMode(fe_mode_t newmode, bool initial)
 	for(fe_map_iterator_t it = femap.begin(); it != femap.end(); it++) {
 		CFrontend * fe = it->second;
 		if(it != femap.begin()) {
-			INFO("Frontend %d as slave: %s", fe->fenumber, setslave ? "yes" : "no");
-			fe->setMasterSlave(setslave);
+			if (mode != FE_MODE_SINGLE) {
+				if (oldmode == FE_MODE_SINGLE)
+					fe->Open(true); /* secondary FE is not opened in single mode */
+				INFO("Frontend %d as slave: %s", fe->fenumber, setslave ? "yes" : "no");
+				fe->setMasterSlave(setslave);
+			} else {
+				INFO("Frontend %d not used in single mode, closing", fe->fenumber);
+				fe->Close();
+			}
 		} else
 			fe->Init();
 	}
@@ -318,6 +328,8 @@ void CFEManager::Open()
 		CFrontend * fe = it->second;
 		if(!fe->Locked())
 			fe->Open(true);
+		if (mode == FE_MODE_SINGLE)
+			break;	/* don't open secondary frontends if only first one is used */
 	}
 }
 
