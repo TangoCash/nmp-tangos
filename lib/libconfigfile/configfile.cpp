@@ -91,7 +91,7 @@ bool CConfigFile::loadConfig(const std::string & filename)
 
 bool CConfigFile::saveConfig(const char * const filename)
 {
-	std::fstream configFile(filename);
+	std::ofstream configFile(filename);
 
 	if (configFile != NULL)
 	{
@@ -101,8 +101,8 @@ bool CConfigFile::saveConfig(const char * const filename)
 			configFile << it->first << "=" << it->second << std::endl;
 		}
 
-		configFile.sync();
 		configFile.close();
+		sync();
 
 		chmod(filename, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
 
