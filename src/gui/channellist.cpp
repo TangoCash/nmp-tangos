@@ -491,7 +491,7 @@ void CChannelList::calcSize()
 		width = full_width;
 	}
 
-	height = h_max ((frameBuffer->getScreenHeight() / 20 * 17), 0);
+	height = h_max ((frameBuffer->getScreenHeight() / 20 * 18), 0);
 
 	x = frameBuffer->getScreenX() + (frameBuffer->getScreenWidth() - full_width) / 2;
 	if (x < ConnectLineBox_Width)
