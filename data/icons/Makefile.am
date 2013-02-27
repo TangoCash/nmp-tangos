@@ -154,14 +154,6 @@ install_DATA += \
 	mp_play.png \
 	mp3.jpg \
 	mp3.png \
-	mp3-0.jpg \
-	mp3-1.jpg \
-	mp3-2.jpg \
-	mp3-3.jpg \
-	mp3-4.jpg \
-	mp3-5.jpg \
-	mp3-6.jpg \
-	mp3-7.jpg \
 	multimedia.png \
 	mute.png \
 	mute_small.png \
