@@ -86,8 +86,8 @@ int CAudioPlayerSetup::exec(CMenuTarget* parent, const std::string &actionKey)
 		parent->hide();
 		CFileBrowser b;
 		b.Dir_Mode=true;
-		if (b.exec(g_settings.audioplayer_screensaver_dir))
-			strncpy(g_settings.audioplayer_screensaver_dir, b.getSelectedFile()->Name.c_str(), sizeof(g_settings.audioplayer_screensaver_dir)-1);
+		if (b.exec(g_settings.audioplayer_screensaver_dir.c_str()))
+			g_settings.audioplayer_screensaver_dir = b.getSelectedFile()->Name;
 		return res;
 	}
 

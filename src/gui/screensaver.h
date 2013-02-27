@@ -27,6 +27,9 @@
 #define CSCREENSAVER_H
 
 #include <driver/framebuffer.h>
+#if HAVE_DUCKBOX_HARDWARE
+#include <driver/pictureviewer/pictureviewer.h>
+#endif
 
 class CScreensaver
 {
@@ -34,6 +37,9 @@ class CScreensaver
 		bool firstRun;
 		int last_pic;
 		CFrameBuffer * m_frameBuffer;
+#if HAVE_DUCKBOX_HARDWARE
+		CPictureViewer * m_viewer;
+#endif
 		pthread_t	thrScreenSaver;
 		static void*	ScreenSaverPrg(void *arg);
 

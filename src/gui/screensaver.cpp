@@ -44,6 +44,9 @@ CScreensaver::CScreensaver()
 {
 	thrScreenSaver = 0;
 	m_frameBuffer = CFrameBuffer::getInstance();
+#if HAVE_DUCKBOX_HARDWARE
+	m_viewer = new CPictureViewer();
+#endif
 	last_pic = 0;
 }
 
@@ -73,6 +76,9 @@ void CScreensaver::stop()
 	{
 		pthread_cancel(thrScreenSaver);
 		thrScreenSaver = 0;
+#if HAVE_DUCKBOX_HARDWARE
+		m_frameBuffer->paintBackgroundBoxRel(0,0,m_frameBuffer->getScreenWidth(true),m_frameBuffer->getScreenHeight(true));
+#endif
 	}
 }
 
@@ -143,8 +149,12 @@ void CScreensaver::read_dir()
 				{
 					printf("[CScreensaver] ShowPicture: %s/%s\n", dir_name, (*dirpointer).d_name);
 					sprintf(fname, "%s/%s", dir_name, (*dirpointer).d_name);
+#if HAVE_DUCKBOX_HARDWARE
+					m_viewer->DisplayImage(fname,0,0,m_frameBuffer->getScreenWidth(true),m_frameBuffer->getScreenHeight(true),CFrameBuffer::TM_NONE);
+#else
 					videoDecoder->StopPicture();
 					videoDecoder->ShowPicture(fname);
+#endif
 					last_pic ++;
 					if(closedir(dir) == -1)
 						printf("[CScreensaver] Error no closed %s\n", dir_name);
@@ -161,8 +171,12 @@ void CScreensaver::read_dir()
 	{
 		printf("[CScreensaver] ShowPicture: %s/%s\n", dir_name, first_pic);
 		sprintf(fname, "%s/%s", dir_name, first_pic);
+#if HAVE_DUCKBOX_HARDWARE
+		m_viewer->DisplayImage(fname,0,0,m_frameBuffer->getScreenWidth(true),m_frameBuffer->getScreenHeight(true),CFrameBuffer::TM_NONE);
+#else
 		videoDecoder->StopPicture();
 		videoDecoder->ShowPicture(fname);
+#endif
 	}
 	else
 		printf("[CScreensaver] Error, no picture found\n");
