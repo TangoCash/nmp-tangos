@@ -81,6 +81,16 @@ int CAudioPlayerSetup::exec(CMenuTarget* parent, const std::string &actionKey)
 		return res;
 	}
 
+	if(actionKey == "screensaverdir")
+	{
+		parent->hide();
+		CFileBrowser b;
+		b.Dir_Mode=true;
+		if (b.exec(g_settings.audioplayer_screensaver_dir))
+			strncpy(g_settings.audioplayer_screensaver_dir, b.getSelectedFile()->Name.c_str(), sizeof(g_settings.audioplayer_screensaver_dir)-1);
+		return res;
+	}
+
 	res = showAudioPlayerSetup();
 
 	return res;
@@ -140,6 +150,10 @@ int CAudioPlayerSetup::showAudioPlayerSetup()
 #endif
 	mf = new CMenuForwarder(LOCALE_AUDIOPLAYER_DEFDIR, true, g_settings.network_nfs_audioplayerdir, this, "audioplayerdir");
 	mf->setHint("", LOCALE_MENU_HINT_AUDIOPLAYER_DEFDIR);
+	audioplayerSetup->addItem(mf);
+
+	mf = new CMenuForwarder(LOCALE_AUDIOPLAYER_SCREENSAVER_DIR, true, g_settings.audioplayer_screensaver_dir, this, "screensaverdir");
+	mf->setHint("", LOCALE_MENU_HINT_AUDIOPLAYER_SCREENSAVER_DIR);
 	audioplayerSetup->addItem(mf);
 
 	mc = new CMenuOptionChooser(LOCALE_AUDIOPLAYER_ENABLE_SC_METADATA, &g_settings.audioplayer_enable_sc_metadata, MESSAGEBOX_NO_YES_OPTIONS, MESSAGEBOX_NO_YES_OPTION_COUNT, true);
