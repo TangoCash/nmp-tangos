@@ -238,16 +238,18 @@ int CMoviePlayerGui::exec(CMenuTarget * parent, const std::string & actionKey)
 		p_movie_info = NULL;
 		is_file_player = 1;
 		PlayFile ();
-		return menu_return::RETURN_EXIT_ALL;
+		menu_ret = menu_return::RETURN_EXIT_ALL;
 	}
 	else {
-		return menu_return::RETURN_REPAINT;
+		menu_ret = menu_return::RETURN_REPAINT;
 	}
 
-	while(SelectFile()) {
-		PlayFile();
-		if(timeshift)
-			break;
+	if (actionKey != "netstream" && actionKey != "webtv") {
+		while(SelectFile()) {
+			PlayFile();
+			if(timeshift)
+				break;
+		}
 	}
 
 	bookmarkmanager->flush();
@@ -262,7 +264,7 @@ int CMoviePlayerGui::exec(CMenuTarget * parent, const std::string & actionKey)
 		timeshift = 0;
 		return menu_return::RETURN_EXIT_ALL;
 	}
-	return menu_ret; //menu_return::RETURN_REPAINT;
+	return menu_ret;
 }
 
 void CMoviePlayerGui::updateLcd()
