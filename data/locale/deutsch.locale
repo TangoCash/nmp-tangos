@@ -913,7 +913,7 @@ menu.hint_menu_pos Hier können Sie die Anzeigeposition der OSD-Menüs festlegen
 menu.hint_misc_cec HDMI-CEC Optionen
 menu.hint_misc_channellist Erweiterte Einstellungen für die Kanallisten\nZappingeinstellungen
 menu.hint_misc_energy Energie- und Softstandby-Optionen, verzögertes Ausschalten\nsetzen bzw. ändern des Inaktivitätstimers
-menu.hint_misc_epg EPG Sicherrungs- und Ladenoptionen, EPG-Einstellungen\nSicherungsverzeichnis für EPG-Daten
+menu.hint_misc_epg EPG Sicherungs- und Lade-Optionen, EPG-Einstellungen\nSicherungsverzeichnis für EPG-Daten
 menu.hint_misc_filebrowser Dateisystem, Dateirechte anzeigen im Dateibrowser\nStartverzeichnisoptionen
 menu.hint_misc_general Standby-, Teletext-, Rotor-Einstellungen\nPluginverzeichnis auf der HDD
 menu.hint_misc_zapit Behandlung der Start-TV/Start-Radio Kanäle
