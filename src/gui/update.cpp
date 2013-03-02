@@ -85,10 +85,10 @@ extern int allow_flash;
 
 #if HAVE_DUCKBOX_HARDWARE //|| HAVE_SPARK_HARDWARE
 	#define LIST_OF_UPDATES_LOCAL_FILENAME		"update.list"
-	#if BOXTYPE_UFS910
+	#if BOXMODEL_UFS910
 		#define MTD_OF_WHOLE_IMAGE		5
 		#define MTD_DEVICE_OF_UPDATE_PART	"/dev/mtd5"
-	#elif BOXTYPE_CUBEREVO_MINI2
+	#elif BOXMODEL_CUBEREVO_MINI2
 		#define MTD_OF_WHOLE_IMAGE		6
 		#define MTD_DEVICE_OF_UPDATE_PART	"/dev/mtd6"
 	#else // update blocked with invalid data
