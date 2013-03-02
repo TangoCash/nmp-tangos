@@ -79,13 +79,27 @@ extern int allow_flash;
 #define gTmpPath "/tmp/"
 #define gUserAgent "neutrino/softupdater 1.0"
 
-#define LIST_OF_UPDATES_LOCAL_FILENAME "coolstream.list"
-#define UPDATE_LOCAL_FILENAME          "update.img"
-#define RELEASE_CYCLE                  "2.0"
-#define FILEBROWSER_UPDATE_FILTER      "img"
+#define UPDATE_LOCAL_FILENAME		"update.img"
+#define RELEASE_CYCLE			"2.0"
+#define FILEBROWSER_UPDATE_FILTER	"img"
 
-#define MTD_OF_WHOLE_IMAGE             0
-#define MTD_DEVICE_OF_UPDATE_PART      "/dev/mtd2"
+#if HAVE_DUCKBOX_HARDWARE //|| HAVE_SPARK_HARDWARE
+	#define LIST_OF_UPDATES_LOCAL_FILENAME		"update.list"
+	#if BOXTYPE_UFS910
+		#define MTD_OF_WHOLE_IMAGE		5
+		#define MTD_DEVICE_OF_UPDATE_PART	"/dev/mtd5"
+	#elif BOXTYPE_CUBEREVO_MINI2
+		#define MTD_OF_WHOLE_IMAGE		6
+		#define MTD_DEVICE_OF_UPDATE_PART	"/dev/mtd6"
+	#else // update blocked with invalid data
+		#define MTD_OF_WHOLE_IMAGE		999
+		#define MTD_DEVICE_OF_UPDATE_PART	"/dev/mtd999"
+	#endif
+#else
+	#define LIST_OF_UPDATES_LOCAL_FILENAME		"coolstream.list"
+	#define MTD_OF_WHOLE_IMAGE			0
+	#define MTD_DEVICE_OF_UPDATE_PART		"/dev/mtd2"
+#endif
 
 CFlashUpdate::CFlashUpdate()
 	:CProgressWindow()
@@ -397,11 +411,13 @@ int CFlashUpdate::exec(CMenuTarget* parent, const std::string &actionKey)
 	menu_ret = menu_return::RETURN_REPAINT;
 	paint();
 
+#if !HAVE_DUCKBOX_HARDWARE //&& !HAVE_SPARK_HARDWARE
 	if(sysfs.size() < 8) {
 		ShowHintUTF(LOCALE_MESSAGEBOX_ERROR, g_Locale->getText(LOCALE_FLASHUPDATE_CANTOPENMTD));
 		hide();
 		return menu_return::RETURN_REPAINT;
 	}
+#endif
 	if(!checkVersion4Update()) {
 		hide();
 		return menu_ret; //menu_return::RETURN_REPAINT;
@@ -433,8 +449,13 @@ int CFlashUpdate::exec(CMenuTarget* parent, const std::string &actionKey)
 	showGlobalStatus(40);
 
 	CFlashTool ft;
+#if HAVE_DUCKBOX_HARDWARE //|| HAVE_SPARK_HARDWARE
+	ft.setMTDDevice(MTD_DEVICE_OF_UPDATE_PART);
+	//ft.setMTDDevice(sysfs);
+#else
 	//ft.setMTDDevice(MTD_DEVICE_OF_UPDATE_PART);
 	ft.setMTDDevice(sysfs);
+#endif
 	ft.setStatusViewer(this);
 
 	showStatusMessageUTF(g_Locale->getText(LOCALE_FLASHUPDATE_MD5CHECK)); // UTF-8
