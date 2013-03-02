@@ -481,13 +481,17 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	strcpy(g_settings.language, configfile.getString("language", "").c_str());
 	strcpy(g_settings.timezone, configfile.getString("timezone", "(GMT+01:00) Amsterdam, Berlin, Bern, Rome, Vienna").c_str());
 	//epg dir
+#if HAVE_DUCKBOX_HARDWARE
+	g_settings.epg_cache            = configfile.getString("epg_cache_time", "3");
+	g_settings.epg_extendedcache    = configfile.getString("epg_extendedcache_time", "3");
+	g_settings.epg_old_events       = configfile.getString("epg_old_events", "3");
+	g_settings.epg_max_events       = configfile.getString("epg_max_events", "20000");
+	g_settings.epg_dir              = configfile.getString("epg_dir", "/hdd/epg");
+#else
 	g_settings.epg_cache            = configfile.getString("epg_cache_time", "14");
 	g_settings.epg_extendedcache    = configfile.getString("epg_extendedcache_time", "360");
 	g_settings.epg_old_events       = configfile.getString("epg_old_events", "1");
 	g_settings.epg_max_events       = configfile.getString("epg_max_events", "30000");
-#if HAVE_DUCKBOX_HARDWARE
-	g_settings.epg_dir              = configfile.getString("epg_dir", "/hdd/epg");
-#else
 	g_settings.epg_dir              = configfile.getString("epg_dir", "/media/sda1/epg");
 #endif
 	// NTP-Server for sectionsd
