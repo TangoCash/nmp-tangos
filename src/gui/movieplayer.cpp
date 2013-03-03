@@ -578,13 +578,8 @@ void CMoviePlayerGui::PlayFile(void)
 				}
 #endif
 				/* in case ffmpeg report incorrect values */
-#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
-
-				if (duration - position < 1000 && !timeshift)
-#else
 				int posdiff = duration - position;
 				if ((posdiff > 0) && (posdiff < 1000) && !timeshift)
-#endif
 				{
 					/* 10 seconds after end-of-file, stop */
 					if (++eof > 10)
@@ -593,6 +588,10 @@ void CMoviePlayerGui::PlayFile(void)
 				else
 					eof = 0;
 			}
+#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+			else if (++eof > 10)
+				g_RCInput->postMsg((neutrino_msg_t) g_settings.mpkey_stop, 0);
+#endif
 			handleMovieBrowser(0, position);
 			FileTime.update(position, duration);
 		}
