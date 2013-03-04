@@ -356,13 +356,13 @@ int CNeutrinoApp::loadSetup(const char * fname)
 
 	g_settings.video_Format = configfile.getInt32("video_Format", DISPLAY_AR_16_9);
 	g_settings.video_43mode = configfile.getInt32("video_43mode", DISPLAY_AR_MODE_LETTERBOX);
-#if HAVE_DUCKBOX_HARDWARE
+#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
 	g_settings.current_volume = configfile.getInt32("current_volume", 100);
 #else
 	g_settings.current_volume = configfile.getInt32("current_volume", 50);
 #endif
 	g_settings.current_volume_step = configfile.getInt32("current_volume_step", 2);
-#if HAVE_DUCKBOX_HARDWARE
+#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
 	g_settings.channel_mode = configfile.getInt32("channel_mode", LIST_MODE_FAV);
 	g_settings.channel_mode_radio = configfile.getInt32("channel_mode_radio", LIST_MODE_FAV);
 #else
@@ -420,7 +420,7 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	g_settings.led_blink = configfile.getInt32( "led_blink", 1);
 
 	g_settings.hdd_fs = configfile.getInt32( "hdd_fs", 0);
-#if HAVE_DUCKBOX_HARDWARE
+#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
 	g_settings.hdd_sleep = configfile.getInt32( "hdd_sleep", 0);
 #else
 	g_settings.hdd_sleep = configfile.getInt32( "hdd_sleep", 120);
@@ -433,7 +433,7 @@ int CNeutrinoApp::loadSetup(const char * fname)
 
 	strcpy(g_settings.shutdown_min, "000");
 	if (can_deepstandby || cs_get_revision() == 1)
-#if HAVE_DUCKBOX_HARDWARE
+#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
 		strcpy(g_settings.shutdown_min, configfile.getString("shutdown_min","000").c_str());
 #else
 		strcpy(g_settings.shutdown_min, configfile.getString("shutdown_min","180").c_str());
@@ -481,7 +481,7 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	strcpy(g_settings.language, configfile.getString("language", "").c_str());
 	strcpy(g_settings.timezone, configfile.getString("timezone", "(GMT+01:00) Amsterdam, Berlin, Bern, Rome, Vienna").c_str());
 	//epg dir
-#if HAVE_DUCKBOX_HARDWARE
+#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
 	g_settings.epg_cache            = configfile.getString("epg_cache_time", "3");
 	g_settings.epg_extendedcache    = configfile.getString("epg_extendedcache_time", "3");
 	g_settings.epg_old_events       = configfile.getString("epg_old_events", "3");
@@ -558,7 +558,7 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	g_settings.infobar_Text_blue = configfile.getInt32( "infobar_Text_blue", 0x64 );
 
 #ifdef ENABLE_GRAPHLCD
-#if HAVE_DUCKBOX_HARDWARE
+#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
 	g_settings.glcd_enable = configfile.getInt32("glcd_enable", 0);
 	g_settings.glcd_color_fg = configfile.getInt32("glcd_color_fg", GLCD::cColor::White);
 	g_settings.glcd_color_bg = configfile.getInt32("glcd_color_bg", GLCD::cColor::Black);
@@ -625,7 +625,7 @@ int CNeutrinoApp::loadSetup(const char * fname)
 		strcpy( g_settings.network_nfs_username[i], configfile.getString( cfg_key, "" ).c_str() );
 		sprintf(cfg_key, "network_nfs_password_%d", i);
 		strcpy( g_settings.network_nfs_password[i], configfile.getString( cfg_key, "" ).c_str() );
-#if HAVE_DUCKBOX_HARDWARE
+#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
 		sprintf(cfg_key, "network_nfs_mount_options1_%d", i);
 		strcpy( g_settings.network_nfs_mount_options1[i], configfile.getString( cfg_key, "rw,soft,udp" ).c_str() );
 		sprintf(cfg_key, "network_nfs_mount_options2_%d", i);
@@ -708,7 +708,7 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	// default plugin for movieplayer
 	g_settings.movieplayer_plugin = configfile.getString( "movieplayer_plugin", "Teletext" );
 	g_settings.onekey_plugin = configfile.getString( "onekey_plugin", "noplugin" );
-#if HAVE_DUCKBOX_HARDWARE
+#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
 	g_settings.plugin_hdd_dir = configfile.getString( "plugin_hdd_dir", "/var/plugins" );
 	g_settings.logo_hdd_dir = configfile.getString( "logo_hdd_dir", "/logos" );
 #else
@@ -777,7 +777,7 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	g_settings.screen_width = configfile.getInt32("screen_width", 0);
 	g_settings.screen_height = configfile.getInt32("screen_height", 0);
 
-#if HAVE_DUCKBOX_HARDWARE
+#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
 	g_settings.bigFonts = configfile.getInt32("bigFonts", 1);
 #else
 	g_settings.bigFonts = configfile.getInt32("bigFonts", 0);
@@ -2122,7 +2122,7 @@ fprintf(stderr, "[neutrino start] %d  -> %5ld ms\n", __LINE__, time_monotonic_ms
 	g_CamHandler = new CCAMMenuHandler();
 	g_CamHandler->init();
 
-#if !HAVE_DUCKBOX_HARDWARE
+#if !HAVE_SPARK_HARDWARE && !HAVE_DUCKBOX_HARDWARE
 #ifndef ASSUME_MDEV
 	mkdir("/media/sda1", 0755);
 	mkdir("/media/sdb1", 0755);
@@ -2290,7 +2290,7 @@ void CNeutrinoApp::RealRun(CMenuWidget &mainMenu)
 				g_EventList->exec(live_channel_id, channelList->getActiveChannelName());
 				StartSubtitles();
 			}
-#if HAVE_DUCKBOX_HARDWARE
+#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
 			else if( ( msg == (neutrino_msg_t) g_settings.key_quickzap_up ) || ( msg == (neutrino_msg_t) g_settings.key_quickzap_down ) || ( msg == CRCInput::RC_page_up ) || ( msg == CRCInput::RC_page_down ) )
 #else
 			else if( ( msg == (neutrino_msg_t) g_settings.key_quickzap_up ) || ( msg == (neutrino_msg_t) g_settings.key_quickzap_down ) )
@@ -3359,7 +3359,7 @@ void CNeutrinoApp::ExitRun(const bool /*write_si*/, int retcode)
 			delete CVFD::getInstance();
 			delete SHTDCNT::getInstance();
 			stop_video();
-#if HAVE_DUCKBOX_HARDWARE
+#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
 			if (retcode == 1) {
 #ifdef ENABLE_GRAPHLCD
 				nGLCD::SetBrightness(0);
@@ -3610,7 +3610,7 @@ void CNeutrinoApp::standbyMode( bool bOnOff, bool fromDeepStandby )
 		CSectionsdClient::CurrentNextInfo dummy;
 		g_InfoViewer->getEPG(0, dummy);
 
-#if HAVE_DUCKBOX_HARDWARE
+#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
 		if (!timer_wakeup) {
 #ifdef ENABLE_GRAPHLCD
 			nGLCD::StandbyMode(false);
@@ -3997,7 +3997,7 @@ void sighandler (int signum)
 
 int main(int argc, char **argv)
 {
-#if HAVE_DUCKBOX_HARDWARE /* build date */
+#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE /* build date */
 	printf(">>> Neutrino (compiled %s %s) <<<\n", __DATE__, __TIME__);
 #endif
 	setDebugLevel(DEBUG_NORMAL);

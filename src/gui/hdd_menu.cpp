@@ -698,8 +698,15 @@ _remount:
 #endif
 
 	if(!res) {
+#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+		snprintf(cmd, sizeof(cmd), "%s/movie", dst);
+		safe_mkdir((char *) cmd);
+		snprintf(cmd, sizeof(cmd), "%s/timeshift", dst);
+		safe_mkdir((char *) cmd);
+#else
 		snprintf(cmd, sizeof(cmd), "%s/movies", dst);
 		safe_mkdir((char *) cmd);
+#endif
 		snprintf(cmd, sizeof(cmd), "%s/pictures", dst);
 		safe_mkdir((char *) cmd);
 		snprintf(cmd, sizeof(cmd), "%s/epg", dst);
