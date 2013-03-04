@@ -332,6 +332,7 @@ int CHDDDestExec::exec(CMenuTarget* /*parent*/, const std::string&)
 			snprintf(M_opt, sizeof(M_opt),"-M%d", g_settings.hdd_noise);
 			my_system(4, hdparm, M_opt, S_opt, opt);
 		}
+		}
 		free(namelist[i]);
 	}
 	free(namelist);
