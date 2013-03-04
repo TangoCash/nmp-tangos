@@ -52,7 +52,7 @@ int CWebTV::exec(CMenuTarget* parent, const std::string & actionKey)
 		if(parent)
 			parent->hide();
 		g_settings.streaming_server_url = actionKey;
-		for (std::vector<std::pair<char*, char*> >::iterator i = channels.begin(); i != channels.end(); i++) {
+		for (std::vector<std::pair<std::string, char*> >::iterator i = channels.begin(); i != channels.end(); i++) {
 			if (i->second == g_settings.streaming_server_url) {
 				g_settings.streaming_server_name = i->first;
 				break;
@@ -78,8 +78,8 @@ void CWebTV::Show()
 	m->addItem(GenericMenuBack);
 	m->addItem(GenericMenuSeparatorLine);
 
-	for (std::vector<std::pair<char*, char*> >::iterator i = channels.begin(); i != channels.end(); i++)
-		m->addItem(new CMenuForwarderNonLocalized(i->first, true, NULL, this, i->second),
+	for (std::vector<std::pair<std::string, char*> >::iterator i = channels.begin(); i != channels.end(); i++)
+		m->addItem(new CMenuForwarderNonLocalized(i->first.c_str(), true, NULL, this, i->second),
 			!strcmp(i->second, g_settings.streaming_server_url.c_str()));
 
 	m->exec(NULL, "");
@@ -102,9 +102,14 @@ bool CWebTV::readXml()
 			while ((xmlGetNextOccurence(l1, "webtv"))) {
 				char *title = xmlGetAttribute(l1, "title");
 				char *url = xmlGetAttribute(l1, "url");
+				char *desc = xmlGetAttribute(l1, "description");
 
-				if (title && url)
-					channels.push_back(std::make_pair(title,url));
+				if (title && url) {
+					std::string t = string(title);
+					if (desc && strlen(desc))
+						t += " (" + string(desc) + ")";
+					channels.push_back(std::make_pair(t, url));
+				}
 
 				l1 = l1->xmlNextNode;
 			}
