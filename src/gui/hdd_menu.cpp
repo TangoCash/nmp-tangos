@@ -320,18 +320,18 @@ int CHDDDestExec::exec(CMenuTarget* /*parent*/, const std::string&)
 #if HAVE_DUCKBOX_HARDWARE
 			CVFD::getInstance()->ShowIcon(VFD_ICON_HDD, true);
 #endif
-		printf("CHDDDestExec: noise %d sleep %d /dev/%s\n",
-			 g_settings.hdd_noise, g_settings.hdd_sleep, namelist[i]->d_name);
-		snprintf(S_opt, sizeof(S_opt),"-S%d", g_settings.hdd_sleep);
-		snprintf(opt, sizeof(opt),"/dev/%s",namelist[i]->d_name);
+			printf("CHDDDestExec: noise %d sleep %d /dev/%s\n",
+				 g_settings.hdd_noise, g_settings.hdd_sleep, namelist[i]->d_name);
+			snprintf(S_opt, sizeof(S_opt),"-S%d", g_settings.hdd_sleep);
+			snprintf(opt, sizeof(opt),"/dev/%s",namelist[i]->d_name);
 
-		if(hdparm_link){
-			//hdparm -M is not included in busybox hdparm!
-			my_system(3, hdparm, S_opt, opt);
-		}else{
-			snprintf(M_opt, sizeof(M_opt),"-M%d", g_settings.hdd_noise);
-			my_system(4, hdparm, M_opt, S_opt, opt);
-		}
+			if(hdparm_link){
+				//hdparm -M is not included in busybox hdparm!
+				my_system(3, hdparm, S_opt, opt);
+			}else{
+				snprintf(M_opt, sizeof(M_opt),"-M%d", g_settings.hdd_noise);
+				my_system(4, hdparm, M_opt, S_opt, opt);
+			}
 		}
 		free(namelist[i]);
 	}
