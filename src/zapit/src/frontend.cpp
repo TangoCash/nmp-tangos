@@ -3,7 +3,7 @@
  *
  * (C) 2002-2003 Andreas Oberritter <obi@tuxbox.org>
  *
- * (C) 2007-2012 Stefan Seyfried
+ * (C) 2007-2013 Stefan Seyfried
  * Copyright (C) 2011 CoolStream International Ltd 
  *
  * This program is free software; you can redistribute it and/or modify
@@ -165,7 +165,7 @@ typedef enum dvb_fec {
 /*********************************************************************************************************/
 CFrontend::CFrontend(int Number, int Adapter)
 {
-	printf("[fe%d] New frontend on adapter %d\n", Number, Adapter);
+	DBG("[fe%d] New frontend on adapter %d\n", Number, Adapter);
 	fd		= -1;
 	fenumber	= Number;
 	adapter		= Adapter;
@@ -188,6 +188,7 @@ CFrontend::CFrontend(int Number, int Adapter)
 	config.uni_scr = 0;        /* the unicable SCR address 0-7 */
 	config.uni_qrg = 0;        /* the unicable frequency in MHz */
 	config.uni_lnb = 0;        /* for two-position switches */
+	config.uni_pin = -1;       /* for MDU setups */
 	config.highVoltage = false;
 	config.motorRotationSpeed = 0; //in 0.1 degrees per second
 
@@ -199,7 +200,7 @@ CFrontend::CFrontend(int Number, int Adapter)
 
 CFrontend::~CFrontend(void)
 {
-	printf("[fe%d] close frontend fd %d\n", fenumber, fd);
+	DBG("[fe%d] close frontend fd %d\n", fenumber, fd);
 	if(fd >= 0)
 		Close();
 }
@@ -211,7 +212,7 @@ bool CFrontend::Open(bool init)
 
 	char filename[128];
 	snprintf(filename, sizeof(filename), "/dev/dvb/adapter%d/frontend%d", adapter, fenumber);
-	printf("[fe%d] open %s\n", fenumber, filename);
+	DBG("[fe%d] open %s\n", fenumber, filename);
 
 	if (fd < 0) {
 		if ((fd = open(filename, O_RDWR | O_NONBLOCK | O_CLOEXEC)) < 0) {
@@ -219,7 +220,7 @@ bool CFrontend::Open(bool init)
 			return false;
 		}
 		fop(ioctl, FE_GET_INFO, &info);
-		printf("[fe%d] frontend fd %d type %d\n", fenumber, fd, info.type);
+		INFO("[fe%d] %s fd %d type %d", fenumber, filename, fd, info.type);
 	}
 
 	//FIXME info.type = FE_QAM;
@@ -248,7 +249,7 @@ void CFrontend::Close(void)
 	if(standby)
 		return;
 
-	printf("[fe%d] close frontend\n", fenumber);
+	INFO("[fe%d] close frontend fd %d", fenumber, fd);
 
 	if (!slave && config.diseqcType > MINI_DISEQC)
 		sendDiseqcStandby();
@@ -455,7 +456,7 @@ struct dvb_frontend_event CFrontend::getEvent(void)
 	while ((int) timer_msec < TIMEOUT_MAX_MS) {
 		int ret = poll(&pfd, 1, TIMEOUT_MAX_MS - timer_msec);
 		if (ret < 0) {
-			perror("CFrontend::getEvent poll");
+			ERROR("poll");
 			continue;
 		}
 		if (ret == 0) {
@@ -468,22 +469,22 @@ struct dvb_frontend_event CFrontend::getEvent(void)
 
 			ret = ioctl(fd, FE_GET_EVENT, &event);
 			if (ret < 0) {
-				perror("CFrontend::getEvent ioctl");
+				ERROR("ioctl");
 				continue;
 			}
 			//printf("[fe%d] poll events %d status %x\n", fenumber, pfd.revents, event.status);
 			if (event.status == 0) /* some drivers always deliver an empty event after tune */
 				continue;
-			FE_TIMER_STOP("poll has event after");
+			//FE_TIMER_STOP("poll has event after");
 
 			if (event.status & FE_HAS_LOCK) {
-				printf("[fe%d] ****************************** FE_HAS_LOCK: freq %lu\n", fenumber, (long unsigned int)event.parameters.frequency);
+				INFO("[fe%d] ******** FE_HAS_LOCK: freq %lu", fenumber, (long unsigned int)event.parameters.frequency);
 				tuned = true;
 				break;
 			} else if (event.status & FE_TIMEDOUT) {
 				if(timedout < timer_msec)
 					timedout = timer_msec;
-				printf("[fe%d] ############################## FE_TIMEDOUT (max %d)\n", fenumber, timedout);
+				INFO("[fe%d] ######## FE_TIMEDOUT (max %d)", fenumber, timedout);
 				/*break;*/
 			} else {
 				if (event.status & FE_HAS_SIGNAL)
@@ -559,7 +560,7 @@ void CFrontend::getDelSys(uint8_t type, int f, int m, char *&fec, char *&sys, ch
 		}
 		break;
 	default:
-		printf("[frontend] unknown type %d!\n", type);
+		INFO("unknown type %d!", type);
 		sys = (char *)"UNKNOWN";
 		mod = (char *)"UNKNOWN";
 		break;
@@ -613,7 +614,7 @@ void CFrontend::getDelSys(uint8_t type, int f, int m, char *&fec, char *&sys, ch
 		fec = (char *)"9/10";
 		break;
 	default:
-		printf("[frontend] getDelSys: unknown FEC: %d !!!\n", f);
+		INFO("unknown FEC: %d!", f);
 	case FEC_AUTO:
 		fec = (char *)"AUTO";
 		break;
@@ -648,7 +649,7 @@ bool CFrontend::buildProperties(const FrontendParameters *feparams, struct dtv_p
 		delsys = SYS_DVBT;
 		break;
 	default:
-		printf("frontend: unknown frontend type, exiting\n");
+		INFO("unknown frontend type %d, exiting", (int)info.type);
 		return 0;
 	}
 
@@ -710,7 +711,7 @@ bool CFrontend::buildProperties(const FrontendParameters *feparams, struct dtv_p
 		fec = FEC_9_10;
 		break;
 	default:
-		printf("[fe%d] DEMOD: unknown FEC: %d\n", fenumber, fec_inner);
+		INFO("[fe%d] unknown FEC: %d", fenumber, fec_inner);
 	case FEC_AUTO:
 	case FEC_S2_AUTO:
 		fec = FEC_AUTO;
@@ -767,7 +768,7 @@ bool CFrontend::buildProperties(const FrontendParameters *feparams, struct dtv_p
 			cmdseq.props[BANDWIDTH].u.data	= 8000000;
 			break;
 		default:
-			printf("[fe%d] unknown bandwidth for OFDM %d\n",
+			INFO("[fe%d] unknown OFDM bandwidth %d",
 				fenumber, feparams->dvb_feparams.u.ofdm.bandwidth);
 			/* fallthrough */
 		case BANDWIDTH_AUTO:
@@ -776,7 +777,7 @@ bool CFrontend::buildProperties(const FrontendParameters *feparams, struct dtv_p
 		}
 		break;
 	default:
-		printf("frontend: unknown frontend type, exiting\n");
+		INFO("unknown frontend type, exiting");
 		return false;
 	}
 
@@ -820,13 +821,13 @@ int CFrontend::setFrontend(const FrontendParameters *feparams, bool nowait)
 		return 0;
 
 	{
-		FE_TIMER_INIT();
-		FE_TIMER_START();
+		//FE_TIMER_INIT();
+		//FE_TIMER_START();
 		if ((ioctl(fd, FE_SET_PROPERTY, &cmdseq)) < 0) {
-			perror("FE_SET_PROPERTY failed");
+			ERROR("FE_SET_PROPERTY");
 			return false;
 		}
-		FE_TIMER_STOP("FE_SET_PROPERTY took");
+		//FE_TIMER_STOP("FE_SET_PROPERTY took");
 	}
 	if (nowait)
 		return 0;
@@ -1089,36 +1090,50 @@ void CFrontend::setInput(t_satellite_position satellitePosition, uint32_t freque
 
 /* frequency is the IF-frequency (950-2100), what a stupid spec...
    high_band, horizontal, bank are actually bool (0/1)
-   bank specifies the "switch bank" (as in Mini-DiSEqC A/B) */
+   bank specifies the "switch bank" (as in Mini-DiSEqC A/B)
+   bank == 2 => send standby command */
 uint32_t CFrontend::sendEN50494TuningCommand(const uint32_t frequency, const int high_band,
 					     const int horizontal, const int bank)
 {
 	uint32_t bpf = config.uni_qrg;
+	int pin = config.uni_pin;
+	if (config.uni_scr < 0 || config.uni_scr > 7) {
+		WARN("uni_scr out of range (%d)", config.uni_scr);
+		return 0;
+	}
 
 	struct dvb_diseqc_master_cmd cmd = {
 		{0xe0, 0x10, 0x5a, 0x00, 0x00, 0x00}, 5
 	};
 	unsigned int t = (frequency / 1000 + bpf + 2) / 4 - 350;
-	if (t < 1024 && config.uni_scr >= 0 && config.uni_scr < 8)
+	if (bank < 2 && t >= 1024)
 	{
-		uint32_t ret = (t + 350) * 4000 - frequency;
-		INFO("[unicable] 18V=%d TONE=%d, freq=%d qrg=%d scr=%d bank=%d ret=%d", currentVoltage == SEC_VOLTAGE_18, currentToneMode == SEC_TONE_ON, frequency, bpf, config.uni_scr, bank, ret);
-		if (!slave && info.type == FE_QPSK) {
-			cmd.msg[3] = (t >> 8)		|	/* highest 3 bits of t */
-				(config.uni_scr << 5)	|	/* adress */
+		WARN("ooops. t > 1024? (%d)", t);
+		return 0;
+	}
+	if (pin >= 0 && pin < 0x100) {
+		cmd.msg[2] = 0x5c;
+		cmd.msg[5] = config.uni_pin;
+		cmd.msg_len = 6;
+	}
+	uint32_t ret = (t + 350) * 4000 - frequency;
+	INFO("[fe%d] 18V=%d 22k=%d freq=%d qrg=%d scr=%d bank=%d pin=%d ret=%d",
+		fenumber, horizontal, high_band, frequency, bpf, config.uni_scr, bank, pin, ret);
+	if (!slave && info.type == FE_QPSK) {
+		cmd.msg[3] = (config.uni_scr << 5);		/* adress */
+		if (bank < 2) { /* bank = 0/1 => tune, bank = 2 => standby */
+			cmd.msg[3] |= (t >> 8)		|	/* highest 3 bits of t */
 				(bank << 4)		|	/* input 0/1 */
 				(horizontal << 3)	|	/* horizontal == 0x08 */
 				(high_band) << 2;		/* high_band  == 0x04 */
 			cmd.msg[4] = t & 0xFF;
-			fop(ioctl, FE_SET_VOLTAGE, SEC_VOLTAGE_18);
-			usleep(15 * 1000);		/* en50494 says: >4ms and < 22 ms */
-			sendDiseqcCommand(&cmd, 50);	/* en50494 says: >2ms and < 60 ms */
-			fop(ioctl, FE_SET_VOLTAGE, SEC_VOLTAGE_13);
 		}
-		return ret;
+		fop(ioctl, FE_SET_VOLTAGE, SEC_VOLTAGE_18);
+		usleep(15 * 1000);		/* en50494 says: >4ms and < 22 ms */
+		sendDiseqcCommand(&cmd, 50);	/* en50494 says: >2ms and < 60 ms */
+		fop(ioctl, FE_SET_VOLTAGE, SEC_VOLTAGE_13);
 	}
-	WARN("ooops. t > 1024? (%d) or uni_scr out of range? (%d)", t, config.uni_scr);
-	return 0;
+	return ret;
 }
 
 bool CFrontend::tuneChannel(CZapitChannel * /*channel*/, bool /*nvod*/)
@@ -1348,6 +1363,9 @@ void CFrontend::sendDiseqcReset(void)
 void CFrontend::sendDiseqcStandby(void)
 {
 	printf("[fe%d] diseqc standby\n", fenumber);
+	if (config.diseqcType == DISEQC_UNICABLE)
+		sendEN50494TuningCommand(0, 0, 0, 2);
+	/* en50494 switches don't seem to be hurt by this */
 	sendDiseqcZeroByteCommand(0xe0, 0x10, 0x02);
 }
 

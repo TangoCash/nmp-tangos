@@ -3,7 +3,7 @@
  *             thegoodguy         <thegoodguy@berlios.de>
  *
  * Copyright (C) 2011-2012 CoolStream International Ltd
- * Copyright (C) 2012 Stefan Seyfried
+ * Copyright (C) 2012,2013 Stefan Seyfried
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -84,8 +84,7 @@ bool CCam::makeCaPmt(CZapitChannel * channel, bool add_private, uint8_t list, co
         int len;
         unsigned char * buffer = channel->getRawPmt(len);
 
-//	INFO("cam %p source %d camask %d list %02x buffer", this, source_demux, camask, list);
-	printf("cam %p source %d camask %d list %02x buffer\n", this, source_demux, camask, list);
+	DBG("cam %p source %d camask %d list %02x buffer\n", this, source_demux, camask, list);
 
 	if(!buffer)
 		return false;
@@ -155,8 +154,7 @@ int CCam::makeMask(int demux, bool add)
 		if(demuxes[i] > 0)
 			mask |= 1 << i;
 	}
-	//DBG("demuxes %d:%d:%d old mask %d new mask %d", demuxes[0], demuxes[1], demuxes[2], camask, mask);
-	printf("demuxes %d:%d:%d old mask %d new mask %d\n", demuxes[0], demuxes[1], demuxes[2], camask, mask);
+	DBG("demuxes %d:%d:%d old mask %d new mask %d", demuxes[0], demuxes[1], demuxes[2], camask, mask);
 	return mask;
 }
 
@@ -213,6 +211,7 @@ bool CCamManager::SetMode(t_channel_id channel_id, enum runmode mode, bool start
 		case PLAY:
 #if HAVE_DUCKBOX_HARDWARE || HAVE_SPARK_HARDWARE
 #if BOXMODEL_SPARK7162
+			/* this might be SPARK-specific, not tested elsewhere */
 			source = cDemux::GetSource(0); /* demux0 is always the live demux */
 			demux = source;
 #else
@@ -228,7 +227,7 @@ bool CCamManager::SetMode(t_channel_id channel_id, enum runmode mode, bool start
 #if HAVE_DUCKBOX_HARDWARE || HAVE_SPARK_HARDWARE
 #if BOXMODEL_SPARK7162
 			channel->setRecordDemux(CFEManager::getInstance()->allocateFE(channel)->getNumber() + 1);
-			source = channel->getRecordDemux();
+			source = channel->getRecordDemux(); //DEMUX_SOURCE_0;//FIXME
 #else
 			channel->setRecordDemux(CFEManager::getInstance()->allocateFE(channel)->getNumber());
 			source = channel->getRecordDemux();
@@ -257,9 +256,7 @@ bool CCamManager::SetMode(t_channel_id channel_id, enum runmode mode, bool start
 	if(cam->getSource() > 0)
 		source = cam->getSource();
 
-//	INFO("channel %" PRIx64 " [%s] mode %d %s src %d mask %d -> %d update %d", channel_id, channel->getName().c_str(),
-//			mode, start ? "START" : "STOP", source, oldmask, newmask, force_update);
-	printf("channel %" PRIx64 " [%s] mode %d %s src %d mask %d -> %d update %d\n", channel_id, channel->getName().c_str(),
+	INFO("channel %" PRIx64 " [%s] mode %d %s src %d mask %d -> %d update %d", channel_id, channel->getName().c_str(),
 			mode, start ? "START" : "STOP", source, oldmask, newmask, force_update);
 	//INFO("source %d old mask %d new mask %d force update %s", source, oldmask, newmask, force_update ? "yes" : "no");
 	if((oldmask != newmask) || force_update) {

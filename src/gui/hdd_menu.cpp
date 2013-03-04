@@ -61,7 +61,6 @@
 #if HAVE_DUCKBOX_HARDWARE
 #include <driver/vfd.h>
 #endif
-
 #define HDD_NOISE_OPTION_COUNT 4
 const CMenuOptionChooser::keyval HDD_NOISE_OPTIONS[HDD_NOISE_OPTION_COUNT] =
 {
@@ -321,18 +320,17 @@ int CHDDDestExec::exec(CMenuTarget* /*parent*/, const std::string&)
 #if HAVE_DUCKBOX_HARDWARE
 			CVFD::getInstance()->ShowIcon(VFD_ICON_HDD, true);
 #endif
-			printf("CHDDDestExec: noise %d sleep %d /dev/%s\n",
-				g_settings.hdd_noise, g_settings.hdd_sleep, namelist[i]->d_name);
-			snprintf(S_opt, sizeof(S_opt),"-S%d", g_settings.hdd_sleep);
-			snprintf(opt, sizeof(opt),"/dev/%s",namelist[i]->d_name);
+		printf("CHDDDestExec: noise %d sleep %d /dev/%s\n",
+			 g_settings.hdd_noise, g_settings.hdd_sleep, namelist[i]->d_name);
+		snprintf(S_opt, sizeof(S_opt),"-S%d", g_settings.hdd_sleep);
+		snprintf(opt, sizeof(opt),"/dev/%s",namelist[i]->d_name);
 
-			if(hdparm_link) {
-				//hdparm -M is not included in busybox hdparm!
-				my_system(hdparm, S_opt, opt);
-			} else {
-				snprintf(M_opt, sizeof(M_opt),"-M%d", g_settings.hdd_noise);
-				my_system(hdparm, M_opt, S_opt, opt);
-			}
+		if(hdparm_link){
+			//hdparm -M is not included in busybox hdparm!
+			my_system(3, hdparm, S_opt, opt);
+		}else{
+			snprintf(M_opt, sizeof(M_opt),"-M%d", g_settings.hdd_noise);
+			my_system(4, hdparm, M_opt, S_opt, opt);
 		}
 		free(namelist[i]);
 	}
@@ -393,7 +391,7 @@ static int umount_all(const char *dev)
 		if (! access("/etc/mdev/mdev-mount.sh", X_OK)) {
 			sprintf(buffer, "MDEV=%s%d ACTION=remove /etc/mdev/mdev-mount.sh block", d, i);
 			printf("-> running '%s'\n", buffer);
-			my_system("/bin/sh", "-c", buffer);
+			my_system(3, "/bin/sh", "-c", buffer);
 		}
 #endif
 		sprintf(buffer, "/dev/%s%d", d, i);
@@ -504,7 +502,7 @@ int CHDDFmtExec::exec(CMenuTarget* /*parent*/, const std::string& key)
 	if(res != CMessageBox::mbrYes)
 		return 0;
 
-	bool srun = my_system("killall", "-9", "smbd");
+	bool srun = my_system(3, "killall", "-9", "smbd");
 
 	//res = check_and_umount(dst);
 	//res = check_and_umount(src, dst);
@@ -653,7 +651,7 @@ int CHDDFmtExec::exec(CMenuTarget* /*parent*/, const std::string& key)
 	waitfordev(src, 30); /* mdev can somtimes takes long to create devices, especially after mkfs? */
 
 	printf("CHDDFmtExec: executing %s %s\n","/sbin/tune2fs -r 0 -c 0 -i 0", src);
-	my_system("/sbin/tune2fs", "-r 0", "-c 0", "-i 0", src);
+	my_system(8, "/sbin/tune2fs", "-r", "0", "-c", "0", "-i", "0", src);
 
 _remount:
 	unlink("/tmp/.nomdevmount");
@@ -749,7 +747,7 @@ _remount:
 #endif
 	}
 _return:
-	if(!srun) my_system("smbd",NULL);
+	if (!srun) my_system(1, "smbd");
 	return menu_return::RETURN_REPAINT;
 }
 
@@ -769,7 +767,7 @@ int CHDDChkExec::exec(CMenuTarget* /*parent*/, const std::string& key)
 
 printf("CHDDChkExec: key %s\n", key.c_str());
 
-	bool srun = my_system("killall", "-9", "smbd");
+	bool srun = my_system(3, "killall", "-9", "smbd");
 
 	//res = check_and_umount(dst);
 	//res = check_and_umount(src, dst);
@@ -858,6 +856,6 @@ ret1:
 	}
 	printf("CHDDChkExec: mount res %d\n", res);
 
-	if(!srun) my_system("smbd",NULL);
+	if (!srun) my_system(1, "smbd");
 	return menu_return::RETURN_REPAINT;
 }

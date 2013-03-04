@@ -133,14 +133,15 @@ char zapit_long[20];
 bool autoshift = false;
 uint32_t scrambled_timer;
 t_channel_id standby_channel_id;
-const char * bootlogo;
 
 //NEW
 static pthread_t timer_thread;
 void * timerd_main_thread(void *data);
+static bool timerd_thread_started = false;
 
 void * nhttpd_main_thread(void *data);
 static pthread_t nhttpd_thread ;
+static bool nhttpd_thread_started = false;
 
 //#define DISABLE_SECTIONSD
 
@@ -368,6 +369,7 @@ int CNeutrinoApp::loadSetup(const char * fname)
 #else
 	g_settings.channel_mode = configfile.getInt32("channel_mode", LIST_MODE_PROV);
 	g_settings.channel_mode_radio = configfile.getInt32("channel_mode_radio", LIST_MODE_PROV);
+
 #endif
 	g_settings.fan_speed = configfile.getInt32( "fan_speed", 1);
 	if(g_settings.fan_speed < 1) g_settings.fan_speed = 1;
@@ -437,6 +439,7 @@ int CNeutrinoApp::loadSetup(const char * fname)
 		strcpy(g_settings.shutdown_min, configfile.getString("shutdown_min","000").c_str());
 #else
 		strcpy(g_settings.shutdown_min, configfile.getString("shutdown_min","180").c_str());
+
 #endif
 	g_settings.infobar_sat_display   = configfile.getBool("infobar_sat_display"  , true );
 	g_settings.infobar_show_channeldesc   = configfile.getBool("infobar_show_channeldesc"  , false );
@@ -594,7 +597,6 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	g_settings.glcd_scroll_speed = configfile.getInt32("glcd_scroll_speed", 8);
 #endif
 #endif
-
 	//personalize
 	strcpy( g_settings.personalize_pincode, configfile.getString( "personalize_pincode", "0000" ).c_str() );
 	for (int i = 0; i < SNeutrinoSettings::P_SETTINGS_MAX; i++)//settings.h, settings.cpp
@@ -718,9 +720,7 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	g_settings.streaming_server_url = configfile.getString("streaming_server_url", "http://podfiles.zdf.de/podcast/zdf_podcasts/110924_hjo_p.mp4?2011-09-24+21-25");
 	g_settings.webtv_xml = configfile.getString( "webtv_xml", "/var/tuxbox/config/webtv.xml" );
 
-
 	loadKeys();
-
 	g_settings.key_playbutton = configfile.getInt32("key_playbutton", 0);
 
 	g_settings.timeshift_pause = configfile.getInt32( "timeshift_pause", 1 );
@@ -747,7 +747,7 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	g_settings.channellist_extended		= configfile.getBool("channellist_extended"          , true);
 	g_settings.channellist_foot	= configfile.getInt32("channellist_foot"          , 1);//default next Event
 	g_settings.channellist_new_zap_mode = configfile.getInt32("channellist_new_zap_mode", 1);
-	g_settings.channellist_sort_mode  = configfile.getInt32("channellist_sort_mode", 0);//sort mode: alpha, freq, sat
+	g_settings.channellist_sort_mode  = configfile.getInt32("channellist_sort_mode", 0);//sort mode: alpha, freq, sat 
 	g_settings.channellist_hdicon = configfile.getInt32("channellist_hdicon", 0); //default off
 
 	//screen configuration
@@ -880,7 +880,7 @@ int CNeutrinoApp::loadSetup(const char * fname)
 		g_settings.usermenu_text[button] = configfile.getString(txt1, "");
 
 		snprintf(txt1,80,"usermenu_tv_%s",usermenu_button_def[button]);
-		txt2 = configfile.getString(txt1,usermenu_default[button]);
+		txt2 = configfile.getString(txt1,usermenu_default[button]);	
 		txt2ptr = txt2.c_str();
 		for( int pos = 0; pos < SNeutrinoSettings::ITEM_MAX; pos++)
 		{
@@ -1129,7 +1129,6 @@ void CNeutrinoApp::saveSetup(const char * fname)
 	configfile.setInt32("glcd_brightness_standby", g_settings.glcd_brightness_standby);
 	configfile.setInt32("glcd_scroll_speed", g_settings.glcd_scroll_speed);
 #endif
-
 	//personalize
 	configfile.setString("personalize_pincode", g_settings.personalize_pincode);
 	for (int i = 0; i < SNeutrinoSettings::P_SETTINGS_MAX; i++) //settings.h, settings.cpp
@@ -1194,12 +1193,10 @@ void CNeutrinoApp::saveSetup(const char * fname)
 	configfile.setString ( "onekey_plugin", g_settings.onekey_plugin );
 	configfile.setString ( "plugin_hdd_dir", g_settings.plugin_hdd_dir );
 	configfile.setString ( "logo_hdd_dir", g_settings.logo_hdd_dir );
-
 	configfile.setString ( "streaming_server_url", g_settings.streaming_server_url);
 	configfile.setString ( "webtv_xml", g_settings.webtv_xml);
 
 	saveKeys();
-
 	configfile.setInt32 ("key_playbutton", g_settings.key_playbutton );
 
 	configfile.setInt32( "timeshift_pause", g_settings.timeshift_pause );
@@ -1464,7 +1461,7 @@ void CNeutrinoApp::channelsInit(bool bOnly)
 				TVsatList->deleteBouquet(tmp1);
 			if(!ri)
 				RADIOsatList->deleteBouquet(tmp2);
-
+			
 			TIMER_STOP("[neutrino] sat took");
 		}
 		/* new channels */
@@ -1952,7 +1949,6 @@ void wake_up(long &wakeup)
 #if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
 extern bool timer_wakeup;//timermanager.cpp
 #endif
-
 int CNeutrinoApp::run(int argc, char **argv)
 {
 time_t starttime = time_monotonic_ms();
@@ -1996,7 +1992,6 @@ fprintf(stderr, "[neutrino start] %d  -> %5ld ms\n", __LINE__, time_monotonic_ms
 	CVFD::getInstance()->Clear();
 	CVFD::getInstance()->ShowText(g_Locale->getText(LOCALE_NEUTRINO_STARTING));
 fprintf(stderr, "[neutrino start] %d  -> %5ld ms\n", __LINE__, time_monotonic_ms() - starttime);
-
 #ifdef ENABLE_GRAPHLCD
 	nGLCD::getInstance();
 #endif
@@ -2057,6 +2052,7 @@ fprintf(stderr, "[neutrino start] %d  -> %5ld ms\n", __LINE__, time_monotonic_ms
 	}
 	g_settings.shutdown_timer_record_type = false;
 	pthread_create (&timer_thread, NULL, timerd_main_thread, (void *)&timer_wakeup);
+	timerd_thread_started = true;
 	// timer_wakeup = false;
 
 	powerManager = new cPowerManager;
@@ -2096,6 +2092,7 @@ fprintf(stderr, "[neutrino start] %d  -> %5ld ms\n", __LINE__, time_monotonic_ms
 	dvbsub_init();
 
 	pthread_create (&nhttpd_thread, NULL, nhttpd_main_thread, (void *) NULL);
+	nhttpd_thread_started = true;
 
 	CStreamManager::getInstance()->Start();
 
@@ -2126,8 +2123,8 @@ fprintf(stderr, "[neutrino start] %d  -> %5ld ms\n", __LINE__, time_monotonic_ms
 #ifndef ASSUME_MDEV
 	mkdir("/media/sda1", 0755);
 	mkdir("/media/sdb1", 0755);
-	my_system("mount", "/dev/sda1", "/media/sda1");
-	my_system("mount", "/dev/sdb1", "/media/sdb1");
+	my_system(3, "mount", "/dev/sda1", "/media/sda1");
+	my_system(3, "mount", "/dev/sdb1", "/media/sdb1");
 #endif
 #endif
 
@@ -2159,7 +2156,6 @@ fprintf(stderr, "[neutrino start] %d  -> %5ld ms\n", __LINE__, time_monotonic_ms
 #endif
 
 	videoDecoder->Stop(1); //stopping videodecoder before 1st tune
-
 	/* wait until timerd is ready... */
 	time_t timerd_wait = time_monotonic_ms();
 	while (timer_wakeup >= 0)
@@ -2352,18 +2348,18 @@ void CNeutrinoApp::RealRun(CMenuWidget &mainMenu)
 					else if( msg == (neutrino_msg_t) g_settings.key_subchannel_down )
 						g_RemoteControl->subChannelDown();
 					g_InfoViewer->showSubchan();
-				}
+				} 
 				else if ( msg == CRCInput::RC_left || msg == CRCInput::RC_right) {
 					if (g_settings.mode_left_right_key_tv == SNeutrinoSettings::VOLUME) {
 						g_volume->setVolume(msg, true);
-					}
+					} 
 					else if((g_settings.mode_left_right_key_tv == SNeutrinoSettings::VZAP)
 							|| (g_settings.mode_left_right_key_tv == SNeutrinoSettings::INFOBAR)) {
 						if(channelList->getSize()) {
 							showInfo();
 						}
-					}
-				}
+					} 
+				} 
 				else
 					quickZap( msg );
 			}
@@ -2431,7 +2427,7 @@ void CNeutrinoApp::RealRun(CMenuWidget &mainMenu)
 					StartSubtitles();
 				}
 					else
-						ShowHintUTF(LOCALE_MESSAGEBOX_INFO, g_Locale->getText(LOCALE_PERSONALIZE_MENUDISABLEDHINT),450, 10);
+						ShowHintUTF(LOCALE_MESSAGEBOX_INFO, g_Locale->getText(LOCALE_PERSONALIZE_MENUDISABLEDHINT),450, 10);				
 			}
 			else if ((msg == CRCInput::RC_audio) && !g_settings.audio_run_player)
 			{
@@ -2451,7 +2447,7 @@ void CNeutrinoApp::RealRun(CMenuWidget &mainMenu)
 					StartSubtitles();
 				}
 				else
-					ShowHintUTF(LOCALE_MESSAGEBOX_INFO, g_Locale->getText(LOCALE_PERSONALIZE_MENUDISABLEDHINT),450, 10);
+					ShowHintUTF(LOCALE_MESSAGEBOX_INFO, g_Locale->getText(LOCALE_PERSONALIZE_MENUDISABLEDHINT),450, 10);				
 			}
 			else if( msg == CRCInput::RC_yellow ) {       // NVODs
 				if (g_settings.personalize[SNeutrinoSettings::P_MAIN_YELLOW_BUTTON] == CPersonalizeGui::PERSONALIZE_ACTIVE_MODE_ENABLED)
@@ -2461,7 +2457,7 @@ void CNeutrinoApp::RealRun(CMenuWidget &mainMenu)
 					StartSubtitles();
 				}
 				else
-					ShowHintUTF(LOCALE_MESSAGEBOX_INFO, g_Locale->getText(LOCALE_PERSONALIZE_MENUDISABLEDHINT),450, 10);
+					ShowHintUTF(LOCALE_MESSAGEBOX_INFO, g_Locale->getText(LOCALE_PERSONALIZE_MENUDISABLEDHINT),450, 10);				
 			}
 			else if( (msg == CRCInput::RC_green) || ((msg == CRCInput::RC_audio) && !g_settings.audio_run_player) )
 			{
@@ -2966,7 +2962,7 @@ _repeat:
 	else if( msg == NeutrinoMessages::ZAPTO) {
 		CTimerd::EventInfo * eventinfo = (CTimerd::EventInfo *) data;
 		if (eventinfo->channel_id != CZapit::getInstance()->GetCurrentChannelID()){
-			if( (recordingstatus == 0) || (recordingstatus && CRecordManager::getInstance()->TimeshiftOnly()) ||  (recordingstatus && CFEManager::getInstance()->haveFreeFrontend()) ||
+			if( (recordingstatus == 0) || (recordingstatus && CRecordManager::getInstance()->TimeshiftOnly()) ||  (recordingstatus && CFEManager::getInstance()->haveFreeFrontend()) || 
 			    (recordingstatus && channelList->SameTP(eventinfo->channel_id)) ) {
 				bool isTVMode = CServiceManager::getInstance()->IsChannelTVChannel(eventinfo->channel_id);
 
@@ -3005,7 +3001,7 @@ _repeat:
 			for(int i=0 ; i < NETWORK_NFS_NR_OF_ENTRIES ; i++) {
 				if (strcmp(g_settings.network_nfs_local_dir[i],recordingDir) == 0) {
 					printf("[neutrino] waking up %s (%s)\n",g_settings.network_nfs_ip[i].c_str(),recordingDir);
-					if(my_system("ether-wake",g_settings.network_nfs_mac[i]) != 0)
+					if (my_system(2, "ether-wake", g_settings.network_nfs_mac[i]) != 0)
 						perror("ether-wake failed");
 					break;
 				}
@@ -3018,7 +3014,7 @@ _repeat:
 		if( g_settings.recording_zap_on_announce && (mode != mode_standby) && (eventinfo->channel_id != CZapit::getInstance()->GetCurrentChannelID())) {
 			CRecordManager::getInstance()->StopAutoRecord();
 			bool recordingStatus = CRecordManager::getInstance()->RecordingStatus();
-			if ( !recordingStatus || (recordingStatus && CRecordManager::getInstance()->TimeshiftOnly()) ||  (recordingStatus && CFEManager::getInstance()->haveFreeFrontend()) ||
+			if ( !recordingStatus || (recordingStatus && CRecordManager::getInstance()->TimeshiftOnly()) ||  (recordingStatus && CFEManager::getInstance()->haveFreeFrontend()) || 
 			    (recordingStatus && channelList->SameTP(eventinfo->channel_id)) ){
 				dvbsub_stop();
 				t_channel_id channel_id=eventinfo->channel_id;
@@ -3218,7 +3214,7 @@ _repeat:
 	}
 	if ((msg >= CRCInput::RC_WithData) && (msg < CRCInput::RC_WithData + 0x10000000))
 		delete [] (unsigned char*) data;
-
+	
 	return messages_return::unhandled;
 }
 
@@ -3428,7 +3424,7 @@ void CNeutrinoApp::tvMode( bool rezap )
 			delete g_Radiotext;
 			g_Radiotext = NULL;
 		}
-
+		
 		videoDecoder->StopPicture();
 #if HAVE_DUCKBOX_HARDWARE
 		CVFD::getInstance()->ShowIcon(VFD_ICON_MUSIC, false);
@@ -3617,7 +3613,6 @@ void CNeutrinoApp::standbyMode( bool bOnOff, bool fromDeepStandby )
 #endif
 		}
 #endif
-
 		if(init_cec_setting){
 			//init cec settings
 			CCECSetup cecsetup;
@@ -3758,7 +3753,7 @@ int CNeutrinoApp::exec(CMenuTarget* parent, const std::string & actionKey)
 {
 	//	printf("ac: %s\n", actionKey.c_str());
 	int returnval = menu_return::RETURN_REPAINT;
-
+	
 	if(actionKey == "help_recording") {
 		ShowLocalizedMessage(LOCALE_SETTINGS_HELP, LOCALE_RECORDINGMENU_HELP, CMessageBox::mbrBack, CMessageBox::mbBack);
 	}
@@ -3807,7 +3802,7 @@ int CNeutrinoApp::exec(CMenuTarget* parent, const std::string & actionKey)
 			tuxtxt_init();
 		} else
 			tuxtxt_close();
-
+		
 		//g_Sectionsd->setEventsAreOldInMinutes((unsigned short) (g_settings.epg_old_hours*60));
 		//g_Sectionsd->setHoursToCache((unsigned short) (g_settings.epg_cache_days*24));
 
@@ -3816,7 +3811,7 @@ int CNeutrinoApp::exec(CMenuTarget* parent, const std::string & actionKey)
 	}
 	else if(actionKey=="recording") {
 		setupRecordingDevice();
-	}
+	}	
 	else if(actionKey=="reloadplugins") {
 		CHintBox * hintBox = new CHintBox(LOCALE_MESSAGEBOX_INFO, g_Locale->getText(LOCALE_SERVICEMENU_GETPLUGINS_HINT));
 		hintBox->paint();
@@ -3918,19 +3913,22 @@ void stop_daemons(bool stopall)
 #ifdef ENABLE_GRAPHLCD
 	nGLCD::Exit();
 #endif
-
 	if (g_Radiotext) {
 		delete g_Radiotext;
 		g_Radiotext = NULL;
 	}
 	printf("httpd shutdown\n");
+	if (nhttpd_thread_started) {
 	pthread_cancel(nhttpd_thread);
 	pthread_join(nhttpd_thread, NULL);
+	}
 	printf("httpd shutdown done\n");
 	CStreamManager::getInstance()->Stop();
 	if(stopall) {
 		printf("timerd shutdown\n");
+		if (g_Timerd)
 		g_Timerd->shutdown();
+		if (timerd_thread_started)
 		pthread_join(timer_thread, NULL);
 		printf("timerd shutdown done\n");
 	}
@@ -3997,9 +3995,14 @@ void sighandler (int signum)
 
 int main(int argc, char **argv)
 {
-#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE /* build date */
+#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+	/* build date */
 	printf(">>> Neutrino (compiled %s %s) <<<\n", __DATE__, __TIME__);
 #endif
+
+	g_Timerd = NULL;
+	g_Radiotext = NULL;
+	g_Zapit = NULL;
 	setDebugLevel(DEBUG_NORMAL);
 	signal(SIGTERM, sighandler);	// TODO: consider the following
 	signal(SIGINT, sighandler);	// NOTES: The effects of signal() in a multithreaded
