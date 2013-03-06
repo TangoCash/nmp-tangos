@@ -45,15 +45,14 @@
 /* zapit.cpp */
 extern int zapit_debug;
 
-static int __striplen = strstr(__FILE__, "src/zapit") ? (strstr(__FILE__, "src/zapit") - __FILE__ + 14) : 0;
-#define __SHORTFILE__ (__FILE__ + __striplen)
+#define __SHORTFILE__ (strrchr(__FILE__,'/') ? strrchr(__FILE__,'/')+1 : __FILE__ )
 
 #define DBG(fmt, args...)					\
 	do {							\
 		if (zapit_debug)					\
-			fprintf(stdout, "[%s:%s:%d] " fmt,	\
+			fprintf(stdout, "[%s:%s:%d] " fmt "\n",	\
 				__SHORTFILE__, __FUNCTION__,	\
-				__LINE__ , ## args);		\
+				__LINE__ , ##args);		\
 	} while (0)
 
 #define ERROR(str)						\
@@ -69,14 +68,14 @@ static int __striplen = strstr(__FILE__, "src/zapit") ? (strstr(__FILE__, "src/z
 	do {							\
 		fprintf(stdout, "[%s:%s:%d] " fmt "\n",		\
 			__SHORTFILE__, __FUNCTION__,		\
-			__LINE__ , ## args);			\
+			__LINE__ , ##args);			\
 	} while (0)
 
 #define WARN(fmt, args...)					\
 	do {							\
 		fprintf(stderr, "[%s:%s:%d] " fmt "\n",		\
 			__SHORTFILE__, __FUNCTION__,		\
-			__LINE__ , ## args);			\
+			__LINE__ , ##args);			\
 	} while (0)
 
 #else /* DEBUG */
