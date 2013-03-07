@@ -1072,6 +1072,9 @@ void CRecordManager::StopInstance(CRecordInstance * inst, bool remove_event)
 
 	if(inst->Timeshift())
 		autoshift = false;
+#ifdef BOXMODEL_SPARK7162
+		CVFD::getInstance()->SetIcons(SPARK_TIMESHIFT, false);
+#endif
 
 #if 0
 	t_channel_id live_channel_id = CZapit::getInstance()->GetCurrentChannelID();
@@ -1259,6 +1262,10 @@ void CRecordManager::StartTimeshift()
 		std::string tmode = "ptimeshift"; // already recording, pause
 		bool res = true;
 		t_channel_id live_channel_id = CZapit::getInstance()->GetCurrentChannelID();
+#ifdef BOXMODEL_SPARK7162
+		CVFD::getInstance()->SetIcons(SPARK_TIMESHIFT, true);
+#endif
+
 #if 0
 		if(RecordingStatus(live_channel_id))
 		{

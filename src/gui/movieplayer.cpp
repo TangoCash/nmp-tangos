@@ -485,7 +485,7 @@ void CMoviePlayerGui::PlayFile(void)
 	} else {
 		playstate = CMoviePlayerGui::PLAY;
 		CVFD::getInstance()->ShowIcon(VFD_ICON_PLAY, true);
-#if HAVE_DUCKBOX_HARDWARE
+#if HAVE_DUCKBOX_HARDWARE || BOXMODEL_SPARK7162
 		CVFD::getInstance()->ShowIcon(VFD_ICON_FR, false);
 		CVFD::getInstance()->ShowIcon(VFD_ICON_FF, false);
 		CVFD::getInstance()->ShowIcon(VFD_ICON_PAUSE, false);
@@ -510,7 +510,7 @@ void CMoviePlayerGui::PlayFile(void)
 			} else {
 				if(g_settings.timeshift_pause) {
 					playstate = CMoviePlayerGui::PAUSE;
-#if HAVE_DUCKBOX_HARDWARE
+#if HAVE_DUCKBOX_HARDWARE || BOXMODEL_SPARK7162
 					CVFD::getInstance()->ShowIcon(VFD_ICON_PLAY, false);
 					CVFD::getInstance()->ShowIcon(VFD_ICON_FR, false);
 					CVFD::getInstance()->ShowIcon(VFD_ICON_FF, false);
@@ -535,7 +535,7 @@ void CMoviePlayerGui::PlayFile(void)
 		}
 	}
 
-#if HAVE_DUCKBOX_HARDWARE
+#if HAVE_DUCKBOX_HARDWARE || BOXMODEL_SPARK7162
 	int xres, yres, framerate;
 	CVFD::getInstance()->ShowIcon(VFD_ICON_LOCK, false);
 #endif
@@ -570,7 +570,7 @@ void CMoviePlayerGui::PlayFile(void)
 #ifdef DEBUG
 				printf("CMoviePlayerGui::PlayFile: speed %d position %d duration %d (%d, %d%%)\n", speed, position, duration, duration-position, file_prozent);
 #endif
-#if HAVE_DUCKBOX_HARDWARE
+#if HAVE_DUCKBOX_HARDWARE || BOXMODEL_SPARK7162
 				if ((position > 100) && (file_prozent < 3))
 				{
 					videoDecoder->getPictureInfo(xres, yres, framerate);
@@ -610,7 +610,7 @@ void CMoviePlayerGui::PlayFile(void)
 			if (playstate > CMoviePlayerGui::PLAY) {
 				update_lcd = true;
 				playstate = CMoviePlayerGui::PLAY;
-#if HAVE_DUCKBOX_HARDWARE
+#if HAVE_DUCKBOX_HARDWARE || BOXMODEL_SPARK7162
 				CVFD::getInstance()->ShowIcon(VFD_ICON_PLAY, true);
 				CVFD::getInstance()->ShowIcon(VFD_ICON_PAUSE, false);
 				CVFD::getInstance()->ShowIcon(VFD_ICON_FR, false);
@@ -631,7 +631,7 @@ void CMoviePlayerGui::PlayFile(void)
 			if (playstate == CMoviePlayerGui::PAUSE) {
 				playstate = CMoviePlayerGui::PLAY;
 				//CVFD::getInstance()->ShowIcon(VFD_ICON_PAUSE, false);
-#if HAVE_DUCKBOX_HARDWARE
+#if HAVE_DUCKBOX_HARDWARE || BOXMODEL_SPARK7162
 				CVFD::getInstance()->ShowIcon(VFD_ICON_PLAY, true);
 				CVFD::getInstance()->ShowIcon(VFD_ICON_PAUSE, false);
 				CVFD::getInstance()->ShowIcon(VFD_ICON_FR, false);
@@ -642,7 +642,7 @@ void CMoviePlayerGui::PlayFile(void)
 			} else {
 				playstate = CMoviePlayerGui::PAUSE;
 				//CVFD::getInstance()->ShowIcon(VFD_ICON_PAUSE, true);
-#if HAVE_DUCKBOX_HARDWARE
+#if HAVE_DUCKBOX_HARDWARE || BOXMODEL_SPARK7162
 				CVFD::getInstance()->ShowIcon(VFD_ICON_PLAY, false);
 				CVFD::getInstance()->ShowIcon(VFD_ICON_PAUSE, true);
 				CVFD::getInstance()->ShowIcon(VFD_ICON_FR, false);
@@ -666,7 +666,7 @@ void CMoviePlayerGui::PlayFile(void)
 
 			if (msg == (neutrino_msg_t) g_settings.mpkey_rewind) {
 				speed = (speed >= 0) ? -1 : speed - 1;
-#if HAVE_DUCKBOX_HARDWARE
+#if HAVE_DUCKBOX_HARDWARE || BOXMODEL_SPARK7162
 				CVFD::getInstance()->ShowIcon(VFD_ICON_PLAY, true);
 				CVFD::getInstance()->ShowIcon(VFD_ICON_PAUSE, false);
 				CVFD::getInstance()->ShowIcon(VFD_ICON_FR, true);
@@ -675,7 +675,7 @@ void CMoviePlayerGui::PlayFile(void)
 				playstate = CMoviePlayerGui::REW;
 			} else {
 				speed = (speed <= 0) ? 2 : speed + 1;
-#if HAVE_DUCKBOX_HARDWARE
+#if HAVE_DUCKBOX_HARDWARE || BOXMODEL_SPARK7162
 				CVFD::getInstance()->ShowIcon(VFD_ICON_PLAY, true);
 				CVFD::getInstance()->ShowIcon(VFD_ICON_PAUSE, false);
 				CVFD::getInstance()->ShowIcon(VFD_ICON_FR, false);
@@ -839,7 +839,7 @@ void CMoviePlayerGui::PlayFile(void)
 	CVFD::getInstance()->ShowIcon(VFD_ICON_PLAY, false);
 	CVFD::getInstance()->ShowIcon(VFD_ICON_PAUSE, false);
 
-#if HAVE_DUCKBOX_HARDWARE
+#if HAVE_DUCKBOX_HARDWARE || BOXMODEL_SPARK7162
 	CVFD::getInstance()->ShowIcon(VFD_ICON_FR, false);
 	CVFD::getInstance()->ShowIcon(VFD_ICON_FF, false);
 #endif
@@ -1022,7 +1022,7 @@ void CMoviePlayerGui::selectAudioPid(bool file_player)
 		currentapid = select; /*apids[select];*/
 		currentac3 = ac3flags[select];
 		playback->SetAPid(currentapid, currentac3);
-#if HAVE_DUCKBOX_HARDWARE
+#if HAVE_DUCKBOX_HARDWARE || BOXMODEL_SPARK7162
 		CVFD::getInstance()->ShowIcon(VFD_ICON_DD, currentac3);
 #endif
 		printf("[movieplayer] apid changed to %d type %d\n", currentapid, currentac3);

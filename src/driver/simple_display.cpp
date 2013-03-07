@@ -45,7 +45,11 @@
 #if HAVE_GENERIC_HARDWARE
 #define DISPLAY_DEV "/dev/null"
 #endif
-
+#ifdef BOXMODEL_SPARK7162
+#include <zapit/zapit.h>
+#include <system/helpers.h>
+static bool usb_icon = false;
+#endif
 static char volume = 0;
 //static char percent = 0;
 static bool power = true;
@@ -313,9 +317,15 @@ void CLCD::showTime(bool force)
 	blink = !blink;
 	if (led_g)
 		green = blink;
-
+#ifdef BOXMODEL_SPARK7162
+	if (led_r)
+		SetIcons(SPARK_REC1, red);
+	if (led_g)
+		SetIcons(SPARK_PLAY, green);
+#else
 	if (led_r || led_g)
 		setled(red, green);
+#endif
 }
 
 void CLCD::showRCLock(int)
@@ -338,10 +348,17 @@ void CLCD::showVolume(const char vol, const bool update)
 		volume = 100;
 
 	if (muted)
+	{
+#ifdef BOXMODEL_SPARK7162
+		SetIcons(SPARK_MUTE, 1);
+#endif
 		strcpy(s, mutestr[type]);
-	else
+	}else{
+#ifdef BOXMODEL_SPARK7162
+		SetIcons(SPARK_MUTE, 0);
+#endif
 		sprintf(s, vol_fmt[type], volume);
-
+	}
 	display(s);
 	vol_active = true;
 }
@@ -382,7 +399,11 @@ void CLCD::setMode(const MODES m, const char * const)
 
 	switch (m) {
 	case MODE_TVRADIO:
+#ifdef BOXMODEL_SPARK7162
+		SetIcons(SPARK_CYCLE, 0);
+#else
 		setled(0, 0);
+#endif
 		showclock = true;
 		power = true;
 		if (g_info.hw_caps->display_type != HW_DISPLAY_LED_NUM) {
@@ -397,7 +418,11 @@ void CLCD::setMode(const MODES m, const char * const)
 		Clear();
 		break;
 	case MODE_STANDBY:
+#ifdef BOXMODEL_SPARK7162
+		SetIcons(SPARK_CYCLE, 1);
+#else
 		setled(0, 1);
+#endif
 		showclock = true;
 		showTime(true);
 		break;
@@ -476,6 +501,9 @@ void CLCD::Clear()
 	if(ret < 0)
 		perror("[neutrino] spark_led Clear() VFDDISPLAYCLR");
 	close(fd);
+#ifdef BOXMODEL_SPARK7162
+	SetIcons(SPARK_ALL, false);
+#endif
 	servicename.clear();
 printf("spark_led:%s\n", __func__);
 }
@@ -486,18 +514,129 @@ void CLCD::Clear()
 }
 #endif
 
+#ifdef BOXMODEL_SPARK7162
+void CLCD::SetIcons(int icon, bool on)
+{
+	struct aotom_ioctl_data d;
+	d.u.icon.icon_nr = icon;
+	if (on == true)
+		d.u.icon.on = 1;
+	else
+		d.u.icon.on = 0;
+	int fd = dev_open();
+	if (fd < 0)
+		return;
+	if (ioctl(fd, VFDICONDISPLAYONOFF, &d) <0)
+		perror("[neutrino] SetIcons() VFDICONDISPLAYONOFF");
+	close(fd);
+}
+void CLCD::ShowDiskLevel()
+{
+	int hdd_icons[9] ={24, 23, 21, 20, 19, 18, 17, 16, 22};
+	int percent, digits, i, j;
+	long t, u;
+	if (get_fs_usage(g_settings.network_nfs_recordingdir, t, u))
+	{
+		SetIcons(SPARK_HDD, true);
+		percent = (u * 1000ULL) / t + 60; 
+		digits = percent / 125;
+		if (percent > 1050)
+			digits = 9;
+		//printf("HDD Fuell = %d Digits = %d\n", percent, digits);
+		if (digits > 0)
+		{
+			for (i=0; i<digits; i++)
+				SetIcons(hdd_icons[i], true);
+						
+			for (j=i; j < 9; j++)
+				SetIcons(hdd_icons[j], false);
+		}
+	}
+	else
+	{
+		SetIcons(SPARK_HDD, false);
+
+	}
+}
+void CLCD::UpdateIcons()
+{
+	int tp = -1;
+	tp = CFEManager::getInstance()->getLiveFE()->getInfo()->type;	
+	//printf("Frontend Type= %d\n", tp);
+	SetIcons(SPARK_SAT, tp == 0);
+	SetIcons(SPARK_CAB, tp == 1);
+	SetIcons(SPARK_TER, tp == 2);
+
+	ShowDiskLevel();
+	SetIcons(SPARK_USB, usb_icon);
+
+	CZapitChannel * chan = CZapit::getInstance()->GetCurrentChannel();
+	if (chan)
+	{
+		ShowIcon(VFD_ICON_HD,chan->isHD());
+		ShowIcon(VFD_ICON_LOCK,!chan->camap.empty());
+		if (chan->getAudioChannel() != NULL)
+		{
+			ShowIcon(VFD_ICON_DD, chan->getAudioChannel()->audioChannelType == CZapitAudioChannel::AC3);
+			SetIcons(SPARK_MP3, chan->getAudioChannel()->audioChannelType == CZapitAudioChannel::MPEG);
+		}
+	}
+}
+#endif
 void CLCD::ShowIcon(vfd_icon i, bool on)
 {
 	switch (i)
 	{
 		case VFD_ICON_CAM1:
 			led_r = on;
+#ifdef BOXMODEL_SPARK7162
+			SetIcons(SPARK_REC1, on);
+#else
 			setled(led_r, -1); /* switch instant on / switch off if disabling */
+#endif
 			break;
 		case VFD_ICON_PLAY:
 			led_g = on;
+#ifdef BOXMODEL_SPARK7162
+			SetIcons(SPARK_PLAY, on);
+#else
 			setled(-1, led_g);
+#endif
 			break;
+#ifdef BOXMODEL_SPARK7162
+		case VFD_ICON_USB:
+			usb_icon = on;
+			SetIcons(SPARK_USB, on);
+			break;
+		case VFD_ICON_HDD:
+			SetIcons(SPARK_HDD, on);
+			break;
+		case VFD_ICON_PAUSE:
+			SetIcons(SPARK_PAUSE, on);
+			break;
+		case VFD_ICON_FF:
+			SetIcons(SPARK_PLAY_FASTFORWARD, on);
+			break;
+		case VFD_ICON_FR:
+			SetIcons(SPARK_PLAY_FASTBACKWARD, on);
+			break;
+		case VFD_ICON_DD:
+			SetIcons(SPARK_DD, on);
+			SetIcons(SPARK_AC3, on);
+			break;
+		case VFD_ICON_LOCK:
+			SetIcons(SPARK_CA, on);
+			break;
+		case VFD_ICON_RADIO:
+			SetIcons(SPARK_AUDIO, on);
+			break;
+		case VFD_ICON_TV:
+			SetIcons(SPARK_TVMODE_LOG, on);
+			break;
+		case VFD_ICON_HD:
+			SetIcons(SPARK_DOUBLESCREEN, on);
+			break;
+#endif
 		default:
 			break;
 	}

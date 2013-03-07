@@ -333,7 +333,7 @@ int CNeutrinoApp::loadSetup(const char * fname)
 		checkParentallocked.close();
 	}
 	// video
-#if HAVE_TRIPLEDRAGON
+#if HAVE_TRIPLEDRAGON || BOXMODEL_SPARK7162
 	int vid_Mode_default = VIDEO_STD_PAL;
 #else
 	int vid_Mode_default = VIDEO_STD_720P50;
@@ -732,7 +732,7 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	g_settings.screenshot_video = configfile.getInt32( "screenshot_video",  1);
 	g_settings.screenshot_scale = configfile.getInt32( "screenshot_scale",  0);
 
-#if HAVE_DUCKBOX_HARDWARE
+#if HAVE_DUCKBOX_HARDWARE || BOXMODEL_SPARK7162
 	g_settings.screenshot_dir = configfile.getString( "screenshot_dir", g_settings.network_nfs_picturedir );
 #else
 	g_settings.screenshot_dir = configfile.getString( "screenshot_dir", "/media/sda1/movies" );
@@ -2327,7 +2327,7 @@ void CNeutrinoApp::RealRun(CMenuWidget &mainMenu)
 						g_volume->AudioMute(current_muted, true);
 					if(g_settings.mode_clock)
 						InfoClock->StartClock();
-#if HAVE_DUCKBOX_HARDWARE
+#if HAVE_DUCKBOX_HARDWARE || BOXMODEL_SPARK7162
 					CVFD::getInstance()->UpdateIcons();
 #endif
 					StartSubtitles();
@@ -2441,7 +2441,7 @@ void CNeutrinoApp::RealRun(CMenuWidget &mainMenu)
 				{
 					StopSubtitles();
 					usermenu.showUserMenu(SNeutrinoSettings::BUTTON_GREEN);
-#if HAVE_DUCKBOX_HARDWARE
+#if HAVE_DUCKBOX_HARDWARE || BOXMODEL_SPARK7162
 					CVFD::getInstance()->UpdateIcons();
 #endif
 					StartSubtitles();
@@ -2508,7 +2508,7 @@ void CNeutrinoApp::RealRun(CMenuWidget &mainMenu)
 					CMediaPlayerMenu::getInstance()->exec(NULL, "inetplayer");
 					break;
 				}
-#if HAVE_DUCKBOX_HARDWARE
+#if HAVE_DUCKBOX_HARDWARE || BOXMODEL_SPARK7162
 				CVFD::getInstance()->UpdateIcons();
 #endif
 			}
@@ -2580,7 +2580,7 @@ int CNeutrinoApp::handleMsg(const neutrino_msg_t _msg, neutrino_msg_data_t data)
 #if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
 		threeDSetup->exec(NULL, "zapped");
 #endif
-#if HAVE_DUCKBOX_HARDWARE
+#if HAVE_DUCKBOX_HARDWARE || BOXMODEL_SPARK7162
 		CVFD::getInstance()->UpdateIcons();
 #endif
 #ifdef ENABLE_GRAPHLCD
