@@ -2520,8 +2520,9 @@ bool CMovieBrowser::loadTsFileNamesFromDir(const std::string & dirname)
 					    (strcasecmp("mp4", extension.c_str()) == 0) ||
 					    (strcasecmp("mov", extension.c_str()) == 0) ||
 					    (strcasecmp("m3u", extension.c_str()) == 0) ||
-					    (strcasecmp("pls", extension.c_str()) == 0) ||
+					    (strcasecmp("pls", extension.c_str()) == 0)
 #if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+					    || (strcasecmp("trp", extension.c_str()) == 0) ||
 					    (strcasecmp("vdr", extension.c_str()) == 0) ||
 					    (strcasecmp("mp3", extension.c_str()) == 0) ||
 					    (strcasecmp("flv", extension.c_str()) == 0) ||

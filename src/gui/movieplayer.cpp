@@ -127,6 +127,7 @@ void CMoviePlayerGui::Init(void)
 	tsfilefilter.addFilter("m3u");
 	tsfilefilter.addFilter("pls");
 #if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+	tsfilefilter.addFilter("trp");
 	tsfilefilter.addFilter("vdr");
 	tsfilefilter.addFilter("mp3");
 	tsfilefilter.addFilter("flv");
