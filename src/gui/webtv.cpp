@@ -28,6 +28,7 @@
 #include <libgen.h>
 #include <neutrino.h>
 #include <driver/screen_max.h>
+#include <ctype.h>
 #include "movieplayer.h"
 #include "webtv.h"
 
@@ -48,16 +49,40 @@ int CWebTV::exec(CMenuTarget* parent, const std::string & actionKey)
 {
 	int res = menu_return::RETURN_REPAINT;
 
-	if(actionKey != "") {
+	if(!actionKey.empty()) {
 		if(parent)
 			parent->hide();
-		g_settings.streaming_server_url = actionKey;
+		std::string streaming_server_url = actionKey;
+		std::string streaming_server_name;
+
 		for (std::vector<std::pair<std::string, char*> >::iterator i = channels.begin(); i != channels.end(); i++) {
-			if (i->second == g_settings.streaming_server_url) {
-				g_settings.streaming_server_name = i->first;
+			if (i->second == streaming_server_url) {
+				streaming_server_name = i->first;
 				break;
 			}
 		}
+
+		if (g_settings.parentallock_prompt != PARENTALLOCK_PROMPT_NEVER) {
+			int age = -1;
+			const char *ages[] = { "18+", "16+", "12+", "6+", "0+", NULL };
+			int agen[] = { 18, 16, 12, 6, 0 };
+			for (int i = 0; ages[i] && age < 0; i++) {
+				const char *n = streaming_server_name.c_str();
+				char *h = (char *) n;
+				while ((age < 0) && (h = strstr(h, ages[i])))
+					if ((h == n) || !isdigit(*(h - 1)))
+						age = agen[i];
+			}
+			if (age > -1 && age >= g_settings.parentallock_lockage) {
+				CZapProtection zapProtection (g_settings.parentallock_pincode, age);
+				if (!zapProtection.check())
+					return res;
+			}
+		}
+
+		g_settings.streaming_server_name = streaming_server_name;
+		g_settings.streaming_server_url = streaming_server_url;
+
 		CMoviePlayerGui::getInstance().exec(NULL, "webtv");
 		return res;
 	}
