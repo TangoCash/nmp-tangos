@@ -636,6 +636,9 @@ void CLCD::ShowIcon(vfd_icon i, bool on)
 		case VFD_ICON_HD:
 			SetIcons(SPARK_DOUBLESCREEN, on);
 			break;
+		case VFD_ICON_CLOCK:
+			SetIcons(SPARK_CLOCK, on);
+			break;
 #endif
 		default:
 			break;
