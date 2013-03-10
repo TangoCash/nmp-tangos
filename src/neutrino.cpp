@@ -2250,6 +2250,21 @@ void CNeutrinoApp::showInfo()
 	StartSubtitles();
 }
 
+#if HAVE_DUCKBOX_HARDWARE || BOXMODEL_SPARK7162
+static void check_timer() {
+	CTimerd::TimerList tmpTimerList;
+	CTimerdClient tmpTimerdClient;
+	tmpTimerList.clear();
+	tmpTimerdClient.getTimerList(tmpTimerList);
+	if(tmpTimerList.size() > 0) {
+		CVFD::getInstance()->ShowIcon(VFD_ICON_CLOCK, true);
+	} else {
+		CVFD::getInstance()->ShowIcon(VFD_ICON_CLOCK, false);
+	}
+	tmpTimerList.clear();
+}
+#endif
+
 void CNeutrinoApp::RealRun(CMenuWidget &mainMenu)
 {
 	neutrino_msg_t      msg;
@@ -2274,6 +2289,9 @@ void CNeutrinoApp::RealRun(CMenuWidget &mainMenu)
 	while( true ) {
 		g_RCInput->getMsg(&msg, &data, 100, ((g_settings.mode_left_right_key_tv == SNeutrinoSettings::VOLUME) && (g_RemoteControl->subChannels.size() < 1)) ? true : false);	// 10 secs..
 
+#if HAVE_DUCKBOX_HARDWARE || BOXMODEL_SPARK7162
+		check_timer();
+#endif
 		if( ( mode == mode_tv ) || ( ( mode == mode_radio ) ) ) {
 			if( (msg == NeutrinoMessages::SHOW_EPG) /* || (msg == CRCInput::RC_info) */ ) {
 				StopSubtitles();
