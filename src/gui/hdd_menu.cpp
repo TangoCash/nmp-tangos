@@ -562,7 +562,11 @@ int CHDDFmtExec::exec(CMenuTarget* /*parent*/, const std::string& key)
 
 	switch(g_settings.hdd_fs) {
 		case 0:
+#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+			snprintf(cmd, sizeof(cmd), "/sbin/mkfs.ext3 -L RECORD -T largefile -j -m0 %s", src);
+#else
 			snprintf(cmd, sizeof(cmd), "/sbin/mkfs.ext3 -T largefile -m0 %s", src);
+#endif
 			break;
 		case 1:
 			snprintf(cmd, sizeof(cmd), "/sbin/mkreiserfs -f -f %s", src);
