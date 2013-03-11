@@ -49,6 +49,7 @@
 #include <zapit/zapit.h>
 #include <system/helpers.h>
 static bool usb_icon = false;
+static bool timer_icon = false;
 #endif
 static char volume = 0;
 //static char percent = 0;
@@ -503,6 +504,7 @@ void CLCD::Clear()
 	close(fd);
 #ifdef BOXMODEL_SPARK7162
 	SetIcons(SPARK_ALL, false);
+	SetIcons(SPARK_CLOCK, timer_icon);
 #endif
 	servicename.clear();
 printf("spark_led:%s\n", __func__);
@@ -637,6 +639,7 @@ void CLCD::ShowIcon(vfd_icon i, bool on)
 			SetIcons(SPARK_DOUBLESCREEN, on);
 			break;
 		case VFD_ICON_CLOCK:
+			timer_icon = on;
 			SetIcons(SPARK_CLOCK, on);
 			break;
 #endif
