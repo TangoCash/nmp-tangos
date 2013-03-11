@@ -114,7 +114,7 @@ class CRecordInstance
 		record_error_msg_t MakeFileName(CZapitChannel * channel);
 		bool SaveXml();
 		record_error_msg_t Start(CZapitChannel * channel);
-		void WaitRecMsg(time_t StartTime, time_t WaitTime);
+		//void WaitRecMsg(time_t StartTime, time_t WaitTime);
 	public:
 		CRecordInstance(const CTimerd::RecordingInfo * const eventinfo, std::string &dir, bool timeshift = false, bool stream_vtxt_pid = false, bool stream_pmt_pid = false);
 		~CRecordInstance();
