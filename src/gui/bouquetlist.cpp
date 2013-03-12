@@ -62,6 +62,7 @@ CBouquetList::CBouquetList(const char * const Name)
 	frameBuffer = CFrameBuffer::getInstance();
 	selected    = 0;
 	liststart   = 0;
+	favonly     = false;
 	if(Name == NULL)
 		name = g_Locale->getText(LOCALE_BOUQUETLIST_HEAD);
 	else
@@ -88,7 +89,7 @@ CBouquet* CBouquetList::addBouquet(CZapitBouquet * zapitBouquet)
 	else
 		bname = zapitBouquet->Name.c_str();
 
-	CBouquet* tmp = new CBouquet(BouquetKey, bname, zapitBouquet->bLocked);
+	CBouquet* tmp = new CBouquet(BouquetKey, bname, zapitBouquet->bLocked, !zapitBouquet->bUser);
 	tmp->zapitBouquet = zapitBouquet;
 	Bouquets.push_back(tmp);
 	return tmp;
@@ -325,10 +326,11 @@ int CBouquetList::show(bool bShowChannelList)
 	int icol_w, icol_h;
 	int w_max_text = 0;
 	int w_max_icon = 0;
+	favonly = !bShowChannelList;
 
 	for(unsigned int count = 0; count < sizeof(CBouquetListButtons)/sizeof(CBouquetListButtons[0]);count++){
 		int w_text = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->getRenderWidth(g_Locale->getText (CBouquetListButtons[count].locale),true);
-		w_max_text = std::max(w_max_icon, w_text);
+		w_max_text = std::max(w_max_text, w_text);
 		frameBuffer->getIconSize(CBouquetListButtons[count].button, &icol_w, &icol_h);
 		w_max_icon = std::max(w_max_icon, icol_w);
 	}
@@ -599,7 +601,10 @@ void CBouquetList::paint()
 
 	frameBuffer->paintBoxRel(x, y+theight, width, height - theight - footerHeight, COL_MENUCONTENT_PLUS_0);
 
-	::paintButtons(x, y + (height - footerHeight), width, sizeof(CBouquetListButtons)/sizeof(CBouquetListButtons[0]), CBouquetListButtons, width, footerHeight);
+	int numbuttons = sizeof(CBouquetListButtons)/sizeof(CBouquetListButtons[0]);
+	if (favonly) /* this actually shows favorites and providers button, but both are active anyway */
+		numbuttons = 2;
+	::paintButtons(x, y + (height - footerHeight), width, numbuttons, CBouquetListButtons, width, footerHeight);
 
 	if(!Bouquets.empty())
 	{

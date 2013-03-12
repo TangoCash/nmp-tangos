@@ -474,6 +474,7 @@ void CInfoViewer::show_current_next(bool new_chan, int  epgpos)
 				break;
 			}
 		}
+
 		neutrino_locale_t loc;
 		if (! gotTime)
 			loc = LOCALE_INFOVIEWER_WAITTIME;
@@ -1459,76 +1460,63 @@ void CInfoViewer::display_Info(const char *current, const char *next,
 	if (starttimes)
 		xStart += info_time_width + 10;
 
-	if (g_settings.dotmatrix == 1)
+	int pb_h = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->getHeight() - 4;
+	switch(g_settings.infobar_progressbar)
 	{
-		//colored_events init
-		int pb_h = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->getHeight() - 4;
+		case 1:
+		case 2:
+			CurrInfoY += (pb_h/3);
+			NextInfoY += (pb_h/3);
+		break;
+		case 3:
+			CurrInfoY -= (pb_h/3);
+			NextInfoY += (pb_h/3);
+		break;
+		default:
+		break;
+	}
+
+	if (pb_pos > -1)
+	{
+		int pb_w = 112;
+		int pb_startx = BoxEndX - pb_w - SHADOW_OFFSET;
+		int pb_starty = ChanNameY - (pb_h + 10);
+		int pb_shadow = COL_INFOBAR_SHADOW_PLUS_0;
+		int pb_color = g_settings.progressbar_color ? COL_INFOBAR_SHADOW_PLUS_0 : COL_INFOBAR_PLUS_0;
+		if(g_settings.infobar_progressbar){
+			pb_startx = xStart;
+			pb_w = BoxEndX - 10 - xStart;
+			pb_shadow = 0;
+		}
 		switch(g_settings.infobar_progressbar)
 		{
 			case 1:
+
+				pb_starty = CurrInfoY - ((pb_h * 2) + (pb_h / 6)) ;
+				pb_h = (pb_h/3);
+				pb_color = 0;
+			break;
 			case 2:
-				CurrInfoY += (pb_h/3);
-				NextInfoY += (pb_h/3);
+				pb_starty = CurrInfoY - ((pb_h * 2) + (pb_h / 5)) ;
+				pb_h = (pb_h/5);
+				pb_color = 0;
 			break;
 			case 3:
-				CurrInfoY -= (pb_h/3);
-				NextInfoY += (pb_h/3);
+				pb_starty = CurrInfoY + ((pb_h / 3)-(pb_h/5)) ;
+				pb_h = (pb_h/5);
 			break;
 			default:
 			break;
 		}
 
-		if (pb_pos > -1)
-		{
-			int pb_w = 112;
-			int pb_startx = BoxEndX - pb_w - SHADOW_OFFSET;
-			int pb_starty = ChanNameY - (pb_h + 10);
-			int pb_shadow = COL_INFOBAR_SHADOW_PLUS_0;
-			int pb_color = g_settings.progressbar_color ? COL_INFOBAR_SHADOW_PLUS_0 : COL_INFOBAR_PLUS_0;
-			if(g_settings.infobar_progressbar){
-				pb_startx = xStart;
-				pb_w = BoxEndX - 10 - xStart;
-				pb_shadow = 0;
-			}
-			switch(g_settings.infobar_progressbar)
-			{
-				case 1:
+		int pb_p = pb_pos * pb_w / 100;
+		if (pb_p > pb_w)
+			pb_p = pb_w;
 
-					pb_starty = CurrInfoY - ((pb_h * 2) + (pb_h / 6)) ;
-					pb_h = (pb_h/3);
-					pb_color = COL_INFOBAR_SHADOW_PLUS_0;
-				break;
-				case 2:
-					pb_starty = CurrInfoY - ((pb_h * 2) + (pb_h / 5)) ;
-					pb_h = (pb_h/5);
-					pb_color = COL_INFOBAR_SHADOW_PLUS_0;
-				break;
-				case 3:
-					pb_starty = CurrInfoY + ((pb_h / 3)-(pb_h/5)) ;
-					pb_h = (pb_h/5);
-				break;
-				default:
-				break;
-			}
-			int pb_p = pb_pos * pb_w / 100;
-			if (pb_p > pb_w)
-				pb_p = pb_w;
-			timescale->paintProgressBar(pb_startx, pb_starty, pb_w, pb_h, pb_p, pb_w,
+		timescale->paintProgressBar(pb_startx, pb_starty, pb_w, pb_h, pb_p, pb_w,
 					    0, 0, pb_color, pb_shadow, "", COL_INFOBAR);
-			//printf("paintProgressBar(%d, %d, %d, %d)\n", BoxEndX - pb_w - SHADOW_OFFSET, ChanNameY - (pb_h + 10) , pb_w, pb_h);
-		}
+		//printf("paintProgressBar(%d, %d, %d, %d)\n", BoxEndX - pb_w - SHADOW_OFFSET, ChanNameY - (pb_h + 10) , pb_w, pb_h);
 	}
-	else
-	{
-		NextInfoY += 8;
-		int length = BoxEndX - 10 - xStart;
-		int runninglength = (BoxEndX - 10 - xStart) * pb_pos / 100;
-		if ((pb_pos <= 0) || (pb_pos > 100)) runninglength = 0;
-		frameBuffer->paintBoxRel (xStart, CurrInfoY, length, 8, COL_INFOBAR_PLUS_0);
-		frameBuffer->paintBoxRel (xStart, CurrInfoY, length, 5, COL_INFOBAR_SHADOW_PLUS_1);
-		frameBuffer->paintBoxRel (xStart, CurrInfoY, runninglength, 5, COL_MENUCONTENT_PLUS_6);
-	}
-
 
 	int currTimeW = 0;
 	int nextTimeW = 0;
@@ -1539,6 +1527,8 @@ void CInfoViewer::display_Info(const char *current, const char *next,
 	int currTimeX = BoxEndX - currTimeW - 10;
 	int nextTimeX = BoxEndX - nextTimeW - 10;
 	static int oldCurrTimeX = currTimeX; // remember the last pos. of remaining time, in case we change from 20/100min to 21/99min
+
+	//colored_events init
 	bool colored_event_C = false;
 	bool colored_event_N = false;
 	if (g_settings.colored_events_infobar == 1)

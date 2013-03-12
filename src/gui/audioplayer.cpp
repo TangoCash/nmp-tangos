@@ -331,7 +331,7 @@ int CAudioPlayerGui::exec(CMenuTarget* parent, const std::string &actionKey)
 
 	puts("[audioplayer.cpp] executing " AUDIOPLAYER_START_SCRIPT ".");
 	if (my_system(AUDIOPLAYER_START_SCRIPT) != 0)
-		perror("Datei " AUDIOPLAYER_START_SCRIPT " fehlt.Bitte erstellen, wenn gebraucht.\nFile " AUDIOPLAYER_START_SCRIPT " not found. Please create if needed.\n");
+		perror(AUDIOPLAYER_START_SCRIPT " failed");
 
 	int res = show();
 
@@ -343,7 +343,7 @@ int CAudioPlayerGui::exec(CMenuTarget* parent, const std::string &actionKey)
 
 	puts("[audioplayer.cpp] executing " AUDIOPLAYER_END_SCRIPT ".");
 	if (my_system(AUDIOPLAYER_END_SCRIPT) != 0)
-		perror("Datei " AUDIOPLAYER_END_SCRIPT " fehlt. Bitte erstellen, wenn gebraucht.\nFile " AUDIOPLAYER_END_SCRIPT " not found. Please create if needed.\n");
+		perror(AUDIOPLAYER_END_SCRIPT " failed");
 
 	g_Zapit->unlockPlayBack();
 	// Start Sectionsd
@@ -421,7 +421,7 @@ int CAudioPlayerGui::show()
 			if (m_screensaver)
 			{
 				screensaver(false);
-				if (msg < CRCInput::RC_MaxRC) {
+				if (msg <= CRCInput::RC_MaxRC) {
 					// ignore first keypress - just quit the screensaver
 					g_RCInput->clearRCMsg();
 					continue;

@@ -1,5 +1,6 @@
 /*
  * (C) 2008 by dbt <info@dbox2-tuning.de>
+ * (C) 2009-2010, 2012-2013 Stefan Seyfried
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -55,7 +56,7 @@ CProgressBar::~CProgressBar()
 {
 }
 
-inline unsigned int make16color(__u32 rgb)
+static inline unsigned int make16color(__u32 rgb)
 {
         return 0xFF000000 | rgb;
 }
@@ -161,11 +162,11 @@ void CProgressBar::realpaint(const int pos_x, const int pos_y,
 	// max height progressbar bar, if icon height larger than pb_height then get height from icon
 	int pb_max_height = icon_h > height ? icon_h + 2* frame_widht : height;
 
-	// max height of active/passive bar
-	int bar_height = pb_max_height - 2*frame_widht;
-
 	if (!blink || !g_settings.progressbar_color)
 	{
+		// max height of active/passive bar
+		int bar_height = pb_max_height - 2*frame_widht;
+
 		int start_x_passive_bar = start_x + active_pb_width;
 		int width_passive_bar = pb_max_width - active_pb_width;
 
@@ -190,19 +191,38 @@ void CProgressBar::realpaint(const int pos_x, const int pos_y,
 	}
 	else
 	{
+		int itemw = ITEMW, itemh = ITEMW, pointx = POINT, pointy = POINT;
+		switch ((pb_color_t)g_settings.progressbar_color)
+		{
+			default:
+			case PB_MATRIX: /* matrix */
+				break;
+			case PB_LINES_V: /* vert. lines */
+				itemh = height;
+				pointy = height;
+				break;
+			case PB_LINES_H: /* horiz. lines */
+				itemw = POINT;
+				break;
+			case PB_COLOR: /* filled color */
+				itemw = POINT;
+				itemh = height;
+				pointy = height;
+				break;
+		}
+		const int spc = itemh - pointy;			/* space between horizontal lines / points */
+		int hcnt = (height + spc) / itemh;		/* how many POINTs is the bar high */
+		int yoff = (height + spc - itemh * hcnt) / 2;
 		/* red, yellow, green are given in percent */
-		int rd = red * width / (100 * ITEMW);		/* how many POINTs red */
-		int yw = yellow * width / (100 * ITEMW);	/* how many POINTs yellow */
-		int gn = green * width / (100 * ITEMW);		/* how many POINTs green */
 
-		int hcnt = height / ITEMW;		/* how many POINTs is the bar high */
-		int maxi = active_pb_width / ITEMW;	/* how many POINTs is the active bar */
-		int total = width / ITEMW;		/* total number of POINTs */
+		int rd = red * width / (100 * itemw);		/* how many POINTs red */
+		int yw = yellow * width / (100 * itemw);	/* how many POINTs yellow */
+		int gn = green * width / (100 * itemw);		/* how many POINTs green */
 
-		int i, j;
+		int maxi = active_pb_width / itemw;	/* how many POINTs is the active bar */
+		int total = width / itemw;		/* total number of POINTs */
 		uint32_t rgb;
 		fb_pixel_t color;
-		int b = 0;
 
 		if (last_width == -1 && backgroundbar_col != 0) /* first paint */
 		{
@@ -213,67 +233,58 @@ void CProgressBar::realpaint(const int pos_x, const int pos_y,
 		}
 
 		if (active_pb_width != last_width) {
-			int step;
+			int i, j;
+			const int py = pos_y + yoff;
 			if (active_pb_width > last_width) {
+				int step, off;
+				int b = 0;
+				uint8_t diff = 0;
 				for (i = 0; (i < rd) && (i < maxi); i++) {
-					step = 255 / rd;
+					diff = i * 255 / rd;
 					if (invert)
-						rgb = GREEN + ((unsigned char)(step * i) << 16); // adding red
+						rgb = GREEN + (diff << 16); // adding red
 					else
-						rgb = RED + ((unsigned char)(step * i) << 8); // adding green
+						rgb = RED + (diff << 8); // adding green
 					color = make16color(rgb);
-					if (g_settings.dotmatrix)
-					{
-					for(j = 0; j <= hcnt; j++)
-						frameBuffer->paintBoxRel(pos_x + i * ITEMW, pos_y + j * ITEMW,
-									 POINT, POINT, color);
-					}
-					else
-						frameBuffer->paintBoxRel(pos_x + i * ITEMW, start_y, POINT, bar_height, color);
+					for (j = 0; j < hcnt; j++)
+						frameBuffer->paintBoxRel(pos_x + i * itemw, py + j * itemh,
+									 pointx, pointy, color);
 				}
+				step = yw - rd - 1;
+				if (step < 1)
+					step = 1;
 				for (; (i < yw) && (i < maxi); i++) {
-					step = 255 / yw / 2;
+					diff = b++ * 255 / step / 2;
 					if (invert)
-						rgb = YELLOW - ((unsigned char)(step * (b++)) << 8); // removing green
+						rgb = YELLOW - (diff << 8); // removing green
 					else
-						rgb = YELLOW - ((unsigned char)(step * (b++)) << 16); // removing red
+						rgb = YELLOW - (diff << 16); // removing red
 					color = make16color(rgb);
-					if (g_settings.dotmatrix)
-					{
-					for(j = 0; j <= hcnt; j++)
-						frameBuffer->paintBoxRel(pos_x + i * ITEMW, pos_y + j * ITEMW,
-									 POINT, POINT, color);
-					}
-					else
-						frameBuffer->paintBoxRel(pos_x + i * ITEMW, start_y, POINT, bar_height, color);
+					for (j = 0; j < hcnt; j++)
+						frameBuffer->paintBoxRel(pos_x + i * itemw, py + j * itemh,
+									 pointx, pointy, color);
 				}
+				off = diff;
+				b = 0;
+				step = gn - yw - 1;
+				if (step < 1)
+					step = 1;
 				for (; (i < gn) && (i < maxi); i++) {
-					step = 255 / gn;
+					diff = b++ * 255 / step / 2 + off;
 					if (invert)
-						rgb = YELLOW - ((unsigned char) (step * (b++)) << 8); // removing green
+						rgb = YELLOW - (diff << 8); // removing green
 					else
-						rgb = YELLOW - ((unsigned char) (step * (b++)) << 16); // removing red
+						rgb = YELLOW - (diff << 16); // removing red
 					color = make16color(rgb);
-					if (g_settings.dotmatrix)
-					{
-					for(j = 0; j <= hcnt; j++)
-						frameBuffer->paintBoxRel(pos_x + i * ITEMW, pos_y + j * ITEMW,
-									 POINT, POINT, color);
-					}
-					else
-						frameBuffer->paintBoxRel(pos_x + i * ITEMW, start_y, POINT, bar_height, color);
+					for (j = 0; j < hcnt; j++)
+						frameBuffer->paintBoxRel(pos_x + i * itemw, py + j * itemh,
+									 pointx, pointy, color);
 				}
 			}
 			for(i = maxi; i < total; i++) {
-				if (g_settings.dotmatrix)
-				{
-				for(j = 0; j <= hcnt; j++)
-					frameBuffer->paintBoxRel(pos_x + i * ITEMW, pos_y + j * ITEMW,
-								 POINT, POINT, COL_INFOBAR_PLUS_3);//fill passive
-				}
-				else
-					frameBuffer->paintBoxRel(pos_x + i * ITEMW, start_y, POINT, bar_height, COL_INFOBAR_PLUS_3);//fill passive
-
+				for (j = 0; j < hcnt; j++)
+					frameBuffer->paintBoxRel(pos_x + i * itemw, py + j * itemh,
+								 pointx, pointy, COL_INFOBAR_PLUS_3);//fill passive
 			}
 			last_width = active_pb_width;
 		}

@@ -21,6 +21,8 @@
 
 #define PAL	0
 #define NTSC	1
+#define AUDIO_CONFIG_FILE	CONFIGDIR "/zapit/audio.conf"
+#define VOLUME_CONFIG_FILE	CONFIGDIR "/zapit/volume.conf"
 
 typedef std::map<t_channel_id, audio_map_set_t> audio_map_t;
 typedef audio_map_t::iterator audio_map_iterator_t;
@@ -42,7 +44,7 @@ typedef struct ZAPIT_start_arg
         t_channel_id startchannelradio_id;
         int uselastchannel;
         int video_mode;
-		int volume;
+	int volume;
         int ci_clock;
 } Z_start_arg;
 

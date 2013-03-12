@@ -806,7 +806,8 @@ bool CMovieBrowser::saveSettings(MB_SETTINGS* settings)
 		configfile.setInt32(cfg_key, settings->browserRowWidth[i]);
 	}
 
-	configfile.saveConfig(MOVIEBROWSER_SETTINGS_FILE);
+	if (configfile.getModifiedFlag())
+		configfile.saveConfig(MOVIEBROWSER_SETTINGS_FILE);
 	return (result);
 }
 
@@ -2068,7 +2069,7 @@ bool CMovieBrowser::onButtonPressMovieInfoList(neutrino_msg_t msg)
 void CMovieBrowser::onDeleteFile(MI_MOVIE_INFO& movieSelectionHandler, bool skipAsk)
 {
 	//TRACE( "[onDeleteFile] ");
-	int test= movieSelectionHandler.file.Name.find(".ts");
+	int test= movieSelectionHandler.file.Name.find(".ts", movieSelectionHandler.file.Name.length()-3);
 	if(test == -1)
 	{
 		// not a TS file, return!!!!!
@@ -2492,8 +2493,6 @@ bool CMovieBrowser::loadTsFileNamesFromDir(const std::string & dirname)
 			else
 			{
 //				int test=flist[i].getFileName().find(".ts");
-
-				// dirty way to use filter ;-8
 				int test = -1;
 				int ext_pos = 0;
 				ext_pos = flist[i].getFileName().rfind('.');
@@ -2531,7 +2530,6 @@ bool CMovieBrowser::loadTsFileNamesFromDir(const std::string & dirname)
 					   )
 					    test = 0;
 				}
-
 				if( test == -1)
 				{
 					//TRACE("[mb] other file: '%s'\r\n",movieInfo.file.Name.c_str());
@@ -4120,7 +4118,7 @@ printf("\n");
 		}
 	}
 	snprintf(npart, sizeof(npart), "%s", name);
-	char * ptr = strstr(npart, ".ts");
+	char * ptr = strstr(npart+strlen(npart)-3, ".ts");
 	if(ptr)
 		*ptr = 0;
 	find_new_part(npart, dpart, sizeof(dpart) );
@@ -4332,7 +4330,7 @@ printf("copy: jump bookmark %d at %" PRId64 " len %" PRId64 "\n", bcount, books[
 tt = time(0);
 printf("********* %d boormarks, to %s file(s), expected size to copy %" PRId64 ", start time %s", bcount, onefile ? "one" : "many", newsize, ctime (&tt));
 	snprintf(npart, sizeof(npart), "%s", name);
-	char * ptr = strstr(npart, ".ts");
+	char * ptr = strstr(npart+strlen(npart)-3, ".ts");
 	if(ptr)
 		*ptr = 0;
 	snprintf(spart, sizeof(spart), "%s", name);
