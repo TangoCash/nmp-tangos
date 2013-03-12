@@ -453,10 +453,18 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	} else if (tmp.compare("true") == 0)
 		g_settings.progressbar_color = 1;
 	else	/* the config file already contains an int or nothing at all */
+#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+		g_settings.progressbar_color = configfile.getInt32("progressbar_color", 2);
+#else
 		g_settings.progressbar_color = configfile.getInt32("progressbar_color", 1);
+#endif
 	g_settings.infobar_show  = configfile.getInt32("infobar_show", 1);
 	g_settings.infobar_show_channellogo   = configfile.getInt32("infobar_show_channellogo"  , 3 );
+#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+	g_settings.infobar_progressbar   = configfile.getInt32("infobar_progressbar"  , 3 );
+#else
 	g_settings.infobar_progressbar   = configfile.getInt32("infobar_progressbar"  , 0 );
+#endif
 	g_settings.casystem_display = configfile.getInt32("casystem_display", 2 );//mini ca mode default
 	g_settings.dotmatrix = configfile.getInt32("infobar_dotmatrix", 0 );//default off
 	g_settings.scrambled_message = configfile.getBool("scrambled_message", false );
