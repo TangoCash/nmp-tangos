@@ -454,7 +454,7 @@ int CNeutrinoApp::loadSetup(const char * fname)
 		g_settings.progressbar_color = 1;
 	else	/* the config file already contains an int or nothing at all */
 #if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
-		g_settings.progressbar_color = configfile.getInt32("progressbar_color", 2);
+		g_settings.progressbar_color = configfile.getInt32("progressbar_color", 3);
 #else
 		g_settings.progressbar_color = configfile.getInt32("progressbar_color", 1);
 #endif
