@@ -40,6 +40,7 @@
 #include <driver/screenshot.h>
 #include <driver/volume.h>
 #include <system/helpers.h>
+#include <system/set_threadname.h>
 #ifdef ENABLE_GRAPHLCD
 #include <driver/nglcd.h>
 #endif
@@ -444,6 +445,24 @@ bool CMoviePlayerGui::SelectFile()
 	return ret;
 }
 
+void *CMoviePlayerGui::ShowWebTVHint(void *arg) {
+	set_threadname(__func__);
+	CMoviePlayerGui *caller = (CMoviePlayerGui *)arg;
+	CHintBox hintbox(LOCALE_WEBTV_HEAD, g_settings.streaming_server_name.c_str());
+	hintbox.paint();
+	while (caller->showWebTVHint) {
+		neutrino_msg_t msg;
+		neutrino_msg_data_t data;
+		g_RCInput->getMsg(&msg, &data, 1);
+		if (msg == (neutrino_msg_t) CRCInput::RC_home) {
+			if(caller->playback)
+				caller->playback->RequestAbort();
+		}
+	}
+	hintbox.hide();
+	return NULL;
+}
+
 void CMoviePlayerGui::PlayFile(void)
 {
 	neutrino_msg_t msg;
@@ -481,7 +500,17 @@ void CMoviePlayerGui::PlayFile(void)
 		nGLCD::lockChannel(p_movie_info->epgChannel, p_movie_info->epgTitle);
 #endif
 #endif
-	if(!playback->Start((char *) full_name.c_str(), vpid, vtype, currentapid, currentac3, duration)) {
+	pthread_t thrWebTVHint = 0;
+	if (isWebTV) {
+		showWebTVHint = true;
+		pthread_create(&thrWebTVHint, NULL, CMoviePlayerGui::ShowWebTVHint, this);
+	}
+	bool res = playback->Start((char *) full_name.c_str(), vpid, vtype, currentapid, currentac3, duration);
+	if (thrWebTVHint) {
+		showWebTVHint = false;
+		pthread_join(thrWebTVHint, NULL);
+	}
+	if (!res) {
 		playback->Close();
 	} else {
 		playstate = CMoviePlayerGui::PLAY;
@@ -869,6 +898,12 @@ void CMoviePlayerGui::callInfoViewer(const int duration, const int curr_pos)
 	}
 
 	/* not moviebrowser => use the filename as title */
+	if (isWebTV && file_name.find_first_of('(')) {
+		std::string description = file_name.substr(file_name.find_first_of('(')+1,file_name.find_last_of(')')-1);
+		std::string name = file_name.substr(0,file_name.find_first_of('('));
+		g_InfoViewer->showMovieTitle(playstate, name, description, "", duration, curr_pos);
+	}
+	else
 	g_InfoViewer->showMovieTitle(playstate, file_name, "", "", duration, curr_pos);
 }
 
