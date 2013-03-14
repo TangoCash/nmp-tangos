@@ -52,7 +52,7 @@ extern int zapit_debug;
 		if (zapit_debug)					\
 			fprintf(stdout, "[%s:%s:%d] " fmt "\n",	\
 				__SHORTFILE__, __FUNCTION__,	\
-				__LINE__ , ## args);		\
+				__LINE__ , ##args);		\
 	} while (0)
 
 #define ERROR(str)						\
@@ -68,14 +68,14 @@ extern int zapit_debug;
 	do {							\
 		fprintf(stdout, "[%s:%s:%d] " fmt "\n",		\
 			__SHORTFILE__, __FUNCTION__,		\
-			__LINE__ , ## args);			\
+			__LINE__ , ##args);			\
 	} while (0)
 
 #define WARN(fmt, args...)					\
 	do {							\
 		fprintf(stderr, "[%s:%s:%d] " fmt "\n",		\
 			__SHORTFILE__, __FUNCTION__,		\
-			__LINE__ , ## args);			\
+			__LINE__ , ##args);			\
 	} while (0)
 
 #else /* DEBUG */
