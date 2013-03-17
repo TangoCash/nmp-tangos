@@ -259,8 +259,6 @@ int CHDDMenuHandler::doMenu ()
 		hddmenu->addItem(mf);
 
 		hdd_found = 1;
-		if ( tempMenu[i] != NULL )
-			delete tempMenu[i];
 		free(namelist[i]);
 	}
 	if (n >= 0)
@@ -271,6 +269,7 @@ int CHDDMenuHandler::doMenu ()
 
 	ret = hddmenu->exec(NULL, "");
 
+	delete tempMenu;
 	delete hddmenu;
 	return ret;
 }
@@ -787,7 +786,11 @@ int CHDDChkExec::exec(CMenuTarget* /*parent*/, const std::string& key)
 	int percent = 0, opercent = 0;
 
 	snprintf(src, sizeof(src), "/dev/%s1", key.c_str());
+#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+	snprintf(dst, sizeof(dst), "/hdd");
+#else
 	snprintf(dst, sizeof(dst), "/media/%s1", key.c_str());
+#endif
 
 printf("CHDDChkExec: key %s\n", key.c_str());
 
