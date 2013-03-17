@@ -663,8 +663,10 @@ int CHDDFmtExec::exec(CMenuTarget* /*parent*/, const std::string& key)
 
 	waitfordev(src, 30); /* mdev can somtimes takes long to create devices, especially after mkfs? */
 
-	printf("CHDDFmtExec: executing %s %s\n","/sbin/tune2fs -r 0 -c 0 -i 0", src);
-	my_system(8, "/sbin/tune2fs", "-r", "0", "-c", "0", "-i", "0", src);
+	if (g_settings.hdd_fs != 3) {
+		printf("CHDDFmtExec: executing %s %s\n","/sbin/tune2fs -r 0 -c 0 -i 0", src);
+		my_system(8, "/sbin/tune2fs", "-r", "0", "-c", "0", "-i", "0", src);
+	}
 
 _remount:
 	unlink("/tmp/.nomdevmount");
