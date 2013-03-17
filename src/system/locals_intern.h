@@ -614,6 +614,8 @@ const char * locale_real_names[] =
 	"hdd_check",
 	"hdd_check_failed",
 	"hdd_ext3",
+	"hdd_ext2",
+	"hdd_jfs",
 	"hdd_extended_settings",
 	"hdd_fast",
 	"hdd_format",
