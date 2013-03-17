@@ -235,7 +235,7 @@ int CHDDMenuHandler::doMenu ()
 		fscanf(f, "%d", &removable);
 		fclose(f);
 
-		bool enabled = !CNeutrinoApp::getInstance()->recordingstatus && !isroot;
+		bool enabled = !CNeutrinoApp::getInstance()->recordingstatus && !isroot && !removable;
 
 		snprintf(str, sizeof(str), "%s %s %ld %s", vendor, model, (long)(megabytes < 10000 ? megabytes : megabytes/1000), megabytes < 10000 ? "MB" : "GB");
 		printf("HDD: %s\n", str);
@@ -269,7 +269,6 @@ int CHDDMenuHandler::doMenu ()
 
 	ret = hddmenu->exec(NULL, "");
 
-	delete tempMenu;
 	delete hddmenu;
 	return ret;
 }
