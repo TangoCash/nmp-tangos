@@ -70,12 +70,13 @@ const CMenuOptionChooser::keyval HDD_NOISE_OPTIONS[HDD_NOISE_OPTION_COUNT] =
 	{ 254, LOCALE_HDD_FAST }
 };
 
-#define HDD_FILESYS_OPTION_COUNT 3
+#define HDD_FILESYS_OPTION_COUNT 4
 const CMenuOptionChooser::keyval HDD_FILESYS_OPTIONS[HDD_FILESYS_OPTION_COUNT] =
 {
 	{ 0, LOCALE_HDD_EXT3 },
 	{ 1, LOCALE_HDD_REISER },
-	{ 2, LOCALE_OPTIONS_OFF }
+	{ 2, LOCALE_HDD_EXT2 },
+	{ 3, LOCALE_HDD_JFS }
 };
 #define HDD_SLEEP_OPTION_COUNT 7
 const CMenuOptionChooser::keyval HDD_SLEEP_OPTIONS[HDD_SLEEP_OPTION_COUNT] =
@@ -241,7 +242,8 @@ int CHDDMenuHandler::doMenu ()
 		tmp_str[i]=str;
 		tempMenu[i] = new CMenuWidget(str, NEUTRINO_ICON_SETTINGS);
 		tempMenu[i]->addIntroItems();
-		//tempMenu->addItem( new CMenuOptionChooser(LOCALE_HDD_FS, &g_settings.hdd_fs, HDD_FILESYS_OPTIONS, HDD_FILESYS_OPTION_COUNT, true));
+
+		tempMenu[i]->addItem( new CMenuOptionChooser(LOCALE_HDD_FS, &g_settings.hdd_fs, HDD_FILESYS_OPTIONS, HDD_FILESYS_OPTION_COUNT, true));
 
 		mf = new CMenuForwarder(LOCALE_HDD_FORMAT, true, "", &fmtexec, namelist[i]->d_name);
 		mf->setHint("", LOCALE_MENU_HINT_HDD_FORMAT);
@@ -571,6 +573,12 @@ int CHDDFmtExec::exec(CMenuTarget* /*parent*/, const std::string& key)
 		case 1:
 			snprintf(cmd, sizeof(cmd), "/sbin/mkreiserfs -f -f %s", src);
 			break;
+		case 2:
+			snprintf(cmd, sizeof(cmd), "/sbin/mkfs.ext2 -L RECORD -T largefile -m0 %s", src);
+			break;
+		case 3:
+			snprintf(cmd, sizeof(cmd), "/sbin/mkfs.jfs -L RECORD -q %s", src);
+			break;
 		default:
 			return 0;
 	}
@@ -663,7 +671,9 @@ _remount:
 	progress->hide();
 	delete progress;
 
+#if !HAVE_SPARK_HARDWARE && !HAVE_DUCKBOX_HARDWARE
 	if ((res = mount_all(key.c_str())))
+#endif
 	{
 		switch(g_settings.hdd_fs) {
                 case 0:
@@ -674,6 +684,12 @@ _remount:
 			safe_mkdir(dst);
 			res = mount(src, dst, "reiserfs", 0, NULL);
                         break;
+		case 2:
+			res = mount(src, dst, "ext2", 0, NULL);
+			break;
+		case 3:
+			res = mount(src, dst, "jfs", 0, NULL);
+			break;
 		default:
                         break;
 		}
@@ -793,6 +809,12 @@ printf("CHDDChkExec: key %s\n", key.c_str());
 		case 1:
 			snprintf(cmd, sizeof(cmd), "/sbin/reiserfsck --fix-fixable %s", src);
 			break;
+		case 2:
+			snprintf(cmd, sizeof(cmd), "/sbin/fsck.ext2 -C 1 -f -y %s", src);
+			break;
+		case 3:
+			snprintf(cmd, sizeof(cmd), "/sbin/fsck.jfs -a -f -p %s", src);
+			break;
 		default:
 			return 0;
 	}
@@ -846,7 +868,9 @@ printf("CHDDChkExec: key %s\n", key.c_str());
 
 ret1:
 
+#if !HAVE_SPARK_HARDWARE && !HAVE_DUCKBOX_HARDWARE
 	if ((res = mount_all(key.c_str())))
+#endif
 	{
 		switch(g_settings.hdd_fs) {
                 case 0:
@@ -855,6 +879,12 @@ ret1:
                 case 1:
 			res = mount(src, dst, "reiserfs", 0, NULL);
                         break;
+		case 2:
+			res = mount(src, dst, "ext2", 0, NULL);
+			break;
+		case 3:
+			res = mount(src, dst, "jfs", 0, NULL);
+			break;
 		default:
                         break;
 		}

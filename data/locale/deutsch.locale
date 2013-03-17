@@ -585,6 +585,8 @@ hdd_activate Übernehmen
 hdd_check Dateisystemprüfung
 hdd_check_failed Festplattenprüfung fehlgeschlagen
 hdd_ext3 ext3
+hdd_ext2 ext2
+hdd_jfs jfs
 hdd_extended_settings Erweiterte Festplatteneinstellungen
 hdd_fast Schnell
 hdd_format Formatiere Festplatte

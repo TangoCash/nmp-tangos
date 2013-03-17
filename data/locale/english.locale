@@ -584,6 +584,8 @@ hdd_activate Apply settings
 hdd_check Check filesystem
 hdd_check_failed HDD-check failed!
 hdd_ext3 ext3
+hdd_ext2 ext2
+hdd_jfs jfs
 hdd_extended_settings Extended HDD-Settings
 hdd_fast Fast
 hdd_format Formating drive...
