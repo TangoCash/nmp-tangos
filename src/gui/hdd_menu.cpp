@@ -259,6 +259,8 @@ int CHDDMenuHandler::doMenu ()
 		hddmenu->addItem(mf);
 
 		hdd_found = 1;
+		if ( tempMenu[i] != NULL )
+			delete tempMenu[i];
 		free(namelist[i]);
 	}
 	if (n >= 0)
@@ -268,11 +270,6 @@ int CHDDMenuHandler::doMenu ()
 		hddmenu->addItem(new CMenuForwarder(LOCALE_HDD_NOT_FOUND, false));
 
 	ret = hddmenu->exec(NULL, "");
-	for(int i = 0; i < n;i++) {
-		if( hdd_found && tempMenu[i] != NULL ){
-			delete tempMenu[i];
-		}
-	}
 
 	delete hddmenu;
 	return ret;
