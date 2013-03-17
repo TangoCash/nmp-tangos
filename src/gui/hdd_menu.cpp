@@ -494,7 +494,11 @@ int CHDDFmtExec::exec(CMenuTarget* /*parent*/, const std::string& key)
 	CProgressWindow * progress;
 
 	snprintf(src, sizeof(src), "/dev/%s1", key.c_str());
+#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+	snprintf(dst, sizeof(dst), "/hdd");
+#else
 	snprintf(dst, sizeof(dst), "/media/%s1", key.c_str());
+#endif
 
 	printf("CHDDFmtExec: key %s\n", key.c_str());
 
