@@ -1524,7 +1524,7 @@ void CNeutrinoApp::channelsInit(bool bOnly)
 		CZapitBouquet *b = g_bouquetManager->Bouquets[i];
 		/* allow empty user bouquets to be added, otherwise they are not
 		 * available from the channellist->add_favorite context menus */
-		if (!b->bHidden && (!b->tvChannels.empty() || b->bUser))
+		if (!b->bHidden && (!b->tvChannels.empty() /*|| b->bUser*/))
 		{
 			if (b->bUser)
 				tmp = TVfavList->addBouquet(b);
