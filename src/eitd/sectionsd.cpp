@@ -58,7 +58,7 @@
 //#define DEBUG_TIME_THREAD
 
 #define DEBUG_SECTION_THREADS
-#define DEBUG_CN_THREAD
+//#define DEBUG_CN_THREAD
 
 /*static*/ bool reader_ready = true;
 static unsigned int max_events;
@@ -273,12 +273,12 @@ static bool deleteEvent(const event_id_t uniqueKey)
 	}
 
 	if (cn) { // current-next => fill current or next event...
-//xprintf("addEvent: current %016" PRIx64 " event %016" PRIx64 " messaging_got_CN %d\n", messaging_current_servicekey, evt.get_channel_id(), messaging_got_CN);
+//xprintf("addEvent: current %012" PRIx64 " event %012" PRIx64 " messaging_got_CN %d\n", messaging_current_servicekey, evt.get_channel_id(), messaging_got_CN);
 		readLockMessaging();
 		// only if it is the current channel... and if we don't have them already.
 		if (evt.get_channel_id() == messaging_current_servicekey && 
 				(messaging_got_CN != 0x03)) { 
-xprintf("addEvent: current %016" PRIx64 " event %016" PRIx64 " running %d messaging_got_CN %d\n", messaging_current_servicekey, evt.get_channel_id(), evt.runningStatus(), messaging_got_CN);
+xprintf("addEvent: ch %012" PRIx64 " running %d (%s) got_CN %d\n", evt.get_channel_id(), evt.runningStatus(), evt.runningStatus() > 2 ? "curr" : "next", messaging_got_CN);
 
 			unlockMessaging();
 			writeLockEvents();
@@ -336,7 +336,7 @@ xprintf("addEvent: current %016" PRIx64 " event %016" PRIx64 " running %d messag
 	{
 		/* if the new event has a lower (== more recent) table ID, replace the old one */
 		already_exists = false;
-		dprintf("replacing event %016" PRIx64 ":%02x with %04x:%02x '%.40s'\n", si->second->uniqueKey(),
+		dprintf("replacing event %012" PRIx64 ":%02x with %04x:%02x '%.40s'\n", si->second->uniqueKey(),
 			si->second->table_id, evt.eventID, evt.table_id, evt.getName().c_str());
 	}
 	else if (already_exists && ( (evt.table_id == 0x51 || evt.table_id == 0x50 || evt.table_id == 0x4e) && evt.table_id == si->second->table_id && evt.version != si->second->version ))
@@ -446,7 +446,7 @@ xprintf("addEvent: current %016" PRIx64 " event %016" PRIx64 " running %d messag
 					if ((*x)->table_id < e->table_id)
 					{
 						/* don't add the higher table_id */
-						dprintf("%s: don't replace 0x%016" PRIx64 ".%02x with 0x%016" PRIx64 ".%02x\n",
+						dprintf("%s: don't replace 0x%012" PRIx64 ".%02x with 0x%012" PRIx64 ".%02x\n",
 							__func__, x_key, (*x)->table_id, e_key, e->table_id);
 						unlockEvents();
 						return;
@@ -459,7 +459,7 @@ xprintf("addEvent: current %016" PRIx64 " event %016" PRIx64 " running %d messag
 					    (*x)->times.begin()->startzeit == start_time)
 						continue;
 					/* here we have an overlapping event */
-					dprintf("%s: delete 0x%016" PRIx64 ".%02x time = 0x%016" PRIx64 ".%02x\n", __func__,
+					dprintf("%s: delete 0x%012" PRIx64 ".%02x time = 0x%012" PRIx64 ".%02x\n", __func__,
 						x_key, (*x)->table_id, e_key, e->table_id);
 					to_delete.push_back(x_key);
 				}
@@ -1338,16 +1338,18 @@ void CTimeThread::setSystemTime(time_t tim)
 #endif
 	if (timediff == 0) /* very unlikely... :-) */
 		return;
-	if (abs(timediff) < 120000000LL) {
+	if (abs(tim - tv.tv_sec) < 120) { /* abs() is int */
 		struct timeval oldd;
 		tv.tv_sec = timediff / 1000000LL;
 		tv.tv_usec = timediff % 1000000LL;
 		if (adjtime(&tv, &oldd))
-			perror("adjtime");
-		xprintf("difference is < 120s, using adjtime(%d, %d). oldd(%d, %d)\n",
-			(int)tv.tv_sec, (int)tv.tv_usec, (int)oldd.tv_sec, (int)oldd.tv_usec);
-		timediff = 0;
-		return;
+			xprintf("adjtime(%d, %d) failed: %m\n", (int)tv.tv_sec, (int)tv.tv_usec);
+		else {
+			xprintf("difference is < 120s, using adjtime(%d, %d). oldd(%d, %d)\n",
+				(int)tv.tv_sec, (int)tv.tv_usec, (int)oldd.tv_sec, (int)oldd.tv_usec);
+			timediff = 0;
+			return;
+		}
 	}
 
 	tv.tv_sec = tim;
@@ -1380,8 +1382,10 @@ void CTimeThread::run()
 				if(!scanning)
 					sleep_time = 0;
 				real_pause();
+#ifndef DEBUG_TIME_THREAD
+				Sleep();
+#else
 				int rs = Sleep();
-#ifdef DEBUG_TIME_THREAD
 				xprintf("%s: wakeup, running %d scanning %d channel %" PRIx64 " reason %d\n",
 						name.c_str(), running, scanning, current_service, rs);
 #endif
@@ -1410,6 +1414,10 @@ void CTimeThread::run()
 			/* speed up shutdown by looping around Read() */
 			do {
 				rc = dmx->Read(static_buf, MAX_SECTION_LENGTH, timeoutInMSeconds / 12);
+#if HAVE_COOL_HARDWARE
+				if (rc < 0)	/* libcoolstream returns -1 on timeout ??? ... */
+					rc = 0;	/* ...and does not set a useful errno (EINVAL) */
+#endif
 			} while (running && rc == 0 && (time_monotonic_ms() - start) < timeoutInMSeconds);
 			xprintf("%s: getting DVB time done : %d messaging_neutrino_sets_time %d\n", name.c_str(), rc, messaging_neutrino_sets_time);
 			if (rc > 0) {
@@ -1576,8 +1584,19 @@ bool CEventsThread::addEvents()
 
 	for (SIevents::const_iterator e = eit.events().begin(); e != eit.events().end(); ++e) {
 		if (!(e->times.empty())) {
+#if 0
 			if ( ( e->times.begin()->startzeit < zeit + secondsToCache ) &&
-					( ( e->times.begin()->startzeit + (long)e->times.begin()->dauer ) > zeit - oldEventsAre ) )
+					( ( e->times.begin()->startzeit + (long)e->times.begin()->dauer ) > zeit - oldEventsAre ) &&
+					( e->times.begin()->dauer < 60 ) ) {
+				char x_startTime[10];
+				struct tm *x_tmStartTime = localtime(&e->times.begin()->startzeit);
+				strftime(x_startTime, sizeof(x_startTime)-1, "%H:%M", x_tmStartTime );
+				printf("####[%s - #%d] - startzeit: %s, dauer: %d, channel_id: 0x%llX\n", __FUNCTION__, __LINE__, x_startTime, e->times.begin()->dauer, e->get_channel_id());
+			}
+#endif
+			if ( ( e->times.begin()->startzeit < zeit + secondsToCache ) &&
+					( ( e->times.begin()->startzeit + (long)e->times.begin()->dauer ) > zeit - oldEventsAre ) &&
+					( e->times.begin()->dauer > 1 ) )
 			{
 				addEvent(*e, wait_for_time ? zeit: 0, e->table_id == 0x4e);
 				event_count++;
@@ -1677,7 +1696,7 @@ void CEitThread::beforeSleep()
 	messaging_zap_detected = false;
 	unlockMessaging();
 	if(notify_complete)
-		system("/var/tuxbox/config/epgdone.sh");
+		system(CONFIGDIR "/epgdone.sh");
 }
 
 /********************************************************************************/
@@ -1709,7 +1728,7 @@ void CCNThread::addFilters()
 
 void CCNThread::beforeWait()
 {
-	xprintf("%s: set eit update filter, service = 0x%016" PRIx64 ", current version 0x%x got events %d (%s)\n",
+	xprintf("%s: eit update filter, ch 0x%012" PRIx64 ", current ver 0x%02x  got events %d (%s)\n",
 			name.c_str(), messaging_current_servicekey, eit_version, messaging_have_CN,
 			updating ? "active" : "not active");
 
@@ -1804,7 +1823,6 @@ bool CCNThread::checkUpdate()
 
 	if (ret > 0) {
 		LongSection section(buf);
-		printdate_ms(stdout);
 		xprintf("%s: eit update filter: ### new version 0x%02x ###, Activate thread\n",
 				name.c_str(), section.getVersionNumber());
 

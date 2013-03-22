@@ -197,7 +197,7 @@ void CDBoxInfoWidget::paint()
 	height = hheight + 6 * mheight;
 
 	struct statfs s;
-	FILE *          mountFile;
+	FILE * mountFile;
 	struct mntent * mnt;
 
 	/* this is lame, as it duplicates code. OTOH, it is small and fast enough...
@@ -219,9 +219,7 @@ void CDBoxInfoWidget::paint()
 				case 0x65735546L:	/*fuse for ntfs*/
 				case 0x58465342L:	/*xfs*/
 				case 0x4d44L:		/*msdos*/
-					break;
 				case 0x72b6L:		/*jffs2*/
-					height += mheight;
 					break;
 				default:
 					continue;
@@ -241,6 +239,7 @@ void CDBoxInfoWidget::paint()
 	int ypos=y;
 	int i = 0;
 	frameBuffer->paintBoxRel(x, ypos, width, hheight, COL_MENUHEAD_PLUS_0, RADIUS_LARGE, CORNER_TOP);
+	g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->RenderString(x+10, ypos+ hheight+1, width, g_Locale->getText(LOCALE_EXTRA_DBOXINFO), COL_MENUHEAD, 0, true); // UTF-8
 	frameBuffer->paintBoxRel(x, ypos+ hheight, width, height- hheight, COL_MENUCONTENT_PLUS_0, RADIUS_LARGE, CORNER_BOTTOM);
 
 	ypos+= hheight + (mheight >>1);

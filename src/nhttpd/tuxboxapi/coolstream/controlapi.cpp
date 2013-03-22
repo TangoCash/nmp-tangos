@@ -519,14 +519,14 @@ void CControlAPI::GetTimeCGI(CyhookHandler *hh)
 // send services.xml
 void CControlAPI::GetServicesxmlCGI(CyhookHandler *hh)
 {
-	hh->SendFile("/var/tuxbox/config/zapit/services.xml");
+	hh->SendFile(CONFIGDIR "/zapit/services.xml");
 }
 
 //-----------------------------------------------------------------------------
 // send bouquets.xml
 void CControlAPI::GetBouquetsxmlCGI(CyhookHandler *hh)
 {
-	hh->SendFile("/var/tuxbox/config/zapit/bouquets.xml");
+	hh->SendFile(CONFIGDIR "/zapit/bouquets.xml");
 }
 
 //-----------------------------------------------------------------------------
@@ -1473,10 +1473,23 @@ void CControlAPI::ReloadPluginsCGI(CyhookHandler *hh)
 #ifdef SCREENSHOT
 void CControlAPI::ScreenshotCGI(CyhookHandler *hh)
 {
-	CScreenShot * sc = new CScreenShot("/tmp/screenshot.png", (CScreenShot::screenshot_format_t)0 /*PNG*/);
-	sc->EnableOSD(true);
+	bool enableOSD = true;
+	bool enableVideo = true;
+	std::string filename = "screenshot";
+
+	if(hh->ParamList["osd"] == "0")
+		enableOSD = false;
+	if(hh->ParamList["video"] == "0")
+		enableVideo = false;
+	if(hh->ParamList["name"] != "")
+		filename = hh->ParamList["name"];
+
+	CScreenShot * sc = new CScreenShot("/tmp/" + filename + ".png", (CScreenShot::screenshot_format_t)0 /*PNG*/);
+	sc->EnableOSD(enableOSD);
+	sc->EnableVideo(enableVideo);
 	sc->Start();
-	hh->SendOk();
+
+	hh->SendOk(); // FIXME what if sc->Start() failed?
 }
 #endif
 

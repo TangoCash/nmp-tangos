@@ -41,7 +41,7 @@
 #include <gui/filebrowser.h>
 #include <gui/movieplayer.h>
 #include <gui/nfs.h>
-#include <gui/widget/hintbox.h>
+//#include <gui/widget/hintbox.h>
 #include <gui/widget/messagebox.h>
 #include <gui/widget/mountchooser.h>
 #include <daemonc/remotecontrol.h>
@@ -126,12 +126,12 @@ bool CRecordInstance::SaveXml()
 	return false;
 }
 
-void CRecordInstance::WaitRecMsg(time_t StartTime, time_t WaitTime)
+/*void CRecordInstance::WaitRecMsg(time_t StartTime, time_t WaitTime)
 {
 	return;
 	while (time(0) < StartTime + WaitTime)
 		usleep(100000);
-}
+}*/
 
 int CRecordInstance::GetStatus()
 {
@@ -145,9 +145,9 @@ record_error_msg_t CRecordInstance::Start(CZapitChannel * channel)
 	int fd;
 	std::string tsfile;
 
-	time_t msg_start_time = time(0);
+	/*time_t msg_start_time = time(0);
 	CHintBox hintBox(LOCALE_MESSAGEBOX_INFO, g_Locale->getText(LOCALE_RECORDING_START));
-	hintBox.paint();
+	hintBox.paint();*/
 
 	tsfile = std::string(filename) + ".ts";
 
@@ -156,7 +156,7 @@ record_error_msg_t CRecordInstance::Start(CZapitChannel * channel)
 	fd = open(tsfile.c_str(), O_CREAT | O_RDWR | O_LARGEFILE | O_TRUNC , S_IRWXO | S_IRWXG | S_IRWXU);
 	if(fd < 0) {
 		perror(tsfile.c_str());
-		hintBox.hide();
+		//hintBox.hide();
 		return RECORD_INVALID_DIRECTORY;
 	}
 
@@ -188,7 +188,7 @@ record_error_msg_t CRecordInstance::Start(CZapitChannel * channel)
 		record = NULL;
 		close(fd);
 		unlink(tsfile.c_str());
-		hintBox.hide();
+		//hintBox.hide();
 		return RECORD_FAILURE;
 	}
 
@@ -201,8 +201,8 @@ record_error_msg_t CRecordInstance::Start(CZapitChannel * channel)
 	CCamManager::getInstance()->Start(channel->getChannelID(), CCamManager::RECORD);
 
 	//CVFD::getInstance()->ShowIcon(VFD_ICON_CAM1, true);
-	WaitRecMsg(msg_start_time, 2);
-	hintBox.hide();
+	//WaitRecMsg(msg_start_time, 2);
+	//hintBox.hide();
 	return RECORD_OK;
 }
 
@@ -222,8 +222,8 @@ bool CRecordInstance::Stop(bool remove_event)
 	time_t end_time = time(0);
 	recMovieInfo->length = (int) round((double) (end_time - start_time) / (double) 60);
 
-	CHintBox hintBox(LOCALE_MESSAGEBOX_INFO, rec_stop_msg.c_str());
-	hintBox.paint();
+	/*CHintBox hintBox(LOCALE_MESSAGEBOX_INFO, rec_stop_msg.c_str());
+	hintBox.paint();*/
 
 	printf("%s: channel %" PRIx64 " recording_id %d\n", __func__, channel_id, recording_id);
 	SaveXml();
@@ -237,7 +237,7 @@ bool CRecordInstance::Stop(bool remove_event)
 
         if((autoshift && g_settings.auto_delete) /* || autoshift_delete*/) {
 		snprintf(buf,sizeof(buf), "nice -n 20 rm -f \"%s.ts\" &", filename);
-		my_system("/bin/sh", "-c", buf);
+		my_system(3, "/bin/sh", "-c", buf);
 		snprintf(buf,sizeof(buf), "%s.xml", filename);
                 //autoshift_delete = false;
                 unlink(buf);
@@ -247,8 +247,8 @@ bool CRecordInstance::Stop(bool remove_event)
 		recording_id = 0;
 	}
         //CVFD::getInstance()->ShowIcon(VFD_ICON_CAM1, false);
-	WaitRecMsg(end_time, 2);
-	hintBox.hide();
+	//WaitRecMsg(end_time, 2);
+	//hintBox.hide();
 	return true;
 }
 
@@ -1072,6 +1072,9 @@ void CRecordManager::StopInstance(CRecordInstance * inst, bool remove_event)
 
 	if(inst->Timeshift())
 		autoshift = false;
+#ifdef BOXMODEL_SPARK7162
+		CVFD::getInstance()->SetIcons(SPARK_TIMESHIFT, false);
+#endif
 
 #if 0
 	t_channel_id live_channel_id = CZapit::getInstance()->GetCurrentChannelID();
@@ -1259,6 +1262,10 @@ void CRecordManager::StartTimeshift()
 		std::string tmode = "ptimeshift"; // already recording, pause
 		bool res = true;
 		t_channel_id live_channel_id = CZapit::getInstance()->GetCurrentChannelID();
+#ifdef BOXMODEL_SPARK7162
+		CVFD::getInstance()->SetIcons(SPARK_TIMESHIFT, true);
+#endif
+
 #if 0
 		if(RecordingStatus(live_channel_id))
 		{

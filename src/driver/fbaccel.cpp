@@ -201,7 +201,11 @@ CFbAccel::CFbAccel(CFrameBuffer *_fb)
 	}
 	backbuf_sz = 1280 * 720 * sizeof(fb_pixel_t);
 	BPAMemAllocMemData bpa_data;
+#if BOXMODEL_OCTAGON1008 || BOXMODEL_FORTIS_HDBOX || BOXMODEL_CUBEREVO_MINI2
+	bpa_data.bpa_part = (char *)"LMI_SYS";
+#else
 	bpa_data.bpa_part = (char *)"LMI_VID";
+#endif
 	bpa_data.mem_size = backbuf_sz;
 	int res;
 	res = ioctl(bpafd, BPAMEMIO_ALLOCMEM, &bpa_data);

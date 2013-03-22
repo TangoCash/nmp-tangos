@@ -3,7 +3,7 @@
  *             thegoodguy         <thegoodguy@berlios.de>
  *
  * Copyright (C) 2011-2012 CoolStream International Ltd
- * Copyright (C) 2012 Stefan Seyfried
+ * Copyright (C) 2012,2013 Stefan Seyfried
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -28,6 +28,7 @@
 #include <zapit/getservices.h>
 #include <zapit/debug.h>
 #include <zapit/femanager.h>
+#include <dmx.h>
 
 #include <ca_cs.h>
 
@@ -83,7 +84,7 @@ bool CCam::makeCaPmt(CZapitChannel * channel, bool add_private, uint8_t list, co
         int len;
         unsigned char * buffer = channel->getRawPmt(len);
 
-	INFO("cam %p source %d camask %d list %02x buffer", this, source_demux, camask, list);
+	DBG("cam %p source %d camask %d list %02x buffer\n", this, source_demux, camask, list);
 
 	if(!buffer)
 		return false;
@@ -208,25 +209,36 @@ bool CCamManager::SetMode(t_channel_id channel_id, enum runmode mode, bool start
 
 	switch(mode) {
 		case PLAY:
-#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+#if HAVE_DUCKBOX_HARDWARE || HAVE_SPARK_HARDWARE
+#if BOXMODEL_SPARK7162
+			/* this might be SPARK-specific, not tested elsewhere */
+			source = cDemux::GetSource(0); /* demux0 is always the live demux */
+			demux = source;
+#else
 			source = CFEManager::getInstance()->allocateFE(channel)->getNumber();
 			demux = LIVE_DEMUX + source;
+#endif
 #else
 			source = DEMUX_SOURCE_0;
 			demux = LIVE_DEMUX;
 #endif
 			break;
 		case RECORD:
-#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+#if HAVE_DUCKBOX_HARDWARE || HAVE_SPARK_HARDWARE
+#if BOXMODEL_SPARK7162
+			channel->setRecordDemux(CFEManager::getInstance()->allocateFE(channel)->getNumber() + 1);
+			source = channel->getRecordDemux(); //DEMUX_SOURCE_0;//FIXME
+#else
 			channel->setRecordDemux(CFEManager::getInstance()->allocateFE(channel)->getNumber());
 			source = channel->getRecordDemux();
+#endif
 #else
 			source = channel->getRecordDemux(); //DEMUX_SOURCE_0;//FIXME
 #endif
 			demux = channel->getRecordDemux(); //RECORD_DEMUX;//FIXME
 			break;
 		case STREAM:
-#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+#if HAVE_DUCKBOX_HARDWARE || HAVE_SPARK_HARDWARE
 			source = CFEManager::getInstance()->allocateFE(channel)->getNumber();			
 #else
 			source = DEMUX_SOURCE_0;

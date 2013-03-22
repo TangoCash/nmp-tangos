@@ -8,6 +8,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/types.h>
+
 #include <sys/stat.h>
 #include <curl/curl.h>
 #include <cs_api.h>
@@ -119,7 +120,6 @@ bool CPictureViewer::DecodeImage (const std::string & _name, bool showBusySign, 
 	// Show red block for "next ready" in view state
 	if (showBusySign)
 		showBusy (m_startx + 3, m_starty + 3, 10, 0xff, 00, 00);
-
 		std::string name = _name;
 
 		if (strstr(name.c_str(), "://")) {
@@ -586,7 +586,7 @@ found:
 }
 #else
 
-#define LOGO_DIR1 "/var/share/icons/logo"
+#define LOGO_DIR1 DATADIR "/neutrino/icons/logo"
 #define LOGO_FMT ".jpg"
 
 bool CPictureViewer::GetLogoName(uint64_t channel_id, std::string ChannelName, std::string & name, int *width, int *height)

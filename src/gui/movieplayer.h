@@ -83,6 +83,9 @@ class CMoviePlayerGui : public CMenuTarget
 	unsigned short ac3flags[REC_MAX_APIDS];
 	unsigned short currentapid, currentac3;
 
+	bool isWebTV;
+	bool showWebTVHint;
+
 	/* playback from MB */
 	bool isMovieBrowser;
 	CMovieBrowser* moviebrowser;
@@ -119,6 +122,8 @@ class CMoviePlayerGui : public CMenuTarget
 	void handleMovieBrowser(neutrino_msg_t msg, int position = 0);
 	bool SelectFile();
 	void updateLcd();
+
+	static void *ShowWebTVHint(void *arg);
 
 	CMoviePlayerGui(const CMoviePlayerGui&) {};
 	CMoviePlayerGui();

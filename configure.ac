@@ -57,6 +57,7 @@ TUXBOX_APPS_LIB_PKGCONFIG(PNG,libpng)
 TUXBOX_APPS_LIB_PKGCONFIG(AVFORMAT,libavformat)
 TUXBOX_APPS_LIB_PKGCONFIG(AVCODEC,libavcodec)
 TUXBOX_APPS_LIB_PKGCONFIG(AVUTIL,libavutil)
+TUXBOX_APPS_LIB_PKGCONFIG(AVRESAMPLE,libavresample)
 #TUXBOX_APPS_LIB_PKGCONFIG(CONFIGFILE,tuxbox-configfile)
 #TUXBOX_APPS_LIB_PKGCONFIG(CONNECTION,tuxbox-connection)
 #TUXBOX_APPS_LIB_PKGCONFIG(EVENTSERVER,tuxbox-eventserver)
@@ -123,6 +124,15 @@ if test "$enable_upnp" = "yes"; then
 	AC_DEFINE(ENABLE_UPNP,1,[include UPNP support - currently broken])
 fi
 
+AC_ARG_ENABLE(extupdate,
+	AS_HELP_STRING(--enable-extupdate,include extended update routine),
+	,[enable_extupdate=no])
+
+AM_CONDITIONAL(ENABLE_EXTUPDATE,test "$enable_extupdate" = "yes")
+if test "$enable_extupdate" = "yes"; then
+	AC_DEFINE(ENABLE_EXTUPDATE,1,[include extended update routine])
+fi
+
 AC_ARG_WITH(stb-hal-includes,
 	[  --with-stb-hal-includes=PATH  path for libstb-hal includes [[NONE]]],
 	[STB_HAL_INC="$withval"],[STB_HAL_INC=""])
@@ -130,9 +140,12 @@ AC_ARG_WITH(stb-hal-build,
 	[  --with-stb-hal-build=PATH   path where libstb-hal is built [[NONE]]],
 	[STB_HAL_LIB="$withval"],[STB_HAL_LIB=""])
 
-AM_CONDITIONAL(USE_STB_HAL, test "$STB_HAL_INC")
-if test "$STB_HAL_INC"; then
+AM_CONDITIONAL(USE_STB_HAL, test "$BOXTYPE" != "coolstream")
+if test "$BOXTYPE" != coolstream; then
 	AC_DEFINE(USE_STB_HAL, 1,[use libstb-hal])
+	if test "$STB_HAL_INC" = ""; then
+		AC_MSG_ERROR([need libstb-hal includes path with --with-stb-hal-includes=...])
+	fi
 fi
 
 AC_ARG_ENABLE(cleanup,
@@ -179,7 +192,6 @@ lib/xmltree/Makefile
 lib/sectionsdclient/Makefile
 lib/timerdclient/Makefile
 lib/libcoolstream/Makefile
-lib/libtriple/Makefile
 lib/libtuxtxt/Makefile
 lib/libdvbsub/Makefile
 lib/libupnpclient/Makefile
@@ -214,6 +226,7 @@ data/lcd/clock/Makefile
 data/locale/Makefile
 data/scripts/Makefile
 data/themes/Makefile
+data/webtv/Makefile
 src/eitd/Makefile
 src/timerd/Makefile
 src/zapit/Makefile

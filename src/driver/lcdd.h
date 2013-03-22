@@ -62,8 +62,51 @@ typedef enum
 	VFD_ICON_PAUSE      = 0x0A000001,
 	VFD_ICON_CAM1       = 0x0B000001,
 	VFD_ICON_COL2       = 0x0B000002,
-	VFD_ICON_CAM2       = 0x0C000001
+	VFD_ICON_CAM2       = 0x0C000001,
+	VFD_ICON_CLOCK,
+	VFD_ICON_FR,
+	VFD_ICON_FF,
+	VFD_ICON_DD,
+	VFD_ICON_LOCK
 } vfd_icon;
+
+#ifdef BOXMODEL_SPARK7162
+typedef enum
+{
+	SPARK_PLAY_FASTBACKWARD = 1,
+	SPARK_PLAY = 3,
+	SPARK_PLAY_FASTFORWARD = 5,
+	SPARK_PAUSE = 6,
+	SPARK_REC1 = 7,
+	SPARK_MUTE = 8,
+	SPARK_CYCLE = 9,
+	SPARK_DD = 10,
+	SPARK_CA = 11,
+	SPARK_CI= 12,
+	SPARK_USB = 13,
+	SPARK_DOUBLESCREEN = 14,
+	SPARK_HDD_A8 = 16,
+	SPARK_HDD_A7 = 17,
+	SPARK_HDD_A6 = 18,
+	SPARK_HDD_A5 = 19,
+	SPARK_HDD_A4 = 20,
+	SPARK_HDD_A3 = 21,
+	SPARK_HDD_FULL = 22,
+	SPARK_HDD_A2 = 23,
+	SPARK_HDD_A1 = 24,
+	SPARK_MP3 = 25,
+	SPARK_AC3 = 26,
+	SPARK_TVMODE_LOG = 27,
+	SPARK_AUDIO = 28,
+	SPARK_HDD = 30,
+	SPARK_CLOCK = 33,
+	SPARK_TER = 37,
+	SPARK_SAT = 42,
+	SPARK_TIMESHIFT = 43,
+	SPARK_CAB = 45,
+	SPARK_ALL = 46
+} spark_icon;
+#endif
 
 #ifdef LCD_UPDATE
 #ifdef HAVE_CONFIG_H
@@ -150,6 +193,7 @@ class CLCD
 		bool				movie_is_ac3;
 		CConfigFile			configfile;
 		pthread_t			thrTime;
+		bool				thread_started;
 		int                             last_toggle_state_power;
 		int				clearClock;
 		unsigned int                    timeout_cnt;
@@ -233,11 +277,14 @@ class CLCD
 		void Lock();
 		void Unlock();
 		void Clear();
+#ifdef BOXMODEL_SPARK7162
+		void SetIcons(int icon, bool show);
+		void UpdateIcons();
+		void ShowDiskLevel();
+#endif
 		void ShowIcon(vfd_icon icon, bool show);
 		void ShowText(const char *s) { showServicename(std::string(s), true); };
-#ifndef HAVE_TRIPLEDRAGON
 		~CLCD();
-#endif
 #ifdef LCD_UPDATE
 	private:
 		CFileList* m_fileList;

@@ -107,7 +107,7 @@ bool CExtUpdate::ErrorReset(bool modus, const std::string & msg1, const std::str
 
 	if (modus & RESET_UNLOAD) {
 		umount(mountPkt.c_str());
-		my_system("rmmod", mtdramDriver.c_str());
+		my_system(2,"rmmod", mtdramDriver.c_str());
 	}
 	if (modus & RESET_FD1)
 		close(fd1);
@@ -231,7 +231,7 @@ bool CExtUpdate::applySettings()
 		// load mtdram driver
 		snprintf(buf1, sizeof(buf1), "total_size=%d", mtdSize/1024);
 		snprintf(buf2, sizeof(buf2), "erase_size=%d", mtdEraseSize/1024);
-		my_system("insmod", mtdramDriver.c_str(), buf1, buf2);
+		my_system(4, "insmod", mtdramDriver.c_str(), buf1, buf2);
 		// check if mtdram driver is now loaded
 		if (!isMtdramLoad())
 			return ErrorReset(0, "error load mtdram driver");
@@ -596,13 +596,13 @@ bool CExtUpdate::readBackupList(const std::string & dstPath)
 	// read DeleteList
 	for(it = deleteList.begin(); it != deleteList.end(); ++it) {
 		line = *it;
-		if (lstat(line.c_str(), &FileInfo) != -1) {
-			if ((line.find("*") != std::string::npos) || (line.find("?") != std::string::npos)) {
-				// Wildcards
-				WRITE_UPDATE_LOG("delete file list: %s\n", line.c_str());
-				deleteFileList(line.c_str());
-			}
-			else if (S_ISREG(FileInfo.st_mode)) {
+		if ((line.find("*") != std::string::npos) || (line.find("?") != std::string::npos)) {
+			// Wildcards
+			WRITE_UPDATE_LOG("delete file list: %s\n", line.c_str());
+			deleteFileList(line.c_str());
+		}
+		else if (lstat(line.c_str(), &FileInfo) != -1) {
+			if (S_ISREG(FileInfo.st_mode)) {
 				// File
 				WRITE_UPDATE_LOG("delete file: %s\n", line.c_str());
 				unlink(line.c_str());

@@ -41,10 +41,6 @@ endif
 
 if USE_STB_HAL
 INCLUDES += -I$(STB_HAL_INC)
-else
-if BOXTYPE_TRIPLE
-INCLUDES += -I$(top_srcdir)/lib/libtriple
-endif
 endif
 
 noinst_LIBRARIES = libtimerlist.a libneutrino_gui.a libneutrino_gui2.a
@@ -93,6 +89,7 @@ libneutrino_gui_a_SOURCES = \
 	record_setup.cpp \
 	scan.cpp \
 	scan_setup.cpp \
+	screensaver.cpp \
 	screensetup.cpp \
 	settings_manager.cpp \
 	sleeptimer.cpp \
@@ -103,18 +100,24 @@ libneutrino_gui_a_SOURCES = \
 	themes.cpp \
 	timeosd.cpp \
 	update.cpp \
-	update_ext.cpp \
 	update_menue.cpp \
 	update_settings.cpp \
 	user_menue.cpp \
 	user_menue_setup.cpp \
 	vfd_setup.cpp \
 	videosettings.cpp \
+	webtv.cpp \
+	webtv_setup.cpp \
 	zapit_setup.cpp
 
 if ENABLE_GRAPHLCD
 libneutrino_gui_a_SOURCES += \
 	glcdsetup.cpp
+endif
+
+if ENABLE_EXTUPDATE
+libneutrino_gui_a_SOURCES += \
+	update_ext.cpp
 endif
 
 libneutrino_gui2_a_SOURCES = \

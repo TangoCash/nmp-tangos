@@ -79,13 +79,27 @@ extern int allow_flash;
 #define gTmpPath "/tmp/"
 #define gUserAgent "neutrino/softupdater 1.0"
 
-#define LIST_OF_UPDATES_LOCAL_FILENAME "coolstream.list"
-#define UPDATE_LOCAL_FILENAME          "update.img"
-#define RELEASE_CYCLE                  "2.0"
-#define FILEBROWSER_UPDATE_FILTER      "img"
+#define UPDATE_LOCAL_FILENAME		"update.img"
+#define RELEASE_CYCLE			"2.0"
+#define FILEBROWSER_UPDATE_FILTER	"img"
 
-#define MTD_OF_WHOLE_IMAGE             0
-#define MTD_DEVICE_OF_UPDATE_PART      "/dev/mtd2"
+#if HAVE_DUCKBOX_HARDWARE //|| HAVE_SPARK_HARDWARE
+	#define LIST_OF_UPDATES_LOCAL_FILENAME		"update.list"
+	#if BOXMODEL_UFS910
+		#define MTD_OF_WHOLE_IMAGE		5
+		#define MTD_DEVICE_OF_UPDATE_PART	"/dev/mtd5"
+	#elif BOXMODEL_CUBEREVO_MINI2
+		#define MTD_OF_WHOLE_IMAGE		6
+		#define MTD_DEVICE_OF_UPDATE_PART	"/dev/mtd6"
+	#else // update blocked with invalid data
+		#define MTD_OF_WHOLE_IMAGE		999
+		#define MTD_DEVICE_OF_UPDATE_PART	"/dev/mtd999"
+	#endif
+#else
+	#define LIST_OF_UPDATES_LOCAL_FILENAME		"coolstream.list"
+	#define MTD_OF_WHOLE_IMAGE			0
+	#define MTD_DEVICE_OF_UPDATE_PART		"/dev/mtd2"
+#endif
 
 CFlashUpdate::CFlashUpdate()
 	:CProgressWindow()
@@ -397,11 +411,13 @@ int CFlashUpdate::exec(CMenuTarget* parent, const std::string &actionKey)
 	menu_ret = menu_return::RETURN_REPAINT;
 	paint();
 
+#if !HAVE_DUCKBOX_HARDWARE //&& !HAVE_SPARK_HARDWARE
 	if(sysfs.size() < 8) {
 		ShowHintUTF(LOCALE_MESSAGEBOX_ERROR, g_Locale->getText(LOCALE_FLASHUPDATE_CANTOPENMTD));
 		hide();
 		return menu_return::RETURN_REPAINT;
 	}
+#endif
 	if(!checkVersion4Update()) {
 		hide();
 		return menu_ret; //menu_return::RETURN_REPAINT;
@@ -433,8 +449,13 @@ int CFlashUpdate::exec(CMenuTarget* parent, const std::string &actionKey)
 	showGlobalStatus(40);
 
 	CFlashTool ft;
+#if HAVE_DUCKBOX_HARDWARE //|| HAVE_SPARK_HARDWARE
+	ft.setMTDDevice(MTD_DEVICE_OF_UPDATE_PART);
+	//ft.setMTDDevice(sysfs);
+#else
 	//ft.setMTDDevice(MTD_DEVICE_OF_UPDATE_PART);
 	ft.setMTDDevice(sysfs);
+#endif
 	ft.setStatusViewer(this);
 
 	showStatusMessageUTF(g_Locale->getText(LOCALE_FLASHUPDATE_MD5CHECK)); // UTF-8
@@ -461,9 +482,11 @@ int CFlashUpdate::exec(CMenuTarget* parent, const std::string &actionKey)
 		sleep(2);
 		//flash it...
 
+#if ENABLE_EXTUPDATE
 		if (ShowMsgUTF(LOCALE_MESSAGEBOX_INFO, g_Locale->getText(LOCALE_FLASHUPDATE_APPLY_SETTINGS), CMessageBox::mbrYes, CMessageBox::mbYes | CMessageBox::mbNo, NEUTRINO_ICON_UPDATE) == CMessageBox::mbrYes)
 			if (!CExtUpdate::getInstance()->applySettings(filename, CExtUpdate::MODE_SOFTUPDATE))
 				return menu_return::RETURN_REPAINT;
+#endif
 
 #ifdef DEBUG1
 		if(1) {
@@ -512,7 +535,7 @@ int CFlashUpdate::exec(CMenuTarget* parent, const std::string &actionKey)
 		printf("[update] calling %s %s %s\n",install_sh, g_settings.update_dir, filename.c_str() );
 #else
 		printf("[update] calling %s %s %s\n",install_sh, g_settings.update_dir, filename.c_str() );
-		my_system( install_sh, g_settings.update_dir, filename.c_str() );
+		my_system(3, install_sh, g_settings.update_dir, filename.c_str());
 #endif
 		showGlobalStatus(100);
 		ShowHintUTF(LOCALE_MESSAGEBOX_INFO, g_Locale->getText(LOCALE_FLASHUPDATE_READY)); // UTF-8
@@ -635,8 +658,10 @@ void CFlashExpert::showMTDSelector(const std::string & actionkey)
 		sprintf(sActionKey, "%s%d", actionkey.c_str(), lx);
 		mtdselector->addItem(new CMenuForwarderNonLocalized(mtdInfo->getMTDName(lx).c_str(), enabled, NULL, this, sActionKey, CRCInput::convertDigitToKey(shortcut++)));
 	}
+#if ENABLE_EXTUPDATE
 	if (actionkey == "writemtd")
 		mtdselector->addItem(new CMenuForwarderNonLocalized("systemFS with settings", true, NULL, this, "writemtd10", CRCInput::convertDigitToKey(shortcut++)));
+#endif
 	mtdselector->exec(NULL,"");
 	delete mtdselector;
 }
@@ -702,10 +727,13 @@ int CFlashExpert::exec(CMenuTarget* parent, const std::string & actionKey)
 			selectedMTD = iWritemtd;
 			showFileSelector("");
 		} else {
+#if ENABLE_EXTUPDATE
 			if(selectedMTD == 10) {
 				CExtUpdate::getInstance()->applySettings(actionKey, CExtUpdate::MODE_EXPERT);
 			}
-			else if(selectedMTD==-1) {
+			else
+#endif
+			if (selectedMTD == -1) {
 				writemtd(actionKey, MTD_OF_WHOLE_IMAGE);
 			} else {
 				writemtd(actionKey, selectedMTD);

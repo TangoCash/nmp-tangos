@@ -31,6 +31,7 @@
 
 #include <gui/widget/menue.h>
 #include <gui/audioplayer.h>
+#include <gui/webtv.h>
 #include <gui/personalize.h>
 
 #include <string>
@@ -43,6 +44,7 @@ class CMediaPlayerMenu : public CMenuTarget
 		
 		CAudioPlayerGui *audioPlayer;
 		CAudioPlayerGui *inetPlayer;
+		CWebTV *webPlayer;
 				
 		void showMoviePlayer(CMenuWidget *menu_movieplayer, CPersonalizeGui *p);
 

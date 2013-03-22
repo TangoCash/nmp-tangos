@@ -61,7 +61,6 @@
 #if HAVE_DUCKBOX_HARDWARE
 #include <driver/vfd.h>
 #endif
-
 #define HDD_NOISE_OPTION_COUNT 4
 const CMenuOptionChooser::keyval HDD_NOISE_OPTIONS[HDD_NOISE_OPTION_COUNT] =
 {
@@ -71,12 +70,13 @@ const CMenuOptionChooser::keyval HDD_NOISE_OPTIONS[HDD_NOISE_OPTION_COUNT] =
 	{ 254, LOCALE_HDD_FAST }
 };
 
-#define HDD_FILESYS_OPTION_COUNT 3
+#define HDD_FILESYS_OPTION_COUNT 4
 const CMenuOptionChooser::keyval HDD_FILESYS_OPTIONS[HDD_FILESYS_OPTION_COUNT] =
 {
 	{ 0, LOCALE_HDD_EXT3 },
 	{ 1, LOCALE_HDD_REISER },
-	{ 2, LOCALE_OPTIONS_OFF }
+	{ 2, LOCALE_HDD_EXT2 },
+	{ 3, LOCALE_HDD_JFS }
 };
 #define HDD_SLEEP_OPTION_COUNT 7
 const CMenuOptionChooser::keyval HDD_SLEEP_OPTIONS[HDD_SLEEP_OPTION_COUNT] =
@@ -235,14 +235,15 @@ int CHDDMenuHandler::doMenu ()
 		fscanf(f, "%d", &removable);
 		fclose(f);
 
-		bool enabled = !CNeutrinoApp::getInstance()->recordingstatus && !isroot;
+		bool enabled = !CNeutrinoApp::getInstance()->recordingstatus && !isroot && !removable;
 
 		snprintf(str, sizeof(str), "%s %s %ld %s", vendor, model, (long)(megabytes < 10000 ? megabytes : megabytes/1000), megabytes < 10000 ? "MB" : "GB");
 		printf("HDD: %s\n", str);
 		tmp_str[i]=str;
 		tempMenu[i] = new CMenuWidget(str, NEUTRINO_ICON_SETTINGS);
 		tempMenu[i]->addIntroItems();
-		//tempMenu->addItem( new CMenuOptionChooser(LOCALE_HDD_FS, &g_settings.hdd_fs, HDD_FILESYS_OPTIONS, HDD_FILESYS_OPTION_COUNT, true));
+
+		tempMenu[i]->addItem( new CMenuOptionChooser(LOCALE_HDD_FS, &g_settings.hdd_fs, HDD_FILESYS_OPTIONS, HDD_FILESYS_OPTION_COUNT, true));
 
 		mf = new CMenuForwarder(LOCALE_HDD_FORMAT, true, "", &fmtexec, namelist[i]->d_name);
 		mf->setHint("", LOCALE_MENU_HINT_HDD_FORMAT);
@@ -267,11 +268,6 @@ int CHDDMenuHandler::doMenu ()
 		hddmenu->addItem(new CMenuForwarder(LOCALE_HDD_NOT_FOUND, false));
 
 	ret = hddmenu->exec(NULL, "");
-	for(int i = 0; i < n;i++) {
-		if( hdd_found && tempMenu[i] != NULL ){
-			delete tempMenu[i];
-		}
-	}
 
 	delete hddmenu;
 	return ret;
@@ -312,7 +308,7 @@ int CHDDDestExec::exec(CMenuTarget* /*parent*/, const std::string&)
 
 		if (removable) {
 			// show USB icon, no need for hdparm
-#if HAVE_DUCKBOX_HARDWARE
+#if HAVE_DUCKBOX_HARDWARE || BOXMODEL_SPARK7162
 			CVFD::getInstance()->ShowIcon(VFD_ICON_USB, true);
 #endif
 			printf("CHDDDestExec: /dev/%s is not a hdd, no sleep needed\n", namelist[i]->d_name);
@@ -322,16 +318,16 @@ int CHDDDestExec::exec(CMenuTarget* /*parent*/, const std::string&)
 			CVFD::getInstance()->ShowIcon(VFD_ICON_HDD, true);
 #endif
 			printf("CHDDDestExec: noise %d sleep %d /dev/%s\n",
-				g_settings.hdd_noise, g_settings.hdd_sleep, namelist[i]->d_name);
+				 g_settings.hdd_noise, g_settings.hdd_sleep, namelist[i]->d_name);
 			snprintf(S_opt, sizeof(S_opt),"-S%d", g_settings.hdd_sleep);
 			snprintf(opt, sizeof(opt),"/dev/%s",namelist[i]->d_name);
 
-			if(hdparm_link) {
+			if(hdparm_link){
 				//hdparm -M is not included in busybox hdparm!
-				my_system(hdparm, S_opt, opt);
-			} else {
+				my_system(3, hdparm, S_opt, opt);
+			}else{
 				snprintf(M_opt, sizeof(M_opt),"-M%d", g_settings.hdd_noise);
-				my_system(hdparm, M_opt, S_opt, opt);
+				my_system(4, hdparm, M_opt, S_opt, opt);
 			}
 		}
 		free(namelist[i]);
@@ -393,7 +389,7 @@ static int umount_all(const char *dev)
 		if (! access("/etc/mdev/mdev-mount.sh", X_OK)) {
 			sprintf(buffer, "MDEV=%s%d ACTION=remove /etc/mdev/mdev-mount.sh block", d, i);
 			printf("-> running '%s'\n", buffer);
-			my_system("/bin/sh", "-c", buffer);
+			my_system(3, "/bin/sh", "-c", buffer);
 		}
 #endif
 		sprintf(buffer, "/dev/%s%d", d, i);
@@ -496,7 +492,11 @@ int CHDDFmtExec::exec(CMenuTarget* /*parent*/, const std::string& key)
 	CProgressWindow * progress;
 
 	snprintf(src, sizeof(src), "/dev/%s1", key.c_str());
+#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+	snprintf(dst, sizeof(dst), "/hdd");
+#else
 	snprintf(dst, sizeof(dst), "/media/%s1", key.c_str());
+#endif
 
 	printf("CHDDFmtExec: key %s\n", key.c_str());
 
@@ -504,7 +504,7 @@ int CHDDFmtExec::exec(CMenuTarget* /*parent*/, const std::string& key)
 	if(res != CMessageBox::mbrYes)
 		return 0;
 
-	bool srun = my_system("killall", "-9", "smbd");
+	bool srun = my_system(3, "killall", "-9", "smbd");
 
 	//res = check_and_umount(dst);
 	//res = check_and_umount(src, dst);
@@ -563,10 +563,20 @@ int CHDDFmtExec::exec(CMenuTarget* /*parent*/, const std::string& key)
 
 	switch(g_settings.hdd_fs) {
 		case 0:
+#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+			snprintf(cmd, sizeof(cmd), "/sbin/mkfs.ext3 -L RECORD -T largefile -j -m0 %s", src);
+#else
 			snprintf(cmd, sizeof(cmd), "/sbin/mkfs.ext3 -T largefile -m0 %s", src);
+#endif
 			break;
 		case 1:
 			snprintf(cmd, sizeof(cmd), "/sbin/mkreiserfs -f -f %s", src);
+			break;
+		case 2:
+			snprintf(cmd, sizeof(cmd), "/sbin/mkfs.ext2 -L RECORD -T largefile -m0 %s", src);
+			break;
+		case 3:
+			snprintf(cmd, sizeof(cmd), "/sbin/mkfs.jfs -L RECORD -q %s", src);
 			break;
 		default:
 			return 0;
@@ -652,15 +662,19 @@ int CHDDFmtExec::exec(CMenuTarget* /*parent*/, const std::string& key)
 
 	waitfordev(src, 30); /* mdev can somtimes takes long to create devices, especially after mkfs? */
 
-	printf("CHDDFmtExec: executing %s %s\n","/sbin/tune2fs -r 0 -c 0 -i 0", src);
-	my_system("/sbin/tune2fs", "-r 0", "-c 0", "-i 0", src);
+	if (g_settings.hdd_fs != 3) {
+		printf("CHDDFmtExec: executing %s %s\n","/sbin/tune2fs -r 0 -c 0 -i 0", src);
+		my_system(8, "/sbin/tune2fs", "-r", "0", "-c", "0", "-i", "0", src);
+	}
 
 _remount:
 	unlink("/tmp/.nomdevmount");
 	progress->hide();
 	delete progress;
 
+#if !HAVE_SPARK_HARDWARE && !HAVE_DUCKBOX_HARDWARE
 	if ((res = mount_all(key.c_str())))
+#endif
 	{
 		switch(g_settings.hdd_fs) {
                 case 0:
@@ -671,6 +685,12 @@ _remount:
 			safe_mkdir(dst);
 			res = mount(src, dst, "reiserfs", 0, NULL);
                         break;
+		case 2:
+			res = mount(src, dst, "ext2", 0, NULL);
+			break;
+		case 3:
+			res = mount(src, dst, "jfs", 0, NULL);
+			break;
 		default:
                         break;
 		}
@@ -698,8 +718,15 @@ _remount:
 #endif
 
 	if(!res) {
+#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+		snprintf(cmd, sizeof(cmd), "%s/movie", dst);
+		safe_mkdir((char *) cmd);
+		snprintf(cmd, sizeof(cmd), "%s/timeshift", dst);
+		safe_mkdir((char *) cmd);
+#else
 		snprintf(cmd, sizeof(cmd), "%s/movies", dst);
 		safe_mkdir((char *) cmd);
+#endif
 		snprintf(cmd, sizeof(cmd), "%s/pictures", dst);
 		safe_mkdir((char *) cmd);
 		snprintf(cmd, sizeof(cmd), "%s/epg", dst);
@@ -742,7 +769,7 @@ _remount:
 #endif
 	}
 _return:
-	if(!srun) my_system("smbd",NULL);
+	if (!srun) my_system(1, "smbd");
 	return menu_return::RETURN_REPAINT;
 }
 
@@ -758,11 +785,15 @@ int CHDDChkExec::exec(CMenuTarget* /*parent*/, const std::string& key)
 	int percent = 0, opercent = 0;
 
 	snprintf(src, sizeof(src), "/dev/%s1", key.c_str());
+#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+	snprintf(dst, sizeof(dst), "/hdd");
+#else
 	snprintf(dst, sizeof(dst), "/media/%s1", key.c_str());
+#endif
 
 printf("CHDDChkExec: key %s\n", key.c_str());
 
-	bool srun = my_system("killall", "-9", "smbd");
+	bool srun = my_system(3, "killall", "-9", "smbd");
 
 	//res = check_and_umount(dst);
 	//res = check_and_umount(src, dst);
@@ -782,6 +813,12 @@ printf("CHDDChkExec: key %s\n", key.c_str());
 			break;
 		case 1:
 			snprintf(cmd, sizeof(cmd), "/sbin/reiserfsck --fix-fixable %s", src);
+			break;
+		case 2:
+			snprintf(cmd, sizeof(cmd), "/sbin/fsck.ext2 -C 1 -f -y %s", src);
+			break;
+		case 3:
+			snprintf(cmd, sizeof(cmd), "/sbin/fsck.jfs -a -f -p %s", src);
 			break;
 		default:
 			return 0;
@@ -836,7 +873,9 @@ printf("CHDDChkExec: key %s\n", key.c_str());
 
 ret1:
 
+#if !HAVE_SPARK_HARDWARE && !HAVE_DUCKBOX_HARDWARE
 	if ((res = mount_all(key.c_str())))
+#endif
 	{
 		switch(g_settings.hdd_fs) {
                 case 0:
@@ -845,12 +884,18 @@ ret1:
                 case 1:
 			res = mount(src, dst, "reiserfs", 0, NULL);
                         break;
+		case 2:
+			res = mount(src, dst, "ext2", 0, NULL);
+			break;
+		case 3:
+			res = mount(src, dst, "jfs", 0, NULL);
+			break;
 		default:
                         break;
 		}
 	}
 	printf("CHDDChkExec: mount res %d\n", res);
 
-	if(!srun) my_system("smbd",NULL);
+	if (!srun) my_system(1, "smbd");
 	return menu_return::RETURN_REPAINT;
 }

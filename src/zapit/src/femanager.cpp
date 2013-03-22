@@ -2,7 +2,7 @@
 	Neutrino-GUI  -   DBoxII-Project
 
 	Copyright (C) 2011 CoolStream International Ltd
-	Copyright (C) 2012 Stefan Seyfried
+	Copyright (C) 2012,2013 Stefan Seyfried
 
 	License: GPLv2
 
@@ -49,36 +49,42 @@ CFEManager::CFEManager() : configfile(',', true)
 	mode = FE_MODE_SINGLE;
 	config_exist = false;
 	have_locked = false;
+	fe_type = -1;
+	loadSettings(); /* set fe_type */
+	other_fe.clear();
 }
 
 bool CFEManager::Init()
 {
 	CFrontend * fe;
 	unsigned short fekey;
-	int type = -1;
 
+	int idx = 0;
+	other_fe.clear();
 	for(int i = 0; i < MAX_ADAPTERS; i++) {
 		for(int j = 0; j < MAX_FE; j++) {
 			fe = new CFrontend(j, i);
 			if(fe->Open()) {
-				if (type == -1)
-					type = (int)fe->getInfo()->type;
-				if (type == (int)fe->getInfo()->type) {
+				if (fe_type == -1)
+					fe_type = (int)fe->getInfo()->type;
+				if (fe_type == (int)fe->getInfo()->type) {
 					fekey = MAKE_FE_KEY(i, j);
 					femap.insert(std::pair <unsigned short, CFrontend*> (fekey, fe));
 					INFO("add fe %d", fe->fenumber);
 					if(livefe == NULL)
 						livefe = fe;
+					fe->setIndex(idx++);
 				} else {
 					/* neutrino can not yet handle differing mixed frontend types... */
 					INFO("not adding fe %d of different type", fe->fenumber);
+					other_fe.insert(fe->getInfo()->type);
 					delete fe;
 				}
 			} else
 				delete fe;
 		}
 	}
-	INFO("found %d frontends\n", (int)femap.size());
+	INFO("found %d frontends", (int)femap.size());
 	if( femap.empty() )
 		return false;
 #if 0
@@ -174,6 +180,12 @@ bool CFEManager::loadSettings()
 		//return false;
 	}
 
+	fe_type = configfile.getInt32("fe_type", -1);
+	if (fe_type < -1 || fe_type > (int)FE_OFDM)
+		fe_type = -1; /* invalid value => default */
+	if (femap.empty()) /* first call from constructor */
+		return false;
+
 	fe_mode_t newmode = (fe_mode_t) configfile.getInt32("mode", (int) FE_MODE_SINGLE);
 	for(fe_map_iterator_t it = femap.begin(); it != femap.end(); it++) {
 		CFrontend * fe = it->second;
@@ -186,6 +198,7 @@ bool CFEManager::loadSettings()
 		fe_config.highVoltage		= getConfigValue(fe, "highVoltage", 0);
 		fe_config.uni_scr		= getConfigValue(fe, "uni_scr", 0);
 		fe_config.uni_qrg		= getConfigValue(fe, "uni_qrg", 0);
+		fe_config.uni_pin		= getConfigValue(fe, "uni_pin", -1);
 
 		fe->setRotorSatellitePosition(getConfigValue(fe, "lastSatellitePosition", 0));
 
@@ -232,6 +245,8 @@ bool CFEManager::loadSettings()
 
 		}
 	}
+	if (configfile.getUnknownKeyQueryedFlag())
+		configfile.saveConfig(FECONFIGFILE);
 	setMode(newmode, true);
 	return true;
 }
@@ -239,6 +254,7 @@ bool CFEManager::loadSettings()
 void CFEManager::saveSettings(bool write)
 {
 	configfile.setInt32("mode", (int) mode);
+	configfile.setInt32("fe_type", fe_type);
 	for(fe_map_iterator_t it = femap.begin(); it != femap.end(); it++) {
 		CFrontend * fe = it->second;
 		frontend_config_t & fe_config = fe->getConfig();
@@ -256,6 +272,7 @@ void CFEManager::saveSettings(bool write)
 		setConfigValue(fe, "highVoltage", fe_config.highVoltage);
 		setConfigValue(fe, "uni_scr", fe_config.uni_scr);
 		setConfigValue(fe, "uni_qrg", fe_config.uni_qrg);
+		setConfigValue(fe, "uni_pin", fe_config.uni_pin);
 		setConfigValue(fe, "lastSatellitePosition", fe->getRotorSatellitePosition());
 
 		std::vector<int> satList;
@@ -268,8 +285,7 @@ void CFEManager::saveSettings(bool write)
 		sprintf(cfg_key, "fe%d_satellites", fe->fenumber);
 		configfile.setInt32Vector(cfg_key, satList);
 	}
-	//setInt32Vector dont set modified flag !
-	if (write /*&& configfile.getModifiedFlag()*/) {
+	if (write && configfile.getModifiedFlag()) {
 		config_exist = configfile.saveConfig(FECONFIGFILE);
 		//configfile.setModifiedFlag(false);
 	}
@@ -280,6 +296,7 @@ void CFEManager::setMode(fe_mode_t newmode, bool initial)
 	if(!initial && (newmode == mode))
 		return;
 
+	fe_mode_t oldmode = mode;
 	mode = newmode;
 	if(femap.size() == 1)
 		mode = FE_MODE_SINGLE;
@@ -288,8 +305,15 @@ void CFEManager::setMode(fe_mode_t newmode, bool initial)
 	for(fe_map_iterator_t it = femap.begin(); it != femap.end(); it++) {
 		CFrontend * fe = it->second;
 		if(it != femap.begin()) {
-			INFO("Frontend %d as slave: %s", fe->fenumber, setslave ? "yes" : "no");
-			fe->setMasterSlave(setslave);
+			if (mode != FE_MODE_SINGLE) {
+				if (oldmode == FE_MODE_SINGLE)
+					fe->Open(true); /* secondary FE is not opened in single mode */
+				INFO("Frontend %d as slave: %s", fe->fenumber, setslave ? "yes" : "no");
+				fe->setMasterSlave(setslave);
+			} else {
+				INFO("Frontend %d not used in single mode, closing", fe->fenumber);
+				fe->Close();
+			}
 		} else
 			fe->Init();
 	}
@@ -308,6 +332,8 @@ void CFEManager::Open()
 		CFrontend * fe = it->second;
 		if(!fe->Locked())
 			fe->Open(true);
+		if (mode == FE_MODE_SINGLE)
+			break;	/* don't open secondary frontends if only first one is used */
 	}
 }
 
@@ -325,8 +351,15 @@ void CFEManager::Close()
 
 CFrontend * CFEManager::getFE(int index)
 {
-	if((unsigned int) index < femap.size())
-		return femap[index];
+	int i = 0;
+	/* the naive approach of just returning "femap[index]" does not work, since
+	 * the first frontend (index = 0) does not necessary live on adapter0/frontend0 */
+	for (fe_map_iterator_t it = femap.begin(); it != femap.end(); it++)
+	{
+		if (index == i)
+			return it->second;
+		i++;
+	}
 	INFO("Frontend #%d not found", index);
 	return NULL;
 }
@@ -481,7 +514,10 @@ CFrontend * CFEManager::allocateFE(CZapitChannel * channel)
 	//FIXME for testing only
 	if(frontend) {
 		channel->setRecordDemux(frontend->fenumber+1);
+#if HAVE_COOL_HARDWARE
+		/* I don't know if this check is necessary on cs, but it hurts on other hardware */
 		if(femap.size() > 1)
+#endif
 			cDemux::SetSource(frontend->fenumber+1, frontend->fenumber);
 	}
 	mutex.unlock();
@@ -492,7 +528,9 @@ void CFEManager::setLiveFE(CFrontend * fe)
 {
 	mutex.lock();
 	livefe = fe; 
+#if HAVE_COOL_HARDWARE
 	if(femap.size() > 1)
+#endif
 		cDemux::SetSource(0, livefe->fenumber);
 	mutex.unlock();
 }

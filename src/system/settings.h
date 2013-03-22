@@ -79,6 +79,7 @@ struct SNeutrinoSettings
 	int fan_speed;
 	int infobar_show;
 	int infobar_show_channellogo;
+	int infobar_progressbar;
 	int progressbar_color;
 	int casystem_display;
 	int dotmatrix;
@@ -142,6 +143,11 @@ struct SNeutrinoSettings
 	std::string epg_max_events;
 	std::string epg_extendedcache;
 	std::string epg_dir;
+
+	// WebTV
+	std::string streaming_server_url;
+	std::string streaming_server_name;
+	std::string webtv_xml;
 
 	//network
 	std::string network_ntpserver;
@@ -232,6 +238,7 @@ struct SNeutrinoSettings
 		//movieplayer menu
 		P_MPLAYER_MBROWSER,
 		P_MPLAYER_FILEPLAY,
+		P_MPLAYER_INETPLAY,
 		
 		//feature keys
 		P_FEAT_KEY_FAVORIT,
@@ -509,7 +516,7 @@ struct SNeutrinoSettings
 
 
 	// Font sizes
-#define FONT_TYPE_COUNT 23
+#define FONT_TYPE_COUNT 24
 	enum FONT_TYPES {
 		FONT_TYPE_MENU                =  0,
 		FONT_TYPE_MENU_TITLE          =  1,
@@ -527,13 +534,14 @@ struct SNeutrinoSettings
 		FONT_TYPE_CHANNELLIST         = 13,
 		FONT_TYPE_CHANNELLIST_DESCR   = 14,
 		FONT_TYPE_CHANNELLIST_NUMBER  = 15,
-		FONT_TYPE_CHANNEL_NUM_ZAP     = 16,
-		FONT_TYPE_INFOBAR_NUMBER      = 17,
-		FONT_TYPE_INFOBAR_CHANNAME    = 18,
-		FONT_TYPE_INFOBAR_INFO        = 19,
-		FONT_TYPE_INFOBAR_SMALL       = 20,
-		FONT_TYPE_FILEBROWSER_ITEM    = 21,
-		FONT_TYPE_MENU_HINT           = 22
+		FONT_TYPE_CHANNELLIST_EVENT   = 16,
+		FONT_TYPE_CHANNEL_NUM_ZAP     = 17,
+		FONT_TYPE_INFOBAR_NUMBER      = 18,
+		FONT_TYPE_INFOBAR_CHANNAME    = 19,
+		FONT_TYPE_INFOBAR_INFO        = 20,
+		FONT_TYPE_INFOBAR_SMALL       = 21,
+		FONT_TYPE_FILEBROWSER_ITEM    = 22,
+		FONT_TYPE_MENU_HINT           = 23
 	};
 
 	// lcdd
@@ -581,6 +589,7 @@ struct SNeutrinoSettings
 	int   audioplayer_display;
 	int   audioplayer_follow;
 	char  audioplayer_screensaver[3];
+	std::string audioplayer_screensaver_dir;
 	int   audioplayer_highprio;
 	int   audioplayer_select_title_by_name;
 	int   audioplayer_repeat_on;
@@ -647,6 +656,7 @@ struct SNeutrinoSettings
 #endif
 #if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
 		ITEM_THREE_D_MODE = 22,
+		ITEM_WEBTV = 23,
 #endif
 		ITEM_MAX   // MUST be always the last in the list
 	} USER_ITEM;

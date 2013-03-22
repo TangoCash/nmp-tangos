@@ -64,16 +64,19 @@ private:
 	unsigned int		liststart;
 	unsigned int		listmaxshow;
 	unsigned int		numwidth;
+	int			new_zap_mode;
 	int			fheight; // Fonthoehe Channellist-Inhalt
 	int			theight; // Fonthoehe Channellist-Titel
 	int			footerHeight;
+	int			eventFont;
+	int			ffheight;
 
 	std::string             name;
 	ZapitChannelList	chanlist;
 	CZapProtection* 	zapProtection;
 
-	int 			width;
 	int			full_width;
+	int 			width;
 	int 			height;
 	int 			x;
 	int 			y;
@@ -83,19 +86,20 @@ private:
 	int			infozone_width;
 	int			infozone_height;
 	int			previous_channellist_additional;
-	CEPGData		epgData;
 
+	CEPGData		epgData;
 	bool historyMode;
 	bool vlist; // "virtual" list, not bouquet
 	bool displayNext;
 	bool displayList;
 
 	int info_height;
+	bool new_mode_active;
 	int ChannelList_Rec;
 
 	void paintDetails(int index);
 	void clearItem2DetailsLine ();
-	void paintItem2DetailsLine (int pos, int ch_index);
+	void paintItem2DetailsLine (int pos);
 	void paintItem(int pos);
 	bool updateSelection(int newpos);
 	void paint();
@@ -106,13 +110,13 @@ private:
 	void calcSize();
 	std::string   MaxChanNr();
 	void paint_pig(int x, int y, int w, int h);
-	void paint_events(int index);
-	CChannelEventList	evtlist;
-	void readEvents(const t_channel_id channel_id);
+    void paint_events(int index);
+    CChannelEventList	evtlist;
+    void readEvents(const t_channel_id channel_id);
 	void showdescription(int index);
 	typedef std::pair<std::string,int> epg_pair;
 	std::vector<epg_pair> epgText;
-	int	emptyLineCount;
+	int emptyLineCount;
 	void addTextToArray( const std::string & text, int screening );
 	void processTextToArray(std::string text, int screening = 0);
 

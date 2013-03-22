@@ -488,9 +488,6 @@ bool CZapit::ZapIt(const t_channel_id channel_id, bool forupdate, bool startplay
 		ERROR("Cannot get frontend\n");
 		return false;
 	}
-	live_fe = fe;
-	CFEManager::getInstance()->setLiveFE(live_fe);
-
 	sig_delay = 2;
 	if (!firstzap && current_channel)
 		SaveChannelPids(current_channel);
@@ -500,7 +497,12 @@ bool CZapit::ZapIt(const t_channel_id channel_id, bool forupdate, bool startplay
 
 	pmt_stop_update_filter(&pmt_update_fd);
 
+	/* stop playback on the old frontend... */
 	StopPlayBack(!forupdate);
+
+	/* then select the new one... */
+	live_fe = fe;
+	CFEManager::getInstance()->setLiveFE(live_fe);
 
 	if(!forupdate && current_channel)
 		current_channel->resetPids();
@@ -509,8 +511,9 @@ bool CZapit::ZapIt(const t_channel_id channel_id, bool forupdate, bool startplay
 
 	live_channel_id = current_channel->getChannelID();
 	SaveSettings(false);
+	srand(time(NULL));
 
-	/* retry tuning twice when using unicable */
+	/* retry tuning twice when using unicable, TODO: EN50494 sect.8 specifies 4 retries... */
 	int retry = (live_fe->getDiseqcType() == DISEQC_UNICABLE) * 2;
  again:
 	if(!TuneChannel(live_fe, newchannel, transponder_change)) {
@@ -519,7 +522,11 @@ bool CZapit::ZapIt(const t_channel_id channel_id, bool forupdate, bool startplay
 			SendEvent(CZapitClient::EVT_TUNE_COMPLETE, &chid, sizeof(t_channel_id));
 			return false;
 		}
-		printf("[zapit] %s:1 unicable retry tuning %d\n", __func__, retry);
+		int rand_us = (rand() * 1000000LL / RAND_MAX); /* max. 1 second delay */
+		printf("[zapit] %s:1 SCR retry tuning %d after %dms\n", __func__, retry, rand_us / 1000);
+		/* EN50494 sect.8 specifies an elaborated way of calculating the delay, but I'm
+		 * pretty sure rand() is not much worse :-) */
+		usleep(rand_us);
 		live_fe->tuned = false;
 		retry--;
 		goto again;
@@ -534,7 +541,9 @@ bool CZapit::ZapIt(const t_channel_id channel_id, bool forupdate, bool startplay
 	failed = !ParsePatPmt(current_channel);
 
 	if (failed && retry > 0) {
-		printf("[zapit] %s:2 unicable retry tuning %d\n", __func__, retry);
+		int rand_us = (rand() * 1000000LL / RAND_MAX);
+		printf("[zapit] %s:2 SCR retry tuning %d after %dms\n", __func__, retry, rand_us / 1000);
+		usleep(rand_us);
 		live_fe->tuned = false;
 		retry--;
 		goto again;
@@ -727,7 +736,7 @@ void CZapit::SetAudioStreamType(CZapitAudioChannel::ZapitAudioChannelType audioC
 	int newpercent = GetPidVolume(0, 0, audioChannelType == CZapitAudioChannel::AC3);
 	SetVolumePercent(newpercent);
 
-	printf("[zapit] starting %s audio\n", audioStr);
+	DBG("starting %s audio\n", audioStr);
 }
 
 bool CZapit::ChangeAudioPid(uint8_t index)
@@ -1949,7 +1958,7 @@ bool CZapit::StartPlayBack(CZapitChannel *thisChannel)
 		pcrDemux->pesFilter(thisChannel->getPcrPid());
 	}
 	if (have_pcr) {
-		printf("[zapit] starting PCR 0x%X\n", thisChannel->getPcrPid());
+		//printf("[zapit] starting PCR 0x%X\n", thisChannel->getPcrPid());
 		pcrDemux->Start();
 	}
 #else
@@ -1971,7 +1980,7 @@ bool CZapit::StartPlayBack(CZapitChannel *thisChannel)
 	}
 #endif
 	if (have_pcr) {
-		printf("[zapit] starting PCR 0x%X\n", thisChannel->getPcrPid());
+		//printf("[zapit] starting PCR 0x%X\n", thisChannel->getPcrPid());
 		pcrDemux->Start();
 	}
 
