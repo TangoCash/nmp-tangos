@@ -3656,7 +3656,7 @@ void CNeutrinoApp::standbyMode( bool bOnOff, bool fromDeepStandby )
 		cpuFreq->SetCpuFreq(g_settings.cpufreq * 1000 * 1000);
 		powerManager->SetStandby(false, false);
 		CVFD::getInstance()->setMode(CVFD::MODE_TVRADIO);
-		CVFD::getInstance()->ShowText("resume...        ");
+		CVFD::getInstance()->ShowText("resume");
 		videoDecoder->Standby(false);
 		CSectionsdClient::CurrentNextInfo dummy;
 		g_InfoViewer->getEPG(0, dummy);
