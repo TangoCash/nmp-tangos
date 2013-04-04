@@ -553,6 +553,7 @@ void CFbAccel::blit2FB(void *fbbuff, uint32_t width, uint32_t height, uint32_t x
 #endif
 
 #ifdef USE_NEVIS_GXA
+	(void)transp;
 	u32 cmd;
 	void *uKva;
 
@@ -620,7 +621,7 @@ void CFbAccel::blit2FB(void *fbbuff, uint32_t width, uint32_t height, uint32_t x
 #else
 	fb_pixel_t *data = (fb_pixel_t *) fbbuff;
 
-	uint8_t *d = ((uint8_t *)fb->getFrameBufferPointer()) + xoff * sizeof(fb_pixel_t) + fb->stride * yoff;
+	uint8_t *d = (uint8_t *)lbb + xoff * sizeof(fb_pixel_t) + fb->stride * yoff;
 	fb_pixel_t * d2;
 
 	for (int count = 0; count < yc; count++ ) {
@@ -1076,7 +1077,6 @@ bool CFbAccel::OSDShot(const std::string &name)
 	fprintf(stderr, "%s took %lld us\n", __func__, (te.tv_sec * 1000000LL + te.tv_usec) - (ts.tv_sec * 1000000LL + ts.tv_usec));
 
 	return true;
-
 }
 #endif
 
