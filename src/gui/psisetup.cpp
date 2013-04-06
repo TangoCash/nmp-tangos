@@ -81,7 +81,7 @@ CPSISetup::CPSISetup (const neutrino_locale_t Name)
 	selected = 0;
 
 	for (int i = 0; i < PSI_RESET; i++)
-		psi_list[i].scale = new CProgressBar (true);
+		psi_list[i].scale = new CProgressBar ();
 
 	psi_list[PSI_CONTRAST].value = g_settings.psi_contrast;
 	psi_list[PSI_SATURATION].value = g_settings.psi_saturation;
@@ -272,7 +272,10 @@ void CPSISetup::paintSlider (int i)	// UTF-8
 
 	if (i < PSI_RESET)
 	{
-		psi_list[i].scale->paintProgressBar (psi_list[i].x, psi_list[i].y + sliderOffset, SLIDERWIDTH, SLIDERHEIGHT, psi_list[i].value, 255, 0, 0, COL_INFOBAR_SHADOW_PLUS_1, 0, "", 0);
+		psi_list[i].scale->setDimensionsAll(psi_list[i].x, psi_list[i].y + sliderOffset, SLIDERWIDTH, SLIDERHEIGHT);
+		psi_list[i].scale->setValues(psi_list[i].value, 255);
+		psi_list[i].scale->paint();
+		// (psi_list[i].x, psi_list[i].y + sliderOffset, SLIDERWIDTH, SLIDERHEIGHT, psi_list[i].value, 255, 0, 0, COL_INFOBAR_SHADOW_PLUS_1, 0, "", 0);
 		g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString (psi_list[i].xLoc, psi_list[i].yLoc, locWidth, g_Locale->getText(psi_list[i].loc), 0, 0, true, fg_col);
 	}
 	else
