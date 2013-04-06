@@ -35,6 +35,7 @@
 
 #include <driver/framebuffer.h>
 #include <gui/widget/menue.h>
+#include <gui/components/cc.h>
 #include <system/lastchannel.h>
 
 #include <sectionsdclient/sectionsdclient.h>
@@ -74,12 +75,14 @@ private:
 	std::string             name;
 	ZapitChannelList	chanlist;
 	CZapProtection* 	zapProtection;
+	CComponentsDetailLine *dline;
 
 	int			full_width;
-	int 			width;
-	int 			height;
-	int 			x;
-	int 			y;
+	int			width;
+	int			height;
+	int			info_height; // the infobox below mainbox is handled outside height
+	int			x;
+	int			y;
 	int			logo_off;
 	int			pig_width;
 	int			pig_height;
@@ -93,7 +96,6 @@ private:
 	bool displayNext;
 	bool displayList;
 
-	int info_height;
 	bool new_mode_active;
 	int ChannelList_Rec;
 

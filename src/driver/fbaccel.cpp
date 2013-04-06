@@ -30,6 +30,9 @@
 #endif
 
 #include <driver/framebuffer.h>
+#ifdef USE_OPENGL
+#include "glthread.h"
+#endif
 #ifdef ENABLE_GRAPHLCD
 #include <driver/nglcd.h>
 #endif
@@ -547,11 +550,9 @@ void CFbAccel::blit2FB(void *fbbuff, uint32_t width, uint32_t height, uint32_t x
 {
 #if !defined HAVE_SPARK_HARDWARE && !defined HAVE_DUCKBOX_HARDWARE
 	int  xc, yc;
-
 	xc = (width > fb->xRes) ? fb->xRes : width;
 	yc = (height > fb->yRes) ? fb->yRes : height;
 #endif
-
 #ifdef USE_NEVIS_GXA
 	(void)transp;
 	u32 cmd;
@@ -963,6 +964,10 @@ void CFbAccel::blit()
 /* not azbox and not spark -> no blit() needed */
 void CFbAccel::blit()
 {
+#ifdef USE_OPENGL
+	if (fb->mpGLThreadObj)
+		fb->mpGLThreadObj->blit();
+#endif
 }
 #endif
 

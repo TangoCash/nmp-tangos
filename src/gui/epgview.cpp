@@ -33,7 +33,7 @@
 #include <gui/widget/icons.h>
 #include <gui/widget/messagebox.h>
 #include <gui/widget/mountchooser.h>
-#include <gui/widget/progressbar.h>
+#include <gui/components/cc_item_progressbar.h>
 #include <gui/timerlist.h>
 
 #include <global.h>
@@ -117,17 +117,8 @@ CEpgData::CEpgData()
 
 void CEpgData::start()
 {
-	/* This defines the size of the EPG window. We use 90% of the screen width and
-	 * 90% of the screen height. It adjusts itself to the "visible screen" settings
-	 */
-	float epgwin_scale_factor = BIG_FONT_FAKTOR; /* stupid useless use of float */
-	if (g_settings.big_windows)
-		epgwin_scale_factor = 1;
-
-	ox = (frameBuffer->getScreenWidth()  / 20 * 18) / (bigFonts ? 1 : epgwin_scale_factor);
-	oy = (frameBuffer->getScreenHeight() / 20 * 18) / (bigFonts ? 1 : epgwin_scale_factor);
-	sx = getScreenStartX(ox);
-	sy = getScreenStartY(oy);
+	ox = frameBuffer->getScreenWidthRel();
+	oy = frameBuffer->getScreenHeightRel();
 
 	topheight    = g_Font[SNeutrinoSettings::FONT_TYPE_EPG_TITLE]->getHeight();
 	topboxheight = topheight + 6;
@@ -142,6 +133,9 @@ void CEpgData::start()
 	medlineheight = g_Font[SNeutrinoSettings::FONT_TYPE_EPG_INFO1]->getHeight();
 	medlinecount  = sb / medlineheight;
 	toph = topboxheight;
+
+	sx = getScreenStartX(ox);
+	sy = getScreenStartY(oy + buttonheight/2); /* button box is handled separately (why?) */
 }
 
 void CEpgData::addTextToArray(const std::string & text, int screening) // UTF-8
@@ -655,8 +649,10 @@ int CEpgData::show(const t_channel_id channel_id, uint64_t a_id, time_t* a_start
 	if ( epg_done!= -1 )
 	{
 		int pbx = sx + 10 + widthl + 10 + ((ox-104-widthr-widthl-10-10-20)>>1);
-		CProgressBar pb(true, -1, -1, 30, 100, 70, true);
-		pb.paintProgressBarDefault(pbx, sy+oy-height, 104, height-6, epg_done, 100);
+		CProgressBar pb(pbx, sy+oy-height, 104, height-6);
+		pb.setBlink();
+		pb.setValues(epg_done, 100);
+		pb.paint(false);
 	}
 
 	GetPrevNextEPGData( epgData.eventID, &epgData.epg_times.startzeit );
@@ -698,9 +694,11 @@ int CEpgData::show(const t_channel_id channel_id, uint64_t a_id, time_t* a_start
 				if (data == g_InfoViewer->getUpdateTimer()) {
 					GetEPGData(channel_id, id, &startzeit, false);
 					if ( epg_done!= -1 ) {
-						CProgressBar pb(true, -1, -1, 30, 100, 70, true);
-						int pbx = sx + 10 + widthl + 10 + ((ox-104-widthr-widthl-10-10-20)>>1);
-						pb.paintProgressBarDefault(pbx, sy+oy-height, 104, height-6, epg_done, 100);
+ 						int pbx = sx + 10 + widthl + 10 + ((ox-104-widthr-widthl-10-10-20)>>1);
+						CProgressBar pb(pbx, sy+oy-height, 104, height-6);
+						pb.setBlink();
+						pb.setValues(epg_done, 100);
+						pb.paint(false);
 					}
 				}
 				if(data == fader.GetTimer()) {

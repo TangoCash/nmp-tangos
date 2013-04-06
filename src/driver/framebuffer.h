@@ -57,6 +57,8 @@ typedef struct fb_var_screeninfo t_fb_var_screeninfo;
 #define FADE_STEP 5
 #define FADE_RESET 0xFFFF
 
+#define NON_BIG_WINDOWS		85 // %
+#define ConnectLineBox_Width	16 // px
 #if HAVE_GENERIC_HARDWARE
 #define USE_OPENGL 1
 #endif
@@ -163,10 +165,12 @@ class CFrameBuffer
 		fb_pixel_t * getBackBufferPointer() const;  // pointer to backbuffer
 		unsigned int getStride() const;             // size of a single line in the framebuffer (in bytes)
 		unsigned int getScreenWidth(bool real = false);
-		unsigned int getScreenHeight(bool real = false);
+		unsigned int getScreenHeight(bool real = false); 
+		unsigned int getScreenWidthRel();
+		unsigned int getScreenHeightRel();
 		unsigned int getScreenX();
 		unsigned int getScreenY();
-
+		
 		bool getActive() const;                     // is framebuffer active?
 		void setActive(bool enable);                     // is framebuffer active?
 
@@ -205,7 +209,7 @@ class CFrameBuffer
 
 		void getIconSize(const char * const filename, int* width, int *height);
 		/* h is the height of the target "window", if != 0 the icon gets centered in that window */
-		bool paintIcon (const std::string & filename, const int x, const int y,
+		bool paintIcon (const std::string & filename, const int x, const int y, 
 				const int h = 0, const unsigned char offset = 1, bool paint = true, bool paintBg = false, const fb_pixel_t colBg = 0);
 		bool paintIcon8(const std::string & filename, const int x, const int y, const unsigned char offset = 0);
 		void loadPal   (const std::string & filename, const unsigned char offset = 0, const unsigned char endidx = 255);
@@ -266,7 +270,7 @@ class CFrameBuffer
 #endif
 		void paintMuteIcon(bool paint, int ax, int ay, int dx, int dy, bool paintFrame=true);
 
-		enum
+		enum 
 			{
 				TM_EMPTY  = 0,
 				TM_NONE   = 1,

@@ -1,4 +1,4 @@
-SUBDIRS = fonts icons inetradio iso-codes locale scripts themes webtv
+SUBDIRS = fonts icons inetradio iso-codes license locale scripts themes webtv
 
 if BOXTYPE_TRIPLE
 SUBDIRS += lcd

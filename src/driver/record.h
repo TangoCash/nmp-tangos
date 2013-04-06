@@ -92,6 +92,7 @@ class CRecordInstance
 		time_t		epg_time;
 		time_t		start_time;
 		bool		StreamVTxtPid;
+		bool		StreamSubtitlePids;
 		bool		StreamPmtPid;
 		unsigned short	apids[REC_MAX_APIDS];
 		unsigned int	numpids;
@@ -114,8 +115,8 @@ class CRecordInstance
 		record_error_msg_t MakeFileName(CZapitChannel * channel);
 		bool SaveXml();
 		record_error_msg_t Start(CZapitChannel * channel);
-		//void WaitRecMsg(time_t StartTime, time_t WaitTime);
-	public:
+		void WaitRecMsg(time_t StartTime, time_t WaitTime);
+	public:		
 		CRecordInstance(const CTimerd::RecordingInfo * const eventinfo, std::string &dir, bool timeshift = false, bool stream_vtxt_pid = false, bool stream_pmt_pid = false);
 		~CRecordInstance();
 
@@ -155,6 +156,7 @@ class CRecordManager : public CMenuTarget /*, public CChangeObserver*/
 		std::string	Directory;
 		std::string	TimeshiftDirectory;
 		bool		StreamVTxtPid;
+		bool		StreamSubtitlePids;
 		bool		StreamPmtPid;
 		bool		StopSectionsd;
 		int		last_mode;
@@ -186,7 +188,7 @@ class CRecordManager : public CMenuTarget /*, public CChangeObserver*/
 			RECMODE_TSHIFT = 2,
 			RECMODE_REC_TSHIFT = 3
 		};
-
+		
 		CRecordManager();
 		~CRecordManager();
 
@@ -194,8 +196,8 @@ class CRecordManager : public CMenuTarget /*, public CChangeObserver*/
 
 		bool Record(const CTimerd::RecordingInfo * const eventinfo, const char * dir = NULL, bool timeshift = false);
 		bool Record(const t_channel_id channel_id, const char * dir = NULL, bool timeshift = false);
-		bool Stop(const t_channel_id channel_id);
-		bool Stop(const CTimerd::RecordingStopInfo * recinfo);
+		bool Stop(const t_channel_id channel_id); 
+		bool Stop(const CTimerd::RecordingStopInfo * recinfo); 
 		bool IsRecording(const CTimerd::RecordingStopInfo * recinfo);
 		bool Update(const t_channel_id channel_id);
 		bool ShowMenu(void);
@@ -210,10 +212,11 @@ class CRecordManager : public CMenuTarget /*, public CChangeObserver*/
 		bool RunStartScript(void);
 		bool RunStopScript(void);
 
-		void Config(const bool stopsectionsd, const bool stream_vtxt_pid, const bool stream_pmt_pid)
+		void Config(const bool stopsectionsd, const bool stream_vtxt_pid, const bool stream_pmt_pid, bool stream_subtitle_pids )
 		{
 			StopSectionsd	= stopsectionsd;
 			StreamVTxtPid	= stream_vtxt_pid;
+			StreamSubtitlePids	= stream_subtitle_pids;
 			StreamPmtPid	= stream_pmt_pid;
 		};
 		void SetDirectory(const char * const directory) { Directory	= directory; };

@@ -39,6 +39,7 @@
 #endif
 
 #include <global.h>
+#include <driver/screen_max.h>
 
 #include <algorithm>
 #include <cstdlib>
@@ -47,7 +48,7 @@
 #include <gui/widget/hintbox.h>
 #include <gui/widget/helpbox.h>
 #include <gui/widget/icons.h>
-#include <gui/widget/progressbar.h>
+#include <gui/components/cc_item_progressbar.h>
 #include <gui/widget/messagebox.h>
 #include <gui/widget/stringinput.h>
 #include <gui/widget/stringinput_ext.h>
@@ -602,10 +603,10 @@ void CMovieBrowser::initFrames(void)
 	m_pcFontTitle = TITLE_FONT;
 
 	//TRACE("[mb]->initFrames\r\n");
-	m_cBoxFrame.iX = 			g_settings.screen_StartX + 10;
-	m_cBoxFrame.iY = 			g_settings.screen_StartY + 10;
-	m_cBoxFrame.iWidth = 			g_settings.screen_EndX - g_settings.screen_StartX - 20;
-	m_cBoxFrame.iHeight = 			g_settings.screen_EndY - g_settings.screen_StartY - 20;
+	m_cBoxFrame.iWidth = 			m_pcWindow->getScreenWidthRel();
+	m_cBoxFrame.iHeight = 			m_pcWindow->getScreenHeightRel();
+	m_cBoxFrame.iX = 			getScreenStartX(m_cBoxFrame.iWidth);
+	m_cBoxFrame.iY = 			getScreenStartY(m_cBoxFrame.iHeight);
 
 	m_cBoxFrameTitleRel.iX =		0;
 	m_cBoxFrameTitleRel.iY = 		0;
@@ -1285,10 +1286,13 @@ void CMovieBrowser::info_hdd_level(bool paint_hdd)
 	
 	if(tmp_blocks_percent_used != blocks_percent_used || paint_hdd){
 		tmp_blocks_percent_used = blocks_percent_used;
-		CProgressBar pb(true, -1, -1, 30, 100, 70, true);
 		const short pbw = 100;
 		const short border = m_cBoxFrameTitleRel.iHeight/4;
-		pb.paintProgressBarDefault(m_cBoxFrame.iX+ m_cBoxFrameFootRel.iWidth - pbw - border, m_cBoxFrame.iY+m_cBoxFrameTitleRel.iY + border, pbw,  m_cBoxFrameTitleRel.iHeight/2, blocks_percent_used, 100);
+		CProgressBar pb(m_cBoxFrame.iX+ m_cBoxFrameFootRel.iWidth - pbw - border, m_cBoxFrame.iY+m_cBoxFrameTitleRel.iY + border, pbw,  m_cBoxFrameTitleRel.iHeight/2);
+		pb.setBlink();
+		pb.setInvert();
+		pb.setValues( blocks_percent_used, 100);
+		pb.paint(false);		
 	}
 
 }
@@ -4046,12 +4050,14 @@ static off64_t cut_movie(MI_MOVIE_INFO * minfo, CMovieInfo * cmovie)
 
 	CFrameBuffer * frameBuffer = CFrameBuffer::getInstance();
 	if (! timescale)
-		timescale = new CProgressBar(g_settings.progressbar_color, 200, 15, 0, 100, 0);
+		timescale = new CProgressBar();//new CProgressBar(g_settings.progressbar_color, 200, 15, 0, 100, 0);
+	timescale->setBlink();
         int dx = 256;
         int x = (((g_settings.screen_EndX- g_settings.screen_StartX)- dx) / 2) + g_settings.screen_StartX;
         int y = g_settings.screen_EndY - 50;
-	frameBuffer->paintBoxRel (x + 40, y+12, 200, 15, COL_INFOBAR_PLUS_0);
-	timescale->paintProgressBar2(x + 41, y + 12, percent);
+ 	frameBuffer->paintBoxRel (x + 40, y+12, 200, 15, COL_INFOBAR_PLUS_0);//TODO: remove unneeded box paints
+	timescale->setProgress(x + 41, y + 12, 200, 15, percent, 200);
+	timescale->paint();
 	int len = minfo->length;
 	off64_t size = minfo->file.Size;
 	//off64_t secsize = len ? size/len/60 : 511040;
@@ -4171,7 +4177,7 @@ printf("\ncut: reading from %" PRId64 " to %" PRId64 " (%" PRId64 ") want gop %d
 				}
 				if(msg) {
 					timescale->reset();
-					frameBuffer->paintBoxRel (x + 40, y+12, 200, 15, COL_INFOBAR_PLUS_0);
+					frameBuffer->paintBoxRel (x + 40, y+12, 200, 15, COL_INFOBAR_PLUS_0);//TODO: remove unneeded box paints
 				}
 				size_t toread = (until-sdone) > BUF_SIZE ? BUF_SIZE : until - sdone;
 #if REAL_CUT
@@ -4197,7 +4203,8 @@ if(buf[0] != 0x47) printf("cut: buffer not aligned at %" PRId64 "\n", sdone);
 					sdone += r;
 					spos += r - wptr;
 					percent = spos * 100 / newsize;
-					timescale->paintProgressBar2(x + 41, y + 12, percent);
+					timescale->setProgress(x + 41, y + 12, 200, 15, percent, 200);
+					timescale->paint();
 #if REAL_CUT
 					int wr = write(dstfd, &buf[wptr], r-wptr);
 					if(wr < (r-wptr)) {
@@ -4303,12 +4310,14 @@ printf("copy: len %d minute %" PRId64 " second %" PRId64 "\n", len, len ? size/l
 
 	CFrameBuffer * frameBuffer = CFrameBuffer::getInstance();
 	if (! timescale)
-		timescale = new CProgressBar(true, 200, 15, 0, 100, 0);
+		timescale = new CProgressBar();//new CProgressBar(g_settings.progressbar_color, 200, 15, 0, 100, 0);
+	timescale->setBlink();
         int dx = 256;
         int x = (((g_settings.screen_EndX- g_settings.screen_StartX)- dx) / 2) + g_settings.screen_StartX;
         int y = g_settings.screen_EndY - 50;
-	frameBuffer->paintBoxRel (x + 40, y+12, 200, 15, COL_INFOBAR_PLUS_0);
-	timescale->paintProgressBar2(x + 41, y + 12, percent);
+	frameBuffer->paintBoxRel (x + 40, y+12, 200, 15, COL_INFOBAR_PLUS_0); //TODO: remove unneeded box paints
+	timescale->setProgress(x + 41, y + 12, 200, 15, percent, 200);
+	timescale->paint();
 
 	newsize = 0;
 	for(int book_nr = 0; book_nr < MI_MOVIE_BOOK_USER_MAX; book_nr++) {
@@ -4398,7 +4407,7 @@ printf("copy: read from %" PRId64 " to %" PRId64 " read size %d want gop %d\n", 
 				goto ret_err;
 			}
 			if(msg) {
-				frameBuffer->paintBoxRel (x + 40, y+12, 200, 15, COL_INFOBAR_PLUS_0);
+				frameBuffer->paintBoxRel (x + 40, y+12, 200, 15, COL_INFOBAR_PLUS_0);//TODO: remove unneeded box paints
 				timescale->reset();
 			}
 #if REAL_CUT
@@ -4426,7 +4435,8 @@ if(buf[0] != 0x47) printf("copy: buffer not aligned at %" PRId64 "\n", sdone);
 				spos += r - wptr;
 				btotal += r;
 				percent = btotal * 100 / newsize;
-				timescale->paintProgressBar2(x + 41, y + 12, percent);
+				timescale->setProgress(x + 41, y + 12, 200, 15, percent, 200);
+				timescale->paint();
 #if REAL_CUT
 				int wr = write(dstfd, &buf[wptr], r-wptr);
 				if(wr < (r-wptr)) {

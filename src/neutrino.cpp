@@ -29,6 +29,7 @@
 #include <config.h>
 #endif
 
+#define __NFILE__ 1
 #define NEUTRINO_CPP
 
 #include <stdio.h>
@@ -87,9 +88,6 @@
 #include "gui/widget/messagebox.h"
 #include "gui/infoclock.h"
 
-#if HAVE_COOL_HARDWARE
-#include "gui/widget/progressbar.h"
-#endif
 
 #include <audio.h>
 #include <ca_cs.h>
@@ -458,6 +456,15 @@ int CNeutrinoApp::loadSetup(const char * fname)
 #else
 		g_settings.progressbar_color = configfile.getInt32("progressbar_color", 1);
 #endif
+	g_settings.progressbar_design = configfile.getInt32("progressbar_design", -1);
+	if (g_settings.progressbar_design == -1) {
+		/* new setting -> not present before. migrate old progressbar_color value */
+		if (g_settings.progressbar_color == 0)
+			g_settings.progressbar_design = 0;
+		else	/* the values changed... :-( */
+			g_settings.progressbar_design = g_settings.progressbar_color - 1;
+		g_settings.progressbar_color = !!g_settings.progressbar_color;
+	}
 	g_settings.infobar_show  = configfile.getInt32("infobar_show", 1);
 	g_settings.infobar_show_channellogo   = configfile.getInt32("infobar_show_channellogo"  , 3 );
 #if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
@@ -718,6 +725,7 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	g_settings.shutdown_timer_record_type      = configfile.getBool("shutdown_timer_record_type"      , false);
 
 	g_settings.recording_stream_vtxt_pid       = configfile.getBool("recordingmenu.stream_vtxt_pid"      , false);
+	g_settings.recording_stream_subtitle_pids  = configfile.getBool("recordingmenu.stream_subtitle_pids", false);
 	g_settings.recording_stream_pmt_pid        = configfile.getBool("recordingmenu.stream_pmt_pid"      , false);
 	g_settings.recording_choose_direct_rec_dir = configfile.getInt32( "recording_choose_direct_rec_dir", 0 );
 	g_settings.recording_epg_for_filename      = configfile.getBool("recording_epg_for_filename"         , true);
@@ -1024,6 +1032,7 @@ void CNeutrinoApp::saveSetup(const char * fname)
 	configfile.setBool("infobar_show_channeldesc"  , g_settings.infobar_show_channeldesc  );
 	configfile.setInt32("infobar_subchan_disp_pos"  , g_settings.infobar_subchan_disp_pos  );
 	configfile.setInt32("progressbar_color", g_settings.progressbar_color);
+	configfile.setInt32("progressbar_design", g_settings.progressbar_design);
 	configfile.setInt32("infobar_show", g_settings.infobar_show);
 	configfile.setInt32("infobar_show_channellogo"  , g_settings.infobar_show_channellogo  );
 	configfile.setInt32("infobar_progressbar"  , g_settings.infobar_progressbar  );
@@ -1199,6 +1208,7 @@ void CNeutrinoApp::saveSetup(const char * fname)
 	configfile.setBool  ("shutdown_timer_record_type"          , g_settings.shutdown_timer_record_type      );
 
 	configfile.setBool  ("recordingmenu.stream_vtxt_pid"      , g_settings.recording_stream_vtxt_pid      );
+	configfile.setBool  ("recordingmenu.stream_subtitle_pids" , g_settings.recording_stream_subtitle_pids );
 	configfile.setBool  ("recordingmenu.stream_pmt_pid"       , g_settings.recording_stream_pmt_pid      );
 	configfile.setInt32 ("recording_choose_direct_rec_dir"    , g_settings.recording_choose_direct_rec_dir);
 	configfile.setBool  ("recording_epg_for_filename"         , g_settings.recording_epg_for_filename     );
@@ -1524,7 +1534,7 @@ void CNeutrinoApp::channelsInit(bool bOnly)
 		CZapitBouquet *b = g_bouquetManager->Bouquets[i];
 		/* allow empty user bouquets to be added, otherwise they are not
 		 * available from the channellist->add_favorite context menus */
-		if (!b->bHidden && (!b->tvChannels.empty() /*|| b->bUser*/))
+		if (!b->bHidden && (!b->tvChannels.empty() || b->bUser))
 		{
 			if (b->bUser)
 				tmp = TVfavList->addBouquet(b);
@@ -1843,7 +1853,7 @@ void CNeutrinoApp::InitZapper()
 void CNeutrinoApp::setupRecordingDevice(void)
 {
 	CRecordManager::getInstance()->SetDirectory(g_settings.network_nfs_recordingdir);
-	CRecordManager::getInstance()->Config(g_settings.recording_stopsectionsd, g_settings.recording_stream_vtxt_pid, g_settings.recording_stream_pmt_pid);
+	CRecordManager::getInstance()->Config(g_settings.recording_stopsectionsd, g_settings.recording_stream_vtxt_pid, g_settings.recording_stream_pmt_pid, g_settings.recording_stream_subtitle_pids);
 }
 
 static void CSSendMessage(uint32_t msg, uint32_t data)
@@ -2284,7 +2294,6 @@ static void check_timer() {
 	tmpTimerList.clear();
 }
 #endif
-
 void CNeutrinoApp::RealRun(CMenuWidget &mainMenu)
 {
 	neutrino_msg_t      msg;
@@ -3974,17 +3983,17 @@ void stop_daemons(bool stopall)
 	}
 	printf("httpd shutdown\n");
 	if (nhttpd_thread_started) {
-	pthread_cancel(nhttpd_thread);
-	pthread_join(nhttpd_thread, NULL);
+		pthread_cancel(nhttpd_thread);
+		pthread_join(nhttpd_thread, NULL);
 	}
 	printf("httpd shutdown done\n");
 	CStreamManager::getInstance()->Stop();
 	if(stopall) {
 		printf("timerd shutdown\n");
 		if (g_Timerd)
-		g_Timerd->shutdown();
+			g_Timerd->shutdown();
 		if (timerd_thread_started)
-		pthread_join(timer_thread, NULL);
+			pthread_join(timer_thread, NULL);
 		printf("timerd shutdown done\n");
 	}
 #ifndef DISABLE_SECTIONSD
@@ -4054,7 +4063,6 @@ int main(int argc, char **argv)
 	/* build date */
 	printf(">>> Neutrino (compiled %s %s) <<<\n", __DATE__, __TIME__);
 #endif
-
 	g_Timerd = NULL;
 	g_Radiotext = NULL;
 	g_Zapit = NULL;

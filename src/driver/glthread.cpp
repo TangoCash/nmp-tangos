@@ -136,6 +136,7 @@ void GLThreadObj::initKeys()
 	mKeyMap['-']  = CRCInput::RC_minus;
 	mKeyMap['.']  = CRCInput::RC_spkr;
 	mKeyMap['h']  = CRCInput::RC_help;
+	mKeyMap['p']  = CRCInput::RC_standby;
 
 	mKeyMap['0']  = CRCInput::RC_0;
 	mKeyMap['1']  = CRCInput::RC_1;
@@ -338,7 +339,12 @@ void GLThreadObj::render() {
 	}
 
 	// bltDisplayBuffer(); /* decoded video stream */
-	bltOSDBuffer(); /* OSD */
+	if (mState.blit) {
+		/* only blit manually after fb->blit(), this helps to find missed blit() calls */
+		mState.blit = false;
+		//fprintf(stderr, "blit!\n");
+		bltOSDBuffer(); /* OSD */
+	}
 
 	glBindTexture(GL_TEXTURE_2D, mState.osdtex);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);

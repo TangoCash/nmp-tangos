@@ -81,6 +81,7 @@ struct SNeutrinoSettings
 	int infobar_show_channellogo;
 	int infobar_progressbar;
 	int progressbar_color;
+	int progressbar_design;
 	int casystem_display;
 	int dotmatrix;
 	int scrambled_message;
@@ -361,14 +362,15 @@ struct SNeutrinoSettings
 	int recording_audio_pids_std;
 	int recording_audio_pids_alt;
 	int recording_audio_pids_ac3;
-	int  recording_stream_vtxt_pid;
-	int  recording_stream_pmt_pid;
+	int recording_stream_vtxt_pid;
+	int recording_stream_subtitle_pids;
+	int recording_stream_pmt_pid;
 	int recording_choose_direct_rec_dir;
 	int recording_epg_for_filename;
 	int recording_epg_for_end;
 	int recording_save_in_channeldir;
-	int  recording_zap_on_announce;
-	int  recording_slow_warning;
+	int recording_zap_on_announce;
+	int recording_slow_warning;
 	int shutdown_timer_record_type;
 
 	int filesystem_is_utf8;
@@ -662,6 +664,15 @@ struct SNeutrinoSettings
 	} USER_ITEM;
 	std::string usermenu_text[BUTTON_MAX];
 	int usermenu[BUTTON_MAX][ITEM_MAX];  // (USER_ITEM)  [button][position in Menue] = feature item
+
+	//progressbar arrangement for infobar
+	typedef enum
+	{
+		INFOBAR_PROGRESSBAR_ARRANGEMENT_DEFAULT = 0,
+		INFOBAR_PROGRESSBAR_ARRANGEMENT_BELOW_CH_NAME = 1,
+		INFOBAR_PROGRESSBAR_ARRANGEMENT_BELOW_CH_NAME_SMALL = 2,
+		INFOBAR_PROGRESSBAR_ARRANGEMENT_BETWEEN_EVENTS = 3	
+	}INFOBAR_PROGRESSBAR_ARRANGEMENT_TYPES;
 
 };
 

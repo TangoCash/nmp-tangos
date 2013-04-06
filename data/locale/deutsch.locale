@@ -610,6 +610,7 @@ imageinfo.forum Forum:
 imageinfo.head Image Info:
 imageinfo.homepage Homepage:
 imageinfo.image Image:
+imageinfo.kernel Kernel:
 imageinfo.license Lizenz:
 imageinfo.version Version:
 inetradio.name Internetradio
@@ -770,7 +771,7 @@ menu.hint_auto_subs Automatische Anzeige der Untertitel in Ihrer bevorzugten Spr
 menu.hint_back Zurück zum vorherigen Menü.\nDie Taste 'Menü' schließt alle Menüs
 menu.hint_backup Sichern von Konfigurationen und Kanallisten
 menu.hint_bedit Bearbeiten ihrer Favoriten und der Bouquets
-menu.hint_bigwindows EPG-Informationen werden immer im großen Fenster angezeigt. Dies erreichen Sie auch mit der Taste 'Info'
+menu.hint_bigwindows Kanalliste, EPG-Infos, Audioplayer und einige andere Fenster werden bildschirmfüllend angezeigt
 menu.hint_cache_txt Startet das Zwischenspeichern des Teletextes nach einem Kanalwechsel
 menu.hint_cec_mode CEC-Modus
 menu.hint_cec_standby CEC-Standby
@@ -977,6 +978,9 @@ menu.hint_record_apid_std Schließt bei einer Aufnahme die durch den Sender defi
 menu.hint_record_apids Konfigurieren Sie die Tonspuren für die Aufnahme
 menu.hint_record_apply Hiermit werden die Aufnahmeoptionen übernommen
 menu.hint_record_chandir Diese Option speichert Aufnahmen mit dem Namen des Kanals in ein eigenes Verzeichnis
+menu.hint_record_data Daten-Spuren (Teletext, Untertitel) für die Aufnahme
+menu.hint_record_data_dvbsub Untertitel-Spur zu Aufnahme hinzufügen
+menu.hint_record_data_vtxt Teletext-Spur zu Aufnahme hinzufügen
 menu.hint_record_dir Wählen Sie das Aufnahmeverzeichnis
 menu.hint_record_end Wählen Sie zwischen max. Aufnahmezeit oder einem Aufnahmeende anhand der EPG-Daten
 menu.hint_record_slow_warn Zeige Warnung, wenn der Aufnahmepuffer zu überlaufen droht
@@ -1169,11 +1173,6 @@ miscsettings.infobar_disp_5 Logo/Signalbalken
 miscsettings.infobar_disp_6 Logo+Kanalnummer/Signalbalken
 miscsettings.infobar_disp_log Logo
 miscsettings.infobar_logo_hdd_dir Logo-Verz.
-miscsettings.infobar_progressbar Fortschrittsbalken Opt.
-miscsettings.infobar_progressbar_0 Standard
-miscsettings.infobar_progressbar_1 unterhalb Kanalname
-miscsettings.infobar_progressbar_2 unterhalb Kanalname schmal
-miscsettings.infobar_progressbar_3 zwischen EPG-Events schmal
 miscsettings.infobar_sat_display Kabel-/Satellitenanbieter
 miscsettings.infobar_show Info bei EPG Änderungen
 miscsettings.infobar_show_dd_available DD-Verfügbarkeit anzeigen
@@ -1181,6 +1180,20 @@ miscsettings.infobar_show_res Auflösung anzeigen
 miscsettings.infobar_show_res_simple einfach
 miscsettings.infobar_show_sysfs_hdd Füllstandanzeige (sysFS & hdd)
 miscsettings.infobar_show_tuner Aktiven Tuner anzeigen
+miscsettings.progressbar Fortschrittsbalken
+miscsettings.progressbar_color Farbe
+miscsettings.progressbar_design Design
+miscsettings.progressbar_design_0 farbige Punkte
+miscsettings.progressbar_design_1 farbige vertikale Linien
+miscsettings.progressbar_design_2 farbige horizontale Linien
+miscsettings.progressbar_design_3 Farbverlauf
+miscsettings.progressbar_design_4 monochrom
+miscsettings.progressbar_design_long Progressbardesign
+miscsettings.progressbar_infobar_position Position
+miscsettings.progressbar_infobar_position_0 Standard
+miscsettings.progressbar_infobar_position_1 unterhalb Kanalname
+miscsettings.progressbar_infobar_position_2 unterhalb Kanalname (schmal)
+miscsettings.progressbar_infobar_position_3 zwischen EPG-Events (schmal)
 miscsettings.radiotext Radiotext
 miscsettings.shutdown_count Komplett ausschalten nach
 miscsettings.shutdown_count_hint1 Zeit (in Minuten), nach der vom Standby in
@@ -1535,12 +1548,6 @@ pinprotection.head PIN-Abfrage
 pinprotection.wrongcode Geben Sie den Code nocheinmal ein!
 plugins.hdd_dir Externes Plugin-Verz.
 plugins.result Pluginausgabe
-progressbar.color Fortschrittsbalkendesign
-progressbar.color.full farbig
-progressbar.color.horizontal farbige horizontale Linien
-progressbar.color.matrix farbige Punkte
-progressbar.color.mono monochrom
-progressbar.color.vertical farbige vertikale Linien
 rclock.lockmsg Die Fernbedienung wird gesperrt.\n Um die Sperre aufzuheben, bitte\n <ROT> und <MENU> auf der Fernbedienung\n drücken.
 rclock.menueadd FB sperren
 rclock.title Fernbedienung sperren
@@ -1552,7 +1559,9 @@ recordingmenu.apids Tonspuren
 recordingmenu.apids_ac3 AC3 Tonspuren aufnehmen
 recordingmenu.apids_alt Alternative Tonspuren aufn.
 recordingmenu.apids_std Standard Tonspur aufnehmen
+recordingmenu.data_pids Daten-Spuren
 recordingmenu.defdir Aufnahmeverzeichnis
+recordingmenu.dvbsub_pids Untertitel aufnehmen
 recordingmenu.end_of_recording_epg EPG aktuelles Event
 recordingmenu.end_of_recording_max max. Aufnahmezeit
 recordingmenu.end_of_recording_name Ende der Sofortaufnahme
@@ -1574,6 +1583,7 @@ recordingmenu.slow_warn Warnung bei langsamen Aufnahmemedien
 recordingmenu.timeshift Timeshift
 recordingmenu.tsdir Timeshift Aufnahmeverzeichnis
 recordingmenu.vcr Videorekorder
+recordingmenu.vtxt_pid Teletext aufnehmen
 recordingmenu.zap_on_announce Umschalten bei Ankündigung
 recordtimer.announce Die Aufnahme beginnt in wenigen Minuten.
 repeatblocker.hint_1 Mindestzeit (in ms) zwischen 2 Tastendrücken
