@@ -137,6 +137,19 @@ static void set_lua_variables(lua_State *L)
 		{ "MENUCONTENTSELECTED",	MAGIC_COLOR | (COL_MENUCONTENTSELECTED) },
 		{ "MENUCONTENTINACTIVE",	MAGIC_COLOR | (COL_MENUCONTENTINACTIVE) },
 		{ "BACKGROUND",			MAGIC_COLOR | (COL_BACKGROUND) },
+		{ "DARK_RED",			MAGIC_COLOR | (COL_DARK_RED0) },
+		{ "DARK_GREEN",			MAGIC_COLOR | (COL_DARK_GREEN0) },
+		{ "DARK_BLUE",			MAGIC_COLOR | (COL_DARK_BLUE0) },
+		{ "LIGHT_GRAY",			MAGIC_COLOR | (COL_LIGHT_GRAY0) },
+		{ "DARK_GRAY",			MAGIC_COLOR | (COL_DARK_GRAY0) },
+		{ "RED",			MAGIC_COLOR | (COL_RED0) },
+		{ "GREEN",			MAGIC_COLOR | (COL_GREEN0) },
+		{ "YELLOW",			MAGIC_COLOR | (COL_YELLOW0) },
+		{ "BLUE",			MAGIC_COLOR | (COL_BLUE0) },
+		{ "PURP",			MAGIC_COLOR | (COL_PURP0) },
+		{ "LIGHT_BLUE",			MAGIC_COLOR | (COL_LIGHT_BLUE0) },
+		{ "WHITE",			MAGIC_COLOR | (COL_WHITE0) },
+		{ "BLACK",			MAGIC_COLOR | (COL_BLACK0) },
 		{ NULL, 0 }
 	};
 
@@ -374,7 +387,8 @@ int CLuaInstance::PaintBox(lua_State *L)
 	y = luaL_checkint(L, 3);
 	w = luaL_checkint(L, 4);
 	h = luaL_checkint(L, 5);
-	c = luaL_checkint(L, 6);
+	/* luaL_checkint does not like e.g. 0xffcc0000 on powerpc (returns INT_MAX) instead */
+	c = (unsigned int)luaL_checknumber(L, 6);
 	if (count > 6)
 		radius = luaL_checkint(L, 7);
 	if (count > 7)
@@ -416,14 +430,14 @@ int CLuaInstance::PaintIcon(lua_State *L)
 
 int CLuaInstance::RenderString(lua_State *L)
 {
-	int x, y, w, boxh, utf8, f;
+	int x, y, w, boxh, f, center;
 	unsigned int c;
 	const char *text;
 	int numargs = lua_gettop(L);
 	DBG("CLuaInstance::%s %d\n", __func__, numargs);
 	c = COL_MENUCONTENT;
 	boxh = 0;
-	utf8 = 1;
+	center = 0;
 
 	CLuaData *W = CheckData(L, 1);
 	if (!W || !W->fbwin)
@@ -441,12 +455,19 @@ int CLuaInstance::RenderString(lua_State *L)
 	if (numargs > 7)
 		boxh = luaL_checkint(L, 8);
 	if (numargs > 8)
-		utf8 = luaL_checkint(L, 9);
+		center = luaL_checkint(L, 9);
 	if (f >= FONT_TYPE_COUNT || f < 0)
 		f = SNeutrinoSettings::FONT_TYPE_MENU;
+	int rwidth = g_Font[f]->getRenderWidth(text, true);
+	if (center) { /* center the text inside the box */
+		if (rwidth < w)
+			x += (w - rwidth) / 2;
+	}
 	c &= 0x000000FF; /* TODO: colors that are not in the palette? */
-	W->fbwin->RenderString(g_Font[f], x, y, w, text, c, boxh, utf8);
-	return 0;
+	if (boxh > -1) /* if boxh < 0, don't paint string */
+		W->fbwin->RenderString(g_Font[f], x, y, w, text, c, boxh, true);
+	lua_pushinteger(L, rwidth); /* return renderwidth */
+	return 1;
 }
 
 int CLuaInstance::GetInput(lua_State *L)
