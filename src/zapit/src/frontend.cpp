@@ -194,7 +194,7 @@ CFrontend::CFrontend(int Number, int Adapter)
 
 	feTimeout = 40;
 	currentVoltage = SEC_VOLTAGE_OFF;
-	currentToneMode = SEC_TONE_ON;
+ 	currentToneMode = SEC_TONE_OFF;
 	memset(&info, 0, sizeof(info));
 }
 
