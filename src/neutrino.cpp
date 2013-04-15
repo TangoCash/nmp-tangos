@@ -218,7 +218,7 @@ CNeutrinoApp::CNeutrinoApp()
 	lockStandbyCall         = false;
 	current_muted		= 0;
 	recordingstatus		= 0;
-	g_channel_list_changed	= 0;
+	g_channel_list_changed	= false;
 	memset(&font, 0, sizeof(neutrino_font_descr_struct));
 }
 
@@ -768,6 +768,7 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	g_settings.mode_clock = configfile.getInt32( "mode_clock",  0);
 	g_settings.zapto_pre_time = configfile.getInt32( "zapto_pre_time",  0);
 	g_settings.spectrum         = configfile.getBool("spectrum"          , false);
+	g_settings.eventlist_additional = configfile.getInt32("eventlist_additional", 0);
 	g_settings.channellist_additional = configfile.getInt32("channellist_additional", 0); //default off
 	g_settings.channellist_epgtext_align_right	= configfile.getBool("channellist_epgtext_align_right"          , false);
 	g_settings.channellist_extended		= configfile.getBool("channellist_extended"          , true);
@@ -1246,6 +1247,7 @@ void CNeutrinoApp::saveSetup(const char * fname)
 	configfile.setInt32( "mode_clock", g_settings.mode_clock );
 	configfile.setInt32( "zapto_pre_time", g_settings.zapto_pre_time );
 	configfile.setBool("spectrum", g_settings.spectrum);
+	configfile.setInt32("eventlist_additional", g_settings.eventlist_additional);
 	configfile.setInt32("channellist_additional", g_settings.channellist_additional);
 	configfile.setBool("channellist_epgtext_align_right", g_settings.channellist_epgtext_align_right);
 	configfile.setBool("channellist_extended"                 , g_settings.channellist_extended);
@@ -1777,7 +1779,7 @@ void CNeutrinoApp::SetupFonts()
 	g_fontRenderer->AddFont(font.filename, true);  // make italics
 	style[2] = "Italic";
 
-	for (int i = 0; i < FONT_TYPE_COUNT; i++)
+	for (int i = 0; i < SNeutrinoSettings::FONT_TYPE_COUNT; i++)
 	{
 		if(g_Font[i]) delete g_Font[i];
 		g_Font[i] = g_fontRenderer->getFont(font.name, style[neutrino_font[i].style], configfile.getInt32(locale_real_names[neutrino_font[i].name], neutrino_font[i].defaultsize) + neutrino_font[i].size_offset * font.size_offset);
@@ -2382,7 +2384,7 @@ void CNeutrinoApp::RealRun(CMenuWidget &mainMenu)
 					saveSetup(NEUTRINO_SETTINGS_FILE);
 				}
 			}
-			else if( ((msg == CRCInput::RC_tv) || (msg == CRCInput::RC_radio)) && ((neutrino_msg_t)g_settings.key_tvradio_mode == CRCInput::RC_nokey)) {
+			else if (((msg == CRCInput::RC_tv) || (msg == CRCInput::RC_radio)) && (g_settings.key_tvradio_mode == (int)CRCInput::RC_nokey)) {
 				switchTvRadioMode();//used with defined default tv/radio rc key
 			}
 			else if( msg == (neutrino_msg_t) g_settings.key_tvradio_mode ) {
@@ -2751,11 +2753,12 @@ _repeat:
 				/* don't change bouquet after adding a channel to favorites */
 				if (nNewChannel != -5)
 					SetChannelMode(old_mode);
-				g_channel_list_changed = 0;
+				g_channel_list_changed = false;
 				if(old_b_id < 0) old_b_id = old_b;
 				//g_Zapit->saveBouquets();
 				/* lets do it in sync */
 				reloadhintBox->paint();
+				CServiceManager::getInstance()->SaveServices(true, true);
 				g_bouquetManager->saveBouquets();
 				g_bouquetManager->saveUBouquets();
 				g_bouquetManager->renumServices();
@@ -3335,7 +3338,7 @@ void CNeutrinoApp::ExitRun(const bool /*write_si*/, int retcode)
 			//CVFD::getInstance()->ShowText(g_Locale->getText(LOCALE_MAINMENU_SHUTDOWN));
 
 #if HAVE_COOL_HARDWARE
-			my_system(2,"/etc/init.d/rcK");
+			my_system("/etc/init.d/rcK");
 			sync();
 			my_system(2,"/bin/umount", "-a");
 			sleep(1);
@@ -4377,7 +4380,7 @@ void CNeutrinoApp::Cleanup()
 	delete RADIOsatList; RADIOsatList = NULL;
 
 	printf("cleanup 1\n");fflush(stdout);
-	for (int i = 0; i < FONT_TYPE_COUNT; i++) {
+	for (int i = 0; i < SNeutrinoSettings::FONT_TYPE_COUNT; i++) {
 		delete g_Font[i];
 		g_Font[i] = NULL;
 	}

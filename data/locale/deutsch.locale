@@ -321,6 +321,8 @@ eventfinder.search_within_epg Suche innerhalb EPG-Daten
 eventfinder.search_within_list Suche innerhalb Text
 eventfinder.searching Suche...
 eventfinder.start_search Suche starten
+eventlist.additional Zusatzinformationen
+eventlist.name Eventliste
 eventlistbar.channelswitch Umschalten
 eventlistbar.eventsort Sortieren
 eventlistbar.recordevent Aufnehmen
@@ -533,6 +535,7 @@ fontsize.epg_info1 EPG Info 1
 fontsize.epg_info2 EPG Info 2
 fontsize.epg_title EPG Titel
 fontsize.eventlist_datetime Datum/Zeit
+fontsize.eventlist_event Event Info
 fontsize.eventlist_itemlarge Groß
 fontsize.eventlist_itemsmall Klein
 fontsize.eventlist_title Titel
@@ -790,6 +793,7 @@ menu.hint_content_textcolor Ändern Sie die Textfarbe für den Fensterinhalt
 menu.hint_contrast_fonts Wählen Sie einen höheren Schriftkontrast
 menu.hint_dboxinfo Informationen über CPU und Arbeitsspeicher der Box
 menu.hint_delete_channels Löschen aller Kanäle
+menu.hint_delete_removed Lösche das Bouquet 'Gelöschte Kanäle'
 menu.hint_epg_cache Maximum in Tagen zukünftiger EPG-Daten
 menu.hint_epg_dir Speicherverzeichnis auf einem externen Datenträger zum Speichern von EPG-Daten
 menu.hint_epg_extendedcache Maximum in Stunden, die die EPG-Daten bzw. die Event-Beschreibungen zwischengespeichert werden
@@ -799,7 +803,9 @@ menu.hint_epg_old_events Veraltete EPG-Daten werden nach dieser Zeit (in Stunden
 menu.hint_epg_save Speichert die EPG-Daten auf einem externen Datenträger und läd es von dort nach einen Neustart
 menu.hint_epg_save_standby Speichert die EPG-Daten auch im Standby-Modus
 menu.hint_event_textcolor Ändern Sie die Farbe für farbige Events in der Kanalliste und der Infobar
+menu.hint_eventlist_additional Definiert, ob zusätzliche Informationen im Hauptfenster angezeigt werden sollen
 menu.hint_eventlist_fonts Ändern Sie die Schriftgröße in der Event-Liste
+menu.hint_eventlist_setup Wählen Sie die Anzeigeoptionen für die Event-Liste
 menu.hint_extended Energiespar-, EPG-Speicher- und Lade-Optionen, HDMI-CEC, Startkanal und mehr
 menu.hint_factory Zurücksetzen der Box auf Werkseinstellungen.\nDie Box wird danach neu gestartet
 menu.hint_fade Bei aktivierter Funktion werden die Menüfenster 'weich' ein- bzw. ausgeblendet
@@ -1591,6 +1597,7 @@ repeatblocker.hint_2 0 schaltet den Blocker aus (Rot ist " ")
 reset_all Werkseinstellungen und Reboot
 reset_channels Lösche Kanäle
 reset_confirm Sind Sie sich sicher?
+reset_removed Entferne gelöschte Kanäle
 reset_settings Einstellungen auf Standardwerte
 satsetup.auto_scan Automatisch einen gewählten %s
 satsetup.auto_scan_all Automatisch alle Satelliten
