@@ -43,6 +43,7 @@
 #include <system/set_threadname.h>
 #ifdef ENABLE_GRAPHLCD
 #include <driver/nglcd.h>
+bool glcd_play = false;
 #endif
 
 #include <unistd.h>
@@ -282,7 +283,9 @@ void CMoviePlayerGui::updateLcd()
 
 	switch (playstate) {
 		case CMoviePlayerGui::PAUSE:
+#if !defined(BOXMODEL_UFS910) && !defined(BOXMODEL_UFS912) && !defined(BOXMODEL_UFS913)
 			lcd = "|| ";
+#endif
 			break;
 		case CMoviePlayerGui::REW:
 			sprintf(tmp, "%dx<< ", speed);
@@ -293,7 +296,9 @@ void CMoviePlayerGui::updateLcd()
 			lcd = tmp;
 			break;
 		case CMoviePlayerGui::PLAY:
+#if !defined(BOXMODEL_UFS910) && !defined(BOXMODEL_UFS912) && !defined(BOXMODEL_UFS913) && !defined(BOXMODEL_CUBEREVO_MINI2)
 			lcd = "> ";
+#endif
 			break;
 		default:
 			break;
@@ -498,6 +503,13 @@ void CMoviePlayerGui::PlayFile(void)
 #ifdef ENABLE_GRAPHLCD
 	if (p_movie_info)
 		nGLCD::lockChannel(p_movie_info->epgChannel, p_movie_info->epgTitle);
+	else {
+		glcd_play = true;
+		if (isWebTV)
+			nGLCD::lockChannel(g_Locale->getText(LOCALE_WEBTV_HEAD), file_name.c_str(), file_prozent);
+		else
+			nGLCD::lockChannel(g_Locale->getText(LOCALE_MOVIEPLAYER_HEAD), file_name.c_str(), file_prozent);
+	}
 #endif
 #endif
 	pthread_t thrWebTVHint = 0;
@@ -575,6 +587,13 @@ void CMoviePlayerGui::PlayFile(void)
 #ifdef ENABLE_GRAPHLCD
 		if (p_movie_info)
 			nGLCD::lockChannel(p_movie_info->epgChannel, p_movie_info->epgTitle, duration ? (100 * position / duration) : 0);
+		else {
+			glcd_play = true;
+			if (isWebTV)
+				nGLCD::lockChannel(g_Locale->getText(LOCALE_WEBTV_HEAD), file_name.c_str(), file_prozent);
+			else
+				nGLCD::lockChannel(g_Locale->getText(LOCALE_MOVIEPLAYER_HEAD), file_name.c_str(), file_prozent);
+		}
 #endif
 		if (update_lcd) {
 			update_lcd = false;
@@ -857,8 +876,10 @@ void CMoviePlayerGui::PlayFile(void)
 #if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
 	frameBuffer->set3DMode(old3dmode);
 #ifdef ENABLE_GRAPHLCD
-	if (p_movie_info)
+	if (p_movie_info || glcd_play == true) {
+		glcd_play = false;
 		nGLCD::unlockChannel();
+	}
 #endif
 #endif
 	FileTime.hide();
