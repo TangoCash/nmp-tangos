@@ -141,7 +141,6 @@ private:
 	void saveEpg(bool cvfd_mode);
 	void getAnnounceEpgName(CTimerd::RecordingInfo * eventinfo, std::string &name);
 
-	void ExitRun(const bool write_si = true, int retcode = 0);
 	void RealRun(CMenuWidget &mainSettings);
 	void InitZapper();
 	void InitTimerdClient();
@@ -236,7 +235,11 @@ public:
 	CConfigFile* getConfigFile() {return &configfile;};
 	bool 		SDTreloadChannels;
 	bool 		g_channel_list_changed;
+
+	enum {
+		REBOOT,
+		SHUTDOWN
+	};
+	void ExitRun(const bool write_si = true, int retcode = SHUTDOWN);
 };
 #endif
-
-
