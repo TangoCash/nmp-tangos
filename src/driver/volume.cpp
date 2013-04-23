@@ -267,7 +267,6 @@ void CVolume::setVolume(const neutrino_msg_t key, const bool bDoPaint, bool nowa
 
 		volscale->reset();
 		refreshVolumebar(vol);
-		frameBuffer->blit();
 	}
 
 	neutrino_msg_data_t data;
@@ -357,7 +356,6 @@ void CVolume::setVolume(const neutrino_msg_t key, const bool bDoPaint, bool nowa
 			if(vol != g_settings.current_volume) {
 				vol = g_settings.current_volume;
 				refreshVolumebar(g_settings.current_volume);
-				frameBuffer->blit();
 			}
 		}
 
@@ -393,6 +391,7 @@ void CVolume::refreshVolumebar(int current_volume)
 	// progressbar
 	volscale->setValues(current_volume, 100);
 	volscale->paint();
+	frameBuffer->blit();
 }
 
 bool CVolume::changeNotify(const neutrino_locale_t OptionName, void * data)
