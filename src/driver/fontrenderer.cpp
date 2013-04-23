@@ -522,7 +522,7 @@ void Font::RenderString(int x, int y, const int width, const char *text, const u
 			spread_by = 1;
 	}
 
-#if HAVE_DUCKBOX_HARDWARE
+#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
 	frameBuffer->waitForIdle();
 #endif
 	for (; *text; text++)
