@@ -53,6 +53,10 @@
 #include <sys/sysinfo.h>
 #include <sys/vfs.h>
 #include <system/helpers.h>
+#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+#include <map>
+#include <ctype.h>
+#endif
 
 static const int FSHIFT = 16;              /* nr of bits of precision */
 #define FIXED_1         (1<<FSHIFT)     /* 1.0 as fixed-point */
@@ -190,14 +194,22 @@ void CDBoxInfoWidget::paint()
 	int fontWidth = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getWidth();
 	int sizeOffset = fontWidth * 7;//9999.99M
 	int percOffset = fontWidth * 3 ;//100%
+#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+	int nameOffset = fontWidth * 19;//WWWwwwwwww
+#else
 	int nameOffset = fontWidth * 9;//WWWwwwwwww
+#endif
 	int offsetw = nameOffset+ (sizeOffset+10)*3 +10+percOffset+10;
 	offsetw += 20;
 	width = offsetw + 10 + 120;
+#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+	height = hheight + 9 * mheight;
+#else
 	height = hheight + 6 * mheight;
+#endif
 
 	struct statfs s;
-	FILE * mountFile;
+	FILE *          mountFile;
 	struct mntent * mnt;
 
 	/* this is lame, as it duplicates code. OTOH, it is small and fast enough...
@@ -205,10 +217,19 @@ void CDBoxInfoWidget::paint()
 	if ((mountFile = setmntent("/proc/mounts", "r")) == NULL) {
 		perror("/proc/mounts");
 	} else {
+#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+		map<dev_t,bool>seen;
+#endif
 		while ((mnt = getmntent(mountFile)) != NULL) {
 			if (strcmp(mnt->mnt_fsname, "rootfs") == 0)
 				continue;
 			if (::statfs(mnt->mnt_dir, &s) == 0) {
+#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+				struct stat st;
+				if (!stat(mnt->mnt_dir, &st) && seen.find(st.st_dev) != seen.end())
+					continue;
+				seen[st.st_dev] = true;
+#endif
 				switch (s.f_type)	/* f_type is long */
 				{
 				case 0xEF53L:		/*EXT2 & EXT3*/
@@ -219,7 +240,16 @@ void CDBoxInfoWidget::paint()
 				case 0x65735546L:	/*fuse for ntfs*/
 				case 0x58465342L:	/*xfs*/
 				case 0x4d44L:		/*msdos*/
+#if !defined HAVE_SPARK_HARDWARE && !defined HAVE_DUCKBOX_HARDWARE
+					break;
+#endif
 				case 0x72b6L:		/*jffs2*/
+#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+				case 0x5941ff53L:	/*yaffs2*/
+#endif
+#if !defined HAVE_SPARK_HARDWARE && !defined HAVE_DUCKBOX_HARDWARE
+					height += mheight;
+#endif
 					break;
 				default:
 					continue;
@@ -235,12 +265,28 @@ void CDBoxInfoWidget::paint()
 	x = getScreenStartX(width);
 	y = getScreenStartY(height);
 
+#if !defined HAVE_SPARK_HARDWARE && !defined HAVE_DUCKBOX_HARDWARE
 	fprintf(stderr, "CDBoxInfoWidget::CDBoxInfoWidget() x = %d, y = %d, width = %d height = %d\n", x, y, width, height);
+#endif
 	int ypos=y;
 	int i = 0;
 	frameBuffer->paintBoxRel(x, ypos, width, hheight, COL_MENUHEAD_PLUS_0, RADIUS_LARGE, CORNER_TOP);
-	g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->RenderString(x+10, ypos+ hheight+1, width, g_Locale->getText(LOCALE_EXTRA_DBOXINFO), COL_MENUHEAD, 0, true); // UTF-8
 	frameBuffer->paintBoxRel(x, ypos+ hheight, width, height- hheight, COL_MENUCONTENT_PLUS_0, RADIUS_LARGE, CORNER_BOTTOM);
+#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+	//paint menu head
+	string iconfile = NEUTRINO_ICON_SHELL;
+	int HeadiconOffset = 0;
+	if(!(iconfile.empty())){
+		int w, h;
+		frameBuffer->getIconSize(iconfile.c_str(), &w, &h);
+		HeadiconOffset = w+6;
+	}
+	int fw = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->getWidth();
+	g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->RenderString(x+(fw/3)+HeadiconOffset,y+hheight+1,
+		width-((fw/3)+HeadiconOffset), g_Locale->getText(LOCALE_EXTRA_DBOXINFO),
+		COL_MENUHEAD, 0, true); // UTF-8
+	frameBuffer->paintIcon(iconfile, x + fw/4, y, hheight);
+#endif
 
 	ypos+= hheight + (mheight >>1);
 	FILE* fd = fopen("/proc/cpuinfo", "rt");
@@ -278,6 +324,9 @@ void CDBoxInfoWidget::paint()
 				continue;
 			if (read > 0 && buffer[read-1] == '\n')
 				buffer[read-1] = '\0';
+#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+			buffer[0] = toupper(buffer[0]);
+#endif
 			g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(x+ 10, ypos+ mheight, width - 10, buffer, COL_MENUCONTENT);
 			ypos+= mheight;
 		}
@@ -330,6 +379,97 @@ void CDBoxInfoWidget::paint()
 		int headOffset=0;
 		int mpOffset=0;
 		bool rec_mp=false, memory_flag = false;
+#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+		const int headSize_mem = 5;
+		const char *head_mem[headSize_mem] = {"Memory", "Size", "Used", "Available", "Use%"};
+		// paint mount head
+		for (int j = 0; j < headSize_mem; j++) {
+			switch (j)
+			{
+				case 0:
+				headOffset = 10;
+				break;
+				case 1:
+				headOffset = nameOffset + 20;
+				break;
+				case 2:
+				headOffset = nameOffset + sizeOffset+10 +20;
+				break;
+				case 3:
+				headOffset = nameOffset + (sizeOffset+10)*2+15;
+				break;
+				case 4:
+				headOffset = nameOffset + (sizeOffset+10)*3+15;
+				break;
+			}
+			g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(x+ headOffset, ypos+ mheight, width - 10, head_mem[j], COL_MENUCONTENTINACTIVE);
+		}
+		ypos+= mheight;
+		int m[2][4] = { { 0, 0, 0 }, { 0, 0, 0 } }; // size, used, available
+		const char *n[2] = { "RAM", "Swap" };
+		FILE *procmeminfo = fopen("/proc/meminfo", "r");
+		if (procmeminfo) {
+			char buf[80], a[80];
+			int v;
+			while (fgets(buf, sizeof(buf), procmeminfo))
+				if (2 == sscanf(buf, "%[^:]: %d", a, &v)) {
+					if (!strcasecmp(a, "MemTotal"))
+						m[0][0] = v;
+					else if (!strcasecmp(a, "MemFree"))
+						m[0][2] += v;
+					else if (!strcasecmp(a, "Buffers"))
+						m[0][2] += v;
+					else if (!strcasecmp(a, "Cached"))
+						m[0][2] = v;
+					else if (!strcasecmp(a, "SwapTotal"))
+						m[1][0] = v;
+					else if (!strcasecmp(a, "SwapFree"))
+						m[1][2] = v;
+					else if (!strcasecmp(a, "SwapCached"))
+						m[1][2] = v;
+				}
+			fclose(procmeminfo);
+		}
+		for (int k = 0; k < 2; k++) {
+			m[k][1] = m[k][0] - m[k][2];
+			for (int j = 0; j < headSize_mem; j++) {
+				switch (j) {
+					case 0:
+						mpOffset = 10;
+						snprintf(ubuf,buf_size,"%-20.20s", n[k]);
+						break;
+					case 1:
+						mpOffset = nameOffset + 10;
+						bytes2string(1024 * m[k][0], ubuf, buf_size);
+						break;
+					case 2:
+						mpOffset = nameOffset+ (sizeOffset+10)*1+10;
+						bytes2string(1024 * m[k][1], ubuf, buf_size);
+						break;
+					case 3:
+						mpOffset = nameOffset+ (sizeOffset+10)*2+10;
+						bytes2string(1024 * m[k][2], ubuf, buf_size);
+						break;
+					case 4:
+						mpOffset = nameOffset+ (sizeOffset+10)*3+10;
+						snprintf(ubuf, buf_size, "%4d%%", m[k][0] ? (m[k][1] * 100) / m[k][0] : 0);
+						break;
+				}
+				g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(x + mpOffset, ypos+ mheight, width - 10, ubuf, COL_MENUCONTENT);
+			}
+			int pbw = width - offsetw - 10;
+			if (pbw > 8) /* smaller progressbar is not useful ;) */
+			{
+				CProgressBar pb(x+offsetw, ypos+3, pbw, mheight-10);
+				pb.setBlink();
+				pb.setInvert();
+				pb.setValues(m[k][0] ? (m[k][1] * 100) / m[k][0] : 0, 100);
+				pb.paint(false);
+			}
+			ypos+= mheight;
+		}
+		ypos+= mheight;
+#endif
 		
 		// paint mount head
 		for (int j = 0; j < headSize; j++) {
@@ -359,13 +499,24 @@ void CDBoxInfoWidget::paint()
 			perror("/proc/mounts");
 		}
 		else {
+#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+			map<dev_t,bool>seen;
+#endif
 			while ((mnt = getmntent(mountFile)) != 0) {
 				if (::statfs(mnt->mnt_dir, &s) == 0) {
+#if !defined HAVE_SPARK_HARDWARE && !defined HAVE_DUCKBOX_HARDWARE
 					if (strcmp(mnt->mnt_fsname, "rootfs") == 0) {
 						strcpy(mnt->mnt_fsname, "memory");
 						memory_flag = true;
 					}
+#endif
 
+#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+				struct stat st;
+				if (!stat(mnt->mnt_dir, &st) && seen.find(st.st_dev) != seen.end())
+					continue;
+				seen[st.st_dev] = true;
+#endif
 					switch (s.f_type)
 					{
 					case (int) 0xEF53:      /*EXT2 & EXT3*/
@@ -377,6 +528,9 @@ void CDBoxInfoWidget::paint()
 					case (int) 0x58465342:  /*xfs*/
 					case (int) 0x4d44:      /*msdos*/
 					case (int) 0x72b6:	/*jffs2*/
+#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+					case (int) 0x5941ff53:	/*yaffs2*/
+#endif
 						break;
 					default:
 						continue;
@@ -407,12 +561,20 @@ void CDBoxInfoWidget::paint()
 							switch (j)
 							{
 							case 0: {
+#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+								if ((s.f_type != 0x72b6) && (s.f_type != 0x5941ff53))
+#else
 								if (s.f_type != 0x72b6)
+#endif
 								{
 									char *p1=NULL, *p2=NULL;
 									p1=strchr(g_settings.network_nfs_recordingdir+1,'/') ;
 									p2=strchr(mnt->mnt_dir+1,'/') ;
+#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+									if (p1 && p2) {
+#else
 									if (p2) {
+#endif
 										if (strstr(p1,p2)) {
 
 											rec_mp = true;
@@ -425,7 +587,11 @@ void CDBoxInfoWidget::paint()
 									}
 								}
 								mpOffset = 10;
+#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+								snprintf(ubuf,buf_size,"%-20.20s", mnt->mnt_dir);
+#else
 								snprintf(ubuf,buf_size,"%-10.10s",basename(mnt->mnt_fsname));
+#endif
 							}
 							break;
 							case 1:
