@@ -246,6 +246,7 @@ void CDBoxInfoWidget::paint()
 				case 0x72b6L:		/*jffs2*/
 #if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
 				case 0x5941ff53L:	/*yaffs2*/
+				case 0x3153464AL:	/*jfs*/
 #endif
 #if !defined HAVE_SPARK_HARDWARE && !defined HAVE_DUCKBOX_HARDWARE
 					height += mheight;
@@ -530,6 +531,7 @@ void CDBoxInfoWidget::paint()
 					case (int) 0x72b6:	/*jffs2*/
 #if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
 					case (int) 0x5941ff53:	/*yaffs2*/
+					case (int) 0x3153464A:	/*jfs*/
 #endif
 						break;
 					default:
