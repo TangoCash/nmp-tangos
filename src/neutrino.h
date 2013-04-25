@@ -226,6 +226,7 @@ public:
 		return lastChannelMode;
 	};
 	void SetChannelMode(int mode);
+	void MarkChannelListChanged(void) { g_channel_list_changed = true; };
 	void quickZap(int msg);
 	void numericZap(int msg);
 	void StopSubtitles();
