@@ -142,7 +142,6 @@ private:
 	void saveEpg(bool cvfd_mode);
 	void getAnnounceEpgName(CTimerd::RecordingInfo * eventinfo, std::string &name);
 
-	void ExitRun(const bool write_si = true, int retcode = 0);
 	void RealRun(CMenuWidget &mainSettings);
 	void InitZapper();
 	void InitTimerdClient();
@@ -228,7 +227,6 @@ public:
 		return lastChannelMode;
 	};
 	void SetChannelMode(int mode);
-	void MarkChannelListChanged(void) { g_channel_list_changed = true; };
 	void quickZap(int msg);
 	void numericZap(int msg);
 	void StopSubtitles();
@@ -237,6 +235,12 @@ public:
 	void showInfo(void);
 	CConfigFile* getConfigFile() {return &configfile;};
 	bool 		SDTreloadChannels;
+
+	enum {
+		REBOOT,
+		SHUTDOWN
+	};
+	void ExitRun(const bool write_si = true, int retcode = SHUTDOWN);
 };
 #endif
 

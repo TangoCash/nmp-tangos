@@ -1758,7 +1758,7 @@ void CNeutrinoApp::SetupFonts()
 		}
 		else{
 			  fprintf( stderr,"[neutrino] font file [%s] not found\n neutrino exit\n",FONTDIR"/neutrino.ttf");
-			  _exit(0);
+			  _exit(CNeutrinoApp::SHUTDOWN);
 		}
 
 	}
@@ -3167,7 +3167,7 @@ _repeat:
 	else if( msg == NeutrinoMessages::REBOOT ) {
 		FILE *f = fopen("/tmp/.reboot", "w");
 		fclose(f);
-		ExitRun(true);
+		ExitRun(true, CNeutrinoApp::REBOOT);
 	}
 	else if (msg == NeutrinoMessages::EVT_POPUP || msg == NeutrinoMessages::EVT_EXTMSG) {
 		if (mode != mode_scart) {
@@ -3668,7 +3668,7 @@ void CNeutrinoApp::standbyMode( bool bOnOff, bool fromDeepStandby )
 		cpuFreq->SetCpuFreq(g_settings.cpufreq * 1000 * 1000);
 		powerManager->SetStandby(false, false);
 		CVFD::getInstance()->setMode(CVFD::MODE_TVRADIO);
-		CVFD::getInstance()->ShowText("resume...        ");
+		CVFD::getInstance()->ShowText("resume");
 		videoDecoder->Standby(false);
 		CSectionsdClient::CurrentNextInfo dummy;
 		g_InfoViewer->getEPG(0, dummy);
@@ -3825,13 +3825,13 @@ int CNeutrinoApp::exec(CMenuTarget* parent, const std::string & actionKey)
 		ShowLocalizedMessage(LOCALE_SETTINGS_HELP, LOCALE_RECORDINGMENU_HELP, CMessageBox::mbrBack, CMessageBox::mbBack);
 	}
 	else if(actionKey=="shutdown") {
-		ExitRun(true, 1);
+		ExitRun(true, CNeutrinoApp::SHUTDOWN);
 	}
 	else if(actionKey=="reboot")
 	{
 		FILE *f = fopen("/tmp/.reboot", "w");
 		fclose(f);
-		ExitRun(true);
+		ExitRun(true, CNeutrinoApp::REBOOT);
 		unlink("/tmp/.reboot");
 		returnval = menu_return::RETURN_NONE;
 	}
@@ -4051,9 +4051,9 @@ void sighandler (int signum)
 		delete SHTDCNT::getInstance();
 		stop_video();
 #ifdef __sh__
-		_exit(0);
+		_exit(CNeutrinoApp::SHUTDOWN);
 #else
-		exit(0);
+		exit(CNeutrinoApp::SHUTDOWN);
 #endif
 	default:
 		break;
