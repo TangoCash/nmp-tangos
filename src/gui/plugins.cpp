@@ -70,9 +70,7 @@
 #endif
 
 #include <daemonc/remotecontrol.h>
-#if 0
 #include <gui/luainstance.h>
-#endif
 
 extern CPlugins       * g_PluginList;    /* neutrino.cpp */
 extern CRemoteControl * g_RemoteControl; /* neutrino.cpp */
@@ -131,10 +129,8 @@ void CPlugins::scanDir(const char *dir)
 				new_plugin.pluginfile = fname;
 				if (new_plugin.type == CPlugins::P_TYPE_SCRIPT)
 					new_plugin.pluginfile.append(".sh");
-#if 0
 				else if (new_plugin.type == CPlugins::P_TYPE_LUA)
 					new_plugin.pluginfile.append(".lua");
-#endif
 				else
 					new_plugin.pluginfile.append(".so");
 				// We do not check if new_plugin.pluginfile exists since .cfg in
@@ -350,7 +346,6 @@ void CPlugins::startScriptPlugin(int number)
 
 void CPlugins::startLuaPlugin(int number)
 {
-#if 0
 	const char *script = plugin_list[number].pluginfile.c_str();
 	printf("[CPlugins] executing lua script %s\n",script);
 	if (!file_exists(script))
@@ -362,7 +357,6 @@ void CPlugins::startLuaPlugin(int number)
 	CLuaInstance *lua = new CLuaInstance();
 	lua->runScript(script);
 	delete lua;
-#endif
 }
 
 void CPlugins::startPlugin(int number,int /*param*/)
@@ -390,13 +384,11 @@ void CPlugins::startPlugin(int number,int /*param*/)
 		startScriptPlugin(number);
 		return;
 	}
-#if 0
 	if (plugin_list[number].type == CPlugins::P_TYPE_LUA)
 	{
 		startLuaPlugin(number);
 		return;
 	}
-#endif
 	if (!file_exists(plugin_list[number].pluginfile.c_str()))
 	{
 		printf("[CPlugins] could not find %s,\nperhaps wrong plugin type in %s\n",
@@ -666,10 +658,8 @@ CPlugins::p_type_t CPlugins::getPluginType(int type)
 	case PLUGIN_TYPE_SCRIPT:
 		return P_TYPE_SCRIPT;
 		break;
-#if 0
 	case PLUGIN_TYPE_LUA:
 		return P_TYPE_LUA;
-#endif
 	default:
 		return P_TYPE_DISABLED;
 	}
