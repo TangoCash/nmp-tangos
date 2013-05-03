@@ -509,6 +509,9 @@ void CChannelList::calcSize()
 
 	// calculate height (the infobox below mainbox is handled outside height)
 	info_height = 2*fheight + fdescrheight + 10;
+	if (g_settings.channellist_additional != 0)
+		if (g_settings.channellist_foot != 0)
+			info_height = 2*fheight + 10; 
 	height = frameBuffer->getScreenHeightRel() - info_height;
 
 	// calculate x position
@@ -594,6 +597,12 @@ int CChannelList::show()
 	}
 
 	new_zap_mode = g_settings.channellist_new_zap_mode;
+
+	if (CNeutrinoApp::getInstance()->getMode() == NeutrinoMessages::mode_radio)
+		if (g_settings.channellist_additional == 2) {
+			previous_channellist_additional = g_settings.channellist_additional;
+			g_settings.channellist_additional = 1;
+		}
 
 	calcSize();
 	displayNext = false;
@@ -951,6 +960,10 @@ int CChannelList::show()
 
 void CChannelList::hide()
 {
+	if (CNeutrinoApp::getInstance()->getMode() == NeutrinoMessages::mode_radio)
+		if (g_settings.channellist_additional == 1 && previous_channellist_additional == 2)
+			g_settings.channellist_additional = 2;
+
 	if ((g_settings.channellist_additional == 2) || (previous_channellist_additional == 2)) // with miniTV
 	{
 		videoDecoder->Pig(-1, -1, -1, -1);
@@ -2113,9 +2126,9 @@ void CChannelList::paint()
 		if(CNeutrinoApp::getInstance()->getMode() == NeutrinoMessages::mode_tv) {
 			paint_pig(x+width+5, y+theight+5, pig_width-10, pig_height-10);
 		}
-		else if(CNeutrinoApp::getInstance()->getMode() == NeutrinoMessages::mode_radio) {
+		/*else if(CNeutrinoApp::getInstance()->getMode() == NeutrinoMessages::mode_radio) {
 			g_PicViewer->DisplayImage(DATADIR "/neutrino/icons/radiomode.jpg", x+width+5, y+theight+5, pig_width-10, pig_height-10, frameBuffer->TM_NONE);
-		}
+		}*/
 	}
 }
 
