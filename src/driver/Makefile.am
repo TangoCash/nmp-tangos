@@ -44,11 +44,6 @@ libneutrino_driver_a_SOURCES += \
 	nglcd.cpp
 endif
 
-if BOXTYPE_GENERIC
-libneutrino_driver_a_SOURCES += \
-	glthread.cpp
-endif
-
 if BOXTYPE_COOL
 libneutrino_driver_a_SOURCES += \
 	vfd.cpp

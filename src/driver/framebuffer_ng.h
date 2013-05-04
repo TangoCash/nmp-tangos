@@ -64,9 +64,6 @@ typedef struct fb_var_screeninfo t_fb_var_screeninfo;
 #if HAVE_GENERIC_HARDWARE
 #define USE_OPENGL 1
 #endif
-#ifdef USE_OPENGL
-class GLThreadObj;
-#endif
 
 #if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
 #define DEFAULT_XRES 1280
@@ -175,9 +172,6 @@ class CFrameBuffer
 		int cache_size;
 		void * int_convertRGB2FB(unsigned char *rgbbuff, unsigned long x, unsigned long y, int transp, bool alpha);
 		int m_transparent_default, m_transparent;
-#ifdef USE_OPENGL
-		GLThreadObj *mpGLThreadObj; /* the thread object */
-#endif
 		CFbAccel *accel;
 
 	public:
