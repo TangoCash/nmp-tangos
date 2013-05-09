@@ -547,6 +547,38 @@ void CFbAccel::paintLine(int xa, int ya, int xb, int yb, const fb_pixel_t col)
 #endif
 }
 
+void CFbAccel::blitRGB2RGB(int original_width, int original_height, int height, int width, char *original_data, char *dest_data)
+{
+	fprintf(stderr, "RGBtoRGB: x:%d -> x:%d y:%d -> y:%d\n", original_width,width,original_height,height);
+    STMFBIO_BLT_EXTERN_DATA blt_data;
+    memset(&blt_data, 0, sizeof(STMFBIO_BLT_EXTERN_DATA));
+    blt_data.operation  = BLT_OP_COPY;
+    blt_data.ulFlags    = 0;
+    blt_data.srcOffset  = 0;
+    blt_data.srcPitch   = original_width * 3;
+    blt_data.dstOffset  = 0;
+    blt_data.dstPitch   = width * 3;
+    blt_data.src_top    = 0;
+    blt_data.src_left   = 0;
+    blt_data.src_right  = original_width;
+    blt_data.src_bottom = original_height;
+    blt_data.dst_left   = 0;
+    blt_data.dst_top    = 0;
+    blt_data.dst_right  = width;
+    blt_data.dst_bottom = height;
+    blt_data.srcFormat  = SURF_RGB888;
+    blt_data.dstFormat  = SURF_RGB888;
+    blt_data.srcMemBase = (char *)original_data;
+    blt_data.dstMemBase = (char *)dest_data;
+    blt_data.srcMemSize = original_width * original_height * 3; // we don't need to know the actual mem size
+    blt_data.dstMemSize = width * height * 3;
+
+    if(ioctl(fb->fd, STMFBIO_BLT_EXTERN, &blt_data) < 0)
+        perror("FBIO_BLIT");
+    else
+        ioctl(fb->fd, STMFBIO_SYNC_BLITTER);
+}
+
 #if !HAVE_TRIPLEDRAGON
 void CFbAccel::blit2FB(void *fbbuff, uint32_t width, uint32_t height, uint32_t xoff, uint32_t yoff, uint32_t xp, uint32_t yp, bool transp)
 {

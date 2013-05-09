@@ -805,20 +805,24 @@ void* CPictureViewerGui::decodeThread(void *arg)
 
 void CPictureViewerGui::thrView()
 {
-	if (m_unscaled)
-		m_viewer->DecodeImage(playlist[selected].Filename, true, m_unscaled);
+	//if (m_unscaled)
+	//	m_viewer->DecodeImage(playlist[selected].Filename, true, m_unscaled);
 
 	m_viewer->ShowImage(playlist[selected].Filename, m_unscaled);
 
-#if 0
+#if 1
 	//Decode next
 	unsigned int next=selected+1;
 	if (next > playlist.size()-1)
 		next=0;
 	if (m_state==VIEW)
-		m_viewer->DecodeImage(playlist[next].Filename,true);
+		if (m_unscaled)
+			m_viewer->DecodeImage(playlist[next].Filename, true, m_unscaled);
+		//m_viewer->DecodeImage(playlist[next].Filename,true);
 	else
-		m_viewer->DecodeImage(playlist[next].Filename,false);
+		if (m_unscaled)
+			m_viewer->DecodeImage(playlist[next].Filename, true, m_unscaled);
+		//m_viewer->DecodeImage(playlist[next].Filename,false);
 #endif
 }
 

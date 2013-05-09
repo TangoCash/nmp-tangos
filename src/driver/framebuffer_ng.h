@@ -92,6 +92,7 @@ class CFbAccel
 		void paintPixel(int x, int y, const fb_pixel_t col);
 		void paintRect(const int x, const int y, const int dx, const int dy, const fb_pixel_t col);
 		void paintLine(int xa, int ya, int xb, int yb, const fb_pixel_t col);
+		void blitRGB2RGB(int original_width, int original_height, int height, int width, char *original_data, char *dest_data);
 		void blit2FB(void *fbbuff, uint32_t width, uint32_t height, uint32_t xoff, uint32_t yoff, uint32_t xp, uint32_t yp, bool transp);
 		void waitForIdle(void);
 		void mark(int x, int y, int dx, int dy);
@@ -284,6 +285,7 @@ class CFrameBuffer
 		void* convertRGB2FB(unsigned char *rgbbuff, unsigned long x, unsigned long y, int transp = 0xFF);
 		void* convertRGBA2FB(unsigned char *rgbbuff, unsigned long x, unsigned long y);
 		void displayRGB(unsigned char *rgbbuff, int x_size, int y_size, int x_pan, int y_pan, int x_offs, int y_offs, bool clearfb = true, int transp = 0xFF);
+		void blitRGB2RGB(int original_width, int original_height, int height, int width, char *original_data, char *dest_data);
 		void blit2FB(void *fbbuff, uint32_t width, uint32_t height, uint32_t xoff, uint32_t yoff, uint32_t xp = 0, uint32_t yp = 0, bool transp = false);
 		bool blitToPrimary(unsigned int * data, int dx, int dy, int sw, int sh);
 

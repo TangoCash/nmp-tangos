@@ -1216,6 +1216,10 @@ void * CFrameBuffer::int_convertRGB2FB(unsigned char *rgbbuff, unsigned long x, 
 	return (void *) fbbuff;
 }
 
+void CFrameBuffer::blitRGB2RGB(int original_width, int original_height, int height, int width, char *original_data, char *dest_data)
+{
+	accel->blitRGB2RGB(original_width, original_height, height, width, original_data, dest_data);
+}
 void * CFrameBuffer::convertRGB2FB(unsigned char *rgbbuff, unsigned long x, unsigned long y, int transp)
 {
 	return int_convertRGB2FB(rgbbuff, x, y, transp, false);
@@ -1256,7 +1260,11 @@ void CFrameBuffer::displayRGB(unsigned char *rgbbuff, int x_size, int y_size, in
         if(clearfb)
                 CFrameBuffer::getInstance()->Clear();
 
-        blit2FB(fbbuff, x_size, y_size, x_offs, y_offs, x_pan, y_pan);
+		/* fix segfault if size is bigger than fb */
+	    int xc = (x_size > xRes) ? xRes : x_size;
+		int yc = (y_size > yRes) ? yRes : y_size;
+
+		blit2FB(fbbuff, xc, yc, x_offs, y_offs, x_pan, y_pan);
         cs_free_uncached(fbbuff);
 }
 
