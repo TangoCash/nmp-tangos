@@ -1298,6 +1298,12 @@ printf("[neutrino] CSectionsdClient::EVT_GOT_CN_EPG\n");
 								continue;
 							}
 #endif
+							FILE* rclocked = fopen("/tmp/rc.locked", "r");
+							if (rclocked)
+							{
+								fclose(rclocked);
+								continue;
+							}
 							*msg = trkey;
 							*data = 0; /* <- button pressed */
 							if(g_settings.key_click)
