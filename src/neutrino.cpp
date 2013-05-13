@@ -3596,7 +3596,7 @@ void CNeutrinoApp::standbyMode( bool bOnOff, bool fromDeepStandby )
 #ifdef ENABLE_GRAPHLCD
 		nGLCD::StandbyMode(true);
 #endif
-		CVFD::getInstance()->ShowText("standby...        ");
+		CVFD::getInstance()->ShowText("standby...");
 		if( mode == mode_scart ) {
 			//g_Controld->setScartMode( 0 );
 		}
