@@ -1715,7 +1715,7 @@ void CNeutrinoApp::CmdParser(int argc, char **argv)
 		else {
 			dprintf(DEBUG_NORMAL, "Usage: neutrino [-u | --enable-update] "
 					      "[-v | --verbose 0..3]\n");
-			exit(1);
+			exit(CNeutrinoApp::REBOOT);
 		}
 	}
 }
@@ -3916,7 +3916,7 @@ int CNeutrinoApp::exec(CMenuTarget* parent, const std::string & actionKey)
 			for(int i = 3; i < 256; i++)
 				close(i);
 			execvp(global_argv[0], global_argv); // no return if successful
-			exit(1);
+			exit(CNeutrinoApp::REBOOT);
 		}
 	}
 	else if(actionKey == "moviedir") {
