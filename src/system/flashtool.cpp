@@ -47,7 +47,7 @@
 //#include <libcramfs.h>
 
 #include <global.h>
-
+#include <neutrino.h>
 
 CFlashTool::CFlashTool()
 {
