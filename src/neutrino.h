@@ -238,8 +238,8 @@ public:
 	bool 		g_channel_list_changed;
 
 	enum {
-		REBOOT,
-		SHUTDOWN
+		SHUTDOWN,
+		REBOOT
 	};
 	void ExitRun(const bool write_si = true, int retcode = SHUTDOWN);
 };

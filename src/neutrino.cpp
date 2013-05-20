@@ -2236,7 +2236,7 @@ fprintf(stderr, "[neutrino start] %d  -> %5ld ms\n", __LINE__, time_monotonic_ms
 TIMER_STOP("################################## after all ##################################");
 	RealRun(personalize.getWidget(0)/**main**/);
 
-	ExitRun(true, can_deepstandby);
+	ExitRun(true, !can_deepstandby);
 
 	return 0;
 }
@@ -3119,7 +3119,7 @@ _repeat:
 			}
 		}
 		if (g_settings.shutdown_real && can_deepstandby)
-			ExitRun(true, can_deepstandby);
+			ExitRun(true, !can_deepstandby);
 		else if(mode != mode_standby)
 			standbyMode( true );
 		return messages_return::handled;
@@ -3157,7 +3157,7 @@ _repeat:
 	}
 	else if( msg == NeutrinoMessages::SHUTDOWN ) {
 		if(!skipShutdownTimer) {
-			ExitRun(true, can_deepstandby);
+			ExitRun(true, !can_deepstandby);
 		}
 		else {
 			skipShutdownTimer=false;
