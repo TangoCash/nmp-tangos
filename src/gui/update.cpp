@@ -567,16 +567,28 @@ void CFlashExpert::readmtd(int preadmtd)
 {
 	char tmpStr[256];
 	struct timeval tv;
-	gettimeofday(&tv, NULL);	
+	gettimeofday(&tv, NULL);
 	strftime(tmpStr, sizeof(tmpStr), "_%Y%m%d_%H%M.img", localtime(&tv.tv_sec));
 	CMTDInfo* mtdInfo = CMTDInfo::getInstance();
-	std::string filename = (std::string)g_settings.update_dir + "/" + mtdInfo->getMTDName(preadmtd);
+
+	std::string filename = mtdInfo->getMTDName(preadmtd);
+//printf("update.cpp: filename ORG: %s\n", filename.c_str());
+	char invalidChars[10] = "\\:/\"<>?*|";
+	for (int ivi = filename.length(); ivi >= 0; ivi--) {
+		for (int ivj = 0; ivj <= 9; ivj++) {
+			if (filename[ivi] == invalidChars[ivj]) filename.erase(ivi,1);
+		}
+	}
+//printf("update.cpp: filename NEW: %s\n", filename.c_str());
+	filename = (std::string)g_settings.update_dir + "/" + filename;
 	filename += tmpStr;
 
 	if (preadmtd == -1) {
 		filename = (std::string)g_settings.update_dir + "/flashimage.img"; // US-ASCII (subset of UTF-8 and ISO8859-1)
 		preadmtd = MTD_OF_WHOLE_IMAGE;
 	}
+//printf("update.cpp: filename COMPLETE: %s\n", filename.c_str());
+
 	setTitle(LOCALE_FLASHUPDATE_TITLEREADFLASH);
 	paint();
 	showGlobalStatus(0);
