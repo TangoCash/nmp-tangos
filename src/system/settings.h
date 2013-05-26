@@ -56,6 +56,11 @@ struct SNeutrinoSettings
 	int analog_mode1;
 	int analog_mode2;
 	int video_43mode;
+#ifdef BOXMODEL_APOLLO
+	int brightness;
+	int contrast;
+	int saturation;
+#endif
 #if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
 	int psi_contrast;
 	int psi_saturation;
@@ -63,10 +68,6 @@ struct SNeutrinoSettings
 	int psi_tint;
 	int psi_step;
 	int hdmi_color_space;
-#ifdef BOXMODEL_APOLLO
-	int brightness;
-	int contrast;
-	int saturation;
 #endif
 	char current_volume;
 	int current_volume_step;
