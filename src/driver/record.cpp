@@ -41,7 +41,7 @@
 #include <gui/filebrowser.h>
 #include <gui/movieplayer.h>
 #include <gui/nfs.h>
-//#include <gui/widget/hintbox.h>
+#include <gui/widget/hintbox.h>
 #include <gui/widget/messagebox.h>
 #include <gui/widget/mountchooser.h>
 #include <daemonc/remotecontrol.h>
@@ -128,12 +128,12 @@ bool CRecordInstance::SaveXml()
 	return false;
 }
 
-/*void CRecordInstance::WaitRecMsg(time_t StartTime, time_t WaitTime)
+void CRecordInstance::WaitRecMsg(time_t StartTime, time_t WaitTime)
 {
 	return;
 	while (time(0) < StartTime + WaitTime)
 		usleep(100000);
-}*/
+}
 
 int CRecordInstance::GetStatus()
 {
@@ -147,9 +147,10 @@ record_error_msg_t CRecordInstance::Start(CZapitChannel * channel)
 	int fd;
 	std::string tsfile;
 
-	/*time_t msg_start_time = time(0);
+	time_t msg_start_time = time(0);
 	CHintBox hintBox(LOCALE_MESSAGEBOX_INFO, g_Locale->getText(LOCALE_RECORDING_START));
-	hintBox.paint();*/
+	if (!(autoshift && g_settings.auto_timeshift))
+		hintBox.paint();
 
 	tsfile = std::string(filename) + ".ts";
 
@@ -158,7 +159,7 @@ record_error_msg_t CRecordInstance::Start(CZapitChannel * channel)
 	fd = open(tsfile.c_str(), O_CREAT | O_RDWR | O_LARGEFILE | O_TRUNC , S_IRWXO | S_IRWXG | S_IRWXU);
 	if(fd < 0) {
 		perror(tsfile.c_str());
-		//hintBox.hide();
+		hintBox.hide();
 		return RECORD_INVALID_DIRECTORY;
 	}
 
@@ -206,12 +207,13 @@ record_error_msg_t CRecordInstance::Start(CZapitChannel * channel)
 		record = NULL;
 		close(fd);
 		unlink(tsfile.c_str());
-		//hintBox.hide();
+		hintBox.hide();
 		return RECORD_FAILURE;
 	}
 
+printf("CRecordInstance::Start: fe %d demux %d\n", frontend->getNumber(), channel->getRecordDemux());
 	if(!autoshift)
-		CFEManager::getInstance()->lockFrontend(frontend);//FIXME testing
+		CFEManager::getInstance()->lockFrontend(frontend, channel);//FIXME testing
 
 	start_time = time(0);
 	SaveXml();
@@ -219,8 +221,8 @@ record_error_msg_t CRecordInstance::Start(CZapitChannel * channel)
 	CCamManager::getInstance()->Start(channel->getChannelID(), CCamManager::RECORD);
 
 	//CVFD::getInstance()->ShowIcon(VFD_ICON_CAM1, true);
-	//WaitRecMsg(msg_start_time, 2);
-	//hintBox.hide();
+	WaitRecMsg(msg_start_time, 2);
+	hintBox.hide();
 	return RECORD_OK;
 }
 
@@ -240,8 +242,9 @@ bool CRecordInstance::Stop(bool remove_event)
 	time_t end_time = time(0);
 	recMovieInfo->length = (int) round((double) (end_time - start_time) / (double) 60);
 
-	/*CHintBox hintBox(LOCALE_MESSAGEBOX_INFO, rec_stop_msg.c_str());
-	hintBox.paint();*/
+	CHintBox hintBox(LOCALE_MESSAGEBOX_INFO, rec_stop_msg.c_str());
+	if (!(autoshift && g_settings.auto_timeshift))
+		hintBox.paint();
 
 	printf("%s: channel %" PRIx64 " recording_id %d\n", __func__, channel_id, recording_id);
 	SaveXml();
@@ -249,7 +252,7 @@ bool CRecordInstance::Stop(bool remove_event)
 	record->Stop();
 
 	if(!autoshift)
-		CFEManager::getInstance()->unlockFrontend(frontend);//FIXME testing
+		CFEManager::getInstance()->unlockFrontend(frontend, true);//FIXME testing
 
         CCamManager::getInstance()->Stop(channel_id, CCamManager::RECORD);
 
@@ -265,8 +268,8 @@ bool CRecordInstance::Stop(bool remove_event)
 		recording_id = 0;
 	}
         //CVFD::getInstance()->ShowIcon(VFD_ICON_CAM1, false);
-	//WaitRecMsg(end_time, 2);
-	//hintBox.hide();
+	WaitRecMsg(end_time, 2);
+	hintBox.hide();
 	return true;
 }
 
@@ -676,7 +679,10 @@ void CRecordInstance::GetRecordString(std::string &str)
 	char stime[15];
 	int err = GetStatus();
 	strftime(stime, sizeof(stime), "%H:%M:%S ", localtime(&start_time));
-	str = stime + channel->getName() + ": " + GetEpgTitle() + ((err & REC_STATUS_OVERFLOW) ? "  [!]" : "");
+	time_t duration = time(0) - start_time;
+	char dtime[15];
+	snprintf(dtime, sizeof(dtime), " (%02d:%02d)", (int) duration/3600, (int) duration/60);
+	str = stime + channel->getName() + ": " + GetEpgTitle() + ((err & REC_STATUS_OVERFLOW) ? "  [!]" : "") + dtime;
 }
 
 //-------------------------------------------------------------------------
@@ -865,6 +871,8 @@ bool CRecordManager::Record(const CTimerd::RecordingInfo * const eventinfo, cons
 	printf("%s channel_id %" PRIx64 " epg: %" PRIx64 ", apidmode 0x%X\n", __func__,
 	       eventinfo->channel_id, eventinfo->epgID, eventinfo->apids);
 
+	if (g_settings.recording_type == CNeutrinoApp::RECORDING_OFF)
+		return false;
 #if 0
 	if(!CheckRecording(eventinfo))
 		return false;
@@ -1091,10 +1099,10 @@ void CRecordManager::StopInstance(CRecordInstance * inst, bool remove_event)
 
 	if(inst->Timeshift())
 		autoshift = false;
+
 #ifdef BOXMODEL_SPARK7162
 		CVFD::getInstance()->SetIcons(SPARK_TIMESHIFT, false);
 #endif
-
 #if 0
 	t_channel_id live_channel_id = CZapit::getInstance()->GetCurrentChannelID();
 	if(inst->GetChannelId() == live_channel_id)
@@ -1284,7 +1292,6 @@ void CRecordManager::StartTimeshift()
 #ifdef BOXMODEL_SPARK7162
 		CVFD::getInstance()->SetIcons(SPARK_TIMESHIFT, true);
 #endif
-
 #if 0
 		if(RecordingStatus(live_channel_id))
 		{
@@ -1320,7 +1327,7 @@ void CRecordManager::StartTimeshift()
 		if(res)
 		{
 			CMoviePlayerGui::getInstance().exec(NULL, tmode);
-			if(g_settings.temp_timeshift)
+			if(g_settings.temp_timeshift && !g_settings.auto_timeshift)
 				ShowMenu();
 		}
 	}
@@ -1328,6 +1335,9 @@ void CRecordManager::StartTimeshift()
 
 int CRecordManager::exec(CMenuTarget* parent, const std::string & actionKey )
 {
+	if (g_settings.recording_type == CNeutrinoApp::RECORDING_OFF)
+		return menu_return::RETURN_REPAINT;
+
 	if(parent)
 		parent->hide();
 
@@ -1607,12 +1617,12 @@ bool CRecordManager::CutBackNeutrino(const t_channel_id channel_id, CFrontend * 
 		/* first try to get frontend for record with locked live */
 		bool unlock = true;
 		CFEManager::getInstance()->lockFrontend(live_fe);
-		frontend = CFEManager::getInstance()->allocateFE(channel);
+		frontend = CFEManager::getInstance()->allocateFE(channel, true);
 		if (frontend == NULL) {
 			/* no frontend, try again with unlocked live */
 			unlock = false;
 			CFEManager::getInstance()->unlockFrontend(live_fe);
-			frontend = CFEManager::getInstance()->allocateFE(channel);
+			frontend = CFEManager::getInstance()->allocateFE(channel, true);
 		}
 		if (frontend == NULL)
 			return false;
@@ -1642,7 +1652,22 @@ bool CRecordManager::CutBackNeutrino(const t_channel_id channel_id, CFrontend * 
 		if (unlock)
 			CFEManager::getInstance()->unlockFrontend(live_fe);
 	}
+#ifdef DYNAMIC_DEMUX
+	else {
+		frontend = CFEManager::getInstance()->allocateFE(channel, true);
+	}
+	printf("%s: record demux: %d\n", __FUNCTION__, channel->getRecordDemux());
+	if (channel->getRecordDemux() == 0)
+		ret = false;
+#endif
 	if(ret) {
+#ifdef ENABLE_PIP
+		/* FIXME until proper demux management */
+		t_channel_id pip_channel_id = CZapit::getInstance()->GetPipChannelID();
+		if ((pip_channel_id == channel_id) && (channel->getRecordDemux() == channel->getPipDemux()))
+			g_Zapit->stopPip();
+#endif
+
 		if(StopSectionsd) {
 			printf("%s: g_Sectionsd->setPauseScanning(true)\n", __FUNCTION__);
 			g_Sectionsd->setPauseScanning(true);

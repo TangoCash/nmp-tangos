@@ -31,6 +31,7 @@
 #include <global.h>
 #include <neutrino.h>
 
+#include <gui/audiomute.h>
 #include <gui/movieplayer.h>
 #include <gui/infoviewer.h>
 #include <gui/timeosd.h>
@@ -39,6 +40,7 @@
 #include <gui/plugins.h>
 #include <driver/screenshot.h>
 #include <driver/volume.h>
+#include <driver/display.h>
 #include <system/helpers.h>
 #include <system/set_threadname.h>
 #ifdef ENABLE_GRAPHLCD
@@ -173,6 +175,8 @@ void CMoviePlayerGui::cutNeutrino()
 
 	CNeutrinoApp::getInstance()->handleMsg(NeutrinoMessages::CHANGEMODE, NeutrinoMessages::mode_ts);
 	m_LastMode = (CNeutrinoApp::getInstance()->getLastMode() | NeutrinoMessages::norezap);
+	/* set g_InfoViewer update timer to 1 sec, should be reset to default from restoreNeutrino->set neutrino mode  */
+	g_InfoViewer->setUpdateTimer(1000 * 1000);
 }
 
 void CMoviePlayerGui::restoreNeutrino()
@@ -267,7 +271,7 @@ int CMoviePlayerGui::exec(CMenuTarget * parent, const std::string & actionKey)
 		timeshift = 0;
 		return menu_return::RETURN_EXIT_ALL;
 	}
-	return menu_ret;
+	return menu_ret; //menu_return::RETURN_REPAINT;
 }
 
 void CMoviePlayerGui::updateLcd()
@@ -286,13 +290,21 @@ void CMoviePlayerGui::updateLcd()
 #if !defined(BOXMODEL_UFS910) && !defined(BOXMODEL_UFS912) && !defined(BOXMODEL_UFS913) && !defined(BOXMODEL_UFS922)
 			lcd = "|| ";
 #endif
+			if (speed < 0) {
+				sprintf(tmp, "%dx<| ", abs(speed));
+				lcd = tmp;
+			} else if (speed > 0) {
+				sprintf(tmp, "%dx|> ", abs(speed));
+				lcd = tmp;
+			} else
+				lcd = "|| ";
 			break;
 		case CMoviePlayerGui::REW:
-			sprintf(tmp, "%dx<< ", speed);
+			sprintf(tmp, "%dx<< ", abs(speed));
 			lcd = tmp;
 			break;
 		case CMoviePlayerGui::FF:
-			sprintf(tmp, "%dx>> ", speed);
+			sprintf(tmp, "%dx>> ", abs(speed));
 			lcd = tmp;
 			break;
 		case CMoviePlayerGui::PLAY:
@@ -397,6 +409,7 @@ bool CMoviePlayerGui::SelectFile()
 			menu_ret = moviebrowser->getMenuRet();
 	} 
 	else { // filebrowser
+		CAudioMute::getInstance()->enableMuteIcon(false);
 		if (filebrowser->exec(Path_local.c_str()) == true) {
 			Path_local = filebrowser->getCurrentDir();
 			CFile *file;
@@ -406,22 +419,22 @@ bool CMoviePlayerGui::SelectFile()
 				ret = true;
 				if(file->getType() == CFile::FILE_PLAYLIST) {
 					std::ifstream infile;
-					char cLine[256];
-					char name[255] = { 0 };
+					char cLine[1024];
+					char name[1024] = { 0 };
 					infile.open(file->Name.c_str(), std::ifstream::in);
 					while (infile.good())
 					{
-						infile.getline(cLine, 255);
+						infile.getline(cLine, sizeof(cLine));
 						if (cLine[strlen(cLine)-1]=='\r')
 							cLine[strlen(cLine)-1]=0;
 
-						int duration;
-						sscanf(cLine, "#EXTINF:%d,%[^\n]\n", &duration, name);
+						int dur;
+						sscanf(cLine, "#EXTINF:%d,%[^\n]\n", &dur, name);
 						if (strlen(cLine) > 0 && cLine[0]!='#')
 						{
 							char *url = strstr(cLine, "http://");
 							if (url != NULL) {
-								printf("name %s [%d] url: %s\n", name, duration, url);
+								printf("name %s [%d] url: %s\n", name, dur, url);
 								full_name = url;
 								if(strlen(name))
 									file_name = name;
@@ -432,6 +445,7 @@ bool CMoviePlayerGui::SelectFile()
 			}
 		} else
 			menu_ret = filebrowser->getMenuRet();
+		CAudioMute::getInstance()->enableMuteIcon(true);
 	}
 	if(ret && file_name.empty()) {
 		std::string::size_type pos = full_name.find_last_of('/');
@@ -474,13 +488,13 @@ void CMoviePlayerGui::PlayFile(void)
 	neutrino_msg_data_t data;
 	menu_ret = menu_return::RETURN_REPAINT;
 
-	int position = 0, duration = 0;
 	bool first_start_timeshift = false;
 	bool time_forced = false;
 	bool update_lcd = true;
 	int eof = 0;
 
-	CTimeOSD FileTime;
+	//CTimeOSD FileTime;
+	position = 0, duration = 0;
 
 	playstate = CMoviePlayerGui::STOPPED;
 	printf("Startplay at %d seconds\n", startposition/1000);
@@ -526,11 +540,11 @@ void CMoviePlayerGui::PlayFile(void)
 		playback->Close();
 	} else {
 		playstate = CMoviePlayerGui::PLAY;
-		CVFD::getInstance()->ShowIcon(VFD_ICON_PLAY, true);
+		CVFD::getInstance()->ShowIcon(FP_ICON_PLAY, true);
 #if HAVE_DUCKBOX_HARDWARE || BOXMODEL_SPARK7162
-		CVFD::getInstance()->ShowIcon(VFD_ICON_FR, false);
-		CVFD::getInstance()->ShowIcon(VFD_ICON_FF, false);
-		CVFD::getInstance()->ShowIcon(VFD_ICON_PAUSE, false);
+		CVFD::getInstance()->ShowIcon(FP_ICON_FR, false);
+		CVFD::getInstance()->ShowIcon(FP_ICON_FF, false);
+		CVFD::getInstance()->ShowIcon(FP_ICON_PAUSE, false);
 #endif
 		if(timeshift) {
 			first_start_timeshift = true;
@@ -550,13 +564,14 @@ void CMoviePlayerGui::PlayFile(void)
 			if(timeshift == 3) {
 				startposition = duration;
 			} else {
-				if(g_settings.timeshift_pause) {
+				if(g_settings.timeshift_pause)
+				{
 					playstate = CMoviePlayerGui::PAUSE;
 #if HAVE_DUCKBOX_HARDWARE || BOXMODEL_SPARK7162
-					CVFD::getInstance()->ShowIcon(VFD_ICON_PLAY, false);
-					CVFD::getInstance()->ShowIcon(VFD_ICON_FR, false);
-					CVFD::getInstance()->ShowIcon(VFD_ICON_FF, false);
-					CVFD::getInstance()->ShowIcon(VFD_ICON_PAUSE, true);
+					CVFD::getInstance()->ShowIcon(FP_ICON_PLAY, false);
+					CVFD::getInstance()->ShowIcon(FP_ICON_FR, false);
+					CVFD::getInstance()->ShowIcon(FP_ICON_FF, false);
+					CVFD::getInstance()->ShowIcon(FP_ICON_PAUSE, true);
 #endif
 				}
 				if(timeshift == 1)
@@ -579,8 +594,9 @@ void CMoviePlayerGui::PlayFile(void)
 
 #if HAVE_DUCKBOX_HARDWARE || BOXMODEL_SPARK7162
 	int xres, yres, framerate;
-	CVFD::getInstance()->ShowIcon(VFD_ICON_LOCK, false);
+	CVFD::getInstance()->ShowIcon(FP_ICON_LOCK, false);
 #endif
+	CAudioMute::getInstance()->enableMuteIcon(true);
 
 	while (playstate >= CMoviePlayerGui::PLAY)
 	{
@@ -600,7 +616,7 @@ void CMoviePlayerGui::PlayFile(void)
 			updateLcd();
 		}
 		if (first_start_timeshift) {
-			callInfoViewer(duration, position);
+			callInfoViewer(/*duration, position*/);
 			first_start_timeshift = false;
 		}
 
@@ -616,6 +632,11 @@ void CMoviePlayerGui::PlayFile(void)
 #endif
 
 				playback->GetSpeed(speed);
+				/* at BOF lib set speed 1, check it */
+				if ((playstate != CMoviePlayerGui::PLAY) && (speed == 1)) {
+					playstate = CMoviePlayerGui::PLAY;
+					update_lcd = true;
+				}
 #ifdef DEBUG
 				printf("CMoviePlayerGui::PlayFile: speed %d position %d duration %d (%d, %d%%)\n", speed, position, duration, duration-position, file_prozent);
 #endif
@@ -623,7 +644,7 @@ void CMoviePlayerGui::PlayFile(void)
 				if ((position > 100) && (file_prozent < 3))
 				{
 					videoDecoder->getPictureInfo(xres, yres, framerate);
-					CVFD::getInstance()->ShowIcon(VFD_ICON_HD, (yres > 576));
+					CVFD::getInstance()->ShowIcon(FP_ICON_HD, (yres > 576));
 				}
 #endif
 				/* in case ffmpeg report incorrect values */
@@ -657,34 +678,33 @@ void CMoviePlayerGui::PlayFile(void)
 #endif
 		} else if (msg == (neutrino_msg_t) g_settings.mpkey_play) {
 			if (playstate > CMoviePlayerGui::PLAY) {
-				update_lcd = true;
 				playstate = CMoviePlayerGui::PLAY;
 #if HAVE_DUCKBOX_HARDWARE || BOXMODEL_SPARK7162
-				CVFD::getInstance()->ShowIcon(VFD_ICON_PLAY, true);
-				CVFD::getInstance()->ShowIcon(VFD_ICON_PAUSE, false);
-				CVFD::getInstance()->ShowIcon(VFD_ICON_FR, false);
-				CVFD::getInstance()->ShowIcon(VFD_ICON_FF, false);
+				CVFD::getInstance()->ShowIcon(FP_ICON_PLAY, true);
+				CVFD::getInstance()->ShowIcon(FP_ICON_PAUSE, false);
+				CVFD::getInstance()->ShowIcon(FP_ICON_FR, false);
+				CVFD::getInstance()->ShowIcon(FP_ICON_FF, false);
 #endif
 				speed = 1;
 				playback->SetSpeed(speed);
-				if (!timeshift) {
-					callInfoViewer(duration, position);
-				}
+				//update_lcd = true;
+				updateLcd();
+				if (!timeshift)
+					callInfoViewer(/*duration, position*/);
 			}
 			if (time_forced) {
 				time_forced = false;
 				FileTime.hide();
 			}
 		} else if (msg == (neutrino_msg_t) g_settings.mpkey_pause) {
-			update_lcd = true;
 			if (playstate == CMoviePlayerGui::PAUSE) {
 				playstate = CMoviePlayerGui::PLAY;
 				//CVFD::getInstance()->ShowIcon(VFD_ICON_PAUSE, false);
 #if HAVE_DUCKBOX_HARDWARE || BOXMODEL_SPARK7162
-				CVFD::getInstance()->ShowIcon(VFD_ICON_PLAY, true);
-				CVFD::getInstance()->ShowIcon(VFD_ICON_PAUSE, false);
-				CVFD::getInstance()->ShowIcon(VFD_ICON_FR, false);
-				CVFD::getInstance()->ShowIcon(VFD_ICON_FF, false);
+				CVFD::getInstance()->ShowIcon(FP_ICON_PLAY, true);
+				CVFD::getInstance()->ShowIcon(FP_ICON_PAUSE, false);
+				CVFD::getInstance()->ShowIcon(FP_ICON_FR, false);
+				CVFD::getInstance()->ShowIcon(FP_ICON_FF, false);
 #endif
 				speed = 1;
 				playback->SetSpeed(speed);
@@ -692,16 +712,18 @@ void CMoviePlayerGui::PlayFile(void)
 				playstate = CMoviePlayerGui::PAUSE;
 				//CVFD::getInstance()->ShowIcon(VFD_ICON_PAUSE, true);
 #if HAVE_DUCKBOX_HARDWARE || BOXMODEL_SPARK7162
-				CVFD::getInstance()->ShowIcon(VFD_ICON_PLAY, false);
-				CVFD::getInstance()->ShowIcon(VFD_ICON_PAUSE, true);
-				CVFD::getInstance()->ShowIcon(VFD_ICON_FR, false);
-				CVFD::getInstance()->ShowIcon(VFD_ICON_FF, false);
+				CVFD::getInstance()->ShowIcon(FP_ICON_PLAY, false);
+				CVFD::getInstance()->ShowIcon(FP_ICON_PAUSE, true);
+				CVFD::getInstance()->ShowIcon(FP_ICON_FR, false);
+				CVFD::getInstance()->ShowIcon(FP_ICON_FF, false);
 #endif
 				speed = 0;
 				playback->SetSpeed(speed);
 			}
+			//update_lcd = true;
+			updateLcd();
 			if (!timeshift)
-				callInfoViewer(duration, position);
+				callInfoViewer(/*duration, position*/);
 
 		} else if (msg == (neutrino_msg_t) g_settings.mpkey_bookmark) {
 			handleMovieBrowser((neutrino_msg_t) g_settings.mpkey_bookmark, position);
@@ -713,31 +735,42 @@ void CMoviePlayerGui::PlayFile(void)
 		} else if ((msg == (neutrino_msg_t) g_settings.mpkey_rewind) ||
 				(msg == (neutrino_msg_t) g_settings.mpkey_forward)) {
 
+			int newspeed;
 			if (msg == (neutrino_msg_t) g_settings.mpkey_rewind) {
-				speed = (speed >= 0) ? -1 : speed - 1;
 #if HAVE_DUCKBOX_HARDWARE || BOXMODEL_SPARK7162
-				CVFD::getInstance()->ShowIcon(VFD_ICON_PLAY, true);
-				CVFD::getInstance()->ShowIcon(VFD_ICON_PAUSE, false);
-				CVFD::getInstance()->ShowIcon(VFD_ICON_FR, true);
-				CVFD::getInstance()->ShowIcon(VFD_ICON_FF, false);
+				CVFD::getInstance()->ShowIcon(FP_ICON_PLAY, true);
+				CVFD::getInstance()->ShowIcon(FP_ICON_PAUSE, false);
+				CVFD::getInstance()->ShowIcon(FP_ICON_FR, true);
+				CVFD::getInstance()->ShowIcon(FP_ICON_FF, false);
 #endif
 				playstate = CMoviePlayerGui::REW;
 			} else {
 				speed = (speed <= 0) ? 2 : speed + 1;
 #if HAVE_DUCKBOX_HARDWARE || BOXMODEL_SPARK7162
-				CVFD::getInstance()->ShowIcon(VFD_ICON_PLAY, true);
-				CVFD::getInstance()->ShowIcon(VFD_ICON_PAUSE, false);
-				CVFD::getInstance()->ShowIcon(VFD_ICON_FR, false);
-				CVFD::getInstance()->ShowIcon(VFD_ICON_FF, true);
+				CVFD::getInstance()->ShowIcon(FP_ICON_PLAY, true);
+				CVFD::getInstance()->ShowIcon(FP_ICON_PAUSE, false);
+				CVFD::getInstance()->ShowIcon(FP_ICON_FR, false);
+				CVFD::getInstance()->ShowIcon(FP_ICON_FF, true);
 				playstate = CMoviePlayerGui::FF;
 #endif
+				newspeed = (speed >= 0) ? -1 : speed - 1;
+				if (playstate != CMoviePlayerGui::PAUSE)
+					playstate = CMoviePlayerGui::REW;
+			} else {
+				newspeed = (speed <= 0) ? 2 : speed + 1;
+				if (playstate != CMoviePlayerGui::PAUSE)
+					playstate = CMoviePlayerGui::FF;
 			}
 			/* if paused, playback->SetSpeed() start slow motion */
-			playback->SetSpeed(speed);
-			update_lcd = true;
+			if (playback->SetSpeed(newspeed)) {
+				printf("SetSpeed: update speed\n");
+				speed = newspeed;
+				updateLcd();
+			}
+			//update_lcd = true;
 
 			if (!timeshift)
-				callInfoViewer(duration, position);
+				callInfoViewer(/*duration, position*/);
 
 			if (!FileTime.IsVisible()) {
 				FileTime.show(position);
@@ -788,7 +821,7 @@ void CMoviePlayerGui::PlayFile(void)
 			if (!cancel && ((3 == sscanf(Value, "%d:%d:%d", &hh, &mm, &ss)) || (2 == sscanf(Value, "%d:%d", &hh, &mm))) && (1000 * (hh * 3600 + mm * 60 + ss) < duration))
 				playback->SetPosition(1000 * (hh * 3600 + mm * 60 + ss), true);
 		} else if (msg == CRCInput::RC_help || msg == CRCInput::RC_info) {
-			callInfoViewer(duration, position);
+			callInfoViewer(/*duration, position*/);
 			update_lcd = true;
 			//showHelpTS();
 		} else if(timeshift && (msg == CRCInput::RC_text || msg == CRCInput::RC_epg || msg == NeutrinoMessages::SHOW_EPG)) {
@@ -887,20 +920,22 @@ void CMoviePlayerGui::PlayFile(void)
 	playback->SetSpeed(1);
 	playback->Close();
 
-	CVFD::getInstance()->ShowIcon(VFD_ICON_PLAY, false);
-	CVFD::getInstance()->ShowIcon(VFD_ICON_PAUSE, false);
+	CVFD::getInstance()->ShowIcon(FP_ICON_PLAY, false);
+	CVFD::getInstance()->ShowIcon(FP_ICON_PAUSE, false);
 
 #if HAVE_DUCKBOX_HARDWARE || BOXMODEL_SPARK7162
-	CVFD::getInstance()->ShowIcon(VFD_ICON_FR, false);
-	CVFD::getInstance()->ShowIcon(VFD_ICON_FF, false);
+	CVFD::getInstance()->ShowIcon(FP_ICON_FR, false);
+	CVFD::getInstance()->ShowIcon(FP_ICON_FF, false);
 #endif
 	restoreNeutrino();
+
+	CAudioMute::getInstance()->enableMuteIcon(false);
 
 	if (g_settings.mode_clock)
 		InfoClock->StartClock();
 }
 
-void CMoviePlayerGui::callInfoViewer(const int duration, const int curr_pos)
+void CMoviePlayerGui::callInfoViewer(/*const int duration, const int curr_pos*/)
 {
 	if(timeshift) {
 		g_InfoViewer->showTitle(CNeutrinoApp::getInstance()->channelList->getActiveChannelNumber(),
@@ -914,18 +949,19 @@ void CMoviePlayerGui::callInfoViewer(const int duration, const int curr_pos)
 
 	if (isMovieBrowser && p_movie_info) {
 		g_InfoViewer->showMovieTitle(playstate, p_movie_info->epgChannel, p_movie_info->epgTitle, p_movie_info->epgInfo1,
-					     duration, curr_pos);
+					     duration, position);
 		return;
 	}
 
 	/* not moviebrowser => use the filename as title */
+
 	if (isWebTV && file_name.find_first_of('(')) {
 		std::string description = file_name.substr(file_name.find_first_of('(')+1,file_name.find_last_of(')')-1);
 		std::string name = file_name.substr(0,file_name.find_first_of('('));
 		g_InfoViewer->showMovieTitle(playstate, name, description, "", duration, curr_pos);
 	}
 	else
-	g_InfoViewer->showMovieTitle(playstate, file_name, "", "", duration, curr_pos);
+	g_InfoViewer->showMovieTitle(playstate, file_name, "", "", duration, position);
 }
 
 bool CMoviePlayerGui::getAudioName(int apid, std::string &apidtitle)
@@ -966,7 +1002,7 @@ void CMoviePlayerGui::addAudioFormat(int count, std::string &apidtitle, bool fil
 			break;
 		case 6: /*DTS*/
 			apidtitle.append(" (DTS)");
-#if !defined HAVE_SPARK_HARDWARE && !defined HAVE_DUCKBOX_HARDWARE
+#if ! defined(HAVE_SPARK_HARDWARE) && ! defined (BOXMODEL_APOLLO) && ! defined (HAVE_DUCKBOX_HARDWARE)
 			enabled = false;
 #endif
 			break;
@@ -1080,13 +1116,13 @@ void CMoviePlayerGui::selectAudioPid(bool file_player)
 		currentac3 = ac3flags[select];
 		playback->SetAPid(currentapid, currentac3);
 #if HAVE_DUCKBOX_HARDWARE || BOXMODEL_SPARK7162
-		CVFD::getInstance()->ShowIcon(VFD_ICON_DD, currentac3);
+		CVFD::getInstance()->ShowIcon(FP_ICON_DD, currentac3);
 #endif
 		printf("[movieplayer] apid changed to %d type %d\n", currentapid, currentac3);
 	}
 }
 
-void CMoviePlayerGui::handleMovieBrowser(neutrino_msg_t msg, int position)
+void CMoviePlayerGui::handleMovieBrowser(neutrino_msg_t msg, int /*position*/)
 {
 	CMovieInfo cMovieInfo;	// funktions to save and load movie info
 
@@ -1338,6 +1374,18 @@ void CMoviePlayerGui::handleMovieBrowser(neutrino_msg_t msg, int position)
 		}
 	}
 	return;
+}
+
+void CMoviePlayerGui::UpdatePosition()
+{
+	if(playback->GetPosition(position, duration)) {
+		if(duration > 100)
+			file_prozent = (unsigned char) (position / (duration / 100));
+		FileTime.update(position, duration);
+#ifdef DEBUG
+		printf("CMoviePlayerGui::PlayFile: speed %d position %d duration %d (%d, %d%%)\n", speed, position, duration, duration-position, file_prozent);
+#endif
+	}
 }
 
 void CMoviePlayerGui::showHelpTS()

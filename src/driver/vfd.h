@@ -42,7 +42,8 @@
 
 #include <pthread.h>
 #include <string>
-#include <cs_vfd.h>
+
+#include <cs_frontpanel.h>
 
 class CVFD
 {
@@ -151,7 +152,7 @@ class CVFD
 		void Lock();
 		void Unlock();
 		void Clear();
-		void ShowIcon(vfd_icon icon, bool show);
+		void ShowIcon(fp_icon icon, bool show);
 #ifdef HAVE_DUCKBOX_HARDWARE
 		void UpdateIcons();
 		void ShowScrollText(char * str);

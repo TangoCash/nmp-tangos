@@ -49,9 +49,11 @@
 #include <driver/audiofile.h>
 #include <driver/audiometadata.h>
 #include <driver/screen_max.h>
+#include <driver/display.h>
 
 #include <daemonc/remotecontrol.h>
 
+#include <gui/audiomute.h>
 #include <gui/eventlist.h>
 #include <gui/color.h>
 #include <gui/infoviewer.h>
@@ -396,6 +398,8 @@ void CUpnpBrowserGui::selectDevice()
 		return;
 	}
 
+	CAudioMute::getInstance()->enableMuteIcon(false);
+
 	while (loop)
 	{
 		if (changed)
@@ -488,6 +492,8 @@ void CUpnpBrowserGui::selectDevice()
 		}
 	}
 	delete scanBox;
+
+	CAudioMute::getInstance()->enableMuteIcon(true);
 }
 
 //------------------------------------------------------------------------

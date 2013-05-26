@@ -230,6 +230,7 @@ channellist.new_zap_mode_active active
 channellist.new_zap_mode_allow allow
 channellist.new_zap_mode_off off
 channellist.nonefound No channels were found!\nPlease execute a scan\n(MENU-key -> service)
+channellist.numeric_adjust Numeric zap adjust
 channellist.provs Providers
 channellist.recording_not_possible Recording not possible!
 channellist.reset_flags Reset 'new' channel flag
@@ -238,6 +239,7 @@ channellist.since since
 channellist.start starts
 ci.clock CI clock (Mhz)
 ci.empty No CAM in slot
+ci.ignore_msg Ignore CA messages
 ci.init_failed CAM init failed
 ci.init_ok CAM init complete
 ci.inserted CAM inserted in slot
@@ -255,7 +257,7 @@ colorchooser.green green
 colorchooser.red red
 colormenu.background Background
 colormenu.contrast_fonts Contrast fonts
-colormenu.fade Fade menus
+colormenu.fade Fade GUI
 colormenu.font Select GUI font
 colormenu.font_ttx Select Teletext font
 colormenu.hd_preset LCD
@@ -264,7 +266,7 @@ colormenu.osd_preset TV preset
 colormenu.sd_preset CRT
 colormenu.textcolor Text color
 colormenu.themeselect Select theme
-colormenu.timing OSD Timeouts
+colormenu.timing Timeouts
 colormenusetup.menucontent Content
 colormenusetup.menucontent_inactive Content inactive
 colormenusetup.menucontent_selected Content selected
@@ -311,11 +313,16 @@ epgextended.year_of_production Year of Production
 epglist.noevents EPG is not available...
 epgviewer.More_Screenings More Screenings on this Channel
 epgviewer.More_Screenings_short More Screenings
+epgviewer.age_rating Age rating
+epgviewer.audio Audio
+epgviewer.genre Genre
+epgviewer.length Length (min.)
 epgviewer.nodetailed No detailed informations available
 epgviewer.notfound No EPG found
 eventfinder.head Search in EPG
 eventfinder.keyword Keyword
 eventfinder.search Search
+eventfinder.search_all_epg whole
 eventfinder.search_within_epg Search within
 eventfinder.search_within_list Search within
 eventfinder.searching Search for keyword in EPG...
@@ -363,6 +370,9 @@ extra.fec_s2_qpsk_9_10 9/10 s2 qpsk
 extra.key_current_transponder Current Transponder Key
 extra.key_list_end end
 extra.key_list_start home
+extra.key_pip_close Stop/Start PiP
+extra.key_pip_setup Configure PiP
+extra.key_pip_swap Swap PiP/live
 extra.key_plugin One touch plugin
 extra.key_screenshot Screenshot key
 extra.key_timeshift Timeshift
@@ -661,7 +671,7 @@ keybindingmenu.pageup page up
 keybindingmenu.poweroff Power toggle
 keybindingmenu.quickzap Quickzap
 keybindingmenu.remotecontrol_hardware Hardware
-keybindingmenu.remotecontrol_hardware_coolstream Coolstream
+keybindingmenu.remotecontrol_hardware_coolstream CST
 keybindingmenu.remotecontrol_hardware_dbox d-box Nokia (old)
 keybindingmenu.remotecontrol_hardware_msg_part1 The remote control has been changed from '
 keybindingmenu.remotecontrol_hardware_msg_part2 ' to '
@@ -808,7 +818,6 @@ menu.hint_extended Power saving, EPG save/load options\nHDMI-CEC, Start channel,
 menu.hint_factory Reset box to factory state\nBox will reboot after reset
 menu.hint_fade Fade GUI windows
 menu.hint_fan_speed Control fan speed
-menu.hint_fe_type Changes tuner type (restart needed)
 menu.hint_filebrowser_denydirectoryleave Deny filebrowser to leave initial directory
 menu.hint_filebrowser_showrights Show file permissions in file browser
 menu.hint_fileplay Play various video files
@@ -883,6 +892,9 @@ menu.hint_key_mptime Assign button to show play time\nleft time
 menu.hint_key_mptimeshift Assign button to start timeshift
 menu.hint_key_pagedown Assign button to show next items page
 menu.hint_key_pageup Assign button to show previous items page
+menu.hint_key_pip_close Assign button to stop PiP\nor start it for current channel
+menu.hint_key_pip_setup Assign button to configure PiP
+menu.hint_key_pip_swap Assign button to swap PiP and live channel
 menu.hint_key_poweroff Assign button to switch power state\n (standby/deepstandby <-> running)
 menu.hint_key_quickzap Configure keybingdings for quick\nchannel switch
 menu.hint_key_repeatblock Delay after button press and before\nfirst key repeat
@@ -917,6 +929,7 @@ menu.hint_media Play movies, audio files\nWatch pictures
 menu.hint_menu_fonts Change menu font sizes
 menu.hint_menu_hints Show this hints. Also you can switch\nit any time using 'help' button
 menu.hint_menu_pos Select menu position
+menu.hint_menus Configure menu options
 menu.hint_misc_cec HDMI-CEC Options
 menu.hint_misc_channellist HD/New/Removed channel lists\nZap cycle
 menu.hint_misc_energy Enable soft-standby, delayed shutdown\ninactivity timers
@@ -957,6 +970,7 @@ menu.hint_net_test Test network connection: ping gateway,\n name server and exte
 menu.hint_net_ushare Share connected HDD over uPnp
 menu.hint_network IP address, gateway, DNS, Time sync\nNetwork shares and services
 menu.hint_new_zap_mode Allow channel switch while browsing\n(toggle mode with 'mute' in channel list)
+menu.hint_numeric_adjust Adjust channel list mode on numeric zap
 menu.hint_osd Colors, fonts, screen size\nGUI look and feel options
 menu.hint_osd_language Select OSD language
 menu.hint_osd_preset Pre-configured screen margins for CRT and LCD TV
@@ -1017,13 +1031,15 @@ menu.hint_scan_cable Select cable network to scan
 menu.hint_scan_cable_simple Cable scan with optional\nprovider channel numbering
 menu.hint_scan_commited Select commited input for\nthis satellite
 menu.hint_scan_diseqc Select diseqc switch input for\nthis satellite
+menu.hint_scan_diseqcorder Diseqc command order for cascaded switches
 menu.hint_scan_diseqcrepeat Diseqc repeat for cascaded switches
 menu.hint_scan_diseqctype Select your diseqc switch protocol\nwith 'advanced' you can use uncommited switches
 menu.hint_scan_fast CanalDigitaal/TéléSAT/TV Vlaanderen provider scan\nWARNING: diseqc config will be overwritten
 menu.hint_scan_fastprov Select provider to scan
 menu.hint_scan_fasttype Select fast scan type
 menu.hint_scan_fec Select transponder FEC
-menu.hint_scan_femode Select second tuner connection type
+menu.hint_scan_felink Select tuner to link tuner to
+menu.hint_scan_femode Select tuner connection type
 menu.hint_scan_fesetup Configure tuner(s)
 menu.hint_scan_fetimeout Time to wait for signal, in 1/10 of second
 menu.hint_scan_freq Enter transponder frequency
@@ -1119,12 +1135,17 @@ menu.hint_vfd_statusline Choose what to display in short\nVFD status line
 menu.hint_video Video output, resolution, format\nAspect ratio, fast mode switch options
 menu.hint_video_43mode Display mode for 4:3 content\non 16:9 TV
 menu.hint_video_analog_mode Select analog output mode\nfor SCART and CINCH connectors
+menu.hint_video_brightness Change picture brightness
 menu.hint_video_cinch_mode Select analog output mode for\ncomposite video out
+menu.hint_video_contrast Change picture contrast
 menu.hint_video_dbdr MPEG2 enhancement filters
 menu.hint_video_format TV aspect ratio
 menu.hint_video_mode HDMI output video mode
 menu.hint_video_modes VF key will cycle between enabled modes 
+menu.hint_video_pip Picture in picture size and position
+menu.hint_video_saturation Change picture saturation
 menu.hint_video_scart_mode Select analog output mode for SCART connectors
+menu.hint_volume Configure Volume GUI options
 menu.hint_volume_digits Numeric display of the volumebar on/off
 menu.hint_volume_pos Select volume indicator position
 menu.hint_zap_cycle When swithing channels, stay in current bouquet
@@ -1205,6 +1226,7 @@ miscsettings.shutdown_count_hint2 to deep standby (0 = off).
 miscsettings.shutdown_real Enable standby
 miscsettings.shutdown_real_rcdelay Delayed shutdown
 miscsettings.sleeptimer Inactivity shutdown timer
+miscsettings.volume Volume
 miscsettings.zapto_pre_time Zapto Start Time Correction (minutes)
 motorcontrol.calc_positions (Re)-Calculate Positions
 motorcontrol.disable_limit Disable (soft) Limits
@@ -1272,7 +1294,10 @@ moviebrowser.edit_book_type_info2 <0 back , >0 for, 0: none
 moviebrowser.edit_serie Enter name of serie
 moviebrowser.error_no_movies No movies found
 moviebrowser.foot_filter Filter:
+moviebrowser.foot_focus Switch window
+moviebrowser.foot_options Options
 moviebrowser.foot_play Start movie
+moviebrowser.foot_refresh Refresh list
 moviebrowser.foot_sort Sort:
 moviebrowser.head TS MovieBrowser
 moviebrowser.head_filter Filter movies by category:
@@ -1609,6 +1634,7 @@ satsetup.diseqc12 DiSEqC 1.2
 satsetup.diseqc_advanced Advanced
 satsetup.diseqc_com_uncom Commited/Uncommited
 satsetup.diseqc_input DiSEqC input
+satsetup.diseqc_order DiSEqC command order
 satsetup.diseqc_uncom_com Uncommited/Commited
 satsetup.diseqcrepeat DiSEqC-repeats
 satsetup.extended DiSEqC-Settings
@@ -1623,13 +1649,12 @@ satsetup.fastscan_prov_tvv TV Vlaanderen
 satsetup.fastscan_sd SD only
 satsetup.fastscan_type Scan type
 satsetup.fe_mode Tuner mode
-satsetup.fe_mode_alone independent
-satsetup.fe_mode_loop loop
-satsetup.fe_mode_single single
-satsetup.fe_mode_twin twin
+satsetup.fe_mode_independent Independent
+satsetup.fe_mode_link_loop Loop
+satsetup.fe_mode_link_twin TWIN
+satsetup.fe_mode_master Master
+satsetup.fe_mode_unused Unused
 satsetup.fe_setup Setup tuner
-satsetup.fe_type Change tuner type
-satsetup.fe_type_confirm To change the reception type, a restart\nof neutrino is necessary. Restart now?
 satsetup.lofh LNB High Offset
 satsetup.lofl LNB Low Offset
 satsetup.lofs LNB switch Offset
@@ -1667,7 +1692,7 @@ scants.actsatellite Satellite:
 scants.actterrestrial Terrestrial:
 scants.bouquet Bouquet
 scants.bouquet_create create new
-scants.bouquet_erase erase all
+scants.bouquet_erase erase old
 scants.bouquet_leave leave current
 scants.bouquet_satellite Satellite-Bouquet
 scants.bouquet_update update
@@ -1717,12 +1742,14 @@ settings.backup_failed Backup failed!
 settings.help Help
 settings.menu_hints Show menu hints
 settings.menu_pos Menu position
+settings.menus Menus
 settings.missingoptionsconffile The Neutrino settings have been updated.\nNew Options will be set to default.
 settings.noconffile No Neutrino settings found.\nUsing defaults.
+settings.pos_bottom_center bottom center
 settings.pos_bottom_left bottom left
 settings.pos_bottom_right bottom right
-settings.pos_default_center top center
-settings.pos_higher_center higher center
+settings.pos_default_center center
+settings.pos_top_center top center
 settings.pos_top_left top left
 settings.pos_top_right top right
 settings.restore Image-Settings: Restore
@@ -1868,13 +1895,19 @@ usermenu.msg_warning_no_items No items defined!\nThe menu name is reset!
 usermenu.name Name
 video_mode_ok Is this video mode working ok ?
 videomenu.43mode 4:3 Content mode
+videomenu.analog_auto AUTO
+videomenu.analog_cvbs CVBS
+videomenu.analog_hd_rgb RGB (HD)
 videomenu.analog_hd_rgb_cinch RGB on cinch (HD)
 videomenu.analog_hd_rgb_scart RGB on scart (HD)
+videomenu.analog_hd_yprpb YPbPr(HD)
 videomenu.analog_hd_yprpb_cinch YPbPr on cinch (HD)
 videomenu.analog_hd_yprpb_scart YPbPr on scart (HD)
 videomenu.analog_mode Analog Video Output
+videomenu.analog_sd_rgb RGB (SD)
 videomenu.analog_sd_rgb_cinch RGB on cinch (SD)
 videomenu.analog_sd_rgb_scart RGB on scart (SD)
+videomenu.analog_sd_yprpb YPbPr (SD)
 videomenu.analog_sd_yprpb_cinch YPbPr on cinch (SD)
 videomenu.analog_sd_yprpb_scart YPbPr on scart (SD)
 videomenu.auto Auto
@@ -1906,6 +1939,8 @@ videomenu.psi.reset Standard settings
 videomenu.psi.saturation Saturation
 videomenu.psi.step Video slider step size
 videomenu.psi.tint Tint
+videomenu.pip PiP setup
+videomenu.pip_error PiP start failed
 videomenu.saturation Saturation
 videomenu.scart Scart
 videomenu.screensetup Screen Setup
@@ -1924,7 +1959,7 @@ webtv.xml WebTV XML file
 wizard.initial_settings Initial settings found
 wizard.install_settings Do you want to install channels for Astra 19.2°E?
 wizard.welcome_head Welcome to the Setup Wizard
-wizard.welcome_text Next steps will guide you through initial installation of the device.\nImportant: Your CoolStream set-top box can be conveniently controlled\nwith the web interface for timer management or live TV on the Web browser.\nDo not make it accessible to untrusted networks!\nDo you want to continue?
+wizard.welcome_text Next steps will guide you through initial installation of the device.\nImportant: Your CST set-top box can be conveniently controlled\nwith the web interface for timer management or live TV on the Web browser.\nDo not make it accessible to untrusted networks!\nDo you want to continue?
 word.from from
 zapit.scantype scan for services
 zapit.scantype.all all services

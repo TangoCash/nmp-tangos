@@ -357,9 +357,9 @@ void CVFD::setlcdparameter(int dimm, const int power)
 
 printf("CVFD::setlcdparameter dimm %d power %d\n", dimm, power);
 #ifndef HAVE_DUCKBOX_HARDWARE
-	int ret = ioctl(fd, IOC_VFD_SET_BRIGHT, dimm);
+	int ret = ioctl(fd, IOC_FP_SET_BRIGHT, dimm);
 	if(ret < 0)
-		perror("IOC_VFD_SET_BRIGHT");
+		perror("IOC_FP_SET_BRIGHT");
 #else
 // Brightness
 	struct vfd_ioctl_data data;
@@ -394,14 +394,14 @@ void CVFD::setled(int led1, int led2){
 	int ret = -1;
 
 	if(led1 != -1){
-		ret = ioctl(fd, IOC_VFD_LED_CTRL, led1);
+		ret = ioctl(fd, IOC_FP_LED_CTRL, led1);
 		if(ret < 0)
-			perror("IOC_VFD_LED_CTRL");
+			perror("IOC_FP_LED_CTRL");
 	}
 	if(led2 != -1){
-		ret = ioctl(fd, IOC_VFD_LED_CTRL, led2);
+		ret = ioctl(fd, IOC_FP_LED_CTRL, led2);
 		if(ret < 0)
-			perror("IOC_VFD_LED_CTRL");
+			perror("IOC_FP_LED_CTRL");
 	}
 }
 
@@ -414,13 +414,13 @@ void CVFD::setled(bool on_off)
 	if(on_off){//on
 		switch(g_settings.led_rec_mode){
 			case 1:
-			led1 = VFD_LED_1_ON; led2 = VFD_LED_2_ON;
+			led1 = FP_LED_1_ON; led2 = FP_LED_2_ON;
 			break;
 			case 2:
-			led1 = VFD_LED_1_ON;
+			led1 = FP_LED_1_ON;
 			break;
 			case 3:
-			led2 = VFD_LED_2_ON;
+			led2 = FP_LED_2_ON;
 			break;
 			default:
 			break;
@@ -430,13 +430,13 @@ void CVFD::setled(bool on_off)
 		switch(g_settings.led_rec_mode){
 			break;
 			case 2:
-			led1 = VFD_LED_1_OFF;
+			led1 = FP_LED_1_OFF;
 			break;
 			case 3:
-			led2 = VFD_LED_2_OFF;
+			led2 = FP_LED_2_OFF;
 			break;
 			default:
-			led1 = VFD_LED_1_OFF; led2 = VFD_LED_2_OFF;
+			led1 = FP_LED_1_OFF; led2 = FP_LED_2_OFF;
 			break;
 	      }
 	}
@@ -457,16 +457,16 @@ void CVFD::setled(void)
 
 	switch(select){
 		case 0:
-		led1 = VFD_LED_1_OFF; led2 = VFD_LED_2_OFF;
+		led1 = FP_LED_1_OFF; led2 = FP_LED_2_OFF;
 		break;
 		case 1:
-		led1 = VFD_LED_1_ON; led2 = VFD_LED_2_ON;
+		led1 = FP_LED_1_ON; led2 = FP_LED_2_ON;
 		break;
 		case 2:
-		led1 = VFD_LED_1_ON; led2 = VFD_LED_2_OFF;
+		led1 = FP_LED_1_ON; led2 = FP_LED_2_OFF;
 		break;
 		case 3:
-		led1 = VFD_LED_1_OFF; led2 = VFD_LED_2_ON;
+		led1 = FP_LED_1_OFF; led2 = FP_LED_2_ON;
 		break;
 		default:
 		break;
@@ -488,6 +488,16 @@ printf("CVFD::showServicename: %s\n", name.c_str());
 	wake_up();
 }
 
+void CVFD::setEPGTitle(const std::string title)
+{
+	if (title == epg_title)
+	{
+		return;
+	}
+	epg_title = title;
+	showServicename("");
+}
+
 void CVFD::showTime(bool force)
 {
 	//unsigned int system_rev = cs_get_revision();
@@ -498,9 +508,9 @@ void CVFD::showTime(bool force)
 #endif
 	if(has_lcd && mode == MODE_SHUTDOWN) {
 #ifdef HAVE_DUCKBOX_HARDWARE
-		ShowIcon(VFD_ICON_REC, false);
+		ShowIcon(FP_ICON_REC, false);
 #else
-		ShowIcon(VFD_ICON_CAM1, false);
+		ShowIcon(FP_ICON_CAM1, false);
 #endif
 		return;
 	}
@@ -528,18 +538,18 @@ void CVFD::showTime(bool force)
 			clearClock = 0;
 			if(has_lcd)
 #ifdef HAVE_DUCKBOX_HARDWARE
-				ShowIcon(VFD_ICON_REC, false);
+				ShowIcon(FP_ICON_REC, false);
 #else
-				ShowIcon(VFD_ICON_CAM1, false);
+				ShowIcon(FP_ICON_CAM1, false);
 			setled(false);//off
 #endif
 		} else {
 			clearClock = 1;
 			if(has_lcd)
 #ifdef HAVE_DUCKBOX_HARDWARE
-				ShowIcon(VFD_ICON_REC, true);
+				ShowIcon(FP_ICON_REC, true);
 #else
-				ShowIcon(VFD_ICON_CAM1, true);
+				ShowIcon(FP_ICON_CAM1, true);
 			setled(true);//on
 #endif
 		}
@@ -547,9 +557,9 @@ void CVFD::showTime(bool force)
 		clearClock = 0;
 		if(has_lcd)
 #ifdef HAVE_DUCKBOX_HARDWARE
-			ShowIcon(VFD_ICON_REC, false);
+			ShowIcon(FP_ICON_REC, false);
 #else
-			ShowIcon(VFD_ICON_CAM1, false);
+			ShowIcon(FP_ICON_CAM1, false);
 		setled();
 #endif
 	}
@@ -581,14 +591,14 @@ void CVFD::showVolume(const char vol, const bool /*perform_update*/)
 	static int oldpp = 0;
 	if(!has_lcd) return;
 
-	ShowIcon(VFD_ICON_MUTE, muted);
+	ShowIcon(FP_ICON_MUTE, muted);
 	if(vol == volume)
 		return;
 
 	volume = vol;
 	wake_up();
 #ifndef HAVE_DUCKBOX_HARDWARE
-	ShowIcon(VFD_ICON_FRAME, true);
+	ShowIcon(FP_ICON_FRAME, true);
 #endif
 
 	if ((mode == MODE_TVRADIO) && g_settings.lcd_setting[SNeutrinoSettings::LCD_SHOW_VOLUME]) {
@@ -663,11 +673,11 @@ printf("CVFD::showVolume: %d, bar %d\n", (int) vol, pp);
 			int i;
 			int j = 0x00000200;
 			for(i = 0; i < pp; i++) {
-				ShowIcon((vfd_icon) j, true);
+				ShowIcon((fp_icon) j, true);
 				j /= 2;
 			}
 			for(;i < 8; i++) {
-				ShowIcon((vfd_icon) j, false);
+				ShowIcon((fp_icon) j, false);
 				j /= 2;
 			}
 			oldpp = pp;
@@ -684,7 +694,7 @@ void CVFD::showPercentOver(const unsigned char perc, const bool /*perform_update
 		//if (g_settings.lcd_setting[SNeutrinoSettings::LCD_SHOW_VOLUME] == 0)
 		{
 #ifndef HAVE_DUCKBOX_HARDWARE
-			ShowIcon(VFD_ICON_FRAME, true);
+			ShowIcon(FP_ICON_FRAME, true);
 #endif
 			int pp;
 			if(perc == 255)
@@ -697,11 +707,11 @@ void CVFD::showPercentOver(const unsigned char perc, const bool /*perform_update
 			int i;
 			int j = 0x00000200;
 			for(i = 0; i < pp; i++) {
-				ShowIcon((vfd_icon) j, true);
+				ShowIcon((fp_icon) j, true);
 				j /= 2;
 			}
 			for(;i < 8; i++) {
-				ShowIcon((vfd_icon) j, false);
+				ShowIcon((fp_icon) j, false);
 				j /= 2;
 			}
 			percentOver = pp;
@@ -741,39 +751,39 @@ void CVFD::showAudioPlayMode(AUDIOMODES m)
 	if(!has_lcd) return;
 	switch(m) {
 		case AUDIO_MODE_PLAY:
-			ShowIcon(VFD_ICON_PLAY, true);
-			ShowIcon(VFD_ICON_PAUSE, false);
+			ShowIcon(FP_ICON_PLAY, true);
+			ShowIcon(FP_ICON_PAUSE, false);
 #ifdef HAVE_DUCKBOX_HARDWARE
-			ShowIcon(VFD_ICON_FF, false);
-			ShowIcon(VFD_ICON_FR, false);
+			ShowIcon(FP_ICON_FF, false);
+			ShowIcon(FP_ICON_FR, false);
 #endif
 			break;
 		case AUDIO_MODE_STOP:
-			ShowIcon(VFD_ICON_PLAY, false);
-			ShowIcon(VFD_ICON_PAUSE, false);
+			ShowIcon(FP_ICON_PLAY, false);
+			ShowIcon(FP_ICON_PAUSE, false);
 #ifdef HAVE_DUCKBOX_HARDWARE
-			ShowIcon(VFD_ICON_FF, false);
-			ShowIcon(VFD_ICON_FR, false);
+			ShowIcon(FP_ICON_FF, false);
+			ShowIcon(FP_ICON_FR, false);
 #endif
 			break;
 		case AUDIO_MODE_PAUSE:
-			ShowIcon(VFD_ICON_PLAY, false);
-			ShowIcon(VFD_ICON_PAUSE, true);
+			ShowIcon(FP_ICON_PLAY, false);
+			ShowIcon(FP_ICON_PAUSE, true);
 #ifdef HAVE_DUCKBOX_HARDWARE
-			ShowIcon(VFD_ICON_FF, false);
-			ShowIcon(VFD_ICON_FR, false);
+			ShowIcon(FP_ICON_FF, false);
+			ShowIcon(FP_ICON_FR, false);
 #endif
 			break;
 		case AUDIO_MODE_FF:
 #ifdef HAVE_DUCKBOX_HARDWARE
-			ShowIcon(VFD_ICON_FF, true);
-			ShowIcon(VFD_ICON_FR, false);
+			ShowIcon(FP_ICON_FF, true);
+			ShowIcon(FP_ICON_FR, false);
 #endif
 			break;
 		case AUDIO_MODE_REV:
 #ifdef HAVE_DUCKBOX_HARDWARE
-			ShowIcon(VFD_ICON_FF, false);
-			ShowIcon(VFD_ICON_FR, true);
+			ShowIcon(FP_ICON_FF, false);
+			ShowIcon(FP_ICON_FR, true);
 #endif
 			break;
 	}
@@ -803,11 +813,11 @@ void CVFD::setMode(const MODES m, const char * const title)
 	if(!has_lcd) return;
 
 	if(mode == MODE_AUDIO)
-		ShowIcon(VFD_ICON_MP3, false);
+		ShowIcon(FP_ICON_MP3, false);
 #if 0
 	else if(mode == MODE_STANDBY) {
-		ShowIcon(VFD_ICON_COL1, false);
-		ShowIcon(VFD_ICON_COL2, false);
+		ShowIcon(FP_ICON_COL1, false);
+		ShowIcon(FP_ICON_COL2, false);
 	}
 #endif
 
@@ -840,7 +850,7 @@ void CVFD::setMode(const MODES m, const char * const title)
 		break;
 	case MODE_AUDIO:
 	{
-		ShowIcon(VFD_ICON_MP3, true);
+		ShowIcon(FP_ICON_MP3, true);
 		showAudioPlayMode(AUDIO_MODE_STOP);
 		showVolume(volume, false);
 		showclock = true;
@@ -862,8 +872,8 @@ void CVFD::setMode(const MODES m, const char * const title)
 		break;
 	case MODE_STANDBY:
 #if 0
-		ShowIcon(VFD_ICON_COL1, true);
-		ShowIcon(VFD_ICON_COL2, true);
+		ShowIcon(FP_ICON_COL1, true);
+		ShowIcon(FP_ICON_COL2, true);
 #endif
 		showclock = true;
 		showTime(true);      /* "showclock = true;" implies that "showTime();" does a "displayUpdate();" */
@@ -1001,9 +1011,9 @@ void CVFD::Clear()
 {
 	if(!has_lcd) return;
 #ifndef HAVE_DUCKBOX_HARDWARE
-	int ret = ioctl(fd, IOC_VFD_CLEAR_ALL, 0);
+	int ret = ioctl(fd, IOC_FP_CLEAR_ALL, 0);
 	if(ret < 0)
-		perror("IOC_VFD_SET_TEXT");
+		perror("IOC_FP_SET_TEXT");
 	else
 		text[0] = 0;
 #else
@@ -1017,14 +1027,14 @@ void CVFD::Clear()
 #endif
 }
 
-void CVFD::ShowIcon(vfd_icon icon, bool show)
+void CVFD::ShowIcon(fp_icon icon, bool show)
 {
 #ifndef HAVE_DUCKBOX_HARDWARE
 	if(!has_lcd || fd < 0) return;
 //printf("CVFD::ShowIcon %s %x\n", show ? "show" : "hide", (int) icon);
-	int ret = ioctl(fd, show ? IOC_VFD_SET_ICON : IOC_VFD_CLEAR_ICON, icon);
+	int ret = ioctl(fd, show ? IOC_FP_SET_ICON : IOC_FP_CLEAR_ICON, icon);
 	if(ret < 0)
-		perror(show ? "IOC_VFD_SET_ICON" : "IOC_VFD_CLEAR_ICON");
+		perror(show ? "IOC_FP_SET_ICON" : "IOC_FP_CLEAR_ICON");
 #else
 #if defined (BOXMODEL_ATEVIO7500)
 	return;
@@ -1046,15 +1056,16 @@ void CVFD::ClearIcons()
 #if defined (BOXMODEL_ATEVIO7500)
 	return;
 #endif
-	for (int id = 0x10; id < VFD_ICON_MAX; id++) {
+	for (int id = 0x10; id < FP_ICON_MAX; id++) {
 #if defined (BOXMODEL_OCTAGON1008) || defined(BOXMODEL_FORTIS_HDBOX)
 		if (id != 0x16)
 #else
 		if (id != 0x10 && id != 0x12)
 #endif
-			ShowIcon((vfd_icon)id, false);
+			ShowIcon((fp_icon)id, false);
 	}
 	return;
+		perror(show ? "IOC_FP_SET_ICON" : "IOC_FP_CLEAR_ICON");
 }
 
 void CVFD::ShowText(const char * str)
@@ -1070,7 +1081,6 @@ void CVFD::ShowText(const char * str)
 		g_str[63] = '\0';
 		i = 63;
 	}
-
 	ShowNormalText(g_str);
 }
 #else
@@ -1096,9 +1106,9 @@ printf("CVFD::ShowText: [%s]\n", str);
 
 //printf("****************************** CVFD::ShowText: %s\n", str);
 	//FIXME !!
-	ret = ioctl(fd, IOC_VFD_SET_TEXT, len ? str : NULL);
+	ret = ioctl(fd, IOC_FP_SET_TEXT, len ? str : NULL);
 	if(ret < 0)
-		perror("IOC_VFD_SET_TEXT");
+		perror("IOC_FP_SET_TEXT");
 }
 #endif
 

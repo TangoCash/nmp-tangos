@@ -606,7 +606,7 @@ void CControlAPI::InfoCGI(CyhookHandler *hh)
 void CControlAPI::HWInfoCGI(CyhookHandler *hh)
 {
 	unsigned int system_rev = cs_get_revision();
-	std::string boxname = "Coolstream ";
+	std::string boxname = "CST ";
 	static CNetAdapter netadapter; 
 	std::string eth_id = netadapter.getMacAddr();
 	std::transform(eth_id.begin(), eth_id.end(), eth_id.begin(), ::tolower);
@@ -745,6 +745,7 @@ static const struct key keynames[] = {
 	{"KEY_NEXT",		KEY_NEXT},
 	{"KEY_PREVIOUS",	KEY_PREVIOUS},
 	{"KEY_TIME", 		KEY_TIME},
+	{"KEY_SLEEP",           KEY_SLEEP},
 	{"KEY_AUDIO",		KEY_AUDIO},
 	{"KEY_REWIND",		KEY_REWIND},
 	{"KEY_FORWARD",		KEY_FORWARD},
@@ -1487,9 +1488,15 @@ void CControlAPI::ScreenshotCGI(CyhookHandler *hh)
 	CScreenShot * sc = new CScreenShot("/tmp/" + filename + ".png", (CScreenShot::screenshot_format_t)0 /*PNG*/);
 	sc->EnableOSD(enableOSD);
 	sc->EnableVideo(enableVideo);
+#if 0
 	sc->Start();
-
 	hh->SendOk(); // FIXME what if sc->Start() failed?
+#else
+	if (sc->StartSync())
+		hh->SendOk();
+	else
+		hh->SendError();
+#endif
 }
 #endif
 

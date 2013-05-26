@@ -42,6 +42,18 @@
 #include <system/helpers.h>
 #include <gui/update_ext.h>
 
+off_t file_size(const char *filename)
+{
+	struct stat stat_buf;
+	if(::stat(filename, &stat_buf) == 0)
+	{
+		return stat_buf.st_size;
+	} else
+	{
+		return 0;
+	}
+}
+
 bool file_exists(const char *filename)
 {
 	struct stat stat_buf;
@@ -306,7 +318,7 @@ bool CFileHelpers::copyFile(const char *Src, const char *Dst, mode_t mode)
 	unlink(Dst);
 	if ((fd1 = open(Src, O_RDONLY)) < 0)
 		return false;
-	if ((fd2 = open(Dst, O_WRONLY | O_CREAT)) < 0) {
+	if ((fd2 = open(Dst, O_WRONLY | O_CREAT, 0666)) < 0) {
 		close(fd1);
 		return false;
 	}

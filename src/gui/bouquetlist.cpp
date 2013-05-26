@@ -49,6 +49,7 @@
 #include <driver/screen_max.h>
 #include <driver/rcinput.h>
 #include <driver/fade.h>
+#include <driver/display.h>
 #include <daemonc/remotecontrol.h>
 #include <system/settings.h>
 
@@ -603,6 +604,7 @@ void CBouquetList::paint()
 	int numbuttons = sizeof(CBouquetListButtons)/sizeof(CBouquetListButtons[0]);
 	if (favonly) /* this actually shows favorites and providers button, but both are active anyway */
 		numbuttons = 2;
+
 	::paintButtons(x, y + (height - footerHeight), width, numbuttons, CBouquetListButtons, width, footerHeight);
 
 	if(!Bouquets.empty())

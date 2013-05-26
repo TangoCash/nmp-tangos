@@ -575,6 +575,17 @@ CPictureViewer::CPictureViewer ()
 	init_handlers ();
 }
 
+CPictureViewer::~CPictureViewer ()
+{
+	Cleanup();
+	CFormathandler *fh = fh_root;
+	while (fh) {
+		CFormathandler *tmp = fh->next;
+		free(fh);
+		fh = tmp;
+	}
+}
+
 void CPictureViewer::showBusy (int sx, int sy, int width, char r, char g, char b)
 {
 	//  dbout("Show Busy{\n");
@@ -670,12 +681,6 @@ void CPictureViewer::Cleanup ()
 		free (m_CurrentPic_Buffer);
 #endif
 		m_CurrentPic_Buffer = NULL;
-	}
-	CFormathandler *fh = fh_root;
-	while (fh) {
-		CFormathandler *tmp = fh->next;
-		free(fh);
-		fh = tmp;
 	}
 }
 

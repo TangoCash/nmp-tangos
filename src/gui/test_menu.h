@@ -32,6 +32,8 @@
 #include <gui/widget/menue.h>
 #include <gui/widget/icons.h>
 #include <gui/components/cc.h>
+#include <gui/components/cc_frm.h>
+#include <gui/components/cc_frm_button.h>
 // #define TEST_MENU
 
 #include <string>
@@ -47,9 +49,10 @@ class CTestMenu : public CMenuTarget
 		CComponentsHeader *header;
 		CComponentsIconForm *iconform;
 		CComponentsWindow *window;
+		CComponentsButton *button;
 		int width, selected;
 
-		void showTestMenu();
+		int showTestMenu();
 		void showHWTests(CMenuWidget *widget);
 		void showCCTests(CMenuWidget *widget);
 

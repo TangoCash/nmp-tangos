@@ -79,26 +79,32 @@ extern int allow_flash;
 #define gTmpPath "/tmp/"
 #define gUserAgent "neutrino/softupdater 1.0"
 
-#define UPDATE_LOCAL_FILENAME		"update.img"
-#define RELEASE_CYCLE			"2.0"
-#define FILEBROWSER_UPDATE_FILTER	"img"
-
-#if HAVE_DUCKBOX_HARDWARE //|| HAVE_SPARK_HARDWARE
-	#define LIST_OF_UPDATES_LOCAL_FILENAME		"update.list"
-	#if BOXMODEL_UFS910
-		#define MTD_OF_WHOLE_IMAGE		5
-		#define MTD_DEVICE_OF_UPDATE_PART	"/dev/mtd5"
-	#elif BOXMODEL_CUBEREVO_MINI2
-		#define MTD_OF_WHOLE_IMAGE		6
-		#define MTD_DEVICE_OF_UPDATE_PART	"/dev/mtd6"
-	#else // update blocked with invalid data
-		#define MTD_OF_WHOLE_IMAGE		999
-		#define MTD_DEVICE_OF_UPDATE_PART	"/dev/mtd999"
-	#endif
+#if HAVE_DUCKBOX_HARDWARE
+#define LIST_OF_UPDATES_LOCAL_FILENAME "update.list"
+#define UPDATE_LOCAL_FILENAME          "update.img"
+#define RELEASE_CYCLE                  "2.0"
+#define FILEBROWSER_UPDATE_FILTER      "img"
+#if BOXMODEL_UFS910
+#define MTD_OF_WHOLE_IMAGE              5
+#define MTD_DEVICE_OF_UPDATE_PART       "/dev/mtd5"
+#elif BOXMODEL_CUBEREVO_MINI2
+#define MTD_OF_WHOLE_IMAGE              6
+#define MTD_DEVICE_OF_UPDATE_PART       "/dev/mtd6"
+#else // update blocked with invalid data
+#define MTD_OF_WHOLE_IMAGE              999
+#define MTD_DEVICE_OF_UPDATE_PART       "/dev/mtd999"
+#endif
 #else
-	#define LIST_OF_UPDATES_LOCAL_FILENAME		"coolstream.list"
-	#define MTD_OF_WHOLE_IMAGE			0
-	#define MTD_DEVICE_OF_UPDATE_PART		"/dev/mtd2"
+#define LIST_OF_UPDATES_LOCAL_FILENAME "coolstream.list"
+#define UPDATE_LOCAL_FILENAME          "update.img"
+#define RELEASE_CYCLE                  "2.0"
+#define FILEBROWSER_UPDATE_FILTER      "img"
+
+#define MTD_OF_WHOLE_IMAGE             0
+#ifdef BOXMODEL_APOLLO
+#define MTD_DEVICE_OF_UPDATE_PART      "/dev/mtd0"
+#else
+#define MTD_DEVICE_OF_UPDATE_PART      "/dev/mtd3"
 #endif
 
 CFlashUpdate::CFlashUpdate()
@@ -107,6 +113,8 @@ CFlashUpdate::CFlashUpdate()
 	width = w_max (40, 10); 
 	setTitle(LOCALE_FLASHUPDATE_HEAD);
 	sysfs = CMTDInfo::getInstance()->findMTDsystem();
+	if (sysfs.empty())
+		sysfs = MTD_DEVICE_OF_UPDATE_PART;
 	printf("Mtd partition to update: %s\n", sysfs.c_str());
 }
 
@@ -411,7 +419,7 @@ int CFlashUpdate::exec(CMenuTarget* parent, const std::string &actionKey)
 	menu_ret = menu_return::RETURN_REPAINT;
 	paint();
 
-#if !HAVE_DUCKBOX_HARDWARE //&& !HAVE_SPARK_HARDWARE
+#if !HAVE_DUCKBOX_HARDWARE
 	if(sysfs.size() < 8) {
 		ShowHintUTF(LOCALE_MESSAGEBOX_ERROR, g_Locale->getText(LOCALE_FLASHUPDATE_CANTOPENMTD));
 		hide();
@@ -449,9 +457,8 @@ int CFlashUpdate::exec(CMenuTarget* parent, const std::string &actionKey)
 	showGlobalStatus(40);
 
 	CFlashTool ft;
-#if HAVE_DUCKBOX_HARDWARE //|| HAVE_SPARK_HARDWARE
+#if HAVE_DUCKBOX_HARDWARE
 	ft.setMTDDevice(MTD_DEVICE_OF_UPDATE_PART);
-	//ft.setMTDDevice(sysfs);
 #else
 	//ft.setMTDDevice(MTD_DEVICE_OF_UPDATE_PART);
 	ft.setMTDDevice(sysfs);
@@ -479,7 +486,6 @@ int CFlashUpdate::exec(CMenuTarget* parent, const std::string &actionKey)
 #endif
 	if(fileType < '3') {
 		CNeutrinoApp::getInstance()->exec(NULL, "savesettings");
-		sleep(2);
 		//flash it...
 
 #if ENABLE_EXTUPDATE
@@ -509,9 +515,9 @@ int CFlashUpdate::exec(CMenuTarget* parent, const std::string &actionKey)
 		CFSMounter::umount();
 
 		ShowHintUTF(LOCALE_MESSAGEBOX_INFO, g_Locale->getText(LOCALE_FLASHUPDATE_FLASHREADYREBOOT)); // UTF-8
+		sleep(2);
 		//my_system("/etc/init.d/rcK");
 		ft.reboot();
-		sleep(20000);
 	}
 	else if(fileType == 'T') // display file contents
 	{
@@ -639,7 +645,7 @@ void CFlashExpert::writemtd(const std::string & filename, int mtdNumber)
 	} else {
 		showGlobalStatus(100);
 		showStatusMessageUTF(g_Locale->getText(LOCALE_FLASHUPDATE_READY)); // UTF-8
-		sleep(1);
+		sleep(2);
 		hide();
 		ShowHintUTF(LOCALE_MESSAGEBOX_INFO, g_Locale->getText(LOCALE_FLASHUPDATE_FLASHREADYREBOOT)); // UTF-8
 		ft.reboot();
@@ -664,9 +670,15 @@ void CFlashExpert::showMTDSelector(const std::string & actionkey)
 	for(int lx=0;lx<mtdInfo->getMTDCount();lx++) {
 		char sActionKey[20];
 		bool enabled = true;
+#ifdef BOXMODEL_APOLLO
+		// disable write uboot / uldr, FIXME correct numbers
+		if ((actionkey == "writemtd") && (lx == 5 || lx == 6))
+			enabled = false;
+#else
 		// disable write uboot
 		if ((actionkey == "writemtd") && (lx == 0))
 			enabled = false;
+#endif
 		sprintf(sActionKey, "%s%d", actionkey.c_str(), lx);
 		mtdselector->addItem(new CMenuForwarderNonLocalized(mtdInfo->getMTDName(lx).c_str(), enabled, NULL, this, sActionKey, CRCInput::convertDigitToKey(shortcut++)));
 	}

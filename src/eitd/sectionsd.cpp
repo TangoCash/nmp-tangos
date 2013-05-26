@@ -92,7 +92,7 @@ static bool messaging_zap_detected = false;
 /*static*/ bool dvb_time_update = false;
 
 //NTP-Config
-#define CONF_FILE "/var/tuxbox/config/neutrino.conf"
+#define CONF_FILE CONFIGDIR "/neutrino.conf"
 
 #ifdef USE_BB_NTPD
 const std::string ntp_system_cmd_prefix = "/sbin/ntpd -q -p ";
@@ -1014,7 +1014,11 @@ static void commandDumpStatusInformation(int /*connfd*/, char* /*data*/, const u
 		 //    resourceUsage.ru_maxrss, resourceUsage.ru_ixrss, resourceUsage.ru_idrss, resourceUsage.ru_isrss,
 		);
 	printf("%s\n", stati);
+#ifdef __UCLIBC__
+	malloc_stats(NULL);
+#else
 	malloc_stats();
+#endif
 	return ;
 }
 
@@ -1140,7 +1144,11 @@ static void FreeMemory()
 
 	unlockEvents();
 
+#ifdef __UCLIBC__
+	malloc_stats(NULL);
+#else
 	malloc_stats();
+#endif
 	xprintf("[sectionsd] free memory done\n");
 	//wakeupAll(); //FIXME should we re-start eit here ?
 }
@@ -1980,7 +1988,11 @@ static void print_meminfo(void)
 	if (!sections_debug)
 		return;
 
+#ifdef __UCLIBC__
+	malloc_stats(NULL);
+#else
 	malloc_stats();
+#endif
 }
 
 //---------------------------------------------------------------------
@@ -2242,50 +2254,52 @@ printf("SIevent size: %d\n", (int)sizeof(SIevent));
 }
 
 /* was: commandAllEventsChannelID sendAllEvents */
-void CEitManager::getEventsServiceKey(t_channel_id serviceUniqueKey, CChannelEventList &eList, char search, std::string search_text)
+void CEitManager::getEventsServiceKey(t_channel_id serviceUniqueKey, CChannelEventList &eList, char search, std::string search_text,bool all_chann)
 {
 	dprintf("sendAllEvents for " PRINTF_CHANNEL_ID_TYPE "\n", serviceUniqueKey);
-
 	if(!eList.empty() && search == 0)//skip on search mode
 		eList.clear();
 
 	t_channel_id serviceUniqueKey64 = serviceUniqueKey& 0xFFFFFFFFFFFFULL; //0xFFFFFFFFFFFFULL for CREATE_CHANNEL_ID64
-	if(serviceUniqueKey64 == 0)
+	if(serviceUniqueKey64 == 0 && !all_chann)
 		return;
 
 	// service Found
 	readLockEvents();
 	int serviceIDfound = 0;
-
 	if (search_text.length())
 		std::transform(search_text.begin(), search_text.end(), search_text.begin(), tolower);
 
 	for (MySIeventsOrderServiceUniqueKeyFirstStartTimeEventUniqueKey::iterator e = mySIeventsOrderServiceUniqueKeyFirstStartTimeEventUniqueKey.begin(); e != mySIeventsOrderServiceUniqueKeyFirstStartTimeEventUniqueKey.end(); ++e)
 	{
-		if ((*e)->get_channel_id() == serviceUniqueKey64) {
+		if ((*e)->get_channel_id() == serviceUniqueKey64 || (all_chann)) {
 			serviceIDfound = 1;
 
 			bool copy = true;
-			if(search == 0); // nothing to do here
-			else if(search == 1) {
-				std::string eName = (*e)->getName();
-				std::transform(eName.begin(), eName.end(), eName.begin(), tolower);
-				if(eName.find(search_text) == std::string::npos)
-					copy = false;
+			if(search){
+				if((search == 1) || (search == 5)) {//SEARCH_EPG_TITLE == 1 SEARCH_EPG_ALL == 5 defined in eventlist.h
+					std::string eName = (*e)->getName();
+					std::transform(eName.begin(), eName.end(), eName.begin(), tolower);
+					if(eName.find(search_text) == std::string::npos)
+						copy = false;
+				}
+				if((search == 2) || (!copy && search == 5)) {//SEARCH_EPG_INFO1 == 2
+					std::string eText = (*e)->getText();
+					std::transform(eText.begin(), eText.end(), eText.begin(), tolower);
+					if(eText.find(search_text) == std::string::npos)
+						copy = false;
+					else if(search == 5)
+						copy = true;
+				}
+				if((search == 3) || (!copy && search == 5)) {//SEARCH_EPG_INFO2 == 3
+					std::string eExtendedText = (*e)->getExtendedText();
+					std::transform(eExtendedText.begin(), eExtendedText.end(), eExtendedText.begin(), tolower);
+					if(eExtendedText.find(search_text) == std::string::npos)
+						copy = false;
+					else if(search == 5)
+						copy = true;
+				}
 			}
-			else if(search == 2) {
-				std::string eText = (*e)->getText();
-				std::transform(eText.begin(), eText.end(), eText.begin(), tolower);
-				if(eText.find(search_text) == std::string::npos)
-					copy = false;
-			}
-			else if(search == 3) {
-				std::string eExtendedText = (*e)->getExtendedText();
-				std::transform(eExtendedText.begin(), eExtendedText.end(), eExtendedText.begin(), tolower);
-				if(eExtendedText.find(search_text) == std::string::npos)
-					copy = false;
-			}
-
 			if(copy) {
 				for (SItimes::iterator t = (*e)->times.begin(); t != (*e)->times.end(); ++t)
 				{
@@ -2298,7 +2312,10 @@ void CEitManager::getEventsServiceKey(t_channel_id serviceUniqueKey, CChannelEve
 						aEvent.text = (*e)->getExtendedText().substr(0, 120);
 					else
 						aEvent.text = (*e)->getText();
-					aEvent.channelID = serviceUniqueKey;
+					if(all_chann)//hack for all channel search
+						aEvent.channelID = (*e)->get_channel_id();
+					else
+						aEvent.channelID = serviceUniqueKey;
 					eList.push_back(aEvent);
 				}
 			} // if = serviceID

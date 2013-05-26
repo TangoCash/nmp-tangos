@@ -19,7 +19,11 @@ INCLUDES = \
 	@LIBCS_CFLAGS@
 
 if BOXTYPE_COOL
+if BOXMODEL_APOLLO
+INCLUDES += -I$(top_srcdir)/lib/libcoolstream2
+else
 INCLUDES += -I$(top_srcdir)/lib/libcoolstream
+endif
 endif
 if USE_STB_HAL
 INCLUDES += -I$(STB_HAL_INC)
@@ -62,6 +66,7 @@ neutrino_LDADD = \
 	gui/libneutrino_gui2.a \
 	gui/components/libneutrino_gui_components.a \
 	eitd/libsectionsd.a \
+	gui/volumebar.o \
 	driver/libneutrino_driver.a \
 	driver/audiodec/libneutrino_driver_audiodec.a \
 	driver/libneutrino_driver_netfile.a \
@@ -88,11 +93,6 @@ neutrino_LDADD = \
 	@MAD_LIBS@ \
 	@ID3TAG_LIBS@ \
 	@LIBCS_LIBS@ \
-	@AVFORMAT_LIBS@ \
-	@AVUTIL_LIBS@ \
-	@AVCODEC_LIBS@ \
-	@AVRESAMPLE_LIBS@ \
-	@SWSCALE_LIBS@ \
 	$(FLACLIBS) \
 	$(VORBISLIBS) \
 	-ldvbsi++ \
@@ -117,9 +117,12 @@ endif
 
 if BOXTYPE_COOL
 neutrino_LDADD += \
-	$(top_builddir)/lib/libcoolstream/libhwcaps.a \
-	-lcoolstream-mt \
-	-lnxp
+	$(top_builddir)/lib/libcoolstream/libhwcaps.a
+neutrino_LDADD += -lcoolstream-mt -lca-sc
+if ENABLE_TMSDK 
+else
+neutrino_LDADD += -lnxp
+endif
 
 bin_PROGRAMS += drivertool
 
@@ -149,3 +152,10 @@ neutrino_LDADD += \
 	$(top_builddir)/src/lcddisplay/liblcddisplay.a \
 	@DIRECTFB_LIBS@
 endif
+
+neutrino_LDADD += \
+	@AVFORMAT_LIBS@ \
+	@AVUTIL_LIBS@ \
+	@AVCODEC_LIBS@ \
+	@AVRESAMPLE_LIBS@ \
+	@SWSCALE_LIBS@

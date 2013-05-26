@@ -87,9 +87,7 @@ FBFontRenderClass::FBFontRenderClass(const int xr, const int yr)
 		printf(" imagecache failed!\n");
 	}
 */
-#if !HAVE_DUCKBOX_HARDWARE
 	pthread_mutex_init( &render_mutex, NULL );
-#endif
 }
 
 FBFontRenderClass::~FBFontRenderClass()
@@ -369,28 +367,20 @@ int UTF8ToUnicode(const char * &text, const bool utf8_encoded) // returns -1 on 
 	return unicode_value;
 }
 
-#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
-void Font::RenderString(int x, int y, const int width, const char *text, const unsigned char color, const int boxheight, const bool utf8_encoded, uint32_t _fgcol, uint32_t _bgcol)
-#else
 void Font::RenderString(int x, int y, const int width, const char *text, const unsigned char color, const int boxheight, const bool utf8_encoded)
-#endif
 {
 	if (!frameBuffer->getActive())
 		return;
 
-#if HAVE_DUCKBOX_HARDWARE
-	OpenThreads::ScopedLock<OpenThreads::Mutex> m_lock(renderer->render_mutex);
-#else
+	frameBuffer->checkFbArea(x, y-height, width, height, true);
+
 	pthread_mutex_lock( &renderer->render_mutex );
-#endif
 
 	FT_Error err = FTC_Manager_LookupSize(renderer->cacheManager, &scaler, &size);
 	if (err != 0)
 	{
 		dprintf(DEBUG_NORMAL, "%s:FTC_Manager_LookupSize failed (0x%x)\n", __FUNCTION__, err);
-#if !HAVE_DUCKBOX_HARDWARE
 		pthread_mutex_unlock(&renderer->render_mutex);
-#endif
 		return;
 	}
 	face = size->face;
@@ -444,26 +434,6 @@ void Font::RenderString(int x, int y, const int width, const char *text, const u
 	static fb_pixel_t oldbgcolor = 0, oldfgcolor = 0;
 	static fb_pixel_t colors[256]={0};
 
-#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
-	fb_pixel_t bgcolor;
-	fb_pixel_t fgcolor;
-
-	if (_fgcol) {
-		if (_bgcol)
-			bgcolor = _bgcol;
-		else {
-			int yoff = y - height/2;
-			if (yoff < 0)
-				yoff  = 0;
-			uint32_t *lfb = frameBuffer->getFrameBufferPointer();
-			bgcolor = *(lfb + yoff * frameBuffer->getStride()/sizeof(fb_pixel_t) + x);
-		}
-		fgcolor = _fgcol;
-	} else {
-		bgcolor = frameBuffer->realcolor[color];
-		fgcolor = frameBuffer->realcolor[(((((int)color) + 2) | 7) - 2)];
-	}
-#else
 	// fb_pixel_t bgcolor = frameBuffer->realcolor[color];
 	uint8_t fgindex = color;		/* index of font color in the palette */
 	if (color > COL_BLACK0 && color < 254)	/* bigger than 254 would result in  > 255 */
@@ -473,17 +443,54 @@ void Font::RenderString(int x, int y, const int width, const char *text, const u
 	/* the GXA seems to do it's job asynchonously, so we need to wait until
 	   it's ready, otherwise the font will sometimes "be overwritten" with
 	   background color or bgcolor will be wrong */
-	frameBuffer->waitForIdle();
+	frameBuffer->waitForIdle("Font::RenderString");
 #endif
+#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+	int yoff = y - height/2;
+	if (yoff < 0)
+		yoff  = 0;
+	fb_pixel_t bgcolor = *(frameBuffer->getFrameBufferPointer() + x +
+			       yoff * frameBuffer->getStride()/sizeof(fb_pixel_t));
+#else
 	/* fetch bgcolor from framebuffer, using lower left edge of the font... */
 	fb_pixel_t bgcolor = *(frameBuffer->getFrameBufferPointer() + x +
 			       y * frameBuffer->getStride() / sizeof(fb_pixel_t));
 #endif
+
 	if((oldbgcolor != bgcolor) || (oldfgcolor != fgcolor)) {
 
 		oldbgcolor = bgcolor;
 		oldfgcolor = fgcolor;
 		t_fb_var_screeninfo * screeninfo = frameBuffer->getScreenInfo();
+#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+		int ro = screeninfo->red.offset;
+		int go = screeninfo->green.offset;
+		int bo = screeninfo->blue.offset;
+		int to = screeninfo->transp.offset;
+		int rm = (1 << screeninfo->red.length) - 1;
+		int gm = (1 << screeninfo->green.length) - 1;
+		int bm = (1 << screeninfo->blue.length) - 1;
+		int tm = (1 << screeninfo->transp.length) - 1;
+		int fgr = ((int)fgcolor >> ro) & rm;
+		int fgg = ((int)fgcolor >> go) & gm;
+		int fgb = ((int)fgcolor >> bo) & bm;
+		int fgt = ((int)fgcolor >> to) & tm;
+		int deltar = (((int)bgcolor >> ro) & rm) - fgr;
+		int deltag = (((int)bgcolor >> go) & gm) - fgg;
+		int deltab = (((int)bgcolor >> bo) & bm) - fgb;
+		int deltat = (((int)bgcolor >> to) & tm) - fgt;
+
+		for (int i = 0; i < 256; i++) {
+			colors[255 - i] =
+				(((fgr + deltar * i / 255) & rm) << ro) |
+				(((fgg + deltag * i / 255) & gm) << go) |
+				(((fgb + deltab * i / 255) & bm) << bo) |
+				(((fgt + deltat * i / 255) & tm) << to);
+			/* FIXME must be better solution */
+			if(g_settings.contrast_fonts && ((255-i) > 128))
+				colors[255 - i] |=  0xFF << to;
+		}
+#else
 		int rl = screeninfo->red.length;
 		int ro = screeninfo->red.offset;
 		int gl = screeninfo->green.length;
@@ -512,6 +519,7 @@ void Font::RenderString(int x, int y, const int width, const char *text, const u
 			if(g_settings.contrast_fonts && ((255-i) > 128))
 				colors[255 - i] |=  0xFF << to;
 		}
+#endif
 	}
 
 	int spread_by = 0;
@@ -522,9 +530,6 @@ void Font::RenderString(int x, int y, const int width, const char *text, const u
 			spread_by = 1;
 	}
 
-#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
-	frameBuffer->waitForIdle();
-#endif
 	for (; *text; text++)
 	{
 		FTC_SBit glyph;
@@ -654,40 +659,26 @@ void Font::RenderString(int x, int y, const int width, const char *text, const u
 		lastindex=index;
 	}
 //printf("RenderStat: %d %d %d \n", renderer->cacheManager->num_nodes, renderer->cacheManager->num_bytes, renderer->cacheManager->max_bytes);
-#if !HAVE_DUCKBOX_HARDWARE
 	pthread_mutex_unlock( &renderer->render_mutex );
-#endif
+	frameBuffer->checkFbArea(x, y-height, width, height, false);
 	/* x is the rightmost position of the last drawn character */
 	frameBuffer->mark(left, y + lower - height, x, y + lower);
 }
 
-#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
-void Font::RenderString(int x, int y, const int width, const std::string & text, const unsigned char color, const int boxheight, const bool utf8_encoded, uint32_t _fgcol, uint32_t _bgcol)
-{
-	RenderString(x, y, width, text.c_str(), color, boxheight, utf8_encoded, _fgcol, _bgcol);
-}
-#else
 void Font::RenderString(int x, int y, const int width, const std::string & text, const unsigned char color, const int boxheight, const bool utf8_encoded)
 {
 	RenderString(x, y, width, text.c_str(), color, boxheight, utf8_encoded);
 }
-#endif
 
 int Font::getRenderWidth(const char *text, const bool utf8_encoded)
 {
-#if HAVE_DUCKBOX_HARDWARE
-    OpenThreads::ScopedLock<OpenThreads::Mutex> m_lock(renderer->render_mutex);
-#else
 	pthread_mutex_lock( &renderer->render_mutex );
-#endif
 
 	FT_Error err = FTC_Manager_LookupSize(renderer->cacheManager, &scaler, &size);
 	if (err != 0)
 	{
 		dprintf(DEBUG_NORMAL, "%s:FTC_Manager_LookupSize failed (0x%x)\n", __FUNCTION__, err);
-#if !HAVE_DUCKBOX_HARDWARE
 		pthread_mutex_unlock(&renderer->render_mutex);
-#endif
 		return -1;
 	}
 	face = size->face;
@@ -738,9 +729,7 @@ int Font::getRenderWidth(const char *text, const bool utf8_encoded)
 		x += spread_by;
 	}
 
-#if !HAVE_DUCKBOX_HARDWARE
 	pthread_mutex_unlock( &renderer->render_mutex );
-#endif
 
 	return x;
 }

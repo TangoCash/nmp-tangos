@@ -575,8 +575,8 @@ void CLCD::UpdateIcons()
 	CZapitChannel * chan = CZapit::getInstance()->GetCurrentChannel();
 	if (chan)
 	{
-		ShowIcon(VFD_ICON_HD,chan->isHD());
-		ShowIcon(VFD_ICON_LOCK,!chan->camap.empty());
+		ShowIcon(FP_ICON_HD,chan->isHD());
+		ShowIcon(FP_ICON_LOCK,!chan->camap.empty());
 		if (chan->getAudioChannel() != NULL)
 		{
 			ShowIcon(VFD_ICON_DD, chan->getAudioChannel()->audioChannelType == CZapitAudioChannel::AC3);
@@ -585,11 +585,12 @@ void CLCD::UpdateIcons()
 	}
 }
 #endif
-void CLCD::ShowIcon(vfd_icon i, bool on)
+
+void CLCD::ShowIcon(fp_icon i, bool on)
 {
 	switch (i)
 	{
-		case VFD_ICON_CAM1:
+		case FP_ICON_CAM1:
 			led_r = on;
 #ifdef BOXMODEL_SPARK7162
 			SetIcons(SPARK_REC1, on);
@@ -597,7 +598,7 @@ void CLCD::ShowIcon(vfd_icon i, bool on)
 			setled(led_r, -1); /* switch instant on / switch off if disabling */
 #endif
 			break;
-		case VFD_ICON_PLAY:
+		case FP_ICON_PLAY:
 			led_g = on;
 #ifdef BOXMODEL_SPARK7162
 			SetIcons(SPARK_PLAY, on);

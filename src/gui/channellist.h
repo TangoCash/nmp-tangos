@@ -96,6 +96,7 @@ private:
 	bool vlist; // "virtual" list, not bouquet
 	bool displayNext;
 	bool displayList;
+	int  first_mode_found;
 
 	bool new_mode_active;
 	int ChannelList_Rec;
@@ -103,7 +104,7 @@ private:
 	void paintDetails(int index);
 	void clearItem2DetailsLine ();
 	void paintItem2DetailsLine (int pos);
-	void paintItem(int pos);
+	void paintItem(int pos,const bool firstpaint = false);
 	bool updateSelection(int newpos);
 	void paint();
 	void paintHead();
@@ -152,10 +153,10 @@ public:
 	t_channel_id         getActiveChannel_ChannelID(void) const;
 	CZapitChannel*	     getActiveChannel	       (void) const;
 
-	void zapTo(int pos, bool forceStoreToLastChannels = false);
-	void zapToChannel(CZapitChannel *channel);
+	void zapTo(int pos, bool force = false);
+	void zapToChannel(CZapitChannel *channel, bool force = false);
 	void virtual_zap_mode(bool up);
-	bool zapTo_ChannelID(const t_channel_id channel_id);
+	bool zapTo_ChannelID(const t_channel_id channel_id, bool force = false);
 	bool adjustToChannelID(const t_channel_id channel_id, bool bToo = true);
 	bool showInfo(int pos, int epgpos = 0);
 	void updateEvents(unsigned int from, unsigned int to);
