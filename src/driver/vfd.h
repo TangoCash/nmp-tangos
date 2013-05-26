@@ -79,6 +79,9 @@ class CVFD
 		MODES				mode;
 
 		std::string			servicename;
+#ifdef HAVE_DUCKBOX_HARDWARE
+		std::string			epg_title;
+#endif
 		char				volume;
 		unsigned char			percentOver;
 		bool				muted;
@@ -119,7 +122,10 @@ class CVFD
 		void setMode(const MODES m, const char * const title = "");
 
 		void showServicename(const std::string & name); // UTF-8
-		void setEPGTitle(const std::string) { return; };
+#ifdef HAVE_DUCKBOX_HARDWARE
+		std::string getServicename(void) { return servicename; }
+		void setEPGTitle(const std::string title);
+#endif
 		void showTime(bool force = false);
 		/** blocks for duration seconds */
 		void showRCLock(int duration = 2);
@@ -158,7 +164,6 @@ class CVFD
 		void ShowScrollText(char * str);
 		static void* ThreadScrollText(void * arg);
 		void ClearIcons();
-		std::string getServicename(void) { return servicename; }
 #endif
 		void ShowText(const char *str);
 		void wake_up();

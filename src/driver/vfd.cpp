@@ -572,13 +572,14 @@ void CVFD::UpdateIcons()
 	CZapitChannel * chan = CZapit::getInstance()->GetCurrentChannel();
 	if (chan)
 	{
-		ShowIcon(VFD_ICON_HD,chan->isHD());
-		ShowIcon(VFD_ICON_LOCK,!chan->camap.empty());
+		ShowIcon(FP_ICON_HD,chan->isHD());
+		ShowIcon(FP_ICON_LOCK,!chan->camap.empty());
 		if (chan->getAudioChannel() != NULL)
-			ShowIcon(VFD_ICON_DD, chan->getAudioChannel()->audioChannelType == CZapitAudioChannel::AC3);
+			ShowIcon(FP_ICON_DD, chan->getAudioChannel()->audioChannelType == CZapitAudioChannel::AC3);
 	}
 }
 #endif
+
 void CVFD::showRCLock(int /*duration*/)
 {
 #ifdef HAVE_DUCKBOX_HARDWARE
@@ -1065,7 +1066,6 @@ void CVFD::ClearIcons()
 			ShowIcon((fp_icon)id, false);
 	}
 	return;
-		perror(show ? "IOC_FP_SET_ICON" : "IOC_FP_CLEAR_ICON");
 }
 
 void CVFD::ShowText(const char * str)

@@ -106,6 +106,7 @@ extern int allow_flash;
 #else
 #define MTD_DEVICE_OF_UPDATE_PART      "/dev/mtd3"
 #endif
+#endif
 
 CFlashUpdate::CFlashUpdate()
 	:CProgressWindow()

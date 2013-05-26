@@ -43,10 +43,6 @@
 #include <driver/display.h>
 #include <system/helpers.h>
 #include <system/set_threadname.h>
-#ifdef ENABLE_GRAPHLCD
-#include <driver/nglcd.h>
-bool glcd_play = false;
-#endif
 
 #include <unistd.h>
 #include <stdlib.h>
@@ -58,6 +54,10 @@ bool glcd_play = false;
 #include <fstream>
 #include <iostream>
 #include <sstream>
+#ifdef ENABLE_GRAPHLCD
+#include <driver/nglcd.h>
+bool glcd_play = false;
+#endif
 
 //extern CPlugins *g_PluginList;
 #if !defined HAVE_SPARK_HARDWARE && !defined HAVE_DUCKBOX_HARDWARE
@@ -737,6 +737,8 @@ void CMoviePlayerGui::PlayFile(void)
 
 			int newspeed;
 			if (msg == (neutrino_msg_t) g_settings.mpkey_rewind) {
+				newspeed = (speed >= 0) ? -1 : speed - 1;
+				if (playstate != CMoviePlayerGui::PAUSE)
 #if HAVE_DUCKBOX_HARDWARE || BOXMODEL_SPARK7162
 				CVFD::getInstance()->ShowIcon(FP_ICON_PLAY, true);
 				CVFD::getInstance()->ShowIcon(FP_ICON_PAUSE, false);
@@ -745,20 +747,14 @@ void CMoviePlayerGui::PlayFile(void)
 #endif
 				playstate = CMoviePlayerGui::REW;
 			} else {
-				speed = (speed <= 0) ? 2 : speed + 1;
-#if HAVE_DUCKBOX_HARDWARE || BOXMODEL_SPARK7162
-				CVFD::getInstance()->ShowIcon(FP_ICON_PLAY, true);
-				CVFD::getInstance()->ShowIcon(FP_ICON_PAUSE, false);
-				CVFD::getInstance()->ShowIcon(FP_ICON_FR, false);
-				CVFD::getInstance()->ShowIcon(FP_ICON_FF, true);
-				playstate = CMoviePlayerGui::FF;
-#endif
-				newspeed = (speed >= 0) ? -1 : speed - 1;
-				if (playstate != CMoviePlayerGui::PAUSE)
-					playstate = CMoviePlayerGui::REW;
-			} else {
 				newspeed = (speed <= 0) ? 2 : speed + 1;
 				if (playstate != CMoviePlayerGui::PAUSE)
+#if HAVE_DUCKBOX_HARDWARE || BOXMODEL_SPARK7162
+					CVFD::getInstance()->ShowIcon(FP_ICON_PLAY, true);
+					CVFD::getInstance()->ShowIcon(FP_ICON_PAUSE, false);
+					CVFD::getInstance()->ShowIcon(FP_ICON_FR, false);
+					CVFD::getInstance()->ShowIcon(FP_ICON_FF, true);
+#endif
 					playstate = CMoviePlayerGui::FF;
 			}
 			/* if paused, playback->SetSpeed() start slow motion */
@@ -915,6 +911,7 @@ void CMoviePlayerGui::PlayFile(void)
 	}
 #endif
 #endif
+
 	FileTime.hide();
 
 	playback->SetSpeed(1);
@@ -922,11 +919,11 @@ void CMoviePlayerGui::PlayFile(void)
 
 	CVFD::getInstance()->ShowIcon(FP_ICON_PLAY, false);
 	CVFD::getInstance()->ShowIcon(FP_ICON_PAUSE, false);
-
 #if HAVE_DUCKBOX_HARDWARE || BOXMODEL_SPARK7162
 	CVFD::getInstance()->ShowIcon(FP_ICON_FR, false);
 	CVFD::getInstance()->ShowIcon(FP_ICON_FF, false);
 #endif
+
 	restoreNeutrino();
 
 	CAudioMute::getInstance()->enableMuteIcon(false);
@@ -958,7 +955,7 @@ void CMoviePlayerGui::callInfoViewer(/*const int duration, const int curr_pos*/)
 	if (isWebTV && file_name.find_first_of('(')) {
 		std::string description = file_name.substr(file_name.find_first_of('(')+1,file_name.find_last_of(')')-1);
 		std::string name = file_name.substr(0,file_name.find_first_of('('));
-		g_InfoViewer->showMovieTitle(playstate, name, description, "", duration, curr_pos);
+		g_InfoViewer->showMovieTitle(playstate, name, description, "", duration, position);
 	}
 	else
 	g_InfoViewer->showMovieTitle(playstate, file_name, "", "", duration, position);
@@ -1002,7 +999,7 @@ void CMoviePlayerGui::addAudioFormat(int count, std::string &apidtitle, bool fil
 			break;
 		case 6: /*DTS*/
 			apidtitle.append(" (DTS)");
-#if ! defined(HAVE_SPARK_HARDWARE) && ! defined (BOXMODEL_APOLLO) && ! defined (HAVE_DUCKBOX_HARDWARE)
+#if !defined(HAVE_SPARK_HARDWARE) && !defined (BOXMODEL_APOLLO) && !defined (HAVE_DUCKBOX_HARDWARE)
 			enabled = false;
 #endif
 			break;

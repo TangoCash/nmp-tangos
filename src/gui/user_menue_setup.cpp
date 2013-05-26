@@ -87,12 +87,12 @@ const CMenuOptionChooser::keyval USERMENU_ITEM_OPTIONS[USERMENU_ITEM_OPTION_COUN
 	{ SNeutrinoSettings::ITEM_CAM,			LOCALE_CI_SETTINGS },
 	{ SNeutrinoSettings::ITEM_CLOCK,		LOCALE_CLOCK_SWITCH_ON },
 	{ SNeutrinoSettings::ITEM_GAMES,		LOCALE_MAINMENU_GAMES },
+	{ SNeutrinoSettings::ITEM_SCRIPTS,		LOCALE_MAINMENU_SCRIPTS },
+	{ SNeutrinoSettings::ITEM_RECORD,		LOCALE_TIMERLIST_TYPE_RECORD }
 #if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
 	,{ SNeutrinoSettings::ITEM_THREE_D_MODE,	LOCALE_THREE_D_SETTINGS }
 	,{ SNeutrinoSettings::ITEM_WEBTV,		LOCALE_WEBTV_HEAD }
 #endif
-	{ SNeutrinoSettings::ITEM_SCRIPTS,		LOCALE_MAINMENU_SCRIPTS },
-	{ SNeutrinoSettings::ITEM_RECORD,		LOCALE_TIMERLIST_TYPE_RECORD }
 };
 
 int CUserMenuSetup::exec(CMenuTarget* parent, const std::string &)

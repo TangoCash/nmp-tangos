@@ -309,13 +309,13 @@ int CHDDDestExec::exec(CMenuTarget* /*parent*/, const std::string&)
 		if (removable) {
 			// show USB icon, no need for hdparm
 #if HAVE_DUCKBOX_HARDWARE || BOXMODEL_SPARK7162
-			CVFD::getInstance()->ShowIcon(VFD_ICON_USB, true);
+			CVFD::getInstance()->ShowIcon(FP_ICON_USB, true);
 #endif
 			printf("CHDDDestExec: /dev/%s is not a hdd, no sleep needed\n", namelist[i]->d_name);
 		} else {
 			//show HDD icon and set hdparm for all hdd's
 #if HAVE_DUCKBOX_HARDWARE
-			CVFD::getInstance()->ShowIcon(VFD_ICON_HDD, true);
+			CVFD::getInstance()->ShowIcon(FP_ICON_HDD, true);
 #endif
 			printf("CHDDDestExec: noise %d sleep %d /dev/%s\n",
 				 g_settings.hdd_noise, g_settings.hdd_sleep, namelist[i]->d_name);

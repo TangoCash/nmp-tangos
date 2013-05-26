@@ -114,7 +114,6 @@ CScanSettings::CScanSettings(void)
 #else
 	scanType = CServiceScan::SCAN_TVRADIO;
 #endif
-	strcpy(satNameNoDiseqc, "none");
 	strcpy(satName, "none");
 	strcpy(cableName, "none");
 }

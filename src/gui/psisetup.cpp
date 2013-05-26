@@ -30,7 +30,7 @@
 #include <gui/color.h>
 
 #include <gui/widget/messagebox.h>
-#include "widget/icons.h"
+#include <gui/widget/icons.h>
 #include <driver/screen_max.h>
 
 #include <fcntl.h>
@@ -72,7 +72,6 @@ static
 #define SLIDERWIDTH 200
 #define SLIDERHEIGHT 15
 #define LOCGAP 5
-#define ROUND_RADIUS 9
 
 CPSISetup::CPSISetup (const neutrino_locale_t Name)
 {
@@ -80,8 +79,10 @@ CPSISetup::CPSISetup (const neutrino_locale_t Name)
 	name = Name;
 	selected = 0;
 
-	for (int i = 0; i < PSI_RESET; i++)
-		psi_list[i].scale = new CProgressBar ();
+	for (int i = 0; i < PSI_RESET; i++) {
+		psi_list[i].scale = new CProgressBar();
+		psi_list[i].scale->setBlink(true);
+	}
 
 	psi_list[PSI_CONTRAST].value = g_settings.psi_contrast;
 	psi_list[PSI_SATURATION].value = g_settings.psi_saturation;
@@ -94,13 +95,9 @@ CPSISetup::CPSISetup (const neutrino_locale_t Name)
 	needsBlit = true;
 }
 
-void CPSISetup::blankScreen(bool b) {
-	if (b)
-		for (int i = 0; i < PSI_RESET; i++)
-			videoDecoder->SetControl(psi_list[i].control, 0);
-	else /* unblank */
-		for (int i = 0; i < PSI_RESET; i++)
-			videoDecoder->SetControl(psi_list[i].control, psi_list[i].value);
+void CPSISetup::blankScreen(bool blank) {
+	for (int i = 0; i < PSI_RESET; i++)
+		videoDecoder->SetControl(psi_list[i].control, blank ? 0 : psi_list[i].value);
 }
 
 int CPSISetup::exec (CMenuTarget * parent, const std::string &)
@@ -121,12 +118,12 @@ int CPSISetup::exec (CMenuTarget * parent, const std::string &)
 
 	sliderOffset = (locHeight - SLIDERHEIGHT) >> 1;
 
-	//            [ SLIDERWIDTH ][5][locwidth    ]
-	// [locHeight][XXXXXXXXXXXXX]   [XXXXXXXXXXXX]
-	// [locHeight][XXXXXXXXXXXXX]   [XXXXXXXXXXXX]
-	// [locHeight][XXXXXXXXXXXXX]   [XXXXXXXXXXXX]
-	// [locHeight][XXXXXXXXXXXXX]   [XXXXXXXXXXXX]
-	// [locHeight]                  [XXXXXXXXXXXX]
+  //            [ SLIDERWIDTH ][5][locwidth    ]
+  // [locHeight][XXXXXXXXXXXXX]   [XXXXXXXXXXXX]
+  // [locHeight][XXXXXXXXXXXXX]   [XXXXXXXXXXXX]
+  // [locHeight][XXXXXXXXXXXXX]   [XXXXXXXXXXXX]
+  // [locHeight][XXXXXXXXXXXXX]   [XXXXXXXXXXXX]
+  // [locHeight]                  [XXXXXXXXXXXX]
 
 	dx = SLIDERWIDTH + LOCGAP + locWidth;
 	dy = PSI_SCALE_COUNT * locHeight + (PSI_SCALE_COUNT - 1) * 2;
@@ -148,6 +145,7 @@ int CPSISetup::exec (CMenuTarget * parent, const std::string &)
 		psi_list[i].xLoc = psi_list[i].x + SLIDERWIDTH + LOCGAP + 2;
 		psi_list[i].yLoc = psi_list[i].y + locHeight - 1;
 	}
+
 	psi_list[PSI_RESET].xLoc = x + 20;
 	psi_list[PSI_RESET].xBox = x;
 
@@ -171,81 +169,74 @@ int CPSISetup::exec (CMenuTarget * parent, const std::string &)
 		if(needsBlit) {
 			frameBuffer->blit();
 			needsBlit = false;
-		}
-		g_RCInput->getMsgAbsoluteTimeout(&msg, &data, &timeoutEnd, true);
-		if ( msg <= CRCInput::RC_MaxRC )
-			timeoutEnd = CRCInput::calcTimeoutEnd(g_settings.timing[SNeutrinoSettings::TIMING_MENU] ? g_settings.timing[SNeutrinoSettings::TIMING_MENU] : 0xffff);
-		int i;
-		switch (msg)
+	}
+	g_RCInput->getMsgAbsoluteTimeout(&msg, &data, &timeoutEnd, true);
+	if ( msg <= CRCInput::RC_MaxRC )
+		timeoutEnd = CRCInput::calcTimeoutEnd(g_settings.timing[SNeutrinoSettings::TIMING_MENU] ? g_settings.timing[SNeutrinoSettings::TIMING_MENU] : 0xffff);
+	int i;
+	int direction = 1; // down
+	switch (msg)
+	{
+	case CRCInput::RC_up:
+		direction = -1;
+	case CRCInput::RC_down:
+		if (selected + direction > -1 && selected + direction < PSI_SCALE_COUNT)
 		{
-		case CRCInput::RC_down:
-			if (selected < PSI_RESET)
-			{
-				psi_list[selected].selected = false;
-				paintSlider (selected);
-				selected++;
-				psi_list[selected].selected = true;
-				paintSlider (selected);
-			}
-			break;
-		case CRCInput::RC_up:
-			if (selected > 0)
-			{
-				psi_list[selected].selected = false;
-				paintSlider (selected);
-				selected--;
-				psi_list[selected].selected = true;
-				paintSlider (selected);
-			}
-			break;
-		case CRCInput::RC_right:
-			if (selected < PSI_RESET && psi_list[selected].value < 255)
-			{
-				int val = psi_list[selected].value + g_settings.psi_step;
-				psi_list[selected].value = (val > 255) ? 255 : val;
-				paintSlider (selected);
-				videoDecoder->SetControl(psi_list[selected].control, psi_list[selected].value);
-			}
-			break;
-		case CRCInput::RC_left:
-			if (selected < PSI_RESET && psi_list[selected].value > 0)
-			{
-				int val = psi_list[selected].value - g_settings.psi_step;
-				psi_list[selected].value = (val < 0) ? 0 : val;
-				paintSlider (selected);
-				videoDecoder->SetControl(psi_list[selected].control, psi_list[selected].value);
-			}
-			break;
-		case CRCInput::RC_home:	// exit -> revert changes
-			for (i = 0; (i < PSI_RESET) && (psi_list[i].value == psi_list[i].value_old); i++);
-			if (i < PSI_RESET)
-				if (ShowLocalizedMessage (name, LOCALE_MESSAGEBOX_ACCEPT, CMessageBox::mbrYes, CMessageBox::mbYes | CMessageBox::mbCancel) == CMessageBox::mbrCancel)
-					for (i = 0; i < PSI_RESET; i++)
-					{
-						psi_list[i].value = psi_list[i].value_old;
-						videoDecoder->SetControl(psi_list[selected].control, psi_list[selected].value);
-					}
-		case CRCInput::RC_ok:
-			loop = false;
-			if (selected != PSI_RESET)
-			{
-				g_settings.psi_contrast = psi_list[PSI_CONTRAST].value;
-				g_settings.psi_saturation = psi_list[PSI_SATURATION].value;
-				g_settings.psi_brightness = psi_list[PSI_BRIGHTNESS].value;
-				g_settings.psi_tint = psi_list[PSI_TINT].value;
-				break;
-			}
-		case CRCInput::RC_red: // || selected == PSI_RESET
-			for (i = 0; i < PSI_RESET; i++)
-			{
-				psi_list[i].value = 128;
-				videoDecoder->SetControl(psi_list[i].control, psi_list[i].value);
-				paintSlider (i);
-			}
-			break;
-		default:
-			;
+			psi_list[selected].selected = false;
+			paintSlider (selected);
+			selected += direction;
+			psi_list[selected].selected = true;
+			paintSlider (selected);
 		}
+		break;
+	case CRCInput::RC_right:
+		if (selected < PSI_RESET && psi_list[selected].value < 255)
+		{
+			int val = psi_list[selected].value + g_settings.psi_step;
+			psi_list[selected].value = (val > 255) ? 255 : val;
+			paintSlider (selected);
+			videoDecoder->SetControl(psi_list[selected].control, psi_list[selected].value);
+		}
+		break;
+	case CRCInput::RC_left:
+		if (selected < PSI_RESET && psi_list[selected].value > 0)
+		{
+			int val = psi_list[selected].value - g_settings.psi_step;
+			psi_list[selected].value = (val < 0) ? 0 : val;
+			paintSlider (selected);
+			videoDecoder->SetControl(psi_list[selected].control, psi_list[selected].value);
+		}
+		break;
+	case CRCInput::RC_home:	// exit -> revert changes
+		for (i = 0; (i < PSI_RESET) && (psi_list[i].value == psi_list[i].value_old); i++);
+		if (i < PSI_RESET)
+			if (ShowLocalizedMessage (name, LOCALE_MESSAGEBOX_ACCEPT, CMessageBox::mbrYes, CMessageBox::mbYes | CMessageBox::mbCancel) == CMessageBox::mbrCancel)
+				for (i = 0; i < PSI_RESET; i++)
+				{
+					psi_list[i].value = psi_list[i].value_old;
+					videoDecoder->SetControl(psi_list[selected].control, psi_list[selected].value);
+				}
+	case CRCInput::RC_ok:
+		if (selected != PSI_RESET)
+		{
+			loop = false;
+			g_settings.psi_contrast = psi_list[PSI_CONTRAST].value;
+			g_settings.psi_saturation = psi_list[PSI_SATURATION].value;
+			g_settings.psi_brightness = psi_list[PSI_BRIGHTNESS].value;
+			g_settings.psi_tint = psi_list[PSI_TINT].value;
+			break;
+		}
+	case CRCInput::RC_red:
+		for (i = 0; i < PSI_RESET; i++)
+		{
+			psi_list[i].value = 128;
+			videoDecoder->SetControl(psi_list[i].control, psi_list[i].value);
+			paintSlider (i);
+		}
+		break;
+	default:
+	;
+	}
 	}
 
 	hide ();
@@ -265,25 +256,26 @@ void CPSISetup::paint ()
 		paintSlider (i);
 }
 
-void CPSISetup::paintSlider (int i)	// UTF-8
+void CPSISetup::paintSlider (int i)
 {
-	needsBlit = true;
-	int fg_col = frameBuffer->realcolor[(((((int)psi_list[i].selected ? COL_MENUHEAD : COL_MENUCONTENT) + 2) | 7) - 2)];
+	Font *f = g_Font[SNeutrinoSettings::FONT_TYPE_MENU];
+	unsigned char fg_col[] = { COL_MENUCONTENT, COL_MENUHEAD };
 
 	if (i < PSI_RESET)
 	{
 		psi_list[i].scale->setDimensionsAll(psi_list[i].x, psi_list[i].y + sliderOffset, SLIDERWIDTH, SLIDERHEIGHT);
+		psi_list[i].scale->setColorBody(COL_INFOBAR_SHADOW_PLUS_1);
 		psi_list[i].scale->setValues(psi_list[i].value, 255);
 		psi_list[i].scale->paint();
-		// (psi_list[i].x, psi_list[i].y + sliderOffset, SLIDERWIDTH, SLIDERHEIGHT, psi_list[i].value, 255, 0, 0, COL_INFOBAR_SHADOW_PLUS_1, 0, "", 0);
-		g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString (psi_list[i].xLoc, psi_list[i].yLoc, locWidth, g_Locale->getText(psi_list[i].loc), 0, 0, true, fg_col);
+		f->RenderString (psi_list[i].xLoc, psi_list[i].yLoc, locWidth, g_Locale->getText(psi_list[i].loc), fg_col[psi_list[i].selected], 0, true);
 	}
 	else
 	{
-		int fh = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getHeight();
-		g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString (psi_list[i].x + 2 + fh + fh/8, psi_list[i].yLoc, dx - 2 - fh, g_Locale->getText(psi_list[i].loc), 0, 0, true, fg_col);
+		int fh = f->getHeight();
+		f->RenderString (psi_list[i].x + 2 + fh + fh/8, psi_list[i].yLoc, dx - 2 - fh, g_Locale->getText(psi_list[i].loc), fg_col[psi_list[i].selected], 0, true);
 		frameBuffer->paintIcon (NEUTRINO_ICON_BUTTON_RED, psi_list[i].x + 2, psi_list[i].yLoc - fh + fh/8, 0, (6 * fh)/8);
 	}
+	needsBlit = true;
 }
 
 CPSISetupNotifier::CPSISetupNotifier (class CPSISetup *p)

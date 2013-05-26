@@ -2281,9 +2281,9 @@ static void check_timer() {
 	tmpTimerList.clear();
 	tmpTimerdClient.getTimerList(tmpTimerList);
 	if(tmpTimerList.size() > 0) {
-		CVFD::getInstance()->ShowIcon(VFD_ICON_CLOCK, true);
+		CVFD::getInstance()->ShowIcon(FP_ICON_CLOCK, true);
 	} else {
-		CVFD::getInstance()->ShowIcon(VFD_ICON_CLOCK, false);
+		CVFD::getInstance()->ShowIcon(FP_ICON_CLOCK, false);
 	}
 	tmpTimerList.clear();
 }
