@@ -490,12 +490,13 @@ printf("CVFD::showServicename: %s\n", name.c_str());
 
 void CVFD::setEPGTitle(const std::string title)
 {
+printf("CVFD::setEPGTitle: %s\n", title.c_str());
 	if (title == epg_title)
 	{
 		return;
 	}
 	epg_title = title;
-	showServicename("");
+	showServicename(servicename + " - " + epg_title);
 }
 
 void CVFD::showTime(bool force)
