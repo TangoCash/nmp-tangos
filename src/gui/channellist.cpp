@@ -1492,7 +1492,7 @@ CZapitChannel* CChannelList::getPrevNextChannel(int key, unsigned int &sl)
 				(int)cactive, (int)chanlist.size(), bactive, bsize, channel, channel ? channel->getName().c_str(): "");
 	} else {
 #if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
-		if ((key == g_settings.key_quickzap_down) || (key == CRCInput::RC_page_down)) {
+		if ((key == g_settings.key_quickzap_down) || (key == CRCInput::RC_left) || (key == CRCInput::RC_page_down)) {
 #else
 		if ((key == g_settings.key_quickzap_down) || (key == CRCInput::RC_left)) {
 #endif
@@ -1502,7 +1502,7 @@ CZapitChannel* CChannelList::getPrevNextChannel(int key, unsigned int &sl)
 				sl--;
 		}
 #if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
-		else if ((key == g_settings.key_quickzap_up) || (key == CRCInput::RC_page_up)) {
+		else if ((key == g_settings.key_quickzap_up) || (key == CRCInput::RC_right) || (key == CRCInput::RC_page_up)) {
 #else
 		else if ((key==g_settings.key_quickzap_up) || (key == CRCInput::RC_right)) {
 #endif
