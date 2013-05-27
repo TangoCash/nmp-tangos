@@ -579,7 +579,7 @@ void CLCD::UpdateIcons()
 		ShowIcon(FP_ICON_LOCK,!chan->camap.empty());
 		if (chan->getAudioChannel() != NULL)
 		{
-			ShowIcon(VFD_ICON_DD, chan->getAudioChannel()->audioChannelType == CZapitAudioChannel::AC3);
+			ShowIcon(FP_ICON_DD, chan->getAudioChannel()->audioChannelType == CZapitAudioChannel::AC3);
 			SetIcons(SPARK_MP3, chan->getAudioChannel()->audioChannelType == CZapitAudioChannel::MPEG);
 		}
 	}
@@ -607,39 +607,39 @@ void CLCD::ShowIcon(fp_icon i, bool on)
 #endif
 			break;
 #ifdef BOXMODEL_SPARK7162
-		case VFD_ICON_USB:
+		case FP_ICON_USB:
 			usb_icon = on;
 			SetIcons(SPARK_USB, on);
 			break;
-		case VFD_ICON_HDD:
+		case FP_ICON_HDD:
 			SetIcons(SPARK_HDD, on);
 			break;
-		case VFD_ICON_PAUSE:
+		case FP_ICON_PAUSE:
 			SetIcons(SPARK_PAUSE, on);
 			break;
-		case VFD_ICON_FF:
+		case FP_ICON_FF:
 			SetIcons(SPARK_PLAY_FASTFORWARD, on);
 			break;
-		case VFD_ICON_FR:
+		case FP_ICON_FR:
 			SetIcons(SPARK_PLAY_FASTBACKWARD, on);
 			break;
-		case VFD_ICON_DD:
+		case FP_ICON_DD:
 			SetIcons(SPARK_DD, on);
 			SetIcons(SPARK_AC3, on);
 			break;
-		case VFD_ICON_LOCK:
+		case FP_ICON_LOCK:
 			SetIcons(SPARK_CA, on);
 			break;
-		case VFD_ICON_RADIO:
+		case FP_ICON_RADIO:
 			SetIcons(SPARK_AUDIO, on);
 			break;
-		case VFD_ICON_TV:
+		case FP_ICON_TV:
 			SetIcons(SPARK_TVMODE_LOG, on);
 			break;
-		case VFD_ICON_HD:
+		case FP_ICON_HD:
 			SetIcons(SPARK_DOUBLESCREEN, on);
 			break;
-		case VFD_ICON_CLOCK:
+		case FP_ICON_CLOCK:
 			timer_icon = on;
 			SetIcons(SPARK_CLOCK, on);
 			break;
