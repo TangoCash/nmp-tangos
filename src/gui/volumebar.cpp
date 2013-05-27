@@ -37,7 +37,7 @@
 using namespace std;
 
 //default vol_height
-#define VOL_HEIGHT 36
+#define VOL_HEIGHT 18
 
 CVolumeBar::CVolumeBar()
 {
