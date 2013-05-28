@@ -419,15 +419,15 @@ void CDBoxInfoWidget::paint()
 					else if (!strcasecmp(a, "MemFree"))
 						m[0][2] += v;
 					else if (!strcasecmp(a, "Buffers"))
-						m[0][2] += v;
+						m[0][3] += v;
 					else if (!strcasecmp(a, "Cached"))
-						m[0][2] = v;
+						m[0][4] = v;
 					else if (!strcasecmp(a, "SwapTotal"))
 						m[1][0] = v;
 					else if (!strcasecmp(a, "SwapFree"))
 						m[1][2] = v;
 					else if (!strcasecmp(a, "SwapCached"))
-						m[1][2] = v;
+						m[1][3] = v;
 				}
 			fclose(procmeminfo);
 		}
