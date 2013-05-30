@@ -1326,8 +1326,10 @@ int CInfoViewer::handleMsg (const neutrino_msg_t msg, neutrino_msg_data_t data)
 				show_Data (true);
 		}
 		showLcdPercentOver ();
+#if 0 // BPanther: moved to neutrino.cpp
 		eventname = info_CurrentNext.current_name;
 		CVFD::getInstance()->setEPGTitle(eventname);
+#endif
 		return messages_return::handled;
 	} else if (msg == NeutrinoMessages::EVT_ZAP_SUB_FAILED) {
 		//chanready = 1;
@@ -2087,9 +2089,11 @@ void CInfoViewer::showLcdPercentOver()
 			old_interval = interval;
 		}
 		CLCD::getInstance()->showPercentOver(runningPercent);
+#if 0 // BPanther: moved to neutrino.cpp
 		int mode = CNeutrinoApp::getInstance()->getMode();
 		if ((mode == NeutrinoMessages::mode_radio || mode == NeutrinoMessages::mode_tv))
 			CVFD::getInstance()->setEPGTitle(info_CurrentNext.current_name);
+#endif
 	}
 }
 #else

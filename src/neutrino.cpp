@@ -2599,12 +2599,21 @@ void CNeutrinoApp::RealRun(CMenuWidget &mainMenu)
 				if(show_info && channelList->getSize()) {
 					showInfo();
 				}
+				if (msg == NeutrinoMessages::EVT_CURRENTNEXT_EPG) {
 #ifdef ENABLE_GRAPHLCD
-				if (msg == NeutrinoMessages::EVT_CURRENTNEXT_EPG)
 					nGLCD::Update();
+#endif
+					CSectionsdClient::CurrentNextInfo info_CurrentNext;
+					CEitManager::getInstance()->getCurrentNextServiceKey(CZapit::getInstance()->GetCurrentChannelID(), info_CurrentNext);
+					CVFD::getInstance()->setEPGTitle(info_CurrentNext.current_name);
+				}
 			} else if (msg == NeutrinoMessages::EVT_CURRENTNEXT_EPG) {
+#ifdef ENABLE_GRAPHLCD
 				nGLCD::Update();
 #endif
+				CSectionsdClient::CurrentNextInfo info_CurrentNext;
+				CEitManager::getInstance()->getCurrentNextServiceKey(CZapit::getInstance()->GetCurrentChannelID(), info_CurrentNext);
+				CVFD::getInstance()->setEPGTitle(info_CurrentNext.current_name);
 			}
 			else if (msg == CRCInput::RC_timer)
 			{

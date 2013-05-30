@@ -121,7 +121,7 @@ class CVFD
 
 		void setMode(const MODES m, const char * const title = "");
 
-		void showServicename(const std::string & name); // UTF-8
+		void showServicename(const std::string & name, bool fromepg = false); // UTF-8
 #ifdef HAVE_DUCKBOX_HARDWARE
 		std::string getServicename(void) { return servicename; }
 		void setEPGTitle(const std::string title);

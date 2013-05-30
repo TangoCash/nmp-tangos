@@ -475,12 +475,12 @@ void CVFD::setled(void)
 }
 #endif
 
-void CVFD::showServicename(const std::string & name) // UTF-8
+void CVFD::showServicename(const std::string & name, bool fromepg) // UTF-8
 {
-	if(!has_lcd) return;
-
 printf("CVFD::showServicename: %s\n", name.c_str());
-	servicename = name;
+	if(!has_lcd) return;
+	if (!fromepg)
+		servicename = name;
 	if (mode != MODE_TVRADIO)
 		return;
 
@@ -492,11 +492,10 @@ void CVFD::setEPGTitle(const std::string title)
 {
 printf("CVFD::setEPGTitle: %s\n", title.c_str());
 	if (title == epg_title)
-	{
 		return;
-	}
+
 	epg_title = title;
-	showServicename(servicename + " - " + epg_title);
+	showServicename(servicename + " - " + epg_title, true);
 }
 
 void CVFD::showTime(bool force)
