@@ -2750,7 +2750,8 @@ _show:
 				nNewChannel = bouquetList->exec(true);
 			}
 _repeat:
-			CVFD::getInstance ()->showServicename(channelList->getActiveChannelName());
+			CVFD::getInstance()->setEPGTitle("");
+			CVFD::getInstance()->showServicename(channelList->getActiveChannelName());
 			CVFD::getInstance()->setMode(CVFD::MODE_TVRADIO);
 			printf("************************* ZAP RES: nNewChannel %d\n", nNewChannel);fflush(stdout);
 			if(nNewChannel == -1) { // restore orig. bouquet and selected channel on cancel
@@ -2894,6 +2895,7 @@ _repeat:
 		g_volume->setVolume(msg, (mode != mode_scart));
 #if HAVE_DUCKBOX_HARDWARE
 		if((mode == mode_tv) || (mode == mode_radio)) {
+			CVFD::getInstance()->setEPGTitle("");
 			CVFD::getInstance()->showServicename(channelList->getActiveChannelName());
 		}
 #endif
