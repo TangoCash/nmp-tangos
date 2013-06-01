@@ -221,15 +221,23 @@ bool CCamManager::SetMode(t_channel_id channel_id, enum runmode mode, bool start
 		/* see the comment in src/driver/streamts.cpp:CStreamInstance::run() */
 		/* TODO: FIXME */
 		case STREAM:
+#if HAVE_SPARK_HARDWARE
 			/* this might be SPARK-specific, not tested elsewhere */
 			source = cDemux::GetSource(0); /* demux0 is always the live demux */
 			demux = source;
+#else
+			source = CFEManager::getInstance()->allocateFE(channel)->getNumber(true);
+			demux = LIVE_DEMUX + source;
+#endif
 #endif
 			break;
 #if HAVE_COOL_HARDWARE
 		case STREAM:
 #endif
 		case RECORD:
+#if HAVE_DUCKBOX_HARDWARE || HAVE_SPARK_HARDWARE
+			channel->setRecordDemux(CFEManager::getInstance()->allocateFE(channel)->getNumber(true));
+#endif
 			source = channel->getRecordDemux();
 			demux = channel->getRecordDemux();
 			break;
