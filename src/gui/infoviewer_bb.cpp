@@ -608,7 +608,7 @@ void CInfoViewerBB::showIcon_Tuner()
 		return;
 
 	std::string icon_name;
-	switch (CFEManager::getInstance()->getLiveFE()->getNumber()) {
+	switch (CFEManager::getInstance()->getLiveFE()->getNumber(true)) {
 		case 1:
 			icon_name = NEUTRINO_ICON_TUNER_2;
 			break;
