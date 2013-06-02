@@ -406,7 +406,7 @@ void CFEManager::linkFrontends(bool init)
 				CFrontend * fe2 = it2->second;
 				if (!CFrontend::linked(fe2->getMode()))
 					continue;
-				if (fe2->getType() != fe->getType() || (fe2->getMaster() == fe->fenumber))
+				if (fe2->getType() != fe->getType() || (fe2->getMaster() != fe->fenumber))
 					continue;
 #if 0
 				int mnum = fe2->getMaster();

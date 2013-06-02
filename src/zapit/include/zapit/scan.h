@@ -41,8 +41,8 @@ class CServiceScan : public OpenThreads::Thread
 	public:
 		typedef enum scan_type {
 			SCAN_PROVIDER,
-			SCAN_TRANSPONDER,
-//			SCAN_FAST
+			SCAN_TRANSPONDER
+//			, SCAN_FAST
 		} scan_type_t;
 		typedef enum scan_flags {
 			SCAN_NIT		= 0x01,
@@ -55,7 +55,7 @@ class CServiceScan : public OpenThreads::Thread
 			SCAN_TVRADIO		= 0x60,
 			SCAN_DATA		= 0x80,
 			SCAN_ALL		= 0xE0,
-			SCAN_LOGICAL_HD		= 0x100,
+			SCAN_LOGICAL_HD		= 0x100
 		} scan_flags_t;
 
 	private:

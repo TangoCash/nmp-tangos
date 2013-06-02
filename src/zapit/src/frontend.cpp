@@ -83,12 +83,12 @@ static const struct dtv_property dvbs_cmdargs[] = {
 	{ DTV_SYMBOL_RATE,	{0,0,0}, { 27500000		},0 },
 	{ DTV_DELIVERY_SYSTEM,	{0,0,0}, { SYS_DVBS		},0 },
 	{ DTV_INNER_FEC,	{0,0,0}, { FEC_AUTO		},0 },
-	{ DTV_TUNE,		{0,0,0}, { 0			},0 },
+	{ DTV_TUNE,		{0,0,0}, { 0			},0 }
 };
 
 static const struct dtv_property dvbs2_cmdargs[] = {
-	{ DTV_CLEAR,		{0,0,0}, { 0			},0 },
-	{ DTV_FREQUENCY,	{}, { 0			},0 },
+	{ DTV_CLEAR,		{0,0,0}, { 0		} ,0},
+	{ DTV_FREQUENCY,	{}, { 0			} ,0},
 	{ DTV_MODULATION,	{}, { PSK_8		} ,0},
 	{ DTV_INVERSION,	{}, { INVERSION_AUTO	} ,0},
 	{ DTV_SYMBOL_RATE,	{}, { 27500000		} ,0},
@@ -96,7 +96,7 @@ static const struct dtv_property dvbs2_cmdargs[] = {
 	{ DTV_INNER_FEC,	{}, { FEC_AUTO		} ,0},
 	{ DTV_PILOT,		{}, { PILOT_AUTO	} ,0},
 	{ DTV_ROLLOFF,		{}, { ROLLOFF_AUTO	} ,0},
-	{ DTV_TUNE,		{}, { 0			} ,0 },
+	{ DTV_TUNE,		{}, { 0			} ,0}
 };
 
 static const struct dtv_property dvbc_cmdargs[] = {
@@ -107,7 +107,7 @@ static const struct dtv_property dvbc_cmdargs[] = {
 	{ DTV_SYMBOL_RATE,	{}, { 27500000		} ,0},
 	{ DTV_DELIVERY_SYSTEM,	{}, { SYS_DVBC_ANNEX_AC	} ,0},
 	{ DTV_INNER_FEC,	{}, { FEC_AUTO		} ,0},
-	{ DTV_TUNE,		{}, { 0			}, 0},
+	{ DTV_TUNE,		{}, { 0			} ,0}
 };
 
 static const struct dtv_property dvbt_cmdargs[] = {
@@ -122,7 +122,7 @@ static const struct dtv_property dvbt_cmdargs[] = {
 	{ DTV_TRANSMISSION_MODE,{}, { TRANSMISSION_MODE_AUTO}, 0},
 	{ DTV_GUARD_INTERVAL,	{}, { GUARD_INTERVAL_AUTO}, 0},
 	{ DTV_HIERARCHY,	{}, { HIERARCHY_AUTO	}, 0},
-	{ DTV_TUNE,		{}, { 0			}, 0},
+	{ DTV_TUNE,		{}, { 0			}, 0}
 };
 
 
