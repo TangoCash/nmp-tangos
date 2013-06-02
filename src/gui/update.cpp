@@ -84,7 +84,8 @@ extern int allow_flash;
 #define UPDATE_LOCAL_FILENAME          "update.img"
 #define RELEASE_CYCLE                  "2.0"
 #define FILEBROWSER_UPDATE_FILTER      "img"
-#if BOXMODEL_UFS910
+
+#if BOXMODEL_UFS910 || BOXMODEL_FORTIS_HDBOX || BOXMODEL_OCTAGON1008
 #define MTD_OF_WHOLE_IMAGE              5
 #define MTD_DEVICE_OF_UPDATE_PART       "/dev/mtd5"
 #elif BOXMODEL_CUBEREVO_MINI2
@@ -94,6 +95,7 @@ extern int allow_flash;
 #define MTD_OF_WHOLE_IMAGE              999
 #define MTD_DEVICE_OF_UPDATE_PART       "/dev/mtd999"
 #endif
+
 #else
 #define LIST_OF_UPDATES_LOCAL_FILENAME "coolstream.list"
 #define UPDATE_LOCAL_FILENAME          "update.img"
