@@ -158,7 +158,12 @@ static const struct key keyname[] = {
 	{ "KEY_RECORD",		KEY_RECORD },
 	{ "KEY_PLAY",		KEY_PLAY },
 	{ "KEY_PAUSE",		KEY_PAUSE },
-	{ "KEY_FORWARD",		KEY_FORWARD },
+#ifdef HAVE_DUCKBOX_HARDWARE
+/* evremote don't use forward */
+	{ "KEY_FORWARD",	KEY_FASTFORWARD },
+#else
+	{ "KEY_FORWARD",	KEY_FORWARD },
+#endif
 	{ "KEY_REWIND",		KEY_REWIND },
 	{ "KEY_STOP",		KEY_STOP },
 	{ "KEY_TIME",		KEY_TIME },
