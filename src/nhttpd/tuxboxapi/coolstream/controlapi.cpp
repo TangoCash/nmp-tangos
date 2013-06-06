@@ -748,7 +748,12 @@ static const struct key keynames[] = {
 	{"KEY_SLEEP",           KEY_SLEEP},
 	{"KEY_AUDIO",		KEY_AUDIO},
 	{"KEY_REWIND",		KEY_REWIND},
+#ifdef HAVE_DUCKBOX_HARDWARE
+/* evremote don't use forward */
+	{"KEY_FORWARD",		KEY_FASTFORWARD},
+#else
 	{"KEY_FORWARD",		KEY_FORWARD},
+#endif
 	{"KEY_PAUSE",		KEY_PAUSE},
 	{"KEY_RECORD",		KEY_RECORD},
 	{"KEY_STOP",		KEY_STOP},
