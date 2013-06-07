@@ -91,6 +91,9 @@ extern int allow_flash;
 #elif BOXMODEL_CUBEREVO_MINI2
 #define MTD_OF_WHOLE_IMAGE              6
 #define MTD_DEVICE_OF_UPDATE_PART       "/dev/mtd6"
+#elif BOXMODEL_UFS922
+#define MTD_OF_WHOLE_IMAGE              4
+#define MTD_DEVICE_OF_UPDATE_PART       "/dev/mtd4"
 #else // update blocked with invalid data
 #define MTD_OF_WHOLE_IMAGE              999
 #define MTD_DEVICE_OF_UPDATE_PART       "/dev/mtd999"
