@@ -708,7 +708,7 @@ lcdmenu.statusline status line
 lcdmenu.statusline.both volume / playtime
 lcdmenu.statusline.playtime playtime
 lcdmenu.statusline.volume volume
-lcdmenu.vfd_epg with EPG
+lcdmenu.vfd_epg Channelname with EPG
 lcdmenu.vfd_scroll Scrolling
 ledcontroler.blink Blink in deep standby, if timer set
 ledcontroler.menu Power Button LEDs
