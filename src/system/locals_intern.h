@@ -739,6 +739,7 @@ const char * locale_real_names[] =
 	"lcdmenu.statusline.playtime",
 	"lcdmenu.statusline.volume",
 #if HAVE_DUCKBOX_HARDWARE
+	"lcdmenu.vfd_epg",
 	"lcdmenu.vfd_scroll",
 #endif
 	"ledcontroler.blink",

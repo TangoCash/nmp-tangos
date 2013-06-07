@@ -138,7 +138,8 @@ int CVfdSetup::showSetup()
 	vfds->addItem(mf);
 
 #if HAVE_DUCKBOX_HARDWARE
-	vfds->addItem(new CMenuOptionChooser(LOCALE_LCDMENU_VFD_SCROLL, &g_settings.lcd_vfd_scroll, OPTIONS_OFF_ON_OPTIONS, OPTIONS_OFF_ON_OPTION_COUNT, true, NULL));
+	vfds->addItem(new CMenuOptionChooser(LOCALE_LCDMENU_VFD_EPG, &g_settings.lcd_vfd_epg, OPTIONS_OFF_ON_OPTIONS, OPTIONS_OFF_ON_OPTION_COUNT, true, NULL));
+	vfds->addItem(new CMenuOptionNumberChooser(LOCALE_LCDMENU_VFD_SCROLL, &g_settings.lcd_vfd_scroll, true, 0, 999, this, 0, 0, NONEXISTANT_LOCALE, NULL, true));
 #endif
 #ifndef HAVE_DUCKBOX_HARDWARE
 	//led menu

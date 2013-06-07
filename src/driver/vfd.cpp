@@ -140,7 +140,7 @@ static void ShowNormalText(char * str, bool fromScrollThread = false)
 			vfd_scrollText = 0;
 		}
 	}
-	if ((strlen(str) > VFDLENGTH && !fromScrollThread) && (g_settings.lcd_vfd_scroll == 1))
+	if ((strlen(str) > VFDLENGTH && !fromScrollThread) && (g_settings.lcd_vfd_scroll >= 1))
 	{
 		CVFD::getInstance()->ShowScrollText(str);
 		return;
@@ -198,7 +198,7 @@ void* CVFD::ThreadScrollText(void * arg)
 
 	memset(out, 0, VFDLENGTH+1);
 
-	int retries = 1;
+	int retries = g_settings.lcd_vfd_scroll;
 
 	while(retries--)
 	{
@@ -491,7 +491,7 @@ printf("CVFD::showServicename: %s\n", name.c_str());
 void CVFD::setEPGTitle(const std::string title)
 {
 printf("CVFD::setEPGTitle: %s\n", title.c_str());
-	if (0 /*g_settings.lcd_vfd_epg == 0*/) {
+	if (g_settings.lcd_vfd_epg == 0) {
 		showServicename(servicename);
 		return;
 	}

@@ -839,6 +839,7 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	g_settings.lcd_info_line = configfile.getInt32("lcd_info_line", 0);//channel name or clock
 #if HAVE_DUCKBOX_HARDWARE
 	g_settings.lcd_vfd_scroll = configfile.getInt32("lcd_vfd_scroll", 1);//VFD scrolling default on
+	g_settings.lcd_vfd_epg = configfile.getInt32("lcd_vfd_epg", 1);//VFD with EPG, default on
 #endif
 
 	//Picture-Viewer
@@ -1303,6 +1304,7 @@ void CNeutrinoApp::saveSetup(const char * fname)
 	configfile.setInt32("lcd_info_line", g_settings.lcd_info_line);//channel name or clock
 #if HAVE_DUCKBOX_HARDWARE
 	configfile.setInt32("lcd_vfd_scroll", g_settings.lcd_vfd_scroll);
+	configfile.setInt32("lcd_vfd_epg", g_settings.lcd_vfd_epg);
 #endif
 
 	//Picture-Viewer
