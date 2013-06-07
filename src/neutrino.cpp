@@ -2268,6 +2268,12 @@ void CNeutrinoApp::showInfo()
 	StartSubtitles();
 }
 
+static void setEPGTitle() {
+	CSectionsdClient::CurrentNextInfo info_CurrentNext;
+	CEitManager::getInstance()->getCurrentNextServiceKey(CZapit::getInstance()->GetCurrentChannelID(), info_CurrentNext);
+	CVFD::getInstance()->setEPGTitle(info_CurrentNext.current_name);
+}
+
 #if HAVE_DUCKBOX_HARDWARE || BOXMODEL_SPARK7162
 static void check_timer() {
 	CTimerd::TimerList tmpTimerList;
@@ -2603,17 +2609,13 @@ void CNeutrinoApp::RealRun(CMenuWidget &mainMenu)
 #ifdef ENABLE_GRAPHLCD
 					nGLCD::Update();
 #endif
-					CSectionsdClient::CurrentNextInfo info_CurrentNext;
-					CEitManager::getInstance()->getCurrentNextServiceKey(CZapit::getInstance()->GetCurrentChannelID(), info_CurrentNext);
-					CVFD::getInstance()->setEPGTitle(info_CurrentNext.current_name);
+					setEPGTitle();
 				}
 			} else if (msg == NeutrinoMessages::EVT_CURRENTNEXT_EPG) {
 #ifdef ENABLE_GRAPHLCD
 				nGLCD::Update();
 #endif
-				CSectionsdClient::CurrentNextInfo info_CurrentNext;
-				CEitManager::getInstance()->getCurrentNextServiceKey(CZapit::getInstance()->GetCurrentChannelID(), info_CurrentNext);
-				CVFD::getInstance()->setEPGTitle(info_CurrentNext.current_name);
+				setEPGTitle();
 			}
 			else if (msg == CRCInput::RC_timer)
 			{
@@ -2628,7 +2630,9 @@ void CNeutrinoApp::RealRun(CMenuWidget &mainMenu)
 						g_settings.mode_clock=false;
 						InfoClock->StopClock();
 					}
+					CVFD::getInstance()->setEPGTitle("");
 					CVFD::getInstance()->setMode(CVFD::MODE_TVRADIO);
+					setEPGTitle();
 				}
 				handleMsg(msg, data);
 			}
@@ -2751,8 +2755,8 @@ _show:
 			}
 _repeat:
 			CVFD::getInstance()->setEPGTitle("");
-			CVFD::getInstance()->showServicename(channelList->getActiveChannelName());
 			CVFD::getInstance()->setMode(CVFD::MODE_TVRADIO);
+			setEPGTitle();
 			printf("************************* ZAP RES: nNewChannel %d\n", nNewChannel);fflush(stdout);
 			if(nNewChannel == -1) { // restore orig. bouquet and selected channel on cancel
 				/* FIXME if mode was changed while browsing,
@@ -2896,7 +2900,7 @@ _repeat:
 #if HAVE_DUCKBOX_HARDWARE
 		if((mode == mode_tv) || (mode == mode_radio)) {
 			CVFD::getInstance()->setEPGTitle("");
-			CVFD::getInstance()->showServicename(channelList->getActiveChannelName());
+			setEPGTitle();
 		}
 #endif
 		return messages_return::handled;
