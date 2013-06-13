@@ -51,8 +51,12 @@ void CInfoClock::paintTime( bool show_dot)
 	char timestr[20];
 	int dummy, mute_dx, h_spacer;
 	time_t tm = time(0);
-	strftime((char*) &timestr, sizeof(timestr), "%H:%M:%S", localtime(&tm));
-	timestr[2] = show_dot ? ':':'.';
+	if (g_settings.infoclock_with_seconds)
+		strftime((char*) &timestr, sizeof(timestr), "%H:%M:%S", localtime(&tm));
+	else
+		strftime((char*) &timestr, sizeof(timestr), "%H:%M", localtime(&tm));
+	if (g_settings.infoclock_blinking_dot)
+		timestr[2] = show_dot ? ':':'.';
 
 	CVolumeHelper *cvh = CVolumeHelper::getInstance();
 	cvh->getInfoClockDimensions(&clock_x, &y, &time_width, &time_height, &digit_h, &digit_offset);

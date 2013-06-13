@@ -736,6 +736,8 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	g_settings.cacheTXT = configfile.getInt32( "cacheTXT",  0);
 	g_settings.minimode = configfile.getInt32( "minimode",  0);
 	g_settings.mode_clock = configfile.getInt32( "mode_clock",  0);
+	g_settings.infoclock_with_seconds = configfile.getInt32("infoclock_with_seconds", 1);
+	g_settings.infoclock_blinking_dot = configfile.getInt32("infoclock_blinking_dot", 1);
 	g_settings.zapto_pre_time = configfile.getInt32( "zapto_pre_time",  0);
 	g_settings.spectrum         = configfile.getBool("spectrum"          , false);
 	g_settings.channellist_additional = configfile.getInt32("channellist_additional", 2); //default minitv
@@ -1235,6 +1237,8 @@ void CNeutrinoApp::saveSetup(const char * fname)
 	configfile.setInt32( "cacheTXT", g_settings.cacheTXT );
 	configfile.setInt32( "minimode", g_settings.minimode );
 	configfile.setInt32( "mode_clock", g_settings.mode_clock );
+	configfile.setInt32( "infoclock_with_seconds", g_settings.infoclock_with_seconds);
+	configfile.setInt32( "infoclock_blinking_dot", g_settings.infoclock_blinking_dot);
 	configfile.setInt32( "zapto_pre_time", g_settings.zapto_pre_time );
 	configfile.setBool("spectrum", g_settings.spectrum);
 	configfile.setInt32("eventlist_additional", g_settings.eventlist_additional);

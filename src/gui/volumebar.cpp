@@ -304,7 +304,10 @@ void CVolumeHelper::initInfoClock()
 	int t1       = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_CHANNAME]->getRenderWidth(widest_number);
 	int t2       = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_CHANNAME]->getRenderWidth(":");
 	clock_dy     = digit_h + (int)((float)digit_offset * 1.5);
-	clock_dx     = t1*6 + t2*2;
+	if (g_settings.infoclock_with_seconds)
+		clock_dx     = t1*6 + t2*2;
+	else
+		clock_dx     = t1*4 + t2*1;
 	clock_ax     = sw - clock_dx;
 	clock_ay     = y;
 	vol_ay       = y;

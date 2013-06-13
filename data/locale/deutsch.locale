@@ -631,6 +631,8 @@ imageinfo.license Lizenz:
 imageinfo.vcs Git:
 imageinfo.version Version:
 inetradio.name Internetradio
+infoclock.blinking_dot Uhrzeit mit blinkendem Punkt
+infoclock.with_seconds Uhrzeit mit Sekunden
 infoviewer.epgnotload Informationen noch nicht geladen...
 infoviewer.epgwait Warte auf EPG-Informationen...
 infoviewer.eventlist EPG/Vorschau

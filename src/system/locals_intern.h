@@ -660,6 +660,8 @@ const char * locale_real_names[] =
 	"imageinfo.vcs",
 	"imageinfo.version",
 	"inetradio.name",
+	"infoclock.blinking_dot",
+	"infoclock.with_seconds",
 	"infoviewer.epgnotload",
 	"infoviewer.epgwait",
 	"infoviewer.eventlist",

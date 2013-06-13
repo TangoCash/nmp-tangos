@@ -464,6 +464,9 @@ struct SNeutrinoSettings
 	int minimode;
 	int mode_clock;
 
+	int infoclock_with_seconds;
+	int infoclock_blinking_dot;
+
 	enum MODE_LEFT_RIGHT_KEY_TV_SETTINGS 
 	{
 		ZAP     = 0,

@@ -543,6 +543,10 @@ int COsdSetup::showOsdSetup()
 	mc->setHint("", LOCALE_MENU_HINT_SUBCHANNEL_POS);
 	osd_menu->addItem(mc);
 
+	// infoclock
+	osd_menu->addItem(new CMenuOptionChooser(LOCALE_INFOCLOCK_WITH_SECONDS, &g_settings.infoclock_with_seconds, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true));
+	osd_menu->addItem(new CMenuOptionChooser(LOCALE_INFOCLOCK_BLINKING_DOT, &g_settings.infoclock_blinking_dot, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true));
+
 #if HAVE_DUCKBOX_HARDWARE
 	// OSDShot
 	mc = new CMenuOptionChooser(LOCALE_EXTRA_OSDSHOT, &g_settings.osd_shotmode, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true);
