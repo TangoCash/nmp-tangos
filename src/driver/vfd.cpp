@@ -61,6 +61,8 @@ extern CRemoteControl * g_RemoteControl; /* neutrino.cpp */
 	#define VFDLENGTH 16
 #endif
 
+#define SCROLL_TIME 350000
+
 bool invert = false;
 char g_str[64];
 bool blocked = false;
@@ -81,6 +83,7 @@ static void write_to_vfd(unsigned int DevType, struct vfd_ioctl_data * data, boo
 	if (blocked) {
 		if (file_vfd > -1) {
 			blocked_counter++;
+			usleep(SCROLL_TIME);
 		} else {
 			blocked = false;
 		}
@@ -202,7 +205,7 @@ void* CVFD::ThreadScrollText(void * arg)
 
 	while(retries--)
 	{
-		usleep(500000);
+		usleep(SCROLL_TIME);
 
 		for (i=0; i<=(len-VFDLENGTH); i++)
 		{
@@ -210,7 +213,7 @@ void* CVFD::ThreadScrollText(void * arg)
 			memset(out, ' ', VFDLENGTH);
 			memcpy(out, str+i, VFDLENGTH);
 			ShowNormalText(out,true);
-			usleep(500000);
+			usleep(SCROLL_TIME);
 		}
 
 		memcpy(out, str, VFDLENGTH); // display first VFDLENGTH-1 chars after scrolling
