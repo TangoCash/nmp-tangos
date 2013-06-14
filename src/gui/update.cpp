@@ -47,7 +47,6 @@
 
 #include <gui/color.h>
 #include <gui/filebrowser.h>
-#include <system/fsmounter.h>
 
 #include <gui/widget/messagebox.h>
 #include <gui/widget/hintbox.h>
@@ -491,13 +490,13 @@ int CFlashUpdate::exec(CMenuTarget* parent, const std::string &actionKey)
 	printf("[update] flash/install filename %s type %c\n", filename.c_str(), fileType);
 #endif
 	if(fileType < '3') {
-		CNeutrinoApp::getInstance()->exec(NULL, "savesettings");
 		//flash it...
-
 #if ENABLE_EXTUPDATE
-		if (ShowMsgUTF(LOCALE_MESSAGEBOX_INFO, g_Locale->getText(LOCALE_FLASHUPDATE_APPLY_SETTINGS), CMessageBox::mbrYes, CMessageBox::mbYes | CMessageBox::mbNo, NEUTRINO_ICON_UPDATE) == CMessageBox::mbrYes)
-			if (!CExtUpdate::getInstance()->applySettings(filename, CExtUpdate::MODE_SOFTUPDATE))
-				return menu_return::RETURN_REPAINT;
+		if (g_settings.apply_settings) {
+			if (ShowMsgUTF(LOCALE_MESSAGEBOX_INFO, g_Locale->getText(LOCALE_FLASHUPDATE_APPLY_SETTINGS), CMessageBox::mbrYes, CMessageBox::mbYes | CMessageBox::mbNo, NEUTRINO_ICON_UPDATE) == CMessageBox::mbrYes)
+				if (!CExtUpdate::getInstance()->applySettings(filename, CExtUpdate::MODE_SOFTUPDATE))
+					return menu_return::RETURN_REPAINT;
+		}
 #endif
 
 #ifdef DEBUG1
@@ -513,16 +512,9 @@ int CFlashUpdate::exec(CMenuTarget* parent, const std::string &actionKey)
 		//status anzeigen
 		showGlobalStatus(100);
 		showStatusMessageUTF(g_Locale->getText(LOCALE_FLASHUPDATE_READY)); // UTF-8
-
 		hide();
-
-		// Unmount all NFS & CIFS volumes
-		nfs_mounted_once = false; /* needed by update.cpp to prevent removal of modules after flashing a new cramfs, since rmmod (busybox) might no longer be available */
-		CFSMounter::umount();
-
 		ShowHintUTF(LOCALE_MESSAGEBOX_INFO, g_Locale->getText(LOCALE_FLASHUPDATE_FLASHREADYREBOOT)); // UTF-8
 		sleep(2);
-		//my_system("/etc/init.d/rcK");
 		ft.reboot();
 	}
 	else if(fileType == 'T') // display file contents
@@ -579,28 +571,16 @@ void CFlashExpert::readmtd(int preadmtd)
 {
 	char tmpStr[256];
 	struct timeval tv;
-	gettimeofday(&tv, NULL);
+	gettimeofday(&tv, NULL);	
 	strftime(tmpStr, sizeof(tmpStr), "_%Y%m%d_%H%M.img", localtime(&tv.tv_sec));
 	CMTDInfo* mtdInfo = CMTDInfo::getInstance();
-
-	std::string filename = mtdInfo->getMTDName(preadmtd);
-//printf("update.cpp: filename ORG: %s\n", filename.c_str());
-	char invalidChars[10] = "\\:/\"<>?*|";
-	for (int ivi = filename.length(); ivi >= 0; ivi--) {
-		for (int ivj = 0; ivj <= 9; ivj++) {
-			if (filename[ivi] == invalidChars[ivj]) filename.erase(ivi,1);
-		}
-	}
-//printf("update.cpp: filename NEW: %s\n", filename.c_str());
-	filename = (std::string)g_settings.update_dir + "/" + filename;
+	std::string filename = (std::string)g_settings.update_dir + "/" + mtdInfo->getMTDName(preadmtd);
 	filename += tmpStr;
 
 	if (preadmtd == -1) {
 		filename = (std::string)g_settings.update_dir + "/flashimage.img"; // US-ASCII (subset of UTF-8 and ISO8859-1)
 		preadmtd = MTD_OF_WHOLE_IMAGE;
 	}
-//printf("update.cpp: filename COMPLETE: %s\n", filename.c_str());
-
 	setTitle(LOCALE_FLASHUPDATE_TITLEREADFLASH);
 	paint();
 	showGlobalStatus(0);
@@ -763,7 +743,7 @@ int CFlashExpert::exec(CMenuTarget* parent, const std::string & actionKey)
 			}
 			else
 #endif
-			if (selectedMTD == -1) {
+			if(selectedMTD==-1) {
 				writemtd(actionKey, MTD_OF_WHOLE_IMAGE);
 			} else {
 				writemtd(actionKey, selectedMTD);

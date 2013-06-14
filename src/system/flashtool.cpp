@@ -25,10 +25,14 @@
 
 #include <libmd5sum.h>
 #include <system/flashtool.h>
+#include <system/fsmounter.h>
+#include <system/helpers.h>
+#include <eitd/sectionsd.h>
 
 #include <stdio.h>
 #include <unistd.h>
 #include <stdlib.h>
+#include <libgen.h>
 #include <fcntl.h>
 #include <sys/ioctl.h>
 #include <sys/mount.h>
@@ -105,13 +109,7 @@ bool CFlashTool::readFromMTD( const std::string & filename, int globalProgressEn
 
 	filesize = CMTDInfo::getInstance()->getMTDSize(mtdDevice);
 
-	unsigned char * buf = new unsigned char[meminfo.writesize];
-	if (buf == NULL) {
-		printf("CFlashTool::program: mem alloc failed\n");
-		close(fd);
-		close(fd1);
-		return false;
-	}
+	unsigned char buf[meminfo.writesize];
 	unsigned mtdoffset = 0;
 	long fsize = filesize;
 	while(fsize > 0) {
@@ -154,7 +152,6 @@ bool CFlashTool::readFromMTD( const std::string & filename, int globalProgressEn
 	if(statusViewer)
 		statusViewer->showLocalStatus(100);
 
-	delete[] buf;
 	close(fd);
 	close(fd1);
 	return true;
@@ -166,6 +163,8 @@ bool CFlashTool::program( const std::string & filename, int globalProgressEndEra
 	ssize_t filesize;
 	int globalProgressBegin = 0;
 
+	CNeutrinoApp::getInstance()->saveEpg(false);
+
 	if(statusViewer)
 		statusViewer->showLocalStatus(0);
 
@@ -174,7 +173,32 @@ bool CFlashTool::program( const std::string & filename, int globalProgressEndEra
 		return false;
 	}
 
-	if( (fd1 = open( filename.c_str(), O_RDONLY )) < 0 ) {
+	char buf1[1024];
+	memset(buf1, 0, sizeof(buf1));
+	strncpy(buf1, filename.c_str(), sizeof(buf1)-1);
+	char* dn = dirname(buf1);
+	std::string flashfile;
+	if (strcmp(dn, "/tmp") != 0) {
+		memset(buf1, 0, sizeof(buf1));
+		strncpy(buf1, filename.c_str(), sizeof(buf1)-1);
+		flashfile = (std::string)"/tmp/" + basename(buf1);
+		CFileHelpers fh;
+		printf("##### [CFlashTool::program] copy flashfile to %s\n", flashfile.c_str());
+		if(statusViewer)
+			statusViewer->showStatusMessageUTF("Copy Image");
+		fh.copyFile(filename.c_str(), flashfile.c_str(), 0644);
+		sync();
+		if(statusViewer)
+			statusViewer->showGlobalStatus(statusViewer->getGlobalStatus()+5);
+	}
+	else
+		flashfile = filename;
+
+	// Unmount all NFS & CIFS volumes
+	nfs_mounted_once = false;
+	CFSMounter::umount();
+
+	if( (fd1 = open( flashfile.c_str(), O_RDONLY )) < 0 ) {
 		ErrorMessage = g_Locale->getText(LOCALE_FLASHUPDATE_CANTOPENFILE);
 		return false;
 	}
@@ -201,10 +225,12 @@ bool CFlashTool::program( const std::string & filename, int globalProgressEndEra
 	if(statusViewer) {
 		if(globalProgressEndErase!=-1)
 			statusViewer->showGlobalStatus(globalProgressEndErase);
-
 		statusViewer->showLocalStatus(0);
 		statusViewer->showStatusMessageUTF(g_Locale->getText(LOCALE_FLASHUPDATE_PROGRAMMINGFLASH)); // UTF-8
 	}
+#ifndef VFD_UPDATE
+	CVFD::getInstance()->ShowText("Write Flash");
+#endif
 
 	if( (fd = open( mtdDevice.c_str(), O_WRONLY )) < 0 ) {
 		ErrorMessage = g_Locale->getText(LOCALE_FLASHUPDATE_CANTOPENMTD);
@@ -215,16 +241,10 @@ bool CFlashTool::program( const std::string & filename, int globalProgressEndEra
 	if(statusViewer)
 		globalProgressBegin = statusViewer->getGlobalStatus();
 
-	unsigned char * buf = new unsigned char[meminfo.writesize];
-	if (buf == NULL) {
-		printf("CFlashTool::program: mem alloc failed\n");
-		close(fd);
-		close(fd1);
-		return false;
-	}
+	unsigned char buf[meminfo.writesize];
 	unsigned mtdoffset = 0;
 	unsigned fsize = filesize;
-	printf("CFlashTool::program: file %s write size %d, erase size %d\n", filename.c_str(), meminfo.writesize, meminfo.erasesize);
+	printf("CFlashTool::program: file %s write size %d, erase size %d\n", flashfile.c_str(), meminfo.writesize, meminfo.erasesize);
 	while(fsize > 0) {
 		unsigned block = meminfo.writesize;
 		if (block > fsize)
@@ -232,7 +252,7 @@ bool CFlashTool::program( const std::string & filename, int globalProgressEndEra
 
 		unsigned res = read(fd1, buf, block);
 		if (res != block) {
-			printf("CFlashTool::program: read from %s failed: %d from %d\n", filename.c_str(), res, block);
+			printf("CFlashTool::program: read from %s failed: %d from %d\n", flashfile.c_str(), res, block);
 		}
 		if (isnand) {
 			if (block < (unsigned) meminfo.writesize) {
@@ -274,12 +294,12 @@ bool CFlashTool::program( const std::string & filename, int globalProgressEndEra
 	if(statusViewer)
 		statusViewer->showLocalStatus(100);
 
-	delete[] buf;
 	close(fd1);
 	close(fd);
 	// FIXME error message
 	if (fsize)
 		return false;
+	CVFD::getInstance()->ShowText("Flash OK.");
 	return true;
 }
 
@@ -294,7 +314,7 @@ bool CFlashTool::getInfo()
 		meminfo.writesize = 1024;
 
 	isnand = (meminfo.type == MTD_NANDFLASH);
-	printf("CFlashTool::getInfo: NAND: %s\n", isnand ? "yes" : "no");
+	printf("CFlashTool::getInfo: NAND: %s writesize %d\n", isnand ? "yes" : "no", meminfo.writesize);
 	return true;
 }
 
@@ -315,8 +335,18 @@ bool CFlashTool::erase(int globalProgressEnd)
 		return false;
 	}
 
-	if(statusViewer)
+	CNeutrinoApp::getInstance()->stopDaemonsForFlash();
+
+#ifndef VFD_UPDATE
+	CVFD::getInstance()->ShowText("Erase Flash");
+#endif
+
+	if(statusViewer) {
 		globalProgressBegin = statusViewer->getGlobalStatus();
+		statusViewer->paint();
+		statusViewer->showLocalStatus(0);
+		statusViewer->showGlobalStatus(globalProgressBegin);
+	}
 
 	lerase.length = meminfo.erasesize;
 
@@ -343,17 +373,15 @@ bool CFlashTool::erase(int globalProgressEnd)
 				continue;
 			}
 		}
-
 		if(ioctl( fd, MEMERASE, &lerase) != 0)
 		{
 			ErrorMessage = g_Locale->getText(LOCALE_FLASHUPDATE_ERASEFAILED);
 			close(fd);
 			return false;
 		}
-		printf( "Erasing %u Kbyte @ %x -- %2u %% complete.\n",
-				meminfo.erasesize/1024, lerase.start,
-				prog /* lerase.start*100/meminfo.size */);
+		printf( "Erasing %u Kbyte @ 0x%08X -- %2u %% complete.\n", meminfo.erasesize/1024, lerase.start, prog);
 	}
+	printf("\n");
 
 	close(fd);
 	return true;
@@ -390,7 +418,6 @@ bool CFlashTool::check_md5( const std::string & filename, const std::string & sm
 
 void CFlashTool::reboot()
 {
-	::sync();
 	::reboot(RB_AUTOBOOT);
 	::exit(CNeutrinoApp::REBOOT);
 }

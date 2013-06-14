@@ -120,6 +120,8 @@ void CProgressWindow::showLocalStatus(const unsigned int prog)
 
 #ifdef VFD_UPDATE
 	CVFD::getInstance()->showProgressBar2(local_progress);
+#else
+	CVFD::getInstance()->showPercentOver(local_progress);
 #endif // VFD_UPDATE
 }
 

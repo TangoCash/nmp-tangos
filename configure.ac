@@ -262,6 +262,7 @@ data/lcd/icons/Makefile
 data/lcd/clock/Makefile
 data/license/Makefile
 data/locale/Makefile
+data/neutrino-scripts/Makefile
 data/scripts/Makefile
 data/themes/Makefile
 data/webtv/Makefile

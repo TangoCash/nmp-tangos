@@ -630,6 +630,8 @@ void CControlAPI::HWInfoCGI(CyhookHandler *hh)
 		case 8:
 		case 9:
 			boxname += "Neo";
+			if (CFEManager::getInstance()->getFrontendCount() > 1)
+				boxname += " Twin";
 			break;
 		case 10:
 			boxname += "Zee";

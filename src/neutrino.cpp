@@ -60,6 +60,7 @@
 #include <driver/volume.h>
 #include <driver/streamts.h>
 #include <driver/display.h>
+#include <driver/scanepg.h>
 
 #include "gui/audiomute.h"
 #include "gui/audioplayer.h"
@@ -154,7 +155,7 @@ extern cAudio * audioDecoder;
 cPowerManager *powerManager;
 cCpuFreqManager * cpuFreq;
 
-void stop_daemons(bool stopall = true);
+void stop_daemons(bool stopall = true, bool for_flash = false);
 void stop_video(void);
 // uncomment if you want to have a "test" menue entry  (rasc)
 
@@ -443,44 +444,22 @@ int CNeutrinoApp::loadSetup(const char * fname)
 		strcpy(g_settings.shutdown_min, configfile.getString("shutdown_min","000").c_str());
 #else
 		strcpy(g_settings.shutdown_min, configfile.getString("shutdown_min","180").c_str());
-
 #endif
+
 	g_settings.infobar_sat_display   = configfile.getBool("infobar_sat_display"  , true );
 	g_settings.infobar_show_channeldesc   = configfile.getBool("infobar_show_channeldesc"  , false );
 	g_settings.infobar_subchan_disp_pos = configfile.getInt32("infobar_subchan_disp_pos"  , 0 );
-	/* progressbar_color was bool before, so migrate old true/false setting over */
-	std::string tmp = configfile.getString("progressbar_color", "1");
-	if (tmp.compare("false") == 0) {
-		/* setString works around libconfigfile "feature" that it does not change "false" to "0" */
-		configfile.setString("progressbar_color", "0");
-		g_settings.progressbar_color = 0;
-	} else if (tmp.compare("true") == 0)
-		g_settings.progressbar_color = 1;
-	else	/* the config file already contains an int or nothing at all */
-#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
-		g_settings.progressbar_color = configfile.getInt32("progressbar_color", 3);
-#else
-		g_settings.progressbar_color = configfile.getInt32("progressbar_color", 1);
-#endif
-	g_settings.progressbar_design = configfile.getInt32("progressbar_design", -1);
-	if (g_settings.progressbar_design == -1) {
-		/* new setting -> not present before. migrate old progressbar_color value */
-		if (g_settings.progressbar_color == 0)
-			g_settings.progressbar_design = 0;
-		else	/* the values changed... :-( */
-			g_settings.progressbar_design = g_settings.progressbar_color - 1;
-		g_settings.progressbar_color = !!g_settings.progressbar_color;
-	}
+	g_settings.progressbar_color = configfile.getBool("progressbar_color", true );
+	g_settings.progressbar_design =  configfile.getInt32("progressbar_design", 2); //horizontal bars
 	g_settings.infobar_show  = configfile.getInt32("infobar_show", 1);
 	g_settings.infobar_show_channellogo   = configfile.getInt32("infobar_show_channellogo"  , 3 );
 #if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
 	g_settings.infobar_progressbar   = configfile.getInt32("infobar_progressbar"  , 3 );
 #else
-	g_settings.infobar_progressbar   = configfile.getInt32("infobar_progressbar"  , 0 );
+	g_settings.infobar_progressbar   = configfile.getInt32("infobar_progressbar"  , 1 ); // below channel name
 #endif
-	g_settings.casystem_display = configfile.getInt32("casystem_display", 2 );//mini ca mode default
-	g_settings.dotmatrix = configfile.getInt32("infobar_dotmatrix", 0 );//default off
-	g_settings.scrambled_message = configfile.getBool("scrambled_message", false );
+	g_settings.casystem_display = configfile.getInt32("casystem_display", 1 );//discreet ca mode default
+	g_settings.scrambled_message = configfile.getBool("scrambled_message", true );
 	g_settings.volume_pos = configfile.getInt32("volume_pos", 0 );
 	g_settings.volume_digits = configfile.getBool("volume_digits", true);
 	g_settings.menu_pos = configfile.getInt32("menu_pos", CMenuWidget::MENU_POS_CENTER);
@@ -491,6 +470,9 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	g_settings.infobar_show_dd_available = configfile.getInt32("infobar_show_dd_available", 1 );
 	g_settings.infobar_show_tuner = configfile.getInt32("infobar_show_tuner", 1 );
 	g_settings.radiotext_enable = configfile.getBool("radiotext_enable"          , false);
+#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+	g_settings.radiotext_rass_dir = configfile.getString("radiotext_rass_dir", "/tmp/cache");
+#endif
 	//audio
 	g_settings.audio_AnalogMode = configfile.getInt32( "audio_AnalogMode", 0 );
 	g_settings.audio_DolbyDigital    = configfile.getBool("audio_DolbyDigital"   , false);
@@ -536,6 +518,7 @@ int CNeutrinoApp::loadSetup(const char * fname)
 
 	g_settings.epg_save = configfile.getBool("epg_save", false);
 	g_settings.epg_save_standby = configfile.getBool("epg_save_standby", true);
+	g_settings.epg_scan = configfile.getBool("epg_scan", false);
 	//widget settings
 	g_settings.widget_fade = false;
 	g_settings.widget_fade           = configfile.getBool("widget_fade"          , false );
@@ -614,7 +597,7 @@ int CNeutrinoApp::loadSetup(const char * fname)
 		g_settings.personalize[i] = configfile.getInt32( personalize_settings[i].personalize_settings_name, personalize_settings[i].personalize_default_val );
 
 	g_settings.colored_events_channellist = configfile.getInt32( "colored_events_channellist" , 0 );
-	g_settings.colored_events_infobar = configfile.getInt32( "colored_events_infobar" , 0 );
+	g_settings.colored_events_infobar = configfile.getInt32( "colored_events_infobar" , 2 ); // next
 	g_settings.colored_events_alpha = configfile.getInt32( "colored_events_alpha", 0x00 );
 	g_settings.colored_events_red = configfile.getInt32( "colored_events_red", 95 );
 	g_settings.colored_events_green = configfile.getInt32( "colored_events_green", 70 );
@@ -711,12 +694,12 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	g_settings.recording_zap_on_announce       = configfile.getBool("recording_zap_on_announce"      , false);
 	g_settings.shutdown_timer_record_type      = configfile.getBool("shutdown_timer_record_type"      , false);
 
-	g_settings.recording_stream_vtxt_pid       = configfile.getBool("recordingmenu.stream_vtxt_pid"      , false);
-	g_settings.recording_stream_subtitle_pids  = configfile.getBool("recordingmenu.stream_subtitle_pids", false);
+	g_settings.recording_stream_vtxt_pid       = configfile.getBool("recordingmenu.stream_vtxt_pid"      , true);
+	g_settings.recording_stream_subtitle_pids  = configfile.getBool("recordingmenu.stream_subtitle_pids", true);
 	g_settings.recording_stream_pmt_pid        = configfile.getBool("recordingmenu.stream_pmt_pid"      , false);
 	g_settings.recording_choose_direct_rec_dir = configfile.getInt32( "recording_choose_direct_rec_dir", 0 );
 	g_settings.recording_epg_for_filename      = configfile.getBool("recording_epg_for_filename"         , true);
-	g_settings.recording_epg_for_end           = configfile.getBool("recording_epg_for_end"              , false);
+	g_settings.recording_epg_for_end           = configfile.getBool("recording_epg_for_end"              , true);
 	g_settings.recording_save_in_channeldir    = configfile.getBool("recording_save_in_channeldir"         , false);
 	g_settings.recording_slow_warning	   = configfile.getBool("recording_slow_warning"     , true);
 
@@ -807,6 +790,8 @@ int CNeutrinoApp::loadSetup(const char * fname)
 
 	//Software-update
 	g_settings.softupdate_mode = configfile.getInt32( "softupdate_mode", 1 );
+	g_settings.apply_kernel = configfile.getBool("apply_kernel" , false);
+	g_settings.apply_settings = configfile.getBool("apply_settings" , true);
 
 	strcpy(g_settings.softupdate_url_file, configfile.getString("softupdate_url_file", "/var/etc/update.urls").c_str());
 	strcpy(g_settings.softupdate_proxyserver, configfile.getString("softupdate_proxyserver", "" ).c_str());
@@ -1051,6 +1036,9 @@ void CNeutrinoApp::saveSetup(const char * fname)
 	configfile.setInt32("infobar_show_dd_available"  , g_settings.infobar_show_dd_available  );
 	configfile.setInt32("infobar_show_tuner"  , g_settings.infobar_show_tuner  );
 	configfile.setBool("radiotext_enable"          , g_settings.radiotext_enable);
+#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+	configfile.setString("radiotext_rass_dir", g_settings.radiotext_rass_dir);
+#endif
 	//audio
 	configfile.setInt32( "audio_AnalogMode", g_settings.audio_AnalogMode );
 	configfile.setBool("audio_DolbyDigital"   , g_settings.audio_DolbyDigital   );
@@ -1073,6 +1061,7 @@ void CNeutrinoApp::saveSetup(const char * fname)
 	// epg
 	configfile.setBool("epg_save", g_settings.epg_save);
 	configfile.setBool("epg_save_standby", g_settings.epg_save_standby);
+	configfile.setBool("epg_scan", g_settings.epg_scan);
 	configfile.setString("epg_cache_time"           ,g_settings.epg_cache );
 	configfile.setString("epg_extendedcache_time"   ,g_settings.epg_extendedcache);
 	configfile.setString("epg_old_events"           ,g_settings.epg_old_events );
@@ -1277,6 +1266,8 @@ void CNeutrinoApp::saveSetup(const char * fname)
 
 	//Software-update
 	configfile.setInt32 ("softupdate_mode"          , g_settings.softupdate_mode          );
+	configfile.setBool("apply_kernel", g_settings.apply_kernel);
+	configfile.setBool("apply_settings", g_settings.apply_settings);
 	configfile.setString("softupdate_url_file"      , g_settings.softupdate_url_file      );
 
 	configfile.setString("softupdate_proxyserver"   , g_settings.softupdate_proxyserver   );
@@ -1694,7 +1685,11 @@ void CNeutrinoApp::CmdParser(int argc, char **argv)
 		else {
 			dprintf(DEBUG_NORMAL, "Usage: neutrino [-u | --enable-update] "
 					      "[-v | --verbose 0..3]\n");
+#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
 			exit(CNeutrinoApp::REBOOT);
+#else
+			exit(1);
+#endif
 		}
 	}
 }
@@ -1737,7 +1732,11 @@ void CNeutrinoApp::SetupFonts()
 		}
 		else{
 			  fprintf( stderr,"[neutrino] font file [%s] not found\n neutrino exit\n",FONTDIR"/neutrino.ttf");
+#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
 			  _exit(CNeutrinoApp::SHUTDOWN);
+#else
+			  _exit(0);
+#endif
 		}
 
 	}
@@ -1915,6 +1914,7 @@ void CNeutrinoApp::InitSectiondClient()
 	g_Sectionsd = new CSectionsdClient;
 	g_Sectionsd->registerEvent(CSectionsdClient::EVT_TIMESET, 222, NEUTRINO_UDS_NAME);
 	g_Sectionsd->registerEvent(CSectionsdClient::EVT_GOT_CN_EPG, 222, NEUTRINO_UDS_NAME);
+	g_Sectionsd->registerEvent(CSectionsdClient::EVT_EIT_COMPLETE, 222, NEUTRINO_UDS_NAME);
 	g_Sectionsd->registerEvent(CSectionsdClient::EVT_WRITE_SI_FINISHED, 222, NEUTRINO_UDS_NAME);
 }
 
@@ -2235,16 +2235,23 @@ void CNeutrinoApp::quickZap(int msg)
 
 	StopSubtitles();
 	printf("CNeutrinoApp::quickZap haveFreeFrontend %d\n", CFEManager::getInstance()->haveFreeFrontend());
+#if 0
 	if(!CFEManager::getInstance()->haveFreeFrontend())
 	{
 		res = channelList->numericZap(g_settings.key_zaphistory);
 		StartSubtitles(res < 0);
 		return;
 	}
+#endif
+	bool ret;
 	if(!bouquetList->Bouquets.empty())
-		bouquetList->Bouquets[bouquetList->getActiveBouquetNumber()]->channelList->quickZap(msg, g_settings.zap_cycle);
+		ret = bouquetList->Bouquets[bouquetList->getActiveBouquetNumber()]->channelList->quickZap(msg, g_settings.zap_cycle);
 	else
-		channelList->quickZap(msg);
+		ret = channelList->quickZap(msg);
+	if (!ret) {
+		res = channelList->numericZap(g_settings.key_zaphistory);
+		StartSubtitles(res < 0);
+	}
 }
 
 void CNeutrinoApp::numericZap(int msg)
@@ -2370,6 +2377,8 @@ void CNeutrinoApp::RealRun(CMenuWidget &mainMenu)
 #endif
 					StartSubtitles();
 					saveSetup(NEUTRINO_SETTINGS_FILE);
+					if (!g_settings.epg_scan)
+						CEpgScan::getInstance()->Clear();
 				}
 			}
 			else if (((msg == CRCInput::RC_tv) || (msg == CRCInput::RC_radio)) && (g_settings.key_tvradio_mode == (int)CRCInput::RC_nokey)) {
@@ -2396,7 +2405,7 @@ void CNeutrinoApp::RealRun(CMenuWidget &mainMenu)
 								showInfo();
 							break;
 						case SNeutrinoSettings::VOLUME:
-							g_volume->setVolume(msg, true);
+							g_volume->setVolume(msg);
 							break;
 						default: /* SNeutrinoSettings::ZAP */
 							quickZap(msg);
@@ -2416,7 +2425,7 @@ void CNeutrinoApp::RealRun(CMenuWidget &mainMenu)
 							showInfo();
 						break;
 					case SNeutrinoSettings::VOLUME:
-						g_volume->setVolume(msg, true);
+						g_volume->setVolume(msg);
 						break;
 					default: /* SNeutrinoSettings::ZAP */
 						quickZap(msg);
@@ -2681,6 +2690,7 @@ int CNeutrinoApp::handleMsg(const neutrino_msg_t _msg, neutrino_msg_data_t data)
 
 		/* update scan settings for manual scan to current channel */
 		CScanSetup::getInstance()->updateManualSettings();
+		CEpgScan::getInstance()->handleMsg(msg, data);
 	}
 	if ((msg == NeutrinoMessages::EVT_TIMER)) {
 		if(data == scrambled_timer) {
@@ -2695,6 +2705,10 @@ int CNeutrinoApp::handleMsg(const neutrino_msg_t _msg, neutrino_msg_data_t data)
 			}
 			return messages_return::handled;
 		}
+	}
+	if ((msg == NeutrinoMessages::EVT_EIT_COMPLETE)) {
+		CEpgScan::getInstance()->handleMsg(msg, data);
+		return messages_return::handled;
 	}
 
 	res = res | g_RemoteControl->handleMsg(msg, data);
@@ -2898,7 +2912,7 @@ _repeat:
 	}
 	else if ((msg == CRCInput::RC_plus) || (msg == CRCInput::RC_minus))
 	{
-		g_volume->setVolume(msg, (mode != mode_scart));
+		g_volume->setVolume(msg);
 #if HAVE_DUCKBOX_HARDWARE
 		if((mode == mode_tv) || (mode == mode_radio)) {
 			CVFD::getInstance()->setEPGTitle("");
@@ -3199,7 +3213,11 @@ _repeat:
 	}
 	else if( msg == NeutrinoMessages::SHUTDOWN ) {
 		if(!skipShutdownTimer) {
+#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
 			ExitRun(true, !can_deepstandby);
+#else
+			ExitRun(true, (cs_get_revision() > 7));
+#endif
 		}
 		else {
 			skipShutdownTimer=false;
@@ -3209,7 +3227,11 @@ _repeat:
 	else if( msg == NeutrinoMessages::REBOOT ) {
 		FILE *f = fopen("/tmp/.reboot", "w");
 		fclose(f);
+#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
 		ExitRun(true, CNeutrinoApp::REBOOT);
+#else
+		ExitRun(true);
+#endif
 	}
 	else if (msg == NeutrinoMessages::EVT_POPUP || msg == NeutrinoMessages::EVT_EXTMSG) {
 		if (mode != mode_scart) {
@@ -3765,12 +3787,6 @@ void CNeutrinoApp::standbyMode( bool bOnOff, bool fromDeepStandby )
 		if(!recordingstatus) { //only switch to standby_channel_id when not recording
 			live_channel_id = standby_channel_id;
 		}
-#if 0
-		/* todo: check parental pin */
-		videoDecoder->Standby(false);
-		channelList->setSelected(0xfffffff); /* make sure that zapTo_ChannelID will zap */
-		channelList->zapTo_ChannelID(live_channel_id);
-#endif
 		channelList->zapTo_ChannelID(live_channel_id, true); /* force re-zap */
 
 		g_Sectionsd->setPauseScanning(false);
@@ -3933,6 +3949,13 @@ int CNeutrinoApp::exec(CMenuTarget* parent, const std::string & actionKey)
 		hintBox->hide();
 		delete hintBox;
 	}
+#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+	else if(actionKey=="rass") {
+		if (g_Radiotext)
+			g_Radiotext->RASS_interactive_mode();
+		return menu_return::RETURN_EXIT_ALL;
+	}
+#endif
 	else if(actionKey=="restart") {
 		if (recordingstatus)
 			DisplayErrorMessage(g_Locale->getText(LOCALE_SERVICEMENU_RESTART_REFUSED_RECORDING));
@@ -3961,7 +3984,11 @@ int CNeutrinoApp::exec(CMenuTarget* parent, const std::string & actionKey)
 			for(int i = 3; i < 256; i++)
 				close(i);
 			execvp(global_argv[0], global_argv); // no return if successful
+#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
 			exit(CNeutrinoApp::REBOOT);
+#else
+			exit(1);
+#endif
 		}
 	}
 	else if(actionKey == "moviedir") {
@@ -4013,11 +4040,23 @@ bool CNeutrinoApp::changeNotify(const neutrino_locale_t OptionName, void * /*dat
 	return false;
 }
 
+void CNeutrinoApp::stopDaemonsForFlash()
+{
+	stop_daemons(false, true);
+}
+
 /**************************************************************************************
 *          Main programm - no function here                                           *
 **************************************************************************************/
-void stop_daemons(bool stopall)
+void stop_daemons(bool stopall, bool for_flash)
 {
+	if (for_flash) {
+		CVFD::getInstance()->Clear();
+		CVFD::getInstance()->setMode(CVFD::MODE_TVRADIO);
+		CVFD::getInstance()->ShowText("Stop daemons...");
+		my_system(NEUTRINO_ENTER_FLASH_SCRIPT);
+	}
+
 	dvbsub_close();
 	tuxtxt_stop();
 	tuxtxt_close();
@@ -4036,7 +4075,7 @@ void stop_daemons(bool stopall)
 	}
 	printf("httpd shutdown done\n");
 	CStreamManager::getInstance()->Stop();
-	if(stopall) {
+	if(stopall || for_flash) {
 		printf("timerd shutdown\n");
 		if (g_Timerd)
 			g_Timerd->shutdown();
@@ -4051,15 +4090,16 @@ void stop_daemons(bool stopall)
 #endif
 	tuxtx_stop_subtitle();
 	printf("zapit shutdown\n");
-	if(!stopall && g_settings.hdmi_cec_mode && g_settings.hdmi_cec_standby){
+	if(!for_flash && !stopall && g_settings.hdmi_cec_mode && g_settings.hdmi_cec_standby){
 	  	videoDecoder->SetCECMode((VIDEO_HDMI_CEC_MODE)0);
 	}
 
 	delete &CMoviePlayerGui::getInstance();
 	CZapit::getInstance()->Stop();
 	printf("zapit shutdown done\n");
-	CVFD::getInstance()->Clear();
-	if(stopall) {
+	if (!for_flash)
+		CVFD::getInstance()->Clear();
+	if(stopall && !for_flash) {
 		if (cpuFreq) {
 			cpuFreq->SetCpuFreq(g_settings.cpufreq * 1000 * 1000);
 			delete cpuFreq;
@@ -4075,6 +4115,13 @@ void stop_daemons(bool stopall)
 			delete powerManager;
 		}
 		cs_deregister_messenger();
+	}
+
+	if (for_flash) {
+		delete CRecordManager::getInstance();
+		delete videoDemux;
+		int ret = my_system(4, "mount", "-no", "remount,ro", "/");
+		printf("remount rootfs readonly %s.\n", (ret == 0)?"successful":"failed"); fflush(stdout);
 	}
 }
 
@@ -4143,7 +4190,7 @@ void CNeutrinoApp::loadKeys(const char * fname)
 	}
 
 	//rc-key configuration
-	g_settings.key_tvradio_mode = tconfig.getInt32( "key_tvradio_mode", CRCInput::RC_nokey );
+	g_settings.key_tvradio_mode = tconfig.getInt32( "key_tvradio_mode", (unsigned int)CRCInput::RC_nokey );
 	g_settings.key_power_off = tconfig.getInt32( "key_power_off", CRCInput::RC_standby );
 
 	g_settings.key_channelList_pageup = tconfig.getInt32( "key_channelList_pageup",  CRCInput::RC_page_up );
@@ -4153,12 +4200,12 @@ void CNeutrinoApp::loadKeys(const char * fname)
 	g_settings.key_channelList_addrecord = tconfig.getInt32( "key_channelList_addrecord",  CRCInput::RC_red );
 	g_settings.key_channelList_addremind = tconfig.getInt32( "key_channelList_addremind",  CRCInput::RC_yellow );
 
-	g_settings.key_list_start = tconfig.getInt32( "key_list_start", CRCInput::RC_nokey );
-	g_settings.key_list_end = tconfig.getInt32( "key_list_end", CRCInput::RC_nokey );
+	g_settings.key_list_start = tconfig.getInt32( "key_list_start", (unsigned int)CRCInput::RC_nokey );
+	g_settings.key_list_end = tconfig.getInt32( "key_list_end", (unsigned int)CRCInput::RC_nokey );
 	g_settings.key_timeshift = tconfig.getInt32( "key_timeshift", CRCInput::RC_pause );
-	g_settings.key_plugin = tconfig.getInt32( "key_plugin", CRCInput::RC_nokey );
+	g_settings.key_plugin = tconfig.getInt32( "key_plugin", (unsigned int)CRCInput::RC_nokey );
 	g_settings.key_unlock = tconfig.getInt32( "key_unlock", CRCInput::RC_setup );
-	g_settings.key_screenshot = tconfig.getInt32( "key_screenshot", CRCInput::RC_nokey );
+	g_settings.key_screenshot = tconfig.getInt32( "key_screenshot", (unsigned int)CRCInput::RC_nokey );
 #ifdef ENABLE_PIP
 	g_settings.key_pip_close = tconfig.getInt32( "key_pip_close", CRCInput::RC_help );
 	g_settings.key_pip_setup = tconfig.getInt32( "key_pip_setup", CRCInput::RC_pos );
@@ -4184,10 +4231,11 @@ void CNeutrinoApp::loadKeys(const char * fname)
 	g_settings.mpkey_audio = tconfig.getInt32( "mpkey.audio", CRCInput::RC_green );
 	g_settings.mpkey_time = tconfig.getInt32( "mpkey.time", CRCInput::RC_setup );
 	g_settings.mpkey_bookmark = tconfig.getInt32( "mpkey.bookmark", CRCInput::RC_blue );
-	g_settings.mpkey_plugin = tconfig.getInt32( "mpkey.plugin", CRCInput::RC_red );
 #if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
 	g_settings.mpkey_next3dmode = tconfig.getInt32( "mpkey.next3dmode", CRCInput::RC_nokey );
 #endif
+	g_settings.mpkey_plugin = tconfig.getInt32( "mpkey.plugin", CRCInput::RC_red );
+	g_settings.mpkey_subtitle = tconfig.getInt32( "mpkey.subtitle", CRCInput::RC_sub );
 
 	/* options */
 	g_settings.menu_left_exit = tconfig.getInt32( "menu_left_exit", 0 );
@@ -4250,10 +4298,11 @@ void CNeutrinoApp::saveKeys(const char * fname)
 	tconfig.setInt32( "mpkey.audio", g_settings.mpkey_audio );
 	tconfig.setInt32( "mpkey.time", g_settings.mpkey_time );
 	tconfig.setInt32( "mpkey.bookmark", g_settings.mpkey_bookmark );
-	tconfig.setInt32( "mpkey.plugin", g_settings.mpkey_plugin );
 #if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
 	tconfig.setInt32( "mpkey.next3dmode", g_settings.mpkey_next3dmode );
 #endif
+	tconfig.setInt32( "mpkey.plugin", g_settings.mpkey_plugin );
+	tconfig.setInt32( "mpkey.subtitle", g_settings.mpkey_subtitle );
 
 	tconfig.setInt32( "menu_left_exit", g_settings.menu_left_exit );
 	tconfig.setInt32( "audio_run_player", g_settings.audio_run_player );

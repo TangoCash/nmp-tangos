@@ -141,7 +141,6 @@ private:
 	void radioMode( bool rezap = true );
 	void scartMode( bool bOnOff );
 	void standbyMode( bool bOnOff, bool fromDeepStandby = false );
-	void saveEpg(bool cvfd_mode);
 	void getAnnounceEpgName(CTimerd::RecordingInfo * eventinfo, std::string &name);
 
 	void RealRun(CMenuWidget &mainSettings);
@@ -240,6 +239,8 @@ public:
 	CConfigFile* getConfigFile() {return &configfile;};
 	bool 		SDTreloadChannels;
 	bool 		g_channel_list_changed;
+	void saveEpg(bool cvfd_mode);
+	void stopDaemonsForFlash();
 
 	enum {
 		SHUTDOWN,

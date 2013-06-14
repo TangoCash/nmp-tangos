@@ -31,7 +31,7 @@
 #include <global.h>
 #include <neutrino.h>
 #include "cc_frm.h"
-
+#include <stdlib.h>
 using namespace std;
 
 //-------------------------------------------------------------------------------------------------------
@@ -51,6 +51,8 @@ CComponentsForm::CComponentsForm(const int x_pos, const int y_pos, const int w, 
 	//CComponents
 	x		= x_pos;
 	y 		= y_pos;
+	cc_xr 		= x;
+	cc_yr 		= y;
 	width 		= w;
 	height	 	= h;
 
@@ -70,7 +72,7 @@ void CComponentsForm::cleanCCForm()
 #ifdef DEBUG_CC
 	printf("[CComponentsForm]   [%s - %d] clean up...\n", __FUNCTION__, __LINE__);
 #endif
-// 	hide();
+
 	clearCCItems();
 	clearSavedScreen();
 	clear();
@@ -117,20 +119,31 @@ void CComponentsForm::initVarForm()
 	col_shadow	= COL_MENUCONTENTDARK_PLUS_0;
 	corner_rad	= RADIUS_LARGE;
 	corner_type 	= CORNER_ALL;
-	
+	cc_item_index	= 0;
+
 	//CComponentsForm
 	v_cc_items.clear();
-	
 }
 
 void CComponentsForm::addCCItem(CComponentsItem* cc_Item)
 {
 	if (cc_Item){
 #ifdef DEBUG_CC
-		printf("	[CComponentsForm]  %s-%d add cc_Item [type %d] [current count %d] \n", __FUNCTION__, __LINE__, cc_Item->getItemType(), v_cc_items.size());
+		printf("	[CComponentsForm]  %s-%d add cc_Item [type %d] to form [current index=%d] \n", __FUNCTION__, __LINE__, cc_Item->getItemType(), cc_item_index);
 #endif
 		cc_Item->setParent(this);
 		v_cc_items.push_back(cc_Item);
+
+		//assign item index
+		int count = v_cc_items.size();
+		char buf[16];
+		snprintf(buf, sizeof(buf), "%d%d", cc_item_index, count);
+		buf[15] = '\0';
+		int new_index = atoi(buf);
+		cc_Item->setIndex(new_index);
+#ifdef DEBUG_CC
+		printf("			   %s-%d parent index = %d, assigned index ======> %d\n", __FUNCTION__, __LINE__, cc_item_index, new_index);
+#endif		
 	}
 #ifdef DEBUG_CC
 	else
@@ -224,12 +237,12 @@ void CComponentsForm::paint(bool do_save_bg)
 
 void CComponentsForm::paintCCItems()
 {	
-	size_t items_count = v_cc_items.size();
+	size_t items_count 	= v_cc_items.size();
 	int x_frm_left 		= x+fr_thickness; //left form border
 	int y_frm_top 		= y+fr_thickness; //top form border
 	int x_frm_right		= x+width-fr_thickness; //right form border
 	int y_frm_bottom	= y+height-fr_thickness; //bottom form border
-		
+
 	for(size_t i=0; i<items_count; i++) {
 		//cache original item position and dimensions
 		int x_item, y_item, w_item, h_item;
@@ -248,7 +261,7 @@ void CComponentsForm::paintCCItems()
 #endif
 			y_item = xy_ref;
 		}
-		
+
 		//set adapted position onto form
 		v_cc_items[i]->setXPos(x_frm_left+x_item);
 		v_cc_items[i]->setYPos(y_frm_top+y_item);
@@ -275,10 +288,10 @@ void CComponentsForm::paintCCItems()
 		int real_x = v_cc_items[i]->getXPos();
 		int real_y = v_cc_items[i]->getYPos();
 		v_cc_items[i]->setRealPos(real_x, real_y);
-		
+
 		//paint element without saved screen!
 		v_cc_items[i]->paint(CC_SAVE_SCREEN_NO);
-		
+
 		//restore dimensions and position
 		v_cc_items[i]->setDimensionsAll(x_item, y_item, w_item, h_item);
 	}

@@ -61,8 +61,11 @@
 #include <dmx.h>
 #include <OpenThreads/Thread>
 #include <OpenThreads/Condition>
+#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+#include <map>
+#endif
 
-//#define ENABLE_RASS
+#define ENABLE_RASS 1
 
 typedef unsigned char uchar;
 typedef unsigned int uint;
@@ -112,8 +115,46 @@ private:
 	void RadioStatusMsg(void);
 	void RassDecode(uchar *Data, int Length);
 	bool DividePes(unsigned char *data, int length, int *substart, int *subend);
+#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+	void RassShow(char *filename, unsigned char *md5sum = NULL);
+	void RassShow(int slidenumber, unsigned char *md5sum = NULL);
+	void RassUpdate(char *filename, int slidenumber = -1);
+	void RassPaint(int slidenumber = -1, bool blit = true);
+	neutrino_msg_t RassShow_prev(void);
+	neutrino_msg_t RassShow_next(void);
+	neutrino_msg_t RassShow_left(void);
+	neutrino_msg_t RassShow_right(void);
+	neutrino_msg_t RassShow_category(int);
+	neutrino_msg_t RassChangeSelection(int slidenumber);
+#endif
 
 	uint pid;
+#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+	uint lastRassPid;
+	unsigned char last_md5sum[16];
+
+	CFrameBuffer *framebuffer;
+	int iconWidth;
+	int iconHeight;
+
+	bool Rass_interactive_mode;
+
+	struct slideinfo { unsigned char md5sum[16]; };
+
+	class RASS_slides
+	{
+		private:
+			OpenThreads::Mutex mutex;
+			std::map<int, slideinfo> sim;
+		public:
+			bool set(int, slideinfo);
+			unsigned char *exists(int);
+			void clear(void);
+	};
+	RASS_slides slides;
+	int Rass_current_slide;
+	int Rass_first_slide;
+#endif
 	//pthread_t threadRT;
 	//int dmxfd;
 
@@ -142,6 +183,10 @@ public:
 
 	void radiotext_stop(void);
 	bool haveRadiotext(void) {return have_radiotext; }
+#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+	bool haveRASS(void) { return lastRassPid; }
+	void RASS_interactive_mode(void);
+#endif
 
 	cDemux *audioDemux;
 

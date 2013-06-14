@@ -24,6 +24,9 @@
 
 /* icon files */
 
+#define NEUTRINO_ICON_BUTTON_DUMMY		"dummy"
+#define NEUTRINO_ICON_BUTTON_DUMMY_SMALL	"dummy_small"
+
 #define NEUTRINO_ICON_BUTTON_BLUE	"blau"
 #define NEUTRINO_ICON_BUTTON_GREEN	"gruen"
 #define NEUTRINO_ICON_BUTTON_RED	"rot"
@@ -169,9 +172,6 @@
 
 #define DUMMY_ICON			"dummy"
 
-#define NEUTRINO_ICON_MOVIE		"movie"
-#define NEUTRINO_ICON_PICTURE		"picture"
-
 
 #define NEUTRINO_ICON_BUTTON_MUTE_ZAP_ACTIVE "mute_zap_green"
 #define NEUTRINO_ICON_BUTTON_MUTE_ZAP_INACTIVE "mute_zap_gray"
@@ -243,7 +243,35 @@
 #define NEUTRINO_ICON_HINT_RESTORE	"hint_restore"
 #define NEUTRINO_ICON_HINT_FACTORY	"hint_factory"
 
+
+#define NEUTRINO_ICON_MOVIE		"movie"
+#define NEUTRINO_ICON_PICTURE		"picture"
+
+/* RASS */
+#define NEUTRINO_ICON_RED_0		"0-red"
+#define NEUTRINO_ICON_RED_1		"1-red"
+#define NEUTRINO_ICON_RED_2		"2-red"
+#define NEUTRINO_ICON_RED_3		"3-red"
+#define NEUTRINO_ICON_RED_4		"4-red"
+#define NEUTRINO_ICON_RED_5		"5-red"
+#define NEUTRINO_ICON_RED_6		"6-red"
+#define NEUTRINO_ICON_RED_7		"7-red"
+#define NEUTRINO_ICON_RED_8		"8-red"
+#define NEUTRINO_ICON_RED_9		"9-red"
+
+#define NEUTRINO_ICON_GREEN_0		"0-green"
+#define NEUTRINO_ICON_GREEN_1		"1-green"
+#define NEUTRINO_ICON_GREEN_2		"2-green"
+#define NEUTRINO_ICON_GREEN_3		"3-green"
+#define NEUTRINO_ICON_GREEN_4		"4-green"
+#define NEUTRINO_ICON_GREEN_5		"5-green"
+#define NEUTRINO_ICON_GREEN_6		"6-green"
+#define NEUTRINO_ICON_GREEN_7		"7-green"
+#define NEUTRINO_ICON_GREEN_8		"8-green"
+#define NEUTRINO_ICON_GREEN_9		"9-green"
+
 /* misc */
+#define NEUTRINO_ICON_HINT_YTPLAY	"hint_ytplay"
 
 #define NEUTRINO_ICON_VARPATH		"/var/share/tuxbox/neutrino/icons/"  //alternatively path for user-defined icons 
 

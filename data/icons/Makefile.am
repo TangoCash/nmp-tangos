@@ -36,6 +36,26 @@ install_DATA += \
 	7.png \
 	8.png \
 	9.png \
+	0-red.png \
+	1-red.png \
+	2-red.png \
+	3-red.png \
+	4-red.png \
+	5-red.png \
+	6-red.png \
+	7-red.png \
+	8-red.png \
+	9-red.png \
+	0-green.png \
+	1-green.png \
+	2-green.png \
+	3-green.png \
+	4-green.png \
+	5-green.png \
+	6-green.png \
+	7-green.png \
+	8-green.png \
+	9-green.png \
 	ats.png \
 	ats_gray.png \
 	audio.png \
@@ -70,6 +90,8 @@ install_DATA += \
 	dd_avail.png \
 	dd_gray.png \
 	down.png \
+	dummy.png \
+	dummy_small.png \
 	error.png \
 	features.png \
 	file.png \
@@ -125,6 +147,7 @@ install_DATA += \
 	hint_tvradio_switch.png \
 	hint_vfd.png \
 	hint_video.png \
+	hint_ytplay.png \
 	home.png \
 	icon_green.png \
 	icon_movieplayer.png \
@@ -193,6 +216,7 @@ install_DATA += \
 	radiotextget.png \
 	radiotextoff.png \
 	radiotextwait.png \
+	rass.png \
 	rec.png \
 	rec_event_marker.png \
 	rec_gray.png \

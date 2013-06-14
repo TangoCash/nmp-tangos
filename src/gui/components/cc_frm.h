@@ -29,6 +29,8 @@
 
 #include "config.h"
 #include <gui/components/cc.h>
+#include <gui/components/cc_item_text.h>
+#include <gui/components/cc_item_picture.h>
 #include <vector>
 #include <string>
 
@@ -101,25 +103,23 @@ class CComponentsIconForm : public CComponentsForm
 
 class CComponentsHeader : public CComponentsForm
 {
-	private:
+	protected:
 		CComponentsPicture * cch_icon_obj;
 		CComponentsText * cch_text_obj;
 		CComponentsIconForm * cch_btn_obj;
 		std::string cch_text;
 		const char*  cch_icon_name;
-		neutrino_locale_t cch_locale_text;
 		fb_pixel_t cch_col_text;
 		Font* cch_font;
-		int cch_icon_x, cch_items_y, cch_text_x, ccif_width, cch_icon_w, cch_buttons, cch_btn_offset;
+		int cch_items_y, cch_icon_x, cch_icon_w, cch_text_x, cch_buttons, cch_buttons_w, cch_buttons_h, cch_buttons_space, cch_offset;
 		std::vector<std::string> v_cch_btn;
 
-		void initCCHeaderIcon();
-		void initCCHeaderText();
-		void initCCHeaderButtons();
-		void initCCHDefaultButtons();
-		void initCCButtonFormSize();
+		void initIcon();
+		void initCaption();
+		void initButtons();
+		void initDefaultButtons();
+		void initButtonFormSize();
 
-	protected:
 		void initVarHeader();
 
 	public:
@@ -143,18 +143,35 @@ class CComponentsHeader : public CComponentsForm
 					fb_pixel_t color_frame = COL_MENUCONTENT_PLUS_6, fb_pixel_t color_body = COL_MENUHEAD_PLUS_0, fb_pixel_t color_shadow = COL_MENUCONTENTDARK_PLUS_0);
 		CComponentsHeader(const int x_pos, const int y_pos, const int w, const int h = 0, neutrino_locale_t caption_locale = NONEXISTANT_LOCALE, const char* icon_name = NULL, const int buttons = 0,bool has_shadow = CC_SHADOW_OFF,
 					fb_pixel_t color_frame = COL_MENUCONTENT_PLUS_6, fb_pixel_t color_body = COL_MENUHEAD_PLUS_0, fb_pixel_t color_shadow = COL_MENUCONTENTDARK_PLUS_0);
-		~CComponentsHeader();
+		virtual ~CComponentsHeader();
 
-		void paint(bool do_save_bg = CC_SAVE_SCREEN_YES);
-		void setHeaderText(const std::string& caption);
-		void setHeaderText(neutrino_locale_t caption_locale);
-		void setColorHeaderBody(fb_pixel_t text_color){cch_col_text = text_color;};
-		void setHeaderButtonOffset(const int offset){cch_btn_offset = offset;};
-		void setHeaderIcon(const char* icon_name);
-		void addHeaderButton(const std::string& button_name);
-		void removeHeaderButtons();
-		void setHeaderDefaultButtons(const int buttons);
-		void initCCHeaderItems();
+		
+		virtual void setCaption(const std::string& caption);
+		virtual void setCaption(neutrino_locale_t caption_locale);
+		virtual void setCaptionFont(Font* font_name);
+		virtual void setCaptionColor(fb_pixel_t text_color){cch_col_text = text_color;};
+		virtual void setOffset(const int offset){cch_offset = offset;};
+		virtual void setIcon(const char* icon_name);
+		virtual void addButtonIcon(const std::string& button_name);
+		virtual void removeButtonIcons();
+		virtual void setDefaultButtons(const int buttons);
+		virtual void setButtonsSpace(const int buttons_space){cch_buttons_space = buttons_space;};
+		virtual void initCCItems();
+
+		virtual void paint(bool do_save_bg = CC_SAVE_SCREEN_YES);
+};
+
+
+class CComponentsFooter : public CComponentsHeader
+{
+	protected:
+		void initVarFooter();
+	public:
+		CComponentsFooter();
+		CComponentsFooter(	const int x_pos, const int y_pos, const int w, const int h = 0,
+					const int buttons = 0,
+					bool has_shadow = CC_SHADOW_OFF,
+					fb_pixel_t color_frame = COL_MENUCONTENT_PLUS_6, fb_pixel_t color_body = COL_INFOBAR_SHADOW_PLUS_1, fb_pixel_t color_shadow = COL_MENUCONTENTDARK_PLUS_0);
 };
 
 class CComponentsWindow : public CComponentsForm
