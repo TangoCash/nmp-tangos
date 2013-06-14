@@ -466,6 +466,7 @@ struct SNeutrinoSettings
 
 	int infoclock_with_seconds;
 	int infoclock_blinking_dot;
+	int infoclock_no_background;
 
 	enum MODE_LEFT_RIGHT_KEY_TV_SETTINGS 
 	{
