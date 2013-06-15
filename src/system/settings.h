@@ -157,7 +157,7 @@ struct SNeutrinoSettings
 	std::string epg_max_events;
 	std::string epg_extendedcache;
 	std::string epg_dir;
-#ifdef HAVE_DUCKBOX_HARDWARE
+#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
 	// WebTV
 	std::string streaming_server_url;
 	std::string streaming_server_name;
