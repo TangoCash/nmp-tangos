@@ -66,6 +66,10 @@ class CComponentsPicture : public CComponentsItem
 		void init(	const int x_pos, const int y_pos, const std::string& image_name, const int alignment, bool has_shadow,
 				fb_pixel_t color_frame, fb_pixel_t color_background, fb_pixel_t color_shadow);
 		
+		///initialize position of picture object dependendly from settings
+		void initPosition();
+		void paintPicture();
+		
 	public:
 		CComponentsPicture( 	const int x_pos, const int y_pos, const int w, const int h,
 					const std::string& image_name, const int alignment = CC_ALIGN_HOR_CENTER | CC_ALIGN_VER_CENTER, bool has_shadow = CC_SHADOW_OFF,

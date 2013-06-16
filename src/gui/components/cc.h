@@ -123,7 +123,11 @@ class CComponents
 		///to set the real screen position, look at setRealPos()
 		inline virtual void setPos(const int& xpos, const int& ypos){x = xpos; y = ypos;};
 
-		///sets real position on screen. Use this, if item contains own render methods and item is added to a form
+		///sets real x position on screen. Use this, if item is added to a parent form
+		virtual void setRealXPos(const int& xr){cc_xr = xr;};
+		///sets real y position on screen. Use this, if item is added to a parent form
+		virtual void setRealYPos(const int& yr){cc_yr = yr;};
+		///sets real x and y position on screen at once. Use this, if item is added to a parent form
 		virtual void setRealPos(const int& xr, const int& yr){cc_xr = xr; cc_yr = yr;};
 		///get real x-position on screen. Use this, if item contains own render methods and item is bound to a form
 		virtual int getRealXPos(){return cc_xr;};
@@ -149,6 +153,8 @@ class CComponents
 		inline virtual int getHeight(){return height;};
 		///return width of component
 		inline virtual int getWidth(){return width;};
+		///return of frame thickness
+		inline virtual int getFrameThickness(){return fr_thickness;};
 
 		///return/set (pass through) width and height of component
 		inline virtual void getSize(int* w, int* h){*w=width; *h=height;};
