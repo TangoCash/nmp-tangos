@@ -414,6 +414,8 @@ const char * locale_real_names[] =
 	"extra.longitude",
 	"extra.menu_left_exit",
 	"extra.north",
+	"extra.record_bufsize",
+	"extra.record_bufsize_dmx",
 	"extra.record_time",
 	"extra.rotor_swap",
 	"extra.rounded_corners",
@@ -454,9 +456,6 @@ const char * locale_real_names[] =
 	"extra.zapit_motor_speed",
 	"extra.zapit_scanpids",
 	"extra.zapit_sdt_changed",
-#if HAVE_DUCKBOX_HARDWARE
-	"extra.osdshot",
-#endif
 	"fan_speed",
 	"favorites.addchannel",
 	"favorites.bouquetname",
@@ -1196,9 +1195,6 @@ const char * locale_real_names[] =
 	"menu.hint_volume_pos",
 	"menu.hint_ytplay",
 	"menu.hint_zap_cycle",
-#if HAVE_DUCKBOX_HARDWARE
-	"menu.hint_osdshot",
-#endif
 	"menu.next",
 	"messagebox.accept",
 	"messagebox.back",
@@ -1652,6 +1648,7 @@ const char * locale_real_names[] =
 	"rclock.menueadd",
 	"rclock.title",
 	"rclock.unlockmsg",
+	"recording.failed",
 	"recording.is_running",
 	"recording.start",
 	"recording.stop",
@@ -1786,6 +1783,7 @@ const char * locale_real_names[] =
 	"scrambled_channel",
 	"screensetup.lowerright",
 	"screensetup.upperleft",
+	"screenshot.backbuffer",
 	"screenshot.count",
 	"screenshot.cover",
 	"screenshot.defdir",
@@ -1793,6 +1791,7 @@ const char * locale_real_names[] =
 	"screenshot.info",
 	"screenshot.menu",
 	"screenshot.osd",
+	"screenshot.png_compression",
 	"screenshot.res",
 	"screenshot.scale",
 	"screenshot.tv",

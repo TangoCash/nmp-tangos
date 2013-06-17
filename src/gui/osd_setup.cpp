@@ -269,11 +269,7 @@ int COsdSetup::exec(CMenuTarget* parent, const std::string &actionKey)
 	}
 	else if(actionKey=="screenshot_dir") {
 		const char *action_str = "screenshot";
-#if HAVE_DUCKBOX_HARDWARE
-		chooserDir(g_settings.screenshot_dir, false, action_str);
-#else
 		chooserDir(g_settings.screenshot_dir, true, action_str);
-#endif
 		return menu_return::RETURN_REPAINT;
 	}
 	else if(strncmp(actionKey.c_str(), "fontsize.d", 10) == 0) {
@@ -542,17 +538,6 @@ int COsdSetup::showOsdSetup()
 	mc = new CMenuOptionChooser(LOCALE_INFOVIEWER_SUBCHAN_DISP_POS, &g_settings.infobar_subchan_disp_pos, INFOBAR_SUBCHAN_DISP_POS_OPTIONS, INFOBAR_SUBCHAN_DISP_POS_OPTIONS_COUNT, true);
 	mc->setHint("", LOCALE_MENU_HINT_SUBCHANNEL_POS);
 	osd_menu->addItem(mc);
-
-#if HAVE_DUCKBOX_HARDWARE
-	// OSDShot
-	mc = new CMenuOptionChooser(LOCALE_EXTRA_OSDSHOT, &g_settings.osd_shotmode, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true);
-	mc->setHint("", LOCALE_MENU_HINT_OSDSHOT);
-	osd_menu->addItem(mc);
-
-	mf = new CMenuForwarder(LOCALE_SCREENSHOT_DEFDIR, true, g_settings.screenshot_dir, this, "screenshot_dir");
-	mf->setHint("", LOCALE_MENU_HINT_SCREENSHOT_DIR);
-	osd_menu->addItem(mf);
-#endif
 
 	// infoclock
 	osd_menu->addItem(new CMenuSeparator(CMenuSeparator::LINE | CMenuSeparator::STRING, LOCALE_INFOCLOCK));
@@ -1052,9 +1037,11 @@ int COsdSetup::showContextChanlistMenu()
 	mc->setHint("", LOCALE_MENU_HINT_CHANNELLIST_EXTENDED);
 	menu_chanlist->addItem(mc);
 
+#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
 	mc = new CMenuOptionChooser(LOCALE_CHANNELLIST_HDICON, &g_settings.channellist_hdicon, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true);
 	mc->setHint("", LOCALE_MENU_HINT_CHANNELLIST_HDICON);
 	menu_chanlist->addItem(mc);
+#endif
 
 	mc = new CMenuOptionChooser(LOCALE_CHANNELLIST_FOOT, &g_settings.channellist_foot, CHANNELLIST_FOOT_OPTIONS, CHANNELLIST_FOOT_OPTIONS_COUNT, true);
 	mc->setHint("", LOCALE_MENU_HINT_CHANNELLIST_FOOT);

@@ -9,13 +9,6 @@
 #include <stdlib.h>
 #include <sys/types.h>
 
-#ifdef __sh__
-#include <bpamem.h>
-#include <sys/mman.h>
-#include <fcntl.h>
-#include <sys/ioctl.h>
-#endif
-
 #include <sys/stat.h>
 #include <curl/curl.h>
 #include <cs_api.h>
@@ -49,67 +42,6 @@ extern int fh_crw_id (const char *);
 
 double CPictureViewer::m_aspect_ratio_correction;
 
-#ifdef __sh__
-// TODO: fix neutrino code when there's not enough mem for resizing
-int CPictureViewer::hw_resize(int *hwdev, char **hwbuffer, int original_width, int original_height, int height, int width)
-{
-	int fd_bpa;
-	char *dest;
-	BPAMemAllocMemData bpa_data;
-	int res;
-	char bpa_mem_device[30];
-
-	fd_bpa = open("/dev/bpamem0", O_RDWR);
-
-	if(fd_bpa < 0)
-	{
-		printf("cannot access /dev/bpamem0! err = %d\n", fd_bpa);
-		return -1;
-	}
-
-	bpa_data.bpa_part = "LMI_VID";
-	bpa_data.mem_size = width * height * 3;
-	res = ioctl(fd_bpa, BPAMEMIO_ALLOCMEM, &bpa_data); // request memory from bpamem
-	if(res)
-	{
-		printf("cannot alloc required mem\n");
-		return -1;
-	}
-
-	sprintf(bpa_mem_device, "/dev/bpamem%d", bpa_data.device_num);
-	close(fd_bpa);
-
-	fd_bpa = open(bpa_mem_device, O_RDWR);
-
-	// if somebody forgot to add all bpamem devs then this gets really bad here
-	if(fd_bpa < 0)
-	{
-		printf("cannot access %s! err = %d\n", bpa_mem_device, fd_bpa);
-		return -1;
-	}
-
-	dest = (char *)mmap(0, bpa_data.mem_size, PROT_WRITE|PROT_READ, MAP_SHARED, fd_bpa, 0);
-
-	if(dest == MAP_FAILED)
-	{
-		printf("could not map bpa mem\n");
-		ioctl(fd_bpa, BPAMEMIO_FREEMEM);
-		close(fd_bpa);
-		return -1;
-	}
-
-	CFrameBuffer::getInstance()->blitRGB2RGB(original_width, original_height, width, height, *hwbuffer, dest);
-
-	munmap(*hwbuffer, original_width * original_height * 3);
-	ioctl(*hwdev, BPAMEMIO_FREEMEM);
-	close(*hwdev);
-	*hwdev = fd_bpa;
-	*hwbuffer = dest;
-	return 0;
-
-
-}
-#endif
 void CPictureViewer::add_format (int (*picsize) (const char *, int *, int *, int, int), int (*picread) (const char *, unsigned char **, int *, int *), int (*id) (const char *))
 {
   CFormathandler *fhn;
@@ -188,27 +120,27 @@ bool CPictureViewer::DecodeImage (const std::string & _name, bool showBusySign, 
 	// Show red block for "next ready" in view state
 	if (showBusySign)
 		showBusy (m_startx + 3, m_starty + 3, 10, 0xff, 00, 00);
-		std::string name = _name;
+	std::string name = _name;
 
-		if (strstr(name.c_str(), "://")) {
-			std::string tmpname;
-			tmpname = "/tmp/pictureviewer" + name.substr(name.find_last_of("."));
-			FILE *tmpFile = fopen(tmpname.c_str(), "wb");
-			if (tmpFile) {
-				CURL *ch = curl_easy_init();
-				curl_easy_setopt(ch, CURLOPT_VERBOSE, 0L);
-				curl_easy_setopt(ch, CURLOPT_NOPROGRESS, 1L);
-				curl_easy_setopt(ch, CURLOPT_NOSIGNAL, 1L);
-				curl_easy_setopt(ch, CURLOPT_WRITEFUNCTION, NULL);
-				curl_easy_setopt(ch, CURLOPT_WRITEDATA, tmpFile);
-				curl_easy_setopt(ch, CURLOPT_FAILONERROR, 1L);
-				curl_easy_setopt(ch, CURLOPT_URL, name.c_str());
-				curl_easy_perform(ch);
-				curl_easy_cleanup(ch);
-				fclose(tmpFile);
-				}
-				name = tmpname;
+	if (strstr(name.c_str(), "://")) {
+		std::string tmpname;
+		tmpname = "/tmp/pictureviewer" + name.substr(name.find_last_of("."));
+		FILE *tmpFile = fopen(tmpname.c_str(), "wb");
+		if (tmpFile) {
+			CURL *ch = curl_easy_init();
+			curl_easy_setopt(ch, CURLOPT_VERBOSE, 0L);
+			curl_easy_setopt(ch, CURLOPT_NOPROGRESS, 1L);
+			curl_easy_setopt(ch, CURLOPT_NOSIGNAL, 1L);
+			curl_easy_setopt(ch, CURLOPT_WRITEFUNCTION, NULL);
+			curl_easy_setopt(ch, CURLOPT_WRITEDATA, tmpFile);
+			curl_easy_setopt(ch, CURLOPT_FAILONERROR, 1L);
+			curl_easy_setopt(ch, CURLOPT_URL, name.c_str());
+			curl_easy_perform(ch);
+			curl_easy_cleanup(ch);
+			fclose(tmpFile);
 		}
+		name = tmpname;
+	}
 
 	CFormathandler *fh;
 	if (unscaled)
@@ -216,7 +148,6 @@ bool CPictureViewer::DecodeImage (const std::string & _name, bool showBusySign, 
 	else
 		fh = fh_getsize (name.c_str (), &x, &y, m_endx - m_startx, m_endy - m_starty);
 	if (fh) {
-#ifndef __sh__
 		if (m_NextPic_Buffer != NULL) {
 			free (m_NextPic_Buffer);
 		}
@@ -225,62 +156,8 @@ bool CPictureViewer::DecodeImage (const std::string & _name, bool showBusySign, 
 			printf ("DecodeImage: Error: malloc\n");
 			return false;
 		}
-#else
-	if (m_NextPic_Buffer != NULL) 	// Alloc video mem instead of system mem
-	{
-		munmap(m_NextPic_Buffer, m_NextPic_X * m_NextPic_Y * 3);
-		ioctl(m_NextPic_HwDev, BPAMEMIO_FREEMEM);
-		close(m_NextPic_HwDev);
-	}
-
-	m_NextPic_HwDev = open("/dev/bpamem0", O_RDWR);
-
-	if(m_NextPic_HwDev < 0)
-	{
-		printf("cannot access /dev/bpamem0! err = %d\n", m_NextPic_HwDev);
-		return false;
-	}
-	BPAMemAllocMemData bpa_data;
-	bpa_data.bpa_part = "LMI_VID";
-	bpa_data.mem_size = x * y * 3;
-	int res;
-	res = ioctl(m_NextPic_HwDev, BPAMEMIO_ALLOCMEM, &bpa_data); // request memory from bpamem
-	if(res)
-	{
-		printf("cannot alloc required bpa mem for image\n");
-		close(m_NextPic_HwDev);
-		return false;
-	}
-
-	char bpa_mem_device[30];
-
-	sprintf(bpa_mem_device, "/dev/bpamem%d", bpa_data.device_num);
-	close(m_NextPic_HwDev);
-
-	m_NextPic_HwDev = open(bpa_mem_device, O_RDWR);
-
-	if(m_NextPic_HwDev < 0)
-	{
-		printf("cannot access %s! err = %d\n", bpa_mem_device, m_NextPic_HwDev);
-		return false;
-	}
-
-	m_NextPic_Buffer = (unsigned char*)mmap(0, bpa_data.mem_size, PROT_WRITE|PROT_READ, MAP_SHARED, m_NextPic_HwDev, 0);
-
-	if(m_NextPic_Buffer == MAP_FAILED)
-	{
-		printf("could not map bpa mem\n");
-		ioctl(m_NextPic_HwDev, BPAMEMIO_FREEMEM);
-		close(m_NextPic_HwDev);
-		return false;
-	}
-#endif
 		//      dbout("---Decoding Start(%d/%d)\n",x,y);
 		if (fh->get_pic (name.c_str (), &m_NextPic_Buffer, &x, &y) == FH_ERROR_OK) {
-#ifdef __sh__
-		// the blitter needs to access the memory - flush cache
-		msync(m_NextPic_Buffer, x * y * 3, MS_SYNC);
-#endif
 			//          dbout("---Decoding Done\n");
 			if ((x > (m_endx - m_startx) || y > (m_endy - m_starty)) && m_scaling != NONE && !unscaled) {
 				if ((m_aspect_ratio_correction * y * (m_endx - m_startx) / x) <= (m_endy - m_starty)) {
@@ -290,11 +167,7 @@ bool CPictureViewer::DecodeImage (const std::string & _name, bool showBusySign, 
 					imx = (int) ((1.0 / m_aspect_ratio_correction) * x * (m_endy - m_starty) / y);
 					imy = (m_endy - m_starty);
 				}
-#ifdef __sh__
-				hw_resize (&m_NextPic_HwDev, (char **)&m_NextPic_Buffer, x, y, imx, imy);
-#else
 				m_NextPic_Buffer = Resize(m_NextPic_Buffer, x, y, imx, imy, m_scaling);
-#endif
 				x = imx;
 				y = imy;
 			}
@@ -318,12 +191,6 @@ bool CPictureViewer::DecodeImage (const std::string & _name, bool showBusySign, 
 				m_NextPic_YPan = 0;
 		} else {
 			printf ("Unable to read file !\n");
-#ifdef __sh__
-		munmap(m_NextPic_Buffer, m_NextPic_X * m_NextPic_Y * 3);
-		ioctl(m_NextPic_HwDev, BPAMEMIO_FREEMEM);
-		close(m_NextPic_HwDev);
-		return false;	// TODO: Find out why this bad hack is down there
-#else
 			free (m_NextPic_Buffer);
 			m_NextPic_Buffer = (unsigned char *) malloc (3);
 			if (m_NextPic_Buffer == NULL) {
@@ -337,16 +204,9 @@ bool CPictureViewer::DecodeImage (const std::string & _name, bool showBusySign, 
 			m_NextPic_YPos = 0;
 			m_NextPic_XPan = 0;
 			m_NextPic_YPan = 0;
-#endif
 		}
 	} else {
 		printf ("Unable to read file or format not recognized!\n");
-#ifdef __sh__
-	munmap(m_NextPic_Buffer, m_NextPic_X * m_NextPic_Y * 3);
-	ioctl(m_NextPic_HwDev, BPAMEMIO_FREEMEM);
-	close(m_NextPic_HwDev);
-	return false;	// TODO: Find out why this bad hack is down there
-#else
 		if (m_NextPic_Buffer != NULL) {
 			free (m_NextPic_Buffer);
 		}
@@ -362,7 +222,6 @@ bool CPictureViewer::DecodeImage (const std::string & _name, bool showBusySign, 
 		m_NextPic_YPos = 0;
 		m_NextPic_XPan = 0;
 		m_NextPic_YPan = 0;
-#endif
 	}
 	m_NextPic_Name = name;
 	hideBusy ();
@@ -384,13 +243,7 @@ bool CPictureViewer::ShowImage (const std::string & filename, bool unscaled)
 	//  dbout("Show Image {\n");
 	// Wird eh ueberschrieben ,also schonmal freigeben... (wenig speicher)
 	if (m_CurrentPic_Buffer != NULL) {
-#ifdef __sh__
-	munmap(m_CurrentPic_Buffer, m_CurrentPic_X * m_CurrentPic_Y * 3);
-	ioctl(m_CurrentPic_HwDev, BPAMEMIO_FREEMEM);
-	close(m_CurrentPic_HwDev);
-#else
 		free (m_CurrentPic_Buffer);
-#endif
 		m_CurrentPic_Buffer = NULL;
 	}
 	DecodeImage (filename, true, unscaled);
@@ -403,22 +256,12 @@ bool CPictureViewer::DisplayNextImage ()
 {
 	//  dbout("DisplayNextImage {\n");
 	if (m_CurrentPic_Buffer != NULL) {
-#ifdef __sh__
-	munmap(m_CurrentPic_Buffer, m_CurrentPic_X * m_CurrentPic_Y * 3);
-	ioctl(m_CurrentPic_HwDev, BPAMEMIO_FREEMEM);
-	close(m_CurrentPic_HwDev);
-#else
 		free (m_CurrentPic_Buffer);
-#endif
 		m_CurrentPic_Buffer = NULL;
 	}
 	if (m_NextPic_Buffer != NULL)
 		//fb_display (m_NextPic_Buffer, m_NextPic_X, m_NextPic_Y, m_NextPic_XPan, m_NextPic_YPan, m_NextPic_XPos, m_NextPic_YPos);
-#ifdef __sh__
-		CFrameBuffer::getInstance()->displayRGB(m_NextPic_Buffer, m_NextPic_X, m_NextPic_Y, m_NextPic_XPan, m_NextPic_YPan, m_NextPic_XPos, m_NextPic_YPos,true, CFrameBuffer::TM_NONE);
-#else
 		CFrameBuffer::getInstance()->displayRGB(m_NextPic_Buffer, m_NextPic_X, m_NextPic_Y, m_NextPic_XPan, m_NextPic_YPan, m_NextPic_XPos, m_NextPic_YPos);
-#endif
 	//  dbout("DisplayNextImage fb_disp done\n");
 	m_CurrentPic_Buffer = m_NextPic_Buffer;
 	m_NextPic_Buffer = NULL;
@@ -429,9 +272,6 @@ bool CPictureViewer::DisplayNextImage ()
 	m_CurrentPic_YPos = m_NextPic_YPos;
 	m_CurrentPic_XPan = m_NextPic_XPan;
 	m_CurrentPic_YPan = m_NextPic_YPan;
-#ifdef __sh__
-	m_CurrentPic_HwDev = m_NextPic_HwDev;
-#endif
 	//  dbout("DisplayNextImage }\n");
 	return true;
 }
@@ -447,11 +287,7 @@ void CPictureViewer::Zoom (float factor)
 	m_CurrentPic_X = (int) (factor * m_CurrentPic_X);
 	m_CurrentPic_Y = (int) (factor * m_CurrentPic_Y);
 
-#ifdef __sh__
-	hw_resize (&m_NextPic_HwDev, (char **)&m_CurrentPic_Buffer, oldx, oldy, m_CurrentPic_X, m_CurrentPic_Y);
-#else
 	m_CurrentPic_Buffer = Resize(m_CurrentPic_Buffer, oldx, oldy, m_CurrentPic_X, m_CurrentPic_Y, m_scaling);
-#endif
 
 	if (m_CurrentPic_Buffer == oldBuf) {
 		// resize failed
@@ -463,27 +299,16 @@ void CPictureViewer::Zoom (float factor)
 		m_CurrentPic_XPos = (m_endx - m_startx - m_CurrentPic_X) / 2 + m_startx;
 	else
 		m_CurrentPic_XPos = m_startx;
-
 	if (m_CurrentPic_Y < (m_endy - m_starty))
 		m_CurrentPic_YPos = (m_endy - m_starty - m_CurrentPic_Y) / 2 + m_starty;
 	else
 		m_CurrentPic_YPos = m_starty;
-
 	if (m_CurrentPic_X > (m_endx - m_startx))
-#ifdef __sh__
-		return;
-#else
 		m_CurrentPic_XPan = (m_CurrentPic_X - (m_endx - m_startx)) / 2;
-#endif
 	else
 		m_CurrentPic_XPan = 0;
-
 	if (m_CurrentPic_Y > (m_endy - m_starty))
-#ifdef __sh__
-		return;
-#else
 		m_CurrentPic_YPan = (m_CurrentPic_Y - (m_endy - m_starty)) / 2;
-#endif
 	else
 		m_CurrentPic_YPan = 0;
 	//fb_display (m_CurrentPic_Buffer, m_CurrentPic_X, m_CurrentPic_Y, m_CurrentPic_XPan, m_CurrentPic_YPan, m_CurrentPic_XPos, m_CurrentPic_YPos);
@@ -524,11 +349,7 @@ void CPictureViewer::Move (int dx, int dy)
 	//          m_CurrentPic_XPan, m_CurrentPic_YPan, m_CurrentPic_XPos, m_CurrentPic_YPos);
 
 	//fb_display (m_CurrentPic_Buffer, m_CurrentPic_X, m_CurrentPic_Y, m_CurrentPic_XPan, m_CurrentPic_YPan, m_CurrentPic_XPos, m_CurrentPic_YPos);
-#ifdef __sh__
-	CFrameBuffer::getInstance()->displayRGB(m_CurrentPic_Buffer, m_CurrentPic_X, m_CurrentPic_Y, m_CurrentPic_XPan, m_CurrentPic_YPan, m_CurrentPic_XPos, m_CurrentPic_YPos, true, CFrameBuffer::TM_NONE);
-#else
 	CFrameBuffer::getInstance()->displayRGB(m_CurrentPic_Buffer, m_CurrentPic_X, m_CurrentPic_Y, m_CurrentPic_XPan, m_CurrentPic_YPan, m_CurrentPic_XPos, m_CurrentPic_YPos);
-#endif
 }
 
 CPictureViewer::CPictureViewer ()
@@ -628,9 +449,7 @@ void CPictureViewer::showBusy (int sx, int sy, int width, char r, char g, char b
 	m_busy_width = width;
 	m_busy_cpp = cpp;
 	cs_free_uncached (fb_buffer);
-#ifndef __sh__
 	CFrameBuffer::getInstance()->blit();
-#endif
 	//  dbout("Show Busy}\n");
 }
 
@@ -651,9 +470,7 @@ void CPictureViewer::hideBusy ()
 		free (m_busy_buffer);
 		m_busy_buffer = NULL;
 	}
-#ifndef __sh__
 	CFrameBuffer::getInstance()->blit();
-#endif
 	//  dbout("Hide Busy}\n");
 }
 void CPictureViewer::Cleanup ()
@@ -663,23 +480,11 @@ void CPictureViewer::Cleanup ()
 		m_busy_buffer = NULL;
 	}
 	if (m_NextPic_Buffer != NULL) {
-#ifdef __sh__
-	munmap(m_NextPic_Buffer, m_NextPic_X * m_NextPic_Y * 3);
-	ioctl(m_NextPic_HwDev, BPAMEMIO_FREEMEM);
-	close(m_NextPic_HwDev);
-#else
 		free (m_NextPic_Buffer);
-#endif
 		m_NextPic_Buffer = NULL;
 	}
 	if (m_CurrentPic_Buffer != NULL) {
-#ifdef __sh__
-	munmap(m_CurrentPic_Buffer, m_CurrentPic_X * m_CurrentPic_Y * 3);
-	ioctl(m_CurrentPic_HwDev, BPAMEMIO_FREEMEM);
-	close(m_CurrentPic_HwDev);
-#else
 		free (m_CurrentPic_Buffer);
-#endif
 		m_CurrentPic_Buffer = NULL;
 	}
 }

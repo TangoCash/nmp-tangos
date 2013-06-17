@@ -1286,24 +1286,6 @@ void CRCInput::getMsg_us(neutrino_msg_t * msg, neutrino_msg_data_t * data, uint6
 #endif
 						{
 							last_keypress = now_pressed;
-#if HAVE_DUCKBOX_HARDWARE
-							if ((g_settings.osd_shotmode && trkey == RC_spkr )) {
-
-								char d[80];
-								char p[255];
-								time_t now = time(NULL);
-								struct tm *tm = localtime(&now);
-
-								strftime(d, sizeof(d), "%%s/osdshot-%Y%m%d%H%M%S.png", tm);
-								snprintf(p, sizeof(p), d, g_settings.screenshot_dir.c_str());
-
-								CVFD::getInstance()->ShowText("OSD SHOT");
-								CFrameBuffer::getInstance()->OSDShot(p);
-								CVFD::getInstance()->ShowText("DONE");
-
-								continue;
-							}
-#endif
 							FILE* rclocked = fopen("/tmp/rc.locked", "r");
 							if (rclocked)
 							{

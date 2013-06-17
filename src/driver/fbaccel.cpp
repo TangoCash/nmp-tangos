@@ -30,7 +30,6 @@
 #endif
 
 #include <driver/framebuffer_ng.h>
-
 #ifdef ENABLE_GRAPHLCD
 #include <driver/nglcd.h>
 #endif
@@ -159,7 +158,7 @@ void CFbAccel::waitForIdle(void)
 	printf("STB04GFX_ENGINE_SYNC took %lld us\n", (te.tv_sec * 1000000LL + te.tv_usec) - (ts.tv_sec * 1000000LL + ts.tv_usec));
 #endif
 }
-#elif defined HAVE_SPARK_HARDWARE || defined HAVE_DUCKBOX_HARDWARE
+#elif defined (HAVE_SPARK_HARDWARE) || defined (HAVE_DUCKBOX_HARDWARE)
 
 static int bpafd = -1;
 static size_t lbb_sz = 1920 * 1080;	/* offset from fb start in 'pixels' */
@@ -182,7 +181,7 @@ CFbAccel::CFbAccel(CFrameBuffer *_fb)
 	fb = _fb;
 	lastcol = 0xffffffff;
 	lbb = fb->lfb;	/* the memory area to draw to... */
-#if defined HAVE_SPARK_HARDWARE || defined HAVE_DUCKBOX_HARDWARE
+#if defined (HAVE_SPARK_HARDWARE) || defined (HAVE_DUCKBOX_HARDWARE)
 	if (fb->available < 12*1024*1024)
 	{
 		/* for old installations that did not upgrade their module config
@@ -242,6 +241,15 @@ CFbAccel::CFbAccel(CFrameBuffer *_fb)
 		bpafd = -1;
 		return;
 	}
+#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+	startX = 0;
+	startY = 0;
+	endX = DEFAULT_XRES - 1;
+	endY = DEFAULT_YRES - 1;
+	borderColor = 0;
+	borderColorOld = 0x01010101;
+	resChange();
+#endif
 #endif
 
 #ifdef USE_NEVIS_GXA
@@ -291,7 +299,7 @@ CFbAccel::~CFbAccel()
 
 void CFbAccel::update()
 {
-#if !defined HAVE_SPARK_HARDWARE && !defined HAVE_DUCKBOX_HARDWARE
+#if !defined (HAVE_SPARK_HARDWARE) && !defined (HAVE_DUCKBOX_HARDWARE)
 	int needmem = fb->stride * fb->yRes * 2;
 	if (fb->available >= needmem)
 	{
@@ -340,7 +348,7 @@ void CFbAccel::paintRect(const int x, const int y, const int dx, const int dy, c
 	/* the GXA seems to do asynchronous rendering, so we add a sync marker
 	   to which the fontrenderer code can synchronize */
 	add_gxa_sync_marker();
-#elif defined HAVE_SPARK_HARDWARE || defined HAVE_DUCKBOX_HARDWARE
+#elif defined (HAVE_SPARK_HARDWARE) || defined (HAVE_DUCKBOX_HARDWARE)
 	if (dx <= 0 || dy <= 0)
 		return;
 
@@ -547,42 +555,10 @@ void CFbAccel::paintLine(int xa, int ya, int xb, int yb, const fb_pixel_t col)
 #endif
 }
 
-void CFbAccel::blitRGB2RGB(int original_width, int original_height, int height, int width, char *original_data, char *dest_data)
-{
-	fprintf(stderr, "RGBtoRGB: x:%d -> x:%d y:%d -> y:%d\n", original_width,width,original_height,height);
-    STMFBIO_BLT_EXTERN_DATA blt_data;
-    memset(&blt_data, 0, sizeof(STMFBIO_BLT_EXTERN_DATA));
-    blt_data.operation  = BLT_OP_COPY;
-    blt_data.ulFlags    = 0;
-    blt_data.srcOffset  = 0;
-    blt_data.srcPitch   = original_width * 3;
-    blt_data.dstOffset  = 0;
-    blt_data.dstPitch   = width * 3;
-    blt_data.src_top    = 0;
-    blt_data.src_left   = 0;
-    blt_data.src_right  = original_width;
-    blt_data.src_bottom = original_height;
-    blt_data.dst_left   = 0;
-    blt_data.dst_top    = 0;
-    blt_data.dst_right  = width;
-    blt_data.dst_bottom = height;
-    blt_data.srcFormat  = SURF_RGB888;
-    blt_data.dstFormat  = SURF_RGB888;
-    blt_data.srcMemBase = (char *)original_data;
-    blt_data.dstMemBase = (char *)dest_data;
-    blt_data.srcMemSize = original_width * original_height * 3; // we don't need to know the actual mem size
-    blt_data.dstMemSize = width * height * 3;
-
-    if(ioctl(fb->fd, STMFBIO_BLT_EXTERN, &blt_data) < 0)
-        perror("FBIO_BLIT");
-    else
-        ioctl(fb->fd, STMFBIO_SYNC_BLITTER);
-}
-
 #if !HAVE_TRIPLEDRAGON
 void CFbAccel::blit2FB(void *fbbuff, uint32_t width, uint32_t height, uint32_t xoff, uint32_t yoff, uint32_t xp, uint32_t yp, bool transp)
 {
-#if !defined HAVE_SPARK_HARDWARE && !defined HAVE_DUCKBOX_HARDWARE
+#if !defined (HAVE_SPARK_HARDWARE) && !defined (HAVE_DUCKBOX_HARDWARE)
 	int  xc, yc;
 	xc = (width > fb->xRes) ? fb->xRes : width;
 	yc = (height > fb->yRes) ? fb->yRes : height;
@@ -608,7 +584,7 @@ void CFbAccel::blit2FB(void *fbbuff, uint32_t width, uint32_t height, uint32_t x
 
 		return;
 	}
-#elif defined HAVE_SPARK_HARDWARE || defined HAVE_DUCKBOX_HARDWARE
+#elif defined (HAVE_SPARK_HARDWARE) || defined (HAVE_DUCKBOX_HARDWARE)
 	int x, y, dw, dh;
 	x = xoff;
 	y = yoff;
@@ -652,6 +628,8 @@ void CFbAccel::blit2FB(void *fbbuff, uint32_t width, uint32_t height, uint32_t x
 	if (ioctl(fb->fd, STMFBIO_BLT_EXTERN, &blt_data) < 0)
 		perror("CFbAccel blit2FB STMFBIO_BLT_EXTERN");
 	//update_dirty(x, y, blt_data.dst_right, blt_data.dst_bottom);
+	if(ioctl(fb->fd, STMFBIO_SYNC_BLITTER) < 0)
+		perror("CFrameBuffer::blit2FB ioctl STMFBIO_SYNC_BLITTER");
 	return;
 #else
 	fb_pixel_t *data = (fb_pixel_t *) fbbuff;
@@ -872,6 +850,7 @@ void CFbAccel::blit()
 		blitFB2FB(s.xres/3, s.yres/3, (s.xres * 2)/3, (s.yres * 2)/3, s.xres/3, (s.yres * 2)/3, (s.xres * 2)/3, s.yres - 1);
 		break;
 	}
+	OpenThreads::ScopedLock<OpenThreads::Mutex> m_lock(mutex);
 	if(ioctl(fb->fd, STMFBIO_SYNC_BLITTER) < 0)
 		perror("CFrameBuffer::blit ioctl STMFBIO_SYNC_BLITTER 2");
 }
@@ -1018,7 +997,7 @@ void CFbAccel::mark(int, int, int, int)
 #endif
 
 #if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
-void CFbAccel::blitIcon(int src_width, int src_height, int fb_x, int fb_y, int width, int height)
+void CFbAccel::blitArea(int src_width, int src_height, int fb_x, int fb_y, int width, int height)
 {
 	if (!src_width || !src_height)
 		return;
@@ -1026,12 +1005,12 @@ void CFbAccel::blitIcon(int src_width, int src_height, int fb_x, int fb_y, int w
 	memset(&blt_data, 0, sizeof(STMFBIO_BLT_EXTERN_DATA));
 	blt_data.operation  = BLT_OP_COPY;
 	blt_data.ulFlags    = BLT_OP_FLAGS_BLEND_SRC_ALPHA | BLT_OP_FLAGS_BLEND_DST_MEMORY;	// we need alpha blending
-	blt_data.srcOffset  = 0;
+//	blt_data.srcOffset  = 0;
 	blt_data.srcPitch   = src_width * 4;
 	blt_data.dstOffset  = lbb_off;
 	blt_data.dstPitch   = fb->stride;
-	blt_data.src_top    = 0;
-	blt_data.src_left   = 0;
+//	blt_data.src_top    = 0;
+//	blt_data.src_left   = 0;
 	blt_data.src_right  = src_width;
 	blt_data.src_bottom = src_height;
 	blt_data.dst_left   = fb_x;
@@ -1050,7 +1029,14 @@ void CFbAccel::blitIcon(int src_width, int src_height, int fb_x, int fb_y, int w
 	if(ioctl(fb->fd, STMFBIO_BLT_EXTERN, &blt_data) < 0)
 		perror("blit_icon FBIO_BLIT");
 }
+#else
+void CFbAccel::blitArea(int /*src_width*/, int /*src_height*/, int /*fb_x*/, int /*fb_y*/, int /*width*/, int /*height*/)
+{
+	fprintf(stderr, "%s not implemented\n", __func__);
+}
+#endif
 
+#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
 void CFbAccel::resChange(void)
 {
 	if (ioctl(fb->fd, FBIOGET_VSCREENINFO, &s) == -1)
@@ -1063,59 +1049,49 @@ void CFbAccel::resChange(void)
 	borderColorOld = 0x01010101;
 }
 
-bool CFbAccel::OSDShot(const std::string &name)
+void CFbAccel::setBorder(int sx, int sy, int ex, int ey)
 {
-	fb_var_screeninfo s;
-	if (ioctl(fb->fd, FBIOGET_VSCREENINFO, &s) == -1)
-		perror("CFbAccel <FBIOGET_VSCREENINFO>");
+	startX = sx;
+	startY = sy;
+	endX = ex;
+	endY = ey;
+	sX = (startX * s.xres)/DEFAULT_XRES;
+	sY = (startY * s.yres)/DEFAULT_YRES;
+	eX = (endX * s.xres)/DEFAULT_XRES;
+	eY = (endY * s.yres)/DEFAULT_YRES;
+	borderColorOld = 0x01010101;
+}
 
-	struct timeval ts, te;
+void CFbAccel::setBorderColor(fb_pixel_t col)
+{
+	if (!col && borderColor)
+		blitBoxFB(0, 0, s.xres - 1, s.yres - 1, 0);
+	borderColor = col;
+}
 
-	gettimeofday(&ts, NULL);
+void CFbAccel::ClearFB(void)
+{
+	blitBoxFB(0, 0, s.xres - 1, s.yres - 1, 0);
+}
+#else
+void CFbAccel::resChange(void)
+{
+	fprintf(stderr, "%s not implemented\n", __func__);
+}
 
-	size_t l = name.find_last_of(".");
+void CFbAccel::setBorder(int /*sx*/, int /*sy*/, int /*ex*/, int /*ey*/)
+{
+	fprintf(stderr, "%s not implemented\n", __func__);
+}
 
-	if(l == std::string::npos)
-		return false;
+void CFbAccel::setBorderColor(fb_pixel_t /*col*/)
+{
+	fprintf(stderr, "%s not implemented\n", __func__);
+}
 
-	if (name.substr(l) != ".png")
-		return false;
-
-	FILE *out = fopen(name.c_str(), "w");
-
-	if (!out)
-		return false;
-
-	png_bytep row_pointers[s.yres];
-
-	png_structp png_ptr = png_create_write_struct( PNG_LIBPNG_VER_STRING,
-			(png_voidp) NULL, (png_error_ptr) NULL, (png_error_ptr) NULL);
-
-	png_infop info_ptr = png_create_info_struct(png_ptr);
-
-	png_init_io(png_ptr, out);
-
-	for (unsigned int y = 0; y < s.yres; y++)
-		row_pointers[y] = (png_bytep) ((fb_pixel_t *)fb->lfb + y * s.xres);
-
-	png_set_compression_level(png_ptr, 1);
-	png_set_bgr(png_ptr);
-	png_set_IHDR(png_ptr, info_ptr, s.xres, s.yres, 8, PNG_COLOR_TYPE_RGBA,
-			PNG_INTERLACE_NONE, PNG_COMPRESSION_TYPE_BASE, PNG_FILTER_TYPE_BASE);
-
-	png_write_info(png_ptr, info_ptr);
-	png_write_image(png_ptr, row_pointers);
-	png_write_end(png_ptr, info_ptr);
-
-	png_destroy_write_struct(&png_ptr, &info_ptr);
-
-	fclose(out);
-
-	gettimeofday(&te, NULL);
-
-	fprintf(stderr, "%s took %lld us\n", __func__, (te.tv_sec * 1000000LL + te.tv_usec) - (ts.tv_sec * 1000000LL + ts.tv_usec));
-
-	return true;
+void CFbAccel::ClearFB(void)
+{
+	fprintf(stderr, "%s not implemented\n", __func__);
 }
 #endif
 

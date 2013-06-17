@@ -241,12 +241,13 @@ public:
 	bool 		g_channel_list_changed;
 	void saveEpg(bool cvfd_mode);
 	void stopDaemonsForFlash();
-
+#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
 	enum {
 		SHUTDOWN,
 		REBOOT
 	};
 	void ExitRun(const bool write_si = true, int retcode = SHUTDOWN);
+#endif
 };
 #endif
 

@@ -135,6 +135,18 @@ void CRecordInstance::WaitRecMsg(time_t StartTime, time_t WaitTime)
 		usleep(100000);
 }
 
+#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+void recordingFailureHelper(void *data)
+{
+	CRecordInstance *inst = (CRecordInstance *) data;
+	std::string errormsg = std::string(g_Locale->getText(LOCALE_RECORDING_FAILED)) + "\n" + string(inst->GetFileName());
+	CHintBox hintBox(LOCALE_MESSAGEBOX_INFO, errormsg.c_str());
+	hintBox.paint();
+	sleep(3);
+	hintBox.hide();
+}
+#endif
+
 int CRecordInstance::GetStatus()
 {
 	if (record)
@@ -196,8 +208,15 @@ record_error_msg_t CRecordInstance::Start(CZapitChannel * channel)
 	if ((StreamPmtPid) && (allpids.PIDs.pmtpid != 0))
 		apids[numpids++] = allpids.PIDs.pmtpid;
 
+#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+	if(record == NULL) {
+		record = new cRecord(channel->getRecordDemux(), g_settings.recording_bufsize_dmx * 1024 * 1024, g_settings.recording_bufsize * 1024 * 1024);
+		record->setFailureCallback(&recordingFailureHelper, this);
+	}
+#else
 	if(record == NULL)
 		record = new cRecord(channel->getRecordDemux() /*RECORD_DEMUX*/);
+#endif
 
 	record->Open();
 
@@ -925,6 +944,9 @@ bool CRecordManager::Record(const CTimerd::RecordingInfo * const eventinfo, cons
 				if(eventinfo->channel_id == live_channel_id)
 					recordingstatus = 1;
 #endif
+#ifdef ENABLE_GRAPHLCD
+				nGLCD::Update();
+#endif
 			} else {
 				delete inst;
 			}
@@ -1157,6 +1179,9 @@ bool CRecordManager::Stop(const CTimerd::RecordingStopInfo * recinfo)
 	if(inst != NULL && recinfo->eventID == inst->GetRecordingId()) {
 		StopInstance(inst, false);
 		ret = true;
+#ifdef ENABLE_GRAPHLCD
+		nGLCD::Update();
+#endif
 	} else {
 		for(nextmap_iterator_t it = nextmap.begin(); it != nextmap.end(); it++) {
 			if((*it)->eventID == recinfo->eventID) {

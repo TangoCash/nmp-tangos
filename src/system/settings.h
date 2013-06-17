@@ -378,6 +378,10 @@ struct SNeutrinoSettings
 	int recording_audio_pids_std;
 	int recording_audio_pids_alt;
 	int recording_audio_pids_ac3;
+#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+	int recording_bufsize;
+	int recording_bufsize_dmx;
+#endif
 	int recording_stream_vtxt_pid;
 	int recording_stream_subtitle_pids;
 	int recording_stream_pmt_pid;
@@ -453,6 +457,10 @@ struct SNeutrinoSettings
 	int screenshot_mode;
 	int screenshot_video;
 	int screenshot_scale;
+#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+	int screenshot_png_compression;
+	int screenshot_backbuffer;
+#endif
 	std::string screenshot_dir;
 
 	int key_current_transponder;
@@ -522,9 +530,6 @@ struct SNeutrinoSettings
 	int screen_height;
 	int screen_xres;
 	int screen_yres;
-#if HAVE_DUCKBOX_HARDWARE
-	int osd_shotmode;
-#endif
 
 	//Software-update
 	int softupdate_mode;

@@ -714,6 +714,10 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	g_settings.recording_stream_vtxt_pid       = configfile.getBool("recordingmenu.stream_vtxt_pid"      , true);
 	g_settings.recording_stream_subtitle_pids  = configfile.getBool("recordingmenu.stream_subtitle_pids", true);
 	g_settings.recording_stream_pmt_pid        = configfile.getBool("recordingmenu.stream_pmt_pid"      , false);
+#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+	g_settings.recording_bufsize               = configfile.getInt32("recording_bufsize", 10);
+	g_settings.recording_bufsize_dmx           = configfile.getInt32("recording_bufsize_dmx", 2);
+#endif
 	g_settings.recording_choose_direct_rec_dir = configfile.getInt32( "recording_choose_direct_rec_dir", 0 );
 	g_settings.recording_epg_for_filename      = configfile.getBool("recording_epg_for_filename"         , true);
 	g_settings.recording_epg_for_end           = configfile.getBool("recording_epg_for_end"              , true);
@@ -738,14 +742,19 @@ int CNeutrinoApp::loadSetup(const char * fname)
 
 	g_settings.timeshift_pause = configfile.getInt32( "timeshift_pause", 1 );
 
+#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+	g_settings.screenshot_png_compression = configfile.getInt32( "screenshot_png_compression", 1);
+	g_settings.screenshot_backbuffer = configfile.getInt32( "screenshot_backbuffer", 1);
+#else
 	g_settings.screenshot_count = configfile.getInt32( "screenshot_count",  1);
 	g_settings.screenshot_format = configfile.getInt32( "screenshot_format",  1);
 	g_settings.screenshot_cover = configfile.getInt32( "screenshot_cover",  0);
 	g_settings.screenshot_mode = configfile.getInt32( "screenshot_mode",  0);
 	g_settings.screenshot_video = configfile.getInt32( "screenshot_video",  1);
 	g_settings.screenshot_scale = configfile.getInt32( "screenshot_scale",  0);
+#endif
 
-#if HAVE_DUCKBOX_HARDWARE || BOXMODEL_SPARK7162
+#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
 	g_settings.screenshot_dir = configfile.getString( "screenshot_dir", g_settings.network_nfs_picturedir );
 #else
 	g_settings.screenshot_dir = configfile.getString( "screenshot_dir", "/media/sda1/movies" );
@@ -801,9 +810,6 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	g_settings.bigFonts = configfile.getInt32("bigFonts", 0);
 #endif
 	g_settings.big_windows = configfile.getInt32("big_windows", 0);
-#if HAVE_DUCKBOX_HARDWARE
-	g_settings.osd_shotmode = configfile.getInt32("osd_shotmode", 0);
-#endif
 
 	g_settings.remote_control_hardware = configfile.getInt32( "remote_control_hardware",  CRCInput::RC_HW_COOLSTREAM);
 	g_settings.audiochannel_up_down_enable = configfile.getBool("audiochannel_up_down_enable", false);
@@ -1167,6 +1173,7 @@ void CNeutrinoApp::saveSetup(const char * fname)
 	configfile.setInt32("glcd_brightness_standby", g_settings.glcd_brightness_standby);
 	configfile.setInt32("glcd_scroll_speed", g_settings.glcd_scroll_speed);
 #endif
+
 	//personalize
 	configfile.setString("personalize_pincode", g_settings.personalize_pincode);
 	for (int i = 0; i < SNeutrinoSettings::P_SETTINGS_MAX; i++) //settings.h, settings.cpp
@@ -1244,12 +1251,16 @@ void CNeutrinoApp::saveSetup(const char * fname)
 	configfile.setInt32( "auto_delete", g_settings.auto_delete );
 	configfile.setInt32( "record_hours", g_settings.record_hours );
 	//printf("set: key_unlock =============== %d\n", g_settings.key_unlock);
+#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+	configfile.setInt32( "screenshot_png_compression", g_settings.screenshot_png_compression );
+#else
 	configfile.setInt32( "screenshot_count", g_settings.screenshot_count );
 	configfile.setInt32( "screenshot_format", g_settings.screenshot_format );
 	configfile.setInt32( "screenshot_cover", g_settings.screenshot_cover );
 	configfile.setInt32( "screenshot_mode", g_settings.screenshot_mode );
 	configfile.setInt32( "screenshot_video", g_settings.screenshot_video );
 	configfile.setInt32( "screenshot_scale", g_settings.screenshot_scale );
+#endif
 
 	configfile.setString( "screenshot_dir", g_settings.screenshot_dir);
 	configfile.setInt32( "cacheTXT", g_settings.cacheTXT );
@@ -1374,10 +1385,6 @@ void CNeutrinoApp::saveSetup(const char * fname)
 
 	configfile.setInt32("bigFonts", g_settings.bigFonts);
 	configfile.setInt32("big_windows", g_settings.big_windows);
-#if HAVE_DUCKBOX_HARDWARE
-	configfile.setInt32("osd_shotmode", 0); //always save off !!
-#endif
-
 #ifdef BOXMODEL_APOLLO
 	configfile.setInt32("brightness", g_settings.brightness );
 	configfile.setInt32("contrast", g_settings.contrast );
@@ -2300,14 +2307,16 @@ void CNeutrinoApp::showInfo()
 	StartSubtitles();
 }
 
-static void setEPGTitle() {
+static void setEPGTitle()
+{
 	CSectionsdClient::CurrentNextInfo info_CurrentNext;
 	CEitManager::getInstance()->getCurrentNextServiceKey(CZapit::getInstance()->GetCurrentChannelID(), info_CurrentNext);
 	CVFD::getInstance()->setEPGTitle(info_CurrentNext.current_name);
 }
 
 #if HAVE_DUCKBOX_HARDWARE || BOXMODEL_SPARK7162
-static void check_timer() {
+static void check_timer()
+{
 	CTimerd::TimerList tmpTimerList;
 	CTimerdClient tmpTimerdClient;
 	tmpTimerList.clear();
@@ -2991,6 +3000,18 @@ _repeat:
 		delete sleepTimer;
 		return messages_return::handled;
 	}
+#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+	else if (msg == (neutrino_msg_t) g_settings.key_screenshot) {
+		char shotname[80];
+		time_t now = time(NULL);
+		struct tm *tm = localtime(&now);
+		strftime(shotname, sizeof(shotname), "/screenshot-%Y%m%d%H%M%S.png", tm);
+		CVFD::getInstance()->ShowText("screenshot");
+		frameBuffer->OSDShot(g_settings.screenshot_dir + string(shotname));
+		CVFD::getInstance()->ShowText("done");
+		return messages_return::handled;
+	}
+#else
 #ifdef SCREENSHOT
 	else if (msg == (neutrino_msg_t) g_settings.key_screenshot) {
 		//video+osd scaled to osd size
@@ -2999,6 +3020,7 @@ _repeat:
 		sc->MakeFileName(CZapit::getInstance()->GetCurrentChannelID());
 		sc->Start();
 	}
+#endif
 #endif
 
 	/* ================================== MESSAGES ================================================ */

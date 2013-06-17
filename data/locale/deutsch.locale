@@ -175,7 +175,7 @@ audioplayer.shuffle Zufällig
 audioplayer.spectrum LCD Skala
 audioplayer.stop Stopp
 audioplayer.title_artist Titel, Interpret
-audioplayerpicsettings.general Mediaplayer
+audioplayerpicsettings.general Audioplayer/Bildbetrachter
 bookmarkmanager.delete Löschen
 bookmarkmanager.name Bookmarks
 bookmarkmanager.rename Umbenennen
@@ -381,19 +381,21 @@ extra.key_timeshift Timeshift
 extra.key_unlock Entsperrtaste
 extra.ladirection Breitengrad-Ausrichtung
 extra.latitude Breitengrad
-extra.loadconfig Laden von
-extra.loadkeys Laden von
+extra.loadconfig Neutrino Einstellungen: Laden von
+extra.loadkeys Lade Tastenbelegung von
 extra.lodirection Längengrad-Ausrichtung
 extra.longitude Längengrad
 extra.menu_left_exit "links" = Menü zurück
 extra.north Norden
+extra.record_bufsize Schreib-Puffer in MB
+extra.record_bufsize_dmx DMX-Puffer in MB
 extra.record_time Max. Aufnahmezeit in Stunden
 extra.rotor_swap Rotor dreht Ost/West
 extra.rounded_corners Eckendarstellung
 extra.rounded_corners_off eckig
 extra.rounded_corners_on abgerundet
-extra.saveconfig Sichern als
-extra.savekeys Speichern als
+extra.saveconfig Neutrino Einstellungen: Sichern als
+extra.savekeys Speichere Tastenbelegung als
 extra.scrambled_message Verschlüsselung melden
 extra.show_mute_icon Mute-Icon bei Lautstärke 0
 extra.sms_channel SMS-Modus Kanal
@@ -427,7 +429,6 @@ extra.zapit_make_bouquet Kanalliste auffüllen
 extra.zapit_motor_speed Rotor Drehzeit (10 = 1°/ sec)
 extra.zapit_scanpids PIDs scannen/nutzen
 extra.zapit_sdt_changed Kanalliste wird neu geladen.
-extra.osdshot Screenshot vom OSD mit Mute
 fan_speed CPU-Lüftergeschwindigkeit
 favorites.addchannel Der aktuelle Kanal wird dem Bouquet \n"Meine Favoriten" hinzugefügt. \nDie Speicherung benötigt einen Moment...
 favorites.bouquetname Meine Favoriten
@@ -765,7 +766,7 @@ mainsettings.timezone Zeitzone
 mainsettings.video Video
 menu.back Zurück
 menu.cancel Abbrechen
-menu.hint_a_pic Konfigurieren Sie den Mediaplayer
+menu.hint_a_pic Konfigurieren Sie den Audioplayer und den Bildbetrachter
 menu.hint_aplay Audioplayer
 menu.hint_audio Audio-Ausgang, Dolby Digital und SRS TruVolume Optionen und mehr
 menu.hint_audio_analog_mode Wählen Sie den Modus des Ausgangssignals für den CINCH-Anschluss
@@ -989,7 +990,6 @@ menu.hint_numeric_adjust Adjust channel list mode on numeric zap
 menu.hint_osd Farben, Schriftarten, Anzeigegröße, Ansichtsoptionen der Menüs und mehr
 menu.hint_osd_language Wählen Sie ihre Menü-Sprache
 menu.hint_osd_preset Wählen Sie zwischen Röhren-TV (CRT) oder Flachbildschirm (LCD)
-menu.hint_osdshot Einen Screenshot erstellen
 menu.hint_parentallock_changepin Geben Sie den 4-stelligen PIN-Code ein, der dann ggf. abgefragt wird
 menu.hint_parentallock_lockage Legen Sie fest, bei welcher Altersklasse die Abfrage der PIN erfolgt
 menu.hint_parentallock_prompt Legen Sie fest, wann die Eingabe einer PIN erfolgen soll
@@ -1138,7 +1138,7 @@ menu.hint_timers Hinzufügen, entfernen und bearbeiten geplanter Aufnahmen oder 
 menu.hint_timezone Wählen Sie ihre Zeitzone aus
 menu.hint_tvmode Schaltet zum TV-Modus
 menu.hint_tvradio_switch Schaltet zwischen TV- und Radio-Modus um
-menu.hint_vfd Frontpanel Power-LEDs und VFD Optionen
+menu.hint_vfd Frontdisplay und Power-LEDs
 menu.hint_vfd_brightness Definiert die Helligkeit im TV-Betrieb 
 menu.hint_vfd_brightness_setup Konfiguriert die Helligkeit des Frontdisplays für verschiedene Modi
 menu.hint_vfd_brightnessdeepstandby Definiert die Helligkeit im Deep-Standby
@@ -1619,6 +1619,7 @@ rass.head Radio Screen Show
 rclock.menueadd FB sperren
 rclock.title Fernbedienung sperren
 rclock.unlockmsg Fernbedienung reaktiviert...
+recording.failed Aufzeichnung ist fehlgeschlagen!
 recording.is_running Folgende Aufnahme läuft bereits! Neue Aufnahme starten?
 recording.start Starte Aufnahme, bitte warten...!
 recording.stop Beende Aufnahme, bitte warten...!
@@ -1753,6 +1754,7 @@ scants.transponders Transponder:
 scrambled_channel Verschlüsselung aktiv
 screensetup.lowerright grün = Bildrand unten, rechts
 screensetup.upperleft rot = Bildrand oben, links
+screenshot.backbuffer Sekundärer Buffer (Back Buffer)
 screenshot.count Anzahl
 screenshot.cover Erzeuge Filmcover für Moviebrowser
 screenshot.defdir Ziel-Verzeichnis
@@ -1760,6 +1762,7 @@ screenshot.format Format
 screenshot.info Screenshot Taste ist nicht belegt
 screenshot.menu Screenshot
 screenshot.osd OSD-Auflösung
+screenshot.png_compression PNG-Komprimierungsstärke
 screenshot.res Auflösung
 screenshot.scale Skalierung
 screenshot.tv TV-Auflösung
