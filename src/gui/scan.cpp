@@ -373,7 +373,7 @@ int CScanTs::exec(CMenuTarget* /*parent*/, const std::string & actionKey)
 	if(!test) {
 		CComponentsHeader header(x, y, width, hheight, success ? LOCALE_SCANTS_FINISHED : LOCALE_SCANTS_FAILED, NULL /*no header icon*/);
 		header.paint(CC_SAVE_SCREEN_NO);
-		frameBuffer->blit();
+		// frameBuffer->blit(); // ??
 		uint64_t timeoutEnd = CRCInput::calcTimeoutEnd(0xFFFF);
 		do {
 			g_RCInput->getMsgAbsoluteTimeout(&msg, &data, &timeoutEnd);

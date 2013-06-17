@@ -757,7 +757,6 @@ void CPictureViewerGui::paint()
 	frameBuffer->paintBoxRel(x+ width- 15,ypos, 15, sb,  COL_MENUCONTENT_PLUS_1);
 
 	int sbc= ((playlist.size()- 1)/ listmaxshow)+ 1;
-
 	int sbs= (selected/listmaxshow);
 	if (sbc < 1)
 		sbc = 1;

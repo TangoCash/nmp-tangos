@@ -97,7 +97,7 @@ static bool messaging_zap_detected = false;
 #ifdef USE_BB_NTPD
 const std::string ntp_system_cmd_prefix = "/sbin/ntpd -q -p ";
 #else
-//const std::string ntp_system_cmd_prefix = "/sbin/ntpdate ";
+//const std::string ntp_system_cmd_prefix = "ntpdate ";
 const std::string ntp_system_cmd_prefix = "/usr/sbin/rdate -s "; // from busybox
 #endif
 
@@ -509,7 +509,6 @@ xprintf("addEvent: ch %012" PRIx64 " running %d (%s) got_CN %d\n", evt.get_chann
 				unlockMessaging();
 			}
 			// else fprintf(stderr, ">");
-			unlockEvents();
 			if(*lastEvent!=NULL)
 				deleteEvent((*lastEvent)->uniqueKey());
 		}

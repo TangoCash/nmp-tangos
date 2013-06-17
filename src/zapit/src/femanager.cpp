@@ -455,8 +455,12 @@ void CFEManager::linkFrontends(bool init)
 				have_cable = true;
 			else if (fe->isTerr())
 				have_terr = true;
-		} else if (!unused_demux) {
-			unused_demux = fe->fenumber + 1;
+		}
+		else {	/* unused -> no need to keep open */
+			fe->Close();
+			if (!unused_demux) {
+				unused_demux = fe->fenumber + 1;
+			}
 		}
 	}
 }
@@ -732,13 +736,13 @@ CFrontend * CFEManager::getScanFrontend(t_satellite_position satellitePosition)
 	CFrontend * frontend = NULL;
 	for(fe_map_iterator_t it = femap.begin(); it != femap.end(); it++) {
 		CFrontend * mfe = it->second;
-		if(mfe->isCable()) {
+		if (mfe->isCable()) {
 			if ((mfe->getMode() != CFrontend::FE_MODE_UNUSED) && ((satellitePosition & 0xF00) == 0xF00)) {
 				frontend = mfe;
 				break;
 			}
 		} else if (mfe->isTerr()) {
-			if ((satellitePosition & 0xF00) == 0xE00) {
+			if ((mfe->getMode() != CFrontend::FE_MODE_UNUSED) && (satellitePosition & 0xF00) == 0xE00) {
 				frontend = mfe;
 				break;
 			}

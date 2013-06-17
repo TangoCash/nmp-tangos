@@ -42,6 +42,7 @@
 
 #include <global.h>
 #include <neutrino.h>
+#include <driver/display.h>
 
 #if HAVE_TRIPLEDRAGON
 /* TD kernel 2.6.12 is too old and does not have writesize yet, use oobsize instead */
