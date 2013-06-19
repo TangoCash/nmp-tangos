@@ -373,8 +373,8 @@ int CNeutrinoApp::loadSetup(const char * fname)
 #else
 	g_settings.channel_mode = configfile.getInt32("channel_mode", LIST_MODE_PROV);
 	g_settings.channel_mode_radio = configfile.getInt32("channel_mode_radio", LIST_MODE_PROV);
-
 #endif
+
 	g_settings.fan_speed = configfile.getInt32( "fan_speed", 1);
 	if(g_settings.fan_speed < 1) g_settings.fan_speed = 1;
 
@@ -458,7 +458,11 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	} else if (tmp.compare("true") == 0)
 		g_settings.progressbar_color = 1;
 	else	/* the config file already contains an int or nothing at all */
+#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+		g_settings.progressbar_color = configfile.getInt32("progressbar_color", 3);
+#else
 		g_settings.progressbar_color = configfile.getInt32("progressbar_color", 1);
+#endif
 	g_settings.progressbar_design = configfile.getInt32("progressbar_design", -1);
 	if (g_settings.progressbar_design == -1) {
 		/* new setting -> not present before. migrate old progressbar_color value */
@@ -476,7 +480,10 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	g_settings.infobar_progressbar   = configfile.getInt32("infobar_progressbar"  , 1 ); // below channel name
 #endif
 	g_settings.casystem_display = configfile.getInt32("casystem_display", 1 );//discreet ca mode default
-	g_settings.scrambled_message = configfile.getBool("scrambled_message", true );
+#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+	g_settings.dotmatrix = configfile.getInt32("infobar_dotmatrix", 0 );//default off
+#endif
+	g_settings.scrambled_message = configfile.getBool("scrambled_message", false );
 	g_settings.volume_pos = configfile.getInt32("volume_pos", 0 );
 	g_settings.volume_digits = configfile.getBool("volume_digits", true);
 	g_settings.menu_pos = configfile.getInt32("menu_pos", CMenuWidget::MENU_POS_CENTER);
@@ -711,8 +718,8 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	g_settings.recording_zap_on_announce       = configfile.getBool("recording_zap_on_announce"      , false);
 	g_settings.shutdown_timer_record_type      = configfile.getBool("shutdown_timer_record_type"      , false);
 
-	g_settings.recording_stream_vtxt_pid       = configfile.getBool("recordingmenu.stream_vtxt_pid"      , true);
-	g_settings.recording_stream_subtitle_pids  = configfile.getBool("recordingmenu.stream_subtitle_pids", true);
+	g_settings.recording_stream_vtxt_pid       = configfile.getBool("recordingmenu.stream_vtxt_pid"      , false);
+	g_settings.recording_stream_subtitle_pids  = configfile.getBool("recordingmenu.stream_subtitle_pids", false);
 	g_settings.recording_stream_pmt_pid        = configfile.getBool("recordingmenu.stream_pmt_pid"      , false);
 #if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
 	g_settings.recording_bufsize               = configfile.getInt32("recording_bufsize", 10);
@@ -720,7 +727,7 @@ int CNeutrinoApp::loadSetup(const char * fname)
 #endif
 	g_settings.recording_choose_direct_rec_dir = configfile.getInt32( "recording_choose_direct_rec_dir", 0 );
 	g_settings.recording_epg_for_filename      = configfile.getBool("recording_epg_for_filename"         , true);
-	g_settings.recording_epg_for_end           = configfile.getBool("recording_epg_for_end"              , true);
+	g_settings.recording_epg_for_end           = configfile.getBool("recording_epg_for_end"              , false);
 	g_settings.recording_save_in_channeldir    = configfile.getBool("recording_save_in_channeldir"         , false);
 	g_settings.recording_slow_warning	   = configfile.getBool("recording_slow_warning"     , true);
 
@@ -738,7 +745,10 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	g_settings.webtv_xml = configfile.getString( "webtv_xml", "/var/tuxbox/config/webtv.xml" );
 
 	loadKeys();
+
+#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
 	g_settings.key_playbutton = configfile.getInt32("key_playbutton", 0);
+#endif
 
 	g_settings.timeshift_pause = configfile.getInt32( "timeshift_pause", 1 );
 
@@ -1050,7 +1060,9 @@ void CNeutrinoApp::saveSetup(const char * fname)
 	configfile.setInt32("infobar_show_channellogo"  , g_settings.infobar_show_channellogo  );
 	configfile.setInt32("infobar_progressbar"  , g_settings.infobar_progressbar  );
 	configfile.setInt32("casystem_display"  , g_settings.casystem_display  );
+#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
 	configfile.setInt32("infobar_dotmatrix", g_settings.dotmatrix );
+#endif
 	configfile.setBool("scrambled_message"  , g_settings.scrambled_message  );
 	configfile.setInt32("volume_pos"  , g_settings.volume_pos  );
 	configfile.setBool("volume_digits", g_settings.volume_digits);
@@ -1226,6 +1238,10 @@ void CNeutrinoApp::saveSetup(const char * fname)
 	configfile.setBool  ("shutdown_timer_record_type"          , g_settings.shutdown_timer_record_type      );
 
 	configfile.setBool  ("recordingmenu.stream_vtxt_pid"      , g_settings.recording_stream_vtxt_pid      );
+#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+	configfile.setInt32 ("recording_bufsize"                  , g_settings.recording_bufsize);
+	configfile.setInt32 ("recording_bufsize_dmx"              , g_settings.recording_bufsize_dmx);
+#endif
 	configfile.setBool  ("recordingmenu.stream_subtitle_pids" , g_settings.recording_stream_subtitle_pids );
 	configfile.setBool  ("recordingmenu.stream_pmt_pid"       , g_settings.recording_stream_pmt_pid      );
 	configfile.setInt32 ("recording_choose_direct_rec_dir"    , g_settings.recording_choose_direct_rec_dir);
@@ -1243,7 +1259,10 @@ void CNeutrinoApp::saveSetup(const char * fname)
 	configfile.setString ( "webtv_xml", g_settings.webtv_xml);
 
 	saveKeys();
+
+#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
 	configfile.setInt32 ("key_playbutton", g_settings.key_playbutton );
+#endif
 
 	configfile.setInt32( "timeshift_pause", g_settings.timeshift_pause );
 	configfile.setInt32( "temp_timeshift", g_settings.temp_timeshift );
@@ -2169,13 +2188,11 @@ fprintf(stderr, "[neutrino start] %d  -> %5ld ms\n", __LINE__, time_monotonic_ms
 	g_CamHandler = new CCAMMenuHandler();
 	g_CamHandler->init();
 
-#if !HAVE_SPARK_HARDWARE && !HAVE_DUCKBOX_HARDWARE
 #ifndef ASSUME_MDEV
 	mkdir("/media/sda1", 0755);
 	mkdir("/media/sdb1", 0755);
 	my_system(3, "mount", "/dev/sda1", "/media/sda1");
 	my_system(3, "mount", "/dev/sdb1", "/media/sdb1");
-#endif
 #endif
 
 	CFSMounter::automount();
@@ -2473,7 +2490,6 @@ void CNeutrinoApp::RealRun(CMenuWidget &mainMenu)
 					numericZap( msg );
 				}
 			}
-#ifdef SCREENSHOT
 			else if (msg == (neutrino_msg_t) g_settings.key_screenshot) {
 				for(int i = 0; i < g_settings.screenshot_count; i++) {
 					CScreenShot * sc = new CScreenShot("", (CScreenShot::screenshot_format_t)g_settings.screenshot_format);
@@ -2481,7 +2497,6 @@ void CNeutrinoApp::RealRun(CMenuWidget &mainMenu)
 					sc->Start();
 				}
 			}
-#endif
 			else if( msg == (neutrino_msg_t) g_settings.key_lastchannel ) {
 				// Quick Zap
 				numericZap( msg );
@@ -2747,7 +2762,6 @@ int CNeutrinoApp::handleMsg(const neutrino_msg_t _msg, neutrino_msg_data_t data)
 	res = res | g_InfoViewer->handleMsg(msg, data);
 	if (channelList) /* can be not yet ready during startup */
 		res = res | channelList->handleMsg(msg, data);
-	// else fprintf(stderr, "channelList = NULL!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n");
 	res = res | CRecordManager::getInstance()->handleMsg(msg, data);
 
 	if( res != messages_return::unhandled ) {
@@ -3097,10 +3111,10 @@ _repeat:
 				g_CamHandler->exec(NULL, "ca_ci_reset1");
 			}
 		}
-		if (g_settings.recording_type != CNeutrinoApp::RECORDING_OFF) {
 #if HAVE_DUCKBOX_HARDWARE
 			CVFD::getInstance()->ShowIcon(FP_ICON_REC, true);
 #endif
+		if (g_settings.recording_type != CNeutrinoApp::RECORDING_OFF) {
 			CRecordManager::getInstance()->Record((CTimerd::RecordingInfo *) data);
 			autoshift = CRecordManager::getInstance()->TimeshiftOnly();
 		}
@@ -3782,12 +3796,8 @@ void CNeutrinoApp::standbyMode( bool bOnOff, bool fromDeepStandby )
 		CSectionsdClient::CurrentNextInfo dummy;
 		g_InfoViewer->getEPG(0, dummy);
 
-#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
-		if (!timer_wakeup) {
 #ifdef ENABLE_GRAPHLCD
-			nGLCD::StandbyMode(false);
-#endif
-		}
+		nGLCD::StandbyMode(false);
 #endif
 		if(init_cec_setting){
 			//init cec settings
@@ -3931,13 +3941,21 @@ int CNeutrinoApp::exec(CMenuTarget* parent, const std::string & actionKey)
 		ShowLocalizedMessage(LOCALE_SETTINGS_HELP, LOCALE_RECORDINGMENU_HELP, CMessageBox::mbrBack, CMessageBox::mbBack);
 	}
 	else if(actionKey=="shutdown") {
+#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
 		ExitRun(true, CNeutrinoApp::SHUTDOWN);
+#else
+		ExitRun(true, 1);
+#endif
 	}
 	else if(actionKey=="reboot")
 	{
 		FILE *f = fopen("/tmp/.reboot", "w");
 		fclose(f);
+#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
 		ExitRun(true, CNeutrinoApp::REBOOT);
+#else
+		ExitRun(true);
+#endif
 		unlink("/tmp/.reboot");
 		returnval = menu_return::RETURN_NONE;
 	}

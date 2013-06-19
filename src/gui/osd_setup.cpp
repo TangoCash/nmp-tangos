@@ -487,14 +487,12 @@ int COsdSetup::showOsdSetup()
 	mf->setHint("", LOCALE_MENU_HINT_VOLUME);
 	osd_menu->addItem(mf);
 
-#ifdef SCREENSHOT
 	//screenshot
 	CMenuWidget osd_menu_screenshot(LOCALE_MAINMENU_SETTINGS, NEUTRINO_ICON_SETTINGS, width, MN_WIDGET_ID_OSDSETUP_SCREENSHOT);
 	showOsdScreenShotSetup(&osd_menu_screenshot);
 	mf = new CMenuForwarder(LOCALE_SCREENSHOT_MENU, true, NULL, &osd_menu_screenshot, NULL, CRCInput::convertDigitToKey(shortcut++));
 	mf->setHint("", LOCALE_MENU_HINT_SCREENSHOT_SETUP);
 	osd_menu->addItem(mf);
-#endif
 
 	osd_menu->addItem(GenericMenuSeparatorLine);
 
@@ -1077,7 +1075,6 @@ int COsdSetup::showContextChanlistMenu()
 	return res;
 }
 
-#ifdef SCREENSHOT
 //screenshot
 #define SCREENSHOT_FMT_OPTION_COUNT 3
 const CMenuOptionChooser::keyval_ext SCREENSHOT_FMT_OPTIONS[SCREENSHOT_FMT_OPTION_COUNT] =
@@ -1126,5 +1123,6 @@ void COsdSetup::showOsdScreenShotSetup(CMenuWidget *menu_screenshot)
 	mc = new CMenuOptionChooser(LOCALE_SCREENSHOT_COVER, &g_settings.screenshot_cover, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true);
 	mc->setHint("", LOCALE_MENU_HINT_SCREENSHOT_COVER);
 	menu_screenshot->addItem(mc);
+	menu_screenshot->addItem(new CMenuOptionNumberChooser(LOCALE_SCREENSHOT_PNG_COMPRESSION, &g_settings.screenshot_png_compression, true, 1, 9, NULL));
+	menu_screenshot->addItem(new CMenuOptionChooser(LOCALE_SCREENSHOT_BACKBUFFER, &g_settings.screenshot_backbuffer, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true));
 }
-#endif

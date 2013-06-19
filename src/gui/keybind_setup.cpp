@@ -326,11 +326,9 @@ void CKeybindSetup::showKeyBindSetup(CMenuWidget *bindSettings)
 	mf->setHint("", key_settings[KEY_UNLOCK].hint);
 	bindSettings->addItem(mf);
 	// screenshot
-#ifdef SCREENSHOT
 	mf = new CMenuDForwarder(key_settings[KEY_SCREENSHOT].keydescription, true, keychooser[KEY_SCREENSHOT]->getKeyName(), keychooser[KEY_SCREENSHOT]);
 	mf->setHint("", key_settings[KEY_SCREENSHOT].hint);
 	bindSettings->addItem(mf);
-#endif
 #ifdef ENABLE_PIP
 	// pip
 	mf = new CMenuDForwarder(key_settings[KEY_PIP_CLOSE].keydescription, true, keychooser[KEY_PIP_CLOSE]->getKeyName(), keychooser[KEY_PIP_CLOSE]);
@@ -355,10 +353,12 @@ void CKeybindSetup::showKeyBindSetup(CMenuWidget *bindSettings)
 	mc->setHint("", LOCALE_MENU_HINT_KEY_AUDIO);
 	bindSettings->addItem(mc);
 
+#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
 	//play button starts....
 	mc = new CMenuOptionChooser(LOCALE_MPKEY_PLAY, &g_settings.key_playbutton, KEYBINDINGMENU_PLAYBUTTON_OPTIONS, KEYBINDINGMENU_PLAYBUTTON_OPTIONS_COUNT, true);
 	mc->setHint("", LOCALE_MENU_HINT_KEY_MPPLAY);
 	bindSettings->addItem(mc);
+#endif
 
 	// right key
 	mc = new CMenuOptionChooser(LOCALE_KEYBINDINGMENU_MODE_LEFT_RIGHT_KEY_TV, &g_settings.mode_left_right_key_tv, KEYBINDINGMENU_MODE_LEFT_RIGHT_KEY_TV_OPTIONS, KEYBINDINGMENU_MODE_LEFT_RIGHT_KEY_TV_COUNT, true);
