@@ -2188,11 +2188,13 @@ fprintf(stderr, "[neutrino start] %d  -> %5ld ms\n", __LINE__, time_monotonic_ms
 	g_CamHandler = new CCAMMenuHandler();
 	g_CamHandler->init();
 
+#if !HAVE_SPARK_HARDWARE && !HAVE_DUCKBOX_HARDWARE
 #ifndef ASSUME_MDEV
 	mkdir("/media/sda1", 0755);
 	mkdir("/media/sdb1", 0755);
 	my_system(3, "mount", "/dev/sda1", "/media/sda1");
 	my_system(3, "mount", "/dev/sdb1", "/media/sdb1");
+#endif
 #endif
 
 	CFSMounter::automount();
