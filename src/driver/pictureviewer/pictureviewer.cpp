@@ -500,6 +500,9 @@ void CPictureViewer::getSize(const char* name, int* width, int *height)
 	}
 }
 
+#define LOGO_DIR1 DATADIR "/neutrino/icons/logo"
+#define LOGO_FMT ".jpg"
+
 #if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
 bool CPictureViewer::GetLogoName(uint64_t channel_id, std::string ChannelName, std::string & name, int *width, int *height)
 {
@@ -596,10 +599,6 @@ found:
 	return true;
 }
 #else
-
-#define LOGO_DIR1 DATADIR "/neutrino/icons/logo"
-#define LOGO_FMT ".jpg"
-
 bool CPictureViewer::GetLogoName(uint64_t channel_id, std::string ChannelName, std::string & name, int *width, int *height)
 {
 	int i, j;

@@ -202,7 +202,7 @@ class CRCInput
 			RC_standby	= KEY_POWER,	    /* /include/linux/input.h: #define KEY_POWER		116   */
 			RC_help		= KEY_HELP,	    /* /include/linux/input.h: #define KEY_HELP			138   */
 #if defined(HAVE_DUCKBOX_HARDWARE) || defined(HAVE_SPARK_HARDWARE)
-			RC_home		= KEY_HOME,         /* /include/linux/input.h: #define KEY_HOME			102   */
+			RC_home		= KEY_HOME,     /* /include/linux/input.h: #define KEY_HOME			102   */
 #else
 			RC_home		= KEY_EXIT,	    /* /include/linux/input.h: #define KEY_HOME			102   */
 #endif

@@ -50,7 +50,6 @@ CFBWindow::~CFBWindow(void)
 	if (Background != NULL)
 		frameBuffer->RestoreScreen(x, y, dx, dy, Background);
 	delete[] Background;
-	frameBuffer->blit();
 }
 
 void CFBWindow::paintBoxRel(const int _x, const int _y, const int _dx, const int _dy, const color_t _col, int radius, int type)

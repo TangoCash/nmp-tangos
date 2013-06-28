@@ -281,11 +281,6 @@ void nGLCD::Exec() {
 	lcd->Refresh(false);
 }
 
-static bool sortByDateTime (const CChannelEvent& a, const CChannelEvent& b)
-{
-	return a.startTime < b.startTime;
-}
-
 void nGLCD::updateFonts() {
 	int percent;
 	percent = std::max(g_settings.glcd_percent_channel, g_settings.glcd_show_logo ? g_settings.glcd_percent_logo : 0)

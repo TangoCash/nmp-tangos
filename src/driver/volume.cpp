@@ -177,15 +177,15 @@ void CVolume::setVolume(const neutrino_msg_t key)
 									if (cap != NULL)
 										cap->refreshMuteIcon();
 							}
-						setVolume(msg);
-						return;
+							setVolume(msg);
+							return;
+						}
 					}
-				}
 					g_settings.current_volume = v;
 #ifdef ENABLE_GRAPHLCD
 					nGLCD::ShowVolume(true);
 #endif
-			}
+				}
 			}
 			else if (msg == CRCInput::RC_home)
 				break;

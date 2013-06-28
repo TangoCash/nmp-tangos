@@ -36,7 +36,7 @@
 
 #include "vfd_setup.h"
 #ifdef ENABLE_GRAPHLCD
-#include "glcdsetup.h"
+#include <gui/glcdsetup.h>
 #endif
 
 #include <global.h>

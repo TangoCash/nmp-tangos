@@ -2195,11 +2195,9 @@ void CChannelList::paint()
 		if(CNeutrinoApp::getInstance()->getMode() == NeutrinoMessages::mode_tv) {
 			paint_pig(x+width+5, y+theight+5, pig_width-10, pig_height-10);
 		}
-#if !defined(HAVE_SPARK_HARDWARE) && !defined (HAVE_DUCKBOX_HARDWARE)
 		else if(CNeutrinoApp::getInstance()->getMode() == NeutrinoMessages::mode_radio) {
 			g_PicViewer->DisplayImage(DATADIR "/neutrino/icons/radiomode.jpg", x+width+5, y+theight+5, pig_width-10, pig_height-10, frameBuffer->TM_NONE);
 		}
-#endif
 #endif
 	}
 }
