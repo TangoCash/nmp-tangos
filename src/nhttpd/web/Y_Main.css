@@ -51,7 +51,7 @@ button[ytype="timedown"]{background-image:url(/images/time_down.png);}
 button[ytype="timeadd"]{background-image:url(/images/time_add.png);}
 button[ytype="snapshot"]{background-image:url(/images/snapshot.png);}
 button[ytype="clearshot"]{background-image:url(/images/remove.png);}
-button[ytype="zoomshot"]{background-image:url(/images/fullscreen.png);}
+button[ytype="switchrc"]{background-image:url(/images/fb.png);}
 button[ytype="go"]{background-image:url(/images/accept.png);}
 button[ytype="download"]{background-image:url(/images/wget.gif);}
 button[ytype="clear"]{background-image:url(/images/remove.png);}
@@ -771,9 +771,12 @@ a:hover.clistsmall
 	font-size:10pt;
 	padding-left: 10px;
 }
-.cslider_table
+.cslider
 {
 	height: 10px;
+}
+.cslider_table
+{
 	border: 1px solid #6cafea;
 	width: 30px;
 	border-spacing: 0px;
@@ -783,12 +786,14 @@ a:hover.clistsmall
 .cslider_used
 {
 	background-color: #A1CCF2;
-	height: 10px;
 }
 .cslider_free
 {
 	background-color: #EAEBFF;
-	height: 10px;
+}
+.cslider_noepg
+{
+	background-color: #FAFAFF;
 }
 /*EPG*/
 .epg

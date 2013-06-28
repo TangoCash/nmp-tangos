@@ -341,7 +341,7 @@ int CNeutrinoApp::loadSetup(const char * fname)
 #endif
 	g_settings.video_Mode = configfile.getInt32("video_Mode", vid_Mode_default);
 #ifdef ANALOG_MODE
-	g_settings.analog_mode1 = configfile.getInt32("analog_mode1", (int)ANALOG_MODE(SCART,SD,RGB)); // default RGB
+	g_settings.analog_mode1 = configfile.getInt32("analog_mode1", (int)ANALOG_MODE(BOTH,SD,RGB)); // default RGB
 	g_settings.analog_mode2 = configfile.getInt32("analog_mode2", (int)ANALOG_MODE(CINCH,SD,YPRPB)); // default YPBPR
 #else
 	g_settings.analog_mode1 = configfile.getInt32("analog_mode1", (int)ANALOG_SD_RGB_SCART); // default RGB
