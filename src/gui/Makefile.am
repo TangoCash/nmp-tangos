@@ -76,6 +76,7 @@ libneutrino_gui_a_SOURCES = \
 	network_service.cpp \
 	network_setup.cpp \
 	nfs.cpp \
+	osd_progressbar_setup.cpp \
 	osd_setup.cpp \
 	osdlang_setup.cpp \
 	parentallock_setup.cpp \

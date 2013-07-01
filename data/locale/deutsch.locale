@@ -867,7 +867,6 @@ menu.hint_infobar_fonts Ändern Sie die Schriftgrößen in der Infobar
 menu.hint_infobar_logo Logo- und Signal-Optionen
 menu.hint_infobar_logo_dir Wählen Sie das Verzeichnis für die Senderlogos
 menu.hint_infobar_on_epg Zeigt einen Hinweis bei EPG-Änderungen
-menu.hint_infobar_progressbar Wählt die Optionen des Fortschrittsbalken in der Infobar
 menu.hint_infobar_radiotext Zeigt Radiotext in einen Fenster, wenn verfügbar
 menu.hint_infobar_res Zeige die gesendete Auflösung in Symbolen
 menu.hint_infobar_sat Zeigt die aktuellen Satelliten- oder Kabel-Provider
@@ -1002,7 +1001,10 @@ menu.hint_plugins_hdd_dir Auswahl des Verzeichnisses zum Laden der Plugins von e
 menu.hint_power_leds Konfiguriert das Verhalten der LEDs an der Power-Taste
 menu.hint_pref_lang Wählen Sie ihre bevorzugte Tonspur und EPG-Sprache,\ndie Einstellung 'none' deaktiviert diese Option
 menu.hint_pref_subs Wählen Sie ihre bevorzugte Untertitel-Sprache,\ndie Einstellung 'none' deaktiviert diese Option
-menu.hint_progressbar_color Erscheinungsbild der Fortschrittsbalken auswählen
+menu.hint_progressbar Wählen Sie die Optionen für die Fortschrittsbalken-Anzeige
+menu.hint_progressbar_color Bei aktivierter Option werden alle Fortschrittsbalken in Farbe und nicht im klassischen Weiß angezeigt
+menu.hint_progressbar_design Stellen Sie das Design des Fortschrittsbalkens ein
+menu.hint_progressbar_infobar_position Wählt die Optionen des Fortschrittsbalkens in der Infobar
 menu.hint_protection Schützen Sie Inhalte per PIN-Code\nStandard-PIN ist 0000
 menu.hint_radiomode Schaltet zum Radio-Modus
 menu.hint_reboot Startet die Box neu\nDer Neustart erfolgt ohne Bestätigung!

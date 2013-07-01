@@ -44,6 +44,7 @@
 #include "screensetup.h"
 #include "osdlang_setup.h"
 #include "filebrowser.h"
+#include "osd_progressbar_setup.h"
 
 #include <gui/widget/icons.h>
 #include <gui/widget/colorchooser.h>
@@ -394,22 +395,6 @@ const CMenuOptionChooser::keyval OPTIONS_COLORED_EVENTS_OPTIONS[OPTIONS_COLORED_
 	{ 2, LOCALE_MISCSETTINGS_COLORED_EVENTS_2 },	//next
 };
 
-/* these are more descriptive... */
-#define LOCALE_PROGRESSBAR_COLOR_MATRIX		LOCALE_MISCSETTINGS_PROGRESSBAR_DESIGN_0
-#define LOCALE_PROGRESSBAR_COLOR_VERTICAL	LOCALE_MISCSETTINGS_PROGRESSBAR_DESIGN_1
-#define LOCALE_PROGRESSBAR_COLOR_HORIZONTAL	LOCALE_MISCSETTINGS_PROGRESSBAR_DESIGN_2
-#define LOCALE_PROGRESSBAR_COLOR_FULL		LOCALE_MISCSETTINGS_PROGRESSBAR_DESIGN_3
-#define LOCALE_PROGRESSBAR_COLOR_MONO		LOCALE_MISCSETTINGS_PROGRESSBAR_DESIGN_4
-
-#define PROGRESSBAR_COLOR_OPTION_COUNT 5
-const CMenuOptionChooser::keyval PROGRESSBAR_COLOR_OPTIONS[PROGRESSBAR_COLOR_OPTION_COUNT] =
-{
-	{ -1,				LOCALE_PROGRESSBAR_COLOR_MONO },
-	{ CProgressBar::PB_MATRIX,	LOCALE_PROGRESSBAR_COLOR_MATRIX },
-	{ CProgressBar::PB_LINES_V,	LOCALE_PROGRESSBAR_COLOR_VERTICAL },
-	{ CProgressBar::PB_LINES_H,	LOCALE_PROGRESSBAR_COLOR_HORIZONTAL },
-	{ CProgressBar::PB_COLOR,	LOCALE_PROGRESSBAR_COLOR_FULL }
-};
 
 //show osd setup
 int COsdSetup::showOsdSetup()
@@ -457,6 +442,11 @@ int COsdSetup::showOsdSetup()
 	showOsdMenusSetup(&osd_menu_menus);
 	mf = new CMenuForwarder(LOCALE_SETTINGS_MENUS, true, NULL, &osd_menu_menus, NULL, CRCInput::convertDigitToKey(shortcut++));
 	mf->setHint("", LOCALE_MENU_HINT_MENUS);
+	osd_menu->addItem(mf);
+
+	//progressbar
+	mf = new CMenuForwarder(LOCALE_MISCSETTINGS_PROGRESSBAR, true, NULL, new CProgressbarSetup(), NULL, CRCInput::convertDigitToKey(shortcut++));
+	mf->setHint("", LOCALE_MENU_HINT_PROGRESSBAR);
 	osd_menu->addItem(mf);
 
 	//infobar
@@ -520,11 +510,6 @@ int COsdSetup::showOsdSetup()
 	mc->setHint("", LOCALE_MENU_HINT_BIGWINDOWS);
 	osd_menu->addItem(mc);
 
-	// color progress bar
-	int pb_color = g_settings.progressbar_color ? g_settings.progressbar_design : -1;
-	mc = new CMenuOptionChooser(LOCALE_MISCSETTINGS_PROGRESSBAR_DESIGN_LONG, &pb_color, PROGRESSBAR_COLOR_OPTIONS, PROGRESSBAR_COLOR_OPTION_COUNT, true);
-	mc->setHint("", LOCALE_MENU_HINT_PROGRESSBAR_COLOR);
-	osd_menu->addItem(mc);
 	osd_menu->addItem(GenericMenuSeparatorLine);
 
 	// scrambled
@@ -545,12 +530,6 @@ int COsdSetup::showOsdSetup()
 
 	int res = osd_menu->exec(NULL, "");
 
-	if (pb_color == -1)
-		g_settings.progressbar_color = 0;
-	else {
-		g_settings.progressbar_color = 1;
-		g_settings.progressbar_design = pb_color;
-	}
 	delete osd_menu;
 	return res;
 }
@@ -765,14 +744,6 @@ const CMenuOptionChooser::keyval  LOCALE_MISCSETTINGS_INFOBAR_DISP_OPTIONS[LOCAL
    { 5 , LOCALE_MISCSETTINGS_INFOBAR_DISP_5 },
    { 6 , LOCALE_MISCSETTINGS_INFOBAR_DISP_6 }
 };
-#define LOCALE_MISCSETTINGS_INFOBAR_PROGRESSBAR_COUNT 4
-const CMenuOptionChooser::keyval  LOCALE_MISCSETTINGS_INFOBAR_PROGRESSBAR_OPTIONS[LOCALE_MISCSETTINGS_INFOBAR_PROGRESSBAR_COUNT]=
-{
-   { 0 , LOCALE_MISCSETTINGS_PROGRESSBAR_INFOBAR_POSITION_0 },
-   { 1 , LOCALE_MISCSETTINGS_PROGRESSBAR_INFOBAR_POSITION_1 },
-   { 2 , LOCALE_MISCSETTINGS_PROGRESSBAR_INFOBAR_POSITION_2 },
-   { 3 , LOCALE_MISCSETTINGS_PROGRESSBAR_INFOBAR_POSITION_3 }
-};
 
 //menus
 void COsdSetup::showOsdMenusSetup(CMenuWidget *menu_menus)
@@ -824,11 +795,6 @@ void COsdSetup::showOsdInfobarSetup(CMenuWidget *menu_infobar)
 	// satellite
 	mc = new CMenuOptionChooser(LOCALE_MISCSETTINGS_INFOBAR_SAT_DISPLAY, &g_settings.infobar_sat_display, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true);
 	mc->setHint("", LOCALE_MENU_HINT_INFOBAR_SAT);
-	menu_infobar->addItem(mc);
-
-	// infobar progress
-	mc = new CMenuOptionChooser(LOCALE_MISCSETTINGS_PROGRESSBAR, &g_settings.infobar_progressbar, LOCALE_MISCSETTINGS_INFOBAR_PROGRESSBAR_OPTIONS, LOCALE_MISCSETTINGS_INFOBAR_PROGRESSBAR_COUNT, true);
-	mc->setHint("", LOCALE_MENU_HINT_INFOBAR_PROGRESSBAR);
 	menu_infobar->addItem(mc);
 
 	// flash/hdd progress

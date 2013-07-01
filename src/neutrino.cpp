@@ -361,11 +361,7 @@ int CNeutrinoApp::loadSetup(const char * fname)
 
 	g_settings.video_Format = configfile.getInt32("video_Format", DISPLAY_AR_16_9);
 	g_settings.video_43mode = configfile.getInt32("video_43mode", DISPLAY_AR_MODE_LETTERBOX);
-#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
-	g_settings.current_volume = configfile.getInt32("current_volume", 100);
-#else
 	g_settings.current_volume = configfile.getInt32("current_volume", 50);
-#endif
 	g_settings.current_volume_step = configfile.getInt32("current_volume_step", 2);
 #if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
 	g_settings.channel_mode = configfile.getInt32("channel_mode", LIST_MODE_FAV);
@@ -1054,7 +1050,7 @@ void CNeutrinoApp::saveSetup(const char * fname)
 	configfile.setBool("infobar_sat_display"  , g_settings.infobar_sat_display  );
 	configfile.setBool("infobar_show_channeldesc"  , g_settings.infobar_show_channeldesc  );
 	configfile.setInt32("infobar_subchan_disp_pos"  , g_settings.infobar_subchan_disp_pos  );
-	configfile.setInt32("progressbar_color", g_settings.progressbar_color);
+	configfile.setBool("progressbar_color"  , g_settings.progressbar_color  );
 	configfile.setInt32("progressbar_design", g_settings.progressbar_design);
 	configfile.setInt32("infobar_show", g_settings.infobar_show);
 	configfile.setInt32("infobar_show_channellogo"  , g_settings.infobar_show_channellogo  );
@@ -1662,7 +1658,7 @@ void CNeutrinoApp::SetChannelMode(int newmode)
 	INFO("newmode %d sort old %d new %d", newmode, sortmode[newmode], g_settings.channellist_sort_mode);
 	if(newmode != LIST_MODE_FAV && sortmode[newmode] != g_settings.channellist_sort_mode && g_settings.channellist_sort_mode < CChannelList::SORT_MAX) {
 		sortmode[newmode] = g_settings.channellist_sort_mode;
-		INFO("sorting, mode %d, %d bouquets", g_settings.channellist_sort_mode, (int)bouquetList->Bouquets.size());
+		INFO("sorting, mode %d, %d bouquets\n", g_settings.channellist_sort_mode, (int)bouquetList->Bouquets.size());
 		for (uint32_t i = 0; i < bouquetList->Bouquets.size(); i++) {
 			if(g_settings.channellist_sort_mode == CChannelList::SORT_ALPHA)
 				bouquetList->Bouquets[i]->channelList->SortAlpha();
