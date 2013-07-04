@@ -129,7 +129,7 @@ class CRecordInstance
 		t_channel_id GetChannelId(void) { return channel_id; };
 		std::string GetEpgTitle(void) { return epgTitle; };
 		MI_MOVIE_INFO * GetMovieInfo(void) { return recMovieInfo; };
-		void GetRecordString(std::string& str);
+		void GetRecordString(std::string& str, std::string &dur);
 		const char * GetFileName() { return filename; };
 		bool Timeshift() { return autoshift; };
 		int tshift_mode;
@@ -155,6 +155,7 @@ class CRecordManager : public CMenuTarget /*, public CChangeObserver*/
 		nextmap_t	nextmap;
 		std::string	Directory;
 		std::string	TimeshiftDirectory;
+		std::vector<std::string> durations;
 		bool		StreamVTxtPid;
 		bool		StreamSubtitlePids;
 		bool		StreamPmtPid;
