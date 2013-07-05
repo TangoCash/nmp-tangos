@@ -100,6 +100,9 @@ neutrino_LDADD = \
 	-lOpenThreads \
 	-lrt -lpthread
 
+if ENABLE_GRAPHLCD
+neutrino_LDADD += -lglcddrivers -lglcdgraphics -lusb-1.0
+endif
 if ENABLE_GIFLIB
 neutrino_LDADD += -lgif
 else
@@ -107,9 +110,6 @@ neutrino_LDADD += -lungif
 endif
 neutrino_LDADD += @LUA_LIBS@
 
-if ENABLE_GRAPHLCD
-neutrino_LDADD += -lglcddrivers -lglcdgraphics
-endif
 if ENABLE_UPNP
 neutrino_LDADD += \
 	$(top_builddir)/lib/libupnpclient/libtuxbox-upnpclient.a

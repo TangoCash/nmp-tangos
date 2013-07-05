@@ -449,11 +449,7 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	g_settings.progressbar_design =  configfile.getInt32("progressbar_design", 2); //horizontal bars
 	g_settings.infobar_show  = configfile.getInt32("infobar_show", 1);
 	g_settings.infobar_show_channellogo   = configfile.getInt32("infobar_show_channellogo"  , 3 );
-#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
-	g_settings.infobar_progressbar   = configfile.getInt32("infobar_progressbar"  , 3 );
-#else
 	g_settings.infobar_progressbar   = configfile.getInt32("infobar_progressbar"  , 1 ); // below channel name
-#endif
 	g_settings.casystem_display = configfile.getInt32("casystem_display", 1 );//discreet ca mode default
 #if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
 	g_settings.dotmatrix = configfile.getInt32("infobar_dotmatrix", 0 );//default off
@@ -758,7 +754,9 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	g_settings.channellist_foot	= configfile.getInt32("channellist_foot"          , 1);//default next Event
 	g_settings.channellist_new_zap_mode = configfile.getInt32("channellist_new_zap_mode", 1);
 	g_settings.channellist_sort_mode  = configfile.getInt32("channellist_sort_mode", 0);//sort mode: alpha, freq, sat 
+#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
 	g_settings.channellist_hdicon = configfile.getInt32("channellist_hdicon", 0); //default off
+#endif
 	g_settings.channellist_numeric_adjust  = configfile.getInt32("channellist_numeric_adjust", 0);
 
 	//screen configuration
@@ -846,7 +844,9 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	g_settings.audioplayer_display = configfile.getInt32("audioplayer_display",(int)CAudioPlayerGui::ARTIST_TITLE);
 	g_settings.audioplayer_follow  = configfile.getInt32("audioplayer_follow",0);
 	strcpy( g_settings.audioplayer_screensaver, configfile.getString( "audioplayer_screensaver", "1" ).c_str() );
+#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
 	g_settings.audioplayer_screensaver_dir = configfile.getString( "audioplayer_screensaver_dir", "/hdd/pictures/screensaver" );
+#endif
 	g_settings.audioplayer_highprio  = configfile.getInt32("audioplayer_highprio",0);
 	g_settings.audioplayer_select_title_by_name = configfile.getInt32("audioplayer_select_title_by_name",0);
 	g_settings.audioplayer_repeat_on = configfile.getInt32("audioplayer_repeat_on",0);
@@ -1246,14 +1246,14 @@ void CNeutrinoApp::saveSetup(const char * fname)
 	//printf("set: key_unlock =============== %d\n", g_settings.key_unlock);
 #if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
 	configfile.setInt32( "screenshot_png_compression", g_settings.screenshot_png_compression );
-#else
+	configfile.setInt32( "screenshot_backbuffer", g_settings.screenshot_backbuffer);
+#endif
 	configfile.setInt32( "screenshot_count", g_settings.screenshot_count );
 	configfile.setInt32( "screenshot_format", g_settings.screenshot_format );
 	configfile.setInt32( "screenshot_cover", g_settings.screenshot_cover );
 	configfile.setInt32( "screenshot_mode", g_settings.screenshot_mode );
 	configfile.setInt32( "screenshot_video", g_settings.screenshot_video );
 	configfile.setInt32( "screenshot_scale", g_settings.screenshot_scale );
-#endif
 
 	configfile.setString( "screenshot_dir", g_settings.screenshot_dir);
 	configfile.setInt32( "cacheTXT", g_settings.cacheTXT );
@@ -1270,7 +1270,9 @@ void CNeutrinoApp::saveSetup(const char * fname)
 	configfile.setBool("channellist_extended"                 , g_settings.channellist_extended);
 	configfile.setInt32("channellist_foot"                 , g_settings.channellist_foot);
 	configfile.setInt32("channellist_new_zap_mode", g_settings.channellist_new_zap_mode);
+#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
 	configfile.setInt32("channellist_hdicon", g_settings.channellist_hdicon);
+#endif
 	configfile.setInt32("remote_control_hardware", g_settings.remote_control_hardware);
 	configfile.setBool  ( "audiochannel_up_down_enable", g_settings.audiochannel_up_down_enable );
 	configfile.setInt32("channellist_sort_mode", g_settings.channellist_sort_mode);
@@ -1335,7 +1337,9 @@ void CNeutrinoApp::saveSetup(const char * fname)
 	configfile.setInt32( "audioplayer_display", g_settings.audioplayer_display );
 	configfile.setInt32( "audioplayer_follow", g_settings.audioplayer_follow );
 	configfile.setString( "audioplayer_screensaver", g_settings.audioplayer_screensaver );
+#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
 	configfile.setString( "audioplayer_screensaver_dir", g_settings.audioplayer_screensaver_dir);
+#endif
 	configfile.setInt32( "audioplayer_highprio", g_settings.audioplayer_highprio );
 	configfile.setInt32( "audioplayer_select_title_by_name", g_settings.audioplayer_select_title_by_name );
 	configfile.setInt32( "audioplayer_repeat_on", g_settings.audioplayer_repeat_on );

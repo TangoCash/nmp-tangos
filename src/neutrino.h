@@ -143,6 +143,9 @@ private:
 	void standbyMode( bool bOnOff, bool fromDeepStandby = false );
 	void getAnnounceEpgName(CTimerd::RecordingInfo * eventinfo, std::string &name);
 
+#if HAVE_COOL_HARDWARE
+	void ExitRun(const bool write_si = true, int retcode = 0);
+#endif
 	void RealRun(CMenuWidget &mainSettings);
 	void InitZapper();
 	void InitTimerdClient();
