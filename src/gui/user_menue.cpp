@@ -412,8 +412,8 @@ bool CUserMenu::showUserMenu(int button)
 			break;
 #endif
 #if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
- 		case SNeutrinoSettings::ITEM_THREE_D_MODE:
- 			menu_items++;
+		case SNeutrinoSettings::ITEM_THREE_D_MODE:
+			menu_items++;
 			menu_prev = SNeutrinoSettings::ITEM_THREE_D_MODE;
 			keyhelper.get(&key,&icon);
 			menu->addItem(new CMenuForwarder(LOCALE_THREE_D_SETTINGS, true, NULL, CNeutrinoApp::getInstance()->threeDSetup, NULL, key, icon));
