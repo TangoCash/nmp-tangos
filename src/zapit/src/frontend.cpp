@@ -1453,7 +1453,7 @@ int CFrontend::driveToSatellitePosition(t_satellite_position satellitePosition, 
 		if (rotorSatellitePosition == satellitePosition)
 			return 0;
 
-		if (use_usals) {
+		if (use_usals || config.use_usals) {
 			gotoXX(satellitePosition);
 			moved = true;
 		} else {

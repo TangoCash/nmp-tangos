@@ -421,6 +421,9 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	g_settings.led_deep_mode = configfile.getInt32( "led_deep_mode", 3);
 	g_settings.led_rec_mode = configfile.getInt32( "led_rec_mode", 1);
 	g_settings.led_blink = configfile.getInt32( "led_blink", 1);
+	g_settings.backlight_tv = configfile.getInt32( "backlight_tv", 1);
+	g_settings.backlight_standby = configfile.getInt32( "backlight_standby", 0);
+	g_settings.backlight_deepstandby = configfile.getInt32( "backlight_deepstandby", 0);
 
 	g_settings.hdd_fs = configfile.getInt32( "hdd_fs", 0);
 #if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
@@ -1013,6 +1016,9 @@ void CNeutrinoApp::saveSetup(const char * fname)
 	configfile.setInt32( "led_deep_mode", g_settings.led_deep_mode);
 	configfile.setInt32( "led_rec_mode", g_settings.led_rec_mode);
 	configfile.setInt32( "led_blink", g_settings.led_blink);
+	configfile.setInt32( "backlight_tv", g_settings.backlight_tv);
+	configfile.setInt32( "backlight_standby", g_settings.backlight_standby);
+	configfile.setInt32( "backlight_deepstandby", g_settings.backlight_deepstandby);
 
 	//misc
 	configfile.setInt32( "power_standby", g_settings.power_standby);
@@ -2034,6 +2040,7 @@ fprintf(stderr, "[neutrino start] %d  -> %5ld ms\n", __LINE__, time_monotonic_ms
 	CVFD::getInstance()->init(font.filename, font.name);
 	CVFD::getInstance()->Clear();
 	CVFD::getInstance()->ShowText(g_Locale->getText(LOCALE_NEUTRINO_STARTING));
+	CVFD::getInstance()->setBacklight(g_settings.backlight_tv);
 fprintf(stderr, "[neutrino start] %d  -> %5ld ms\n", __LINE__, time_monotonic_ms() - starttime);
 #ifdef ENABLE_GRAPHLCD
 	nGLCD::getInstance();
@@ -3714,7 +3721,6 @@ void CNeutrinoApp::standbyMode( bool bOnOff, bool fromDeepStandby )
 		if(mode == mode_radio && g_Radiotext)
 			g_Radiotext->radiotext_stop();
 
-
 #ifdef ENABLE_PIP
 		g_Zapit->stopPip();
 #endif
@@ -3744,6 +3750,7 @@ void CNeutrinoApp::standbyMode( bool bOnOff, bool fromDeepStandby )
 			CVFD::getInstance()->Clear();
 			CVFD::getInstance()->setMode(CVFD::MODE_STANDBY);
 		}
+		CVFD::getInstance()->setBacklight(g_settings.backlight_standby);
 
 		if(g_settings.mode_clock) {
 			InfoClock->StopClock();
@@ -3798,6 +3805,10 @@ void CNeutrinoApp::standbyMode( bool bOnOff, bool fromDeepStandby )
 		puts("[neutrino.cpp] executing " NEUTRINO_LEAVE_STANDBY_SCRIPT ".");
 		if (my_system(NEUTRINO_LEAVE_STANDBY_SCRIPT) != 0)
 			perror(NEUTRINO_LEAVE_STANDBY_SCRIPT " failed");
+
+		CVFD::getInstance()->setMode(CVFD::MODE_TVRADIO);
+		CVFD::getInstance()->setBacklight(g_settings.backlight_tv);
+
 
 		g_Zapit->setStandby(false);
 		/* the old code did:
@@ -4141,8 +4152,10 @@ void stop_daemons(bool stopall, bool for_flash)
 	delete &CMoviePlayerGui::getInstance();
 	CZapit::getInstance()->Stop();
 	printf("zapit shutdown done\n");
-	if (!for_flash)
+	if (!for_flash) {
 		CVFD::getInstance()->Clear();
+		CVFD::getInstance()->setBacklight(g_settings.backlight_deepstandby);
+	}
 	if(stopall && !for_flash) {
 		if (cpuFreq) {
 			cpuFreq->SetCpuFreq(g_settings.cpufreq * 1000 * 1000);

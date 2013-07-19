@@ -151,6 +151,15 @@ int CVfdSetup::showSetup()
 		mf->setHint("", LOCALE_MENU_HINT_POWER_LEDS);
 		vfds->addItem(mf);
 	}
+
+	if(cs_get_revision() == 9)
+	{
+ 		CMenuWidget * blMenu = new CMenuWidget(LOCALE_LCDMENU_HEAD, NEUTRINO_ICON_LCD, width, MN_WIDGET_ID_VFDSETUP_BACKLIGHT);
+		showBacklightSetup(blMenu);
+		mf = new CMenuDForwarder(LOCALE_LEDCONTROLER_BACKLIGHT, true, NULL, blMenu, NULL, CRCInput::RC_yellow, NEUTRINO_ICON_BUTTON_YELLOW);
+		mf->setHint("", LOCALE_MENU_HINT_BACKLIGHT);
+		vfds->addItem(mf);
+	}
 #endif
 
 	vfds->addItem(GenericMenuSeparatorLine);
@@ -240,6 +249,24 @@ void CVfdSetup::showLedSetup(CMenuWidget *mn_led_widget)
 	mc->setHint("", LOCALE_MENU_HINT_LEDS_BLINK);
 	mn_led_widget->addItem(mc);
 }
+
+void CVfdSetup::showBacklightSetup(CMenuWidget *mn_led_widget)
+{
+	CMenuOptionChooser * mc;
+	mn_led_widget->addIntroItems(LOCALE_LEDCONTROLER_BACKLIGHT);
+
+	mc = new CMenuOptionChooser(LOCALE_LEDCONTROLER_BACKLIGHT_TV, &g_settings.backlight_tv, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true, this);
+	mc->setHint("", LOCALE_MENU_HINT_LEDS_TV);
+	mn_led_widget->addItem(mc);
+
+	mc = new CMenuOptionChooser(LOCALE_LEDCONTROLER_MODE_STANDBY, &g_settings.backlight_standby, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true);
+	mc->setHint("", LOCALE_MENU_HINT_LEDS_STANDBY);
+	mn_led_widget->addItem(mc);
+
+	mc = new CMenuOptionChooser(LOCALE_LEDCONTROLER_MODE_DEEPSTANDBY, &g_settings.backlight_deepstandby, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true);
+	mc->setHint("", LOCALE_MENU_HINT_LEDS_DEEPSTANDBY);
+	mn_led_widget->addItem(mc);
+}
 #endif
 
 bool CVfdSetup::changeNotify(const neutrino_locale_t OptionName, void */* data */)
@@ -263,6 +290,10 @@ bool CVfdSetup::changeNotify(const neutrino_locale_t OptionName, void */* data *
 	else if (ARE_LOCALES_EQUAL(OptionName, LOCALE_LEDCONTROLER_MODE_TV))
 	{
 		CVFD::getInstance()->setled();
+	}
+	else if (ARE_LOCALES_EQUAL(OptionName, LOCALE_LEDCONTROLER_BACKLIGHT_TV))
+	{
+		CVFD::getInstance()->setBacklight(g_settings.backlight_tv);
 	}
 #endif
 	return false;
