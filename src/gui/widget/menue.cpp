@@ -1720,20 +1720,6 @@ CMenuForwarder::CMenuForwarder(const neutrino_locale_t Text, const bool Active, 
 	isStatic = IsStatic;
 }
 
-#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
-void CMenuForwarder::setOptionValue(const char * const Option)
-{
-	option = Option;
-	option_string = NULL;
-}
-
-void CMenuForwarder::setOptionValue(const std::string &Option)
-{
-	option = NULL;
-	option_string = &Option;
-}
-#endif
-
 void CMenuForwarder::setOption(const char * const Option)
 {
 	option = Option;

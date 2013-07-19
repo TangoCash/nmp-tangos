@@ -2040,7 +2040,9 @@ fprintf(stderr, "[neutrino start] %d  -> %5ld ms\n", __LINE__, time_monotonic_ms
 	CVFD::getInstance()->init(font.filename, font.name);
 	CVFD::getInstance()->Clear();
 	CVFD::getInstance()->ShowText(g_Locale->getText(LOCALE_NEUTRINO_STARTING));
+#if !HAVE_SPARK_HARDWARE && !HAVE_DUCKBOX_HARDWARE
 	CVFD::getInstance()->setBacklight(g_settings.backlight_tv);
+#endif
 fprintf(stderr, "[neutrino start] %d  -> %5ld ms\n", __LINE__, time_monotonic_ms() - starttime);
 #ifdef ENABLE_GRAPHLCD
 	nGLCD::getInstance();
@@ -3750,7 +3752,9 @@ void CNeutrinoApp::standbyMode( bool bOnOff, bool fromDeepStandby )
 			CVFD::getInstance()->Clear();
 			CVFD::getInstance()->setMode(CVFD::MODE_STANDBY);
 		}
+#if !HAVE_SPARK_HARDWARE && !HAVE_DUCKBOX_HARDWARE
 		CVFD::getInstance()->setBacklight(g_settings.backlight_standby);
+#endif
 
 		if(g_settings.mode_clock) {
 			InfoClock->StopClock();
@@ -3807,8 +3811,9 @@ void CNeutrinoApp::standbyMode( bool bOnOff, bool fromDeepStandby )
 			perror(NEUTRINO_LEAVE_STANDBY_SCRIPT " failed");
 
 		CVFD::getInstance()->setMode(CVFD::MODE_TVRADIO);
+#if !HAVE_SPARK_HARDWARE && !HAVE_DUCKBOX_HARDWARE
 		CVFD::getInstance()->setBacklight(g_settings.backlight_tv);
-
+#endif
 
 		g_Zapit->setStandby(false);
 		/* the old code did:
@@ -4154,7 +4159,9 @@ void stop_daemons(bool stopall, bool for_flash)
 	printf("zapit shutdown done\n");
 	if (!for_flash) {
 		CVFD::getInstance()->Clear();
+#if !HAVE_SPARK_HARDWARE && !HAVE_DUCKBOX_HARDWARE
 		CVFD::getInstance()->setBacklight(g_settings.backlight_deepstandby);
+#endif
 	}
 	if(stopall && !for_flash) {
 		if (cpuFreq) {

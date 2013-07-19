@@ -85,7 +85,7 @@ int C3DSetup::exec(CMenuTarget* parent, const std::string &actionKey)
 		if (actionKey == tdl[i].actionKey) {
 			frameBuffer->set3DMode(tdl[i].mode);
 			for (int j = 0; j < THREE_D_OPTIONS_COUNT; j++)
-				tdl[j].cmf->setOptionValue(g_Locale->getText((i == j) ? LOCALE_OPTIONS_ON: LOCALE_OPTIONS_OFF));
+				tdl[j].cmf->setOption(g_Locale->getText((i == j) ? LOCALE_OPTIONS_ON: LOCALE_OPTIONS_OFF));
 			return res;
 		}
 	}
@@ -143,8 +143,10 @@ void C3DSetup::load()
 		char s[80];
 		while (fgets(s, sizeof(s), f)) {
 			t_channel_id chan;
+			long long unsigned int _chan;
 			int mode;
-			if (2 == sscanf(s, "%llx %d", &chan, &mode)) {
+			if (2 == sscanf(s, "%llx %d", &_chan, &mode)) {
+				chan = _chan;
 				threeDMap[chan] = (CFrameBuffer::Mode3D) mode;
 			}
 		}
@@ -158,7 +160,7 @@ void C3DSetup::save()
 	FILE *f = fopen(THREE_D_CONFIG_FILE, "w");
 	if (f) {
 		for (i = threeDMap.begin(); i != threeDMap.end(); i++) {
-			fprintf(f, "%llx %d\n", (uint64_t) i->first, (int) i->second);
+			fprintf(f, "%llx %d\n", (long long unsigned int) i->first, (int) i->second);
 		}
 		fflush(f);
 		fdatasync(fileno(f));
@@ -179,14 +181,13 @@ int C3DSetup::show3DSetup()
 	int shortcut = 1;
 
 	for (int i = 0; i < THREE_D_OPTIONS_COUNT; i++) {
-		tdl[i].cmf = new CMenuForwarder(THREE_D_OPTIONS[i].value, true,
-			g_Locale->getText((mode3d == i) ? LOCALE_OPTIONS_ON : LOCALE_OPTIONS_OFF),
+		tdl[i].cmf = new CMenuForwarder(THREE_D_OPTIONS[i].value, true, g_Locale->getText((mode3d == i) ? LOCALE_OPTIONS_ON : LOCALE_OPTIONS_OFF),
 			this, tdl[i].actionKey.c_str(), CRCInput::convertDigitToKey(shortcut++));
 		m->addItem(tdl[i].cmf, selected == i);
 	}
 
 	m->addItem(GenericMenuSeparatorLine);
-	m->addItem(new CMenuForwarder(LOCALE_THREE_D_SAVE, true, "", this, "save", CRCInput::RC_red, NEUTRINO_ICON_BUTTON_RED));
+	m->addItem(new CMenuForwarder(LOCALE_THREE_D_SAVE, true, NULL, this, "save", CRCInput::RC_red, NEUTRINO_ICON_BUTTON_RED));
 
 	int res = m->exec (NULL, "");
 
