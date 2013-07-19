@@ -249,7 +249,9 @@ void CVfdSetup::showLedSetup(CMenuWidget *mn_led_widget)
 	mc->setHint("", LOCALE_MENU_HINT_LEDS_BLINK);
 	mn_led_widget->addItem(mc);
 }
+#endif
 
+#if !HAVE_SPARK_HARDWARE && !HAVE_DUCKBOX_HARDWARE
 void CVfdSetup::showBacklightSetup(CMenuWidget *mn_led_widget)
 {
 	CMenuOptionChooser * mc;
