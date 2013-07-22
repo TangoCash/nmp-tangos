@@ -53,6 +53,7 @@
 #include <driver/abstime.h>
 #include <driver/fontrenderer.h>
 #include <driver/framebuffer.h>
+#include <driver/neutrinofonts.h>
 #include <driver/rcinput.h>
 #include <driver/shutdown_count.h>
 #include <driver/record.h>
@@ -183,6 +184,7 @@ CPictureViewer * g_PicViewer;
 CCAMMenuHandler * g_CamHandler;
 CVolume        * g_volume;
 CAudioMute     * g_audioMute;
+CNeutrinoFonts * neutrinoFonts = NULL;
 
 // Globale Variablen - to use import global.h
 
@@ -216,7 +218,7 @@ CNeutrinoApp::CNeutrinoApp()
 #endif
 	SetupFrameBuffer();
 
-	mode = mode_unknown;
+	mode 			= mode_unknown;
 	channelList		= NULL;
 	TVchannelList		= NULL;
 	RADIOchannelList	= NULL;
@@ -226,7 +228,6 @@ CNeutrinoApp::CNeutrinoApp()
 	current_muted		= 0;
 	recordingstatus		= 0;
 	g_channel_list_changed	= false;
-	memset(&font, 0, sizeof(neutrino_font_descr_struct));
 }
 
 /*-------------------------------------------------------------------------------------
@@ -236,6 +237,9 @@ CNeutrinoApp::~CNeutrinoApp()
 {
 	if (channelList)
 		delete channelList;
+	if (neutrinoFonts)
+		delete neutrinoFonts;
+	neutrinoFonts = NULL;
 }
 
 CNeutrinoApp* CNeutrinoApp::getInstance()
@@ -248,16 +252,6 @@ CNeutrinoApp* CNeutrinoApp::getInstance()
 	}
 	return neutrinoApp;
 }
-
-
-#define FONT_STYLE_REGULAR 0
-#define FONT_STYLE_BOLD    1
-#define FONT_STYLE_ITALIC  2
-
-extern font_sizes_groups_struct font_sizes_groups[];
-extern font_sizes_struct neutrino_font[];
-
-const font_sizes_struct signal_font = {LOCALE_FONTSIZE_INFOBAR_SMALL      ,  14, FONT_STYLE_REGULAR, 1};
 
 typedef struct lcd_setting_t
 {
@@ -460,6 +454,7 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	g_settings.scrambled_message = configfile.getBool("scrambled_message", false );
 	g_settings.volume_pos = configfile.getInt32("volume_pos", CVolumeBar::VOLUMEBAR_POS_TOP_RIGHT );
 	g_settings.volume_digits = configfile.getBool("volume_digits", true);
+	g_settings.volume_size = configfile.getInt32("volume_size", 26 );
 	g_settings.menu_pos = configfile.getInt32("menu_pos", CMenuWidget::MENU_POS_CENTER);
 	g_settings.show_menu_hints = configfile.getBool("show_menu_hints", false);
 	g_settings.infobar_show_sysfs_hdd   = configfile.getBool("infobar_show_sysfs_hdd"  , true );
@@ -1046,6 +1041,7 @@ void CNeutrinoApp::saveSetup(const char * fname)
 	configfile.setBool("scrambled_message"  , g_settings.scrambled_message  );
 	configfile.setInt32("volume_pos"  , g_settings.volume_pos  );
 	configfile.setBool("volume_digits", g_settings.volume_digits);
+	configfile.setInt32("volume_size"  , g_settings.volume_size);
 	configfile.setInt32("menu_pos" , g_settings.menu_pos);
 	configfile.setBool("show_menu_hints" , g_settings.show_menu_hints);
 	configfile.setInt32("infobar_show_sysfs_hdd"  , g_settings.infobar_show_sysfs_hdd  );
@@ -1680,8 +1676,6 @@ void CNeutrinoApp::CmdParser(int argc, char **argv)
 	softupdate = false;
 	//fromflash = false;
 
-	font.name = NULL;
-
 	for(int x=1; x<argc; x++) {
 		if ((!strcmp(argv[x], "-u")) || (!strcmp(argv[x], "--enable-update"))) {
 			dprintf(DEBUG_NORMAL, "Software update enabled\n");
@@ -1746,56 +1740,11 @@ void CNeutrinoApp::SetupFrameBuffer()
 
 void CNeutrinoApp::SetupFonts()
 {
-	const char * style[3];
+	if (neutrinoFonts == NULL)
+		neutrinoFonts = CNeutrinoFonts::getInstance();
+	neutrinoFonts->SetupNeutrinoFonts();
+	neutrinoFonts->refreshDynFonts();
 
-	if (g_fontRenderer != NULL)
-		delete g_fontRenderer;
-
-	g_fontRenderer = new FBFontRenderClass(72 * g_settings.screen_xres / 100, 72 * g_settings.screen_yres / 100);
-
-	if(font.filename != NULL)
-		free((void *)font.filename);
-
-	printf("[neutrino] settings font file %s\n", g_settings.font_file);
-
-	if(access(g_settings.font_file, F_OK)) {
-		if(!access(FONTDIR"/neutrino.ttf", F_OK)){
-			font.filename = strdup(FONTDIR"/neutrino.ttf");
-			strcpy(g_settings.font_file, font.filename);
-		}
-		else{
-			  fprintf( stderr,"[neutrino] font file [%s] not found\n neutrino exit\n",FONTDIR"/neutrino.ttf");
-#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
-			  _exit(CNeutrinoApp::SHUTDOWN);
-#else
-			  _exit(0);
-#endif
-		}
-
-	}
-	else{
-		font.filename = strdup(g_settings.font_file);
-	}
-	style[0] = g_fontRenderer->AddFont(font.filename);
-
-	if(font.name != NULL)
-		free((void *)font.name);
-
-	font.name = strdup(g_fontRenderer->getFamily(font.filename).c_str());
-
-	printf("[neutrino] font family %s\n", font.name);
-
-	style[1] = "Bold Regular";
-
-	g_fontRenderer->AddFont(font.filename, true);  // make italics
-	style[2] = "Italic";
-
-	for (int i = 0; i < SNeutrinoSettings::FONT_TYPE_COUNT; i++)
-	{
-		if(g_Font[i]) delete g_Font[i];
-		g_Font[i] = g_fontRenderer->getFont(font.name, style[neutrino_font[i].style], configfile.getInt32(locale_real_names[neutrino_font[i].name], neutrino_font[i].defaultsize) + neutrino_font[i].size_offset * font.size_offset);
-	}
-	g_SignalFont = g_fontRenderer->getFont(font.name, style[signal_font.style], signal_font.defaultsize + signal_font.size_offset * font.size_offset);
 	/* recalculate infobar position */
 	if (g_InfoViewer)
 		g_InfoViewer->start();
@@ -1936,14 +1885,6 @@ void CNeutrinoApp::InitZapitClient()
 
 void CNeutrinoApp::InitSectiondClient()
 {
-#if 0
-	/* TODO: check if still needed */
-	/* wait for sectionsd to be able to process our registration */
-	time_t t = time_monotonic_ms();
-	while (! sectionsd_isReady())
-		sleep(0);
-	dprintf(DEBUG_NORMAL, "had to wait %ld ms for sectionsd to start up\n", time_monotonic_ms() - t);
-#endif
 	g_Sectionsd = new CSectionsdClient;
 	g_Sectionsd->registerEvent(CSectionsdClient::EVT_TIMESET, 222, NEUTRINO_UDS_NAME);
 	g_Sectionsd->registerEvent(CSectionsdClient::EVT_GOT_CN_EPG, 222, NEUTRINO_UDS_NAME);
@@ -2026,6 +1967,7 @@ fprintf(stderr, "[neutrino start] %d  -> %5ld ms\n", __LINE__, time_monotonic_ms
 	}
 fprintf(stderr, "[neutrino start] %d  -> %5ld ms\n", __LINE__, time_monotonic_ms() - starttime);
 	/* setup GUI */
+	neutrinoFonts = CNeutrinoFonts::getInstance();
 	SetupFonts();
 fprintf(stderr, "[neutrino start] %d  -> %5ld ms\n", __LINE__, time_monotonic_ms() - starttime);
 	SetupTiming();
@@ -2037,7 +1979,7 @@ fprintf(stderr, "[neutrino start] %d  -> %5ld ms\n", __LINE__, time_monotonic_ms
 	hintBox->paint();
 fprintf(stderr, "[neutrino start] %d  -> %5ld ms\n", __LINE__, time_monotonic_ms() - starttime);
 
-	CVFD::getInstance()->init(font.filename, font.name);
+	CVFD::getInstance()->init(neutrinoFonts->fontDescr.filename.c_str(), neutrinoFonts->fontDescr.name.c_str());
 	CVFD::getInstance()->Clear();
 	CVFD::getInstance()->ShowText(g_Locale->getText(LOCALE_NEUTRINO_STARTING));
 #if !HAVE_SPARK_HARDWARE && !HAVE_DUCKBOX_HARDWARE

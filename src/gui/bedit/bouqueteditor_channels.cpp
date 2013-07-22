@@ -97,13 +97,13 @@ CBEChannelWidget::~CBEChannelWidget()
 
 void CBEChannelWidget::paintItem(int pos)
 {
-	uint8_t    color;
+	fb_pixel_t color;
 	fb_pixel_t bgcolor;
 	int ypos = y+ theight+0 + pos*iheight;
 	unsigned int current = liststart + pos;
 
 	if(current == selected) {
-		color   = COL_MENUCONTENTSELECTED;
+		color   = COL_MENUCONTENTSELECTED_TEXT;
 		bgcolor = COL_MENUCONTENTSELECTED_PLUS_0;
 
 		if(current < Channels->size()) {
@@ -114,7 +114,7 @@ void CBEChannelWidget::paintItem(int pos)
 		frameBuffer->paintBoxRel(x,ypos, width- 15, iheight, COL_MENUCONTENT_PLUS_0);
 		frameBuffer->paintBoxRel(x,ypos, width- 15, iheight, bgcolor, RADIUS_LARGE);
 	} else {
-		color   = COL_MENUCONTENT;
+		color   = COL_MENUCONTENT_TEXT;
 		bgcolor = COL_MENUCONTENT_PLUS_0;
 		frameBuffer->paintBoxRel(x,ypos, width- 15, iheight, bgcolor);
 	}
@@ -160,11 +160,13 @@ void CBEChannelWidget::paint()
 	frameBuffer->paintBoxRel(x+ width- 15,ypos, 15, sb,  COL_MENUCONTENT_PLUS_1);
 
 	int sbc= ((Channels->size()- 1)/ listmaxshow)+ 1;
-	int sbs= (selected/listmaxshow);
 	if (sbc < 1)
 		sbc = 1;
 
-	frameBuffer->paintBoxRel(x+ width- 13, ypos+ 2+ sbs * (sb-4)/sbc, 11, (sb-4)/sbc,  COL_MENUCONTENT_PLUS_3);
+	int sbh= (sb- 4)/ sbc;
+	int sbs= (selected/listmaxshow);
+
+	frameBuffer->paintBoxRel(x+ width- 13, ypos+ 2+ int(sbs* sbh) , 11, int(sbh),  COL_MENUCONTENT_PLUS_3);
 }
 
 void CBEChannelWidget::paintHead()

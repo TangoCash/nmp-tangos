@@ -94,6 +94,7 @@ void CProgressWindow::showGlobalStatus(const unsigned int prog)
 	//hintergrund
 	frameBuffer->paintBox(pos, globalstatusY, x+width-10, globalstatusY+10, COL_MENUCONTENT_PLUS_2);
 	frameBuffer->blit();
+
 #ifdef VFD_UPDATE
 	CVFD::getInstance()->showProgressBar2(-1,NULL,global_progress);
 #endif // VFD_UPDATE
@@ -132,7 +133,7 @@ void CProgressWindow::showStatusMessageUTF(const std::string & text)
 {
 	statusText = text;
 	frameBuffer->paintBox(x, statusTextY-mheight, x+width, statusTextY,  COL_MENUCONTENT_PLUS_0);
-	g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(x+10, statusTextY, width-20, text, COL_MENUCONTENT, 0, true); // UTF-8
+	g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(x+10, statusTextY, width-20, text, COL_MENUCONTENT_TEXT, 0, true); // UTF-8
 	frameBuffer->blit();
 
 #ifdef VFD_UPDATE
@@ -158,7 +159,7 @@ void CProgressWindow::paint()
 	int ypos=y;
 	frameBuffer->paintBoxRel(x, ypos, width, hheight, COL_MENUHEAD_PLUS_0, RADIUS_LARGE, CORNER_TOP);
 	if (caption != NONEXISTANT_LOCALE)
-		g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->RenderString(x+10, ypos+ hheight, width - 10, g_Locale->getText(caption), COL_MENUHEAD, 0, true); // UTF-8
+		g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->RenderString(x+10, ypos+ hheight, width - 10, g_Locale->getText(caption), COL_MENUHEAD_TEXT, 0, true); // UTF-8
 	frameBuffer->paintBoxRel(x, ypos+ hheight, width, height- hheight, COL_MENUCONTENT_PLUS_0, RADIUS_LARGE, CORNER_BOTTOM);
 
 	ypos+= hheight + (mheight >>1);
@@ -170,7 +171,7 @@ void CProgressWindow::paint()
 	showLocalStatus(0);
 	ypos+= mheight+10;
 
-	g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(x+ 10, ypos+ mheight, width- 10, g_Locale->getText(LOCALE_FLASHUPDATE_GLOBALPROGRESS), COL_MENUCONTENT, 0, true); // UTF-8
+	g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(x+ 10, ypos+ mheight, width- 10, g_Locale->getText(LOCALE_FLASHUPDATE_GLOBALPROGRESS), COL_MENUCONTENT_TEXT, 0, true); // UTF-8
 	ypos+= mheight;
 
 	globalstatusY = ypos+ mheight-20;
