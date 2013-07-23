@@ -87,9 +87,6 @@ class CPictureViewer
 	int m_NextPic_YPos;
 	int m_NextPic_XPan;
 	int m_NextPic_YPan;
-#ifdef __sh__
-	int m_NextPic_HwDev;	// m_xxxxPic_Buffer are now mmaped bpamem pointers DO NOT free() THEM
-#endif
 	std::string m_CurrentPic_Name;
 	unsigned char* m_CurrentPic_Buffer;
 	int m_CurrentPic_X;
@@ -98,9 +95,6 @@ class CPictureViewer
 	int m_CurrentPic_YPos;
 	int m_CurrentPic_XPan;
 	int m_CurrentPic_YPan;
-#ifdef __sh__
-	int m_CurrentPic_HwDev;
-#endif
 	
 	unsigned char* m_busy_buffer;
 	int m_busy_x;
@@ -127,9 +121,6 @@ class CPictureViewer
 	void add_format(int (*picsize)(const char *,int *,int*,int,int),int (*picread)(const char *,unsigned char **,int*,int*), int (*id)(const char*));
 	unsigned char * int_Resize(unsigned char *orgin, int ox, int oy, int dx, int dy, ScalingMode type, unsigned char * dst, bool alpha);
 	fb_pixel_t * int_getImage(const std::string & name, int *width, int *height, bool GetImage);
-#ifdef __sh__
-	int hw_resize(int *hwdev, char **hwbuffer, int original_width, int original_height, int height, int width);
-#endif
 };
 
 

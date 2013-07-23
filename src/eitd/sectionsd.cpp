@@ -150,7 +150,6 @@ static int sectionsd_stop = 0;
 
 static bool slow_addevent = true;
 
-
 inline void readLockServices(void)
 {
 	pthread_rwlock_rdlock(&servicesLock);
@@ -1351,6 +1350,7 @@ void CTimeThread::setSystemTime(time_t tim)
 	xprintf("%s: timediff %" PRId64 ", current: %02d.%02d.%04d %02d:%02d:%02d, dvb: %s", name.c_str(), timediff,
 			tmTime->tm_mday, tmTime->tm_mon+1, tmTime->tm_year+1900, 
 			tmTime->tm_hour, tmTime->tm_min, tmTime->tm_sec, ctime(&tim));
+
 #if 0
 	/* if new time less than current for less than 1 second, ignore */
 	if(timediff < 0 && timediff > (int64_t) -1000000) {

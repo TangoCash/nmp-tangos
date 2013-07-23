@@ -403,7 +403,7 @@ void CDBoxInfoWidget::paint()
 				headOffset = nameOffset + (sizeOffset+10)*3+15;
 				break;
 			}
-			g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(x+ headOffset, ypos+ mheight, width - 10, head_mem[j], COL_MENUCONTENTINACTIVE);
+			g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(x+ headOffset, ypos+ mheight, width - 10, head_mem[j], COL_MENUCONTENTINACTIVE_TEXT);
 		}
 		ypos+= mheight;
 		int m[2][4] = { { 0, 0, 0 }, { 0, 0, 0 } }; // size, used, available

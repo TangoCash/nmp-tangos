@@ -100,6 +100,7 @@ AC_ARG_ENABLE(mdev,
 AC_ARG_ENABLE(freesatepg,
 	[  --enable-freesatepg                  enable Freesat EPG code (experimental)],
 	[AC_DEFINE(ENABLE_FREESATEPG,1,[enable Freesat EPG code])])
+
 AC_ARG_ENABLE(graphlcd,
 	[  --enable-graphlcd                    enable GraphLCD support],
 	[AC_DEFINE(ENABLE_GRAPHLCD,1,[enable GraphLCD support])])

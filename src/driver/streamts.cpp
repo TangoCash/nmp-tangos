@@ -163,13 +163,6 @@ void CStreamInstance::run()
 	printf("CStreamInstance::run: %" PRIx64 "\n", channel_id);
 
 #if 0
-// TODO: check if this works... #ifndef HAVE_COOL_HARDWARE
-	/* right now, only one stream is possible anyway and it is not possible
-	 * to stream a different channel than the live channel AFAICT, so we can
-	 * as well use the live demux */
-	dmx = new cDemux(0);
-#endif
-#if 0
 	dmx = new cDemux(STREAM_DEMUX);//FIXME
 #endif
 	CZapitChannel * tmpchan = CServiceManager::getInstance()->FindChannel(channel_id);

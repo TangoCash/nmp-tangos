@@ -1302,6 +1302,7 @@ const char * locale_real_names[] =
 	"motorcontrol.motor_pos",
 	"motorcontrol.movement",
 	"motorcontrol.msec",
+	"motorcontrol.network",
 	"motorcontrol.no_mode",
 	"motorcontrol.notdef",
 	"motorcontrol.override",
