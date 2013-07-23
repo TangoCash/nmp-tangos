@@ -49,7 +49,6 @@
 #include <neutrino.h>
 
 #include <video.h>
-#include <linux/stmfb.h>
 
 extern cVideo * videoDecoder;
 
@@ -128,8 +127,8 @@ int CPSISetup::exec (CMenuTarget * parent, const std::string &)
 	dx = SLIDERWIDTH + LOCGAP + locWidth;
 	dy = PSI_SCALE_COUNT * locHeight + (PSI_SCALE_COUNT - 1) * 2;
 
-	x = frameBuffer->getScreenX () + ((frameBuffer->getScreenWidth () - dx) >> 1);
-	y = frameBuffer->getScreenY () + ((frameBuffer->getScreenHeight () - dy) >> 1);
+	x = frameBuffer->getScreenX() + ((frameBuffer->getScreenWidth() - dx) >> 1);
+	y = frameBuffer->getScreenY() + ((frameBuffer->getScreenHeight() - dy) >> 1);
 
 	int res = menu_return::RETURN_REPAINT;
 	if (parent)
@@ -235,7 +234,7 @@ int CPSISetup::exec (CMenuTarget * parent, const std::string &)
 		}
 		break;
 	default:
-	;
+		;
 	}
 	}
 
@@ -259,7 +258,7 @@ void CPSISetup::paint ()
 void CPSISetup::paintSlider (int i)
 {
 	Font *f = g_Font[SNeutrinoSettings::FONT_TYPE_MENU];
-	unsigned char fg_col[] = { COL_MENUCONTENT, COL_MENUHEAD };
+	fb_pixel_t fg_col[] = { COL_MENUCONTENT_TEXT, COL_MENUHEAD_TEXT };
 
 	if (i < PSI_RESET)
 	{
