@@ -260,7 +260,7 @@ colorchooser.red rot
 colormenu.background Hintergrundfarbe
 colormenu.contrast_fonts Schriftkontrast
 colormenu.fade Ein-/Ausblenden
-colormenu.font Neutrino Schriftart
+colormenu.font Neutrino-HD Schriftart
 colormenu.font_ttx Teletext Schriftart
 colormenu.hd_preset LCD
 colormenu.menucolors Farben
@@ -384,7 +384,7 @@ extra.key_timeshift Timeshift
 extra.key_unlock Entsperrtaste
 extra.ladirection Breitengrad-Ausrichtung
 extra.latitude Breitengrad
-extra.loadconfig Neutrino Einstellungen: Laden von
+extra.loadconfig Neutrino-HD Einstellungen: Laden von
 extra.loadkeys Lade Tastenbelegung von
 extra.lodirection Längengrad-Ausrichtung
 extra.longitude Längengrad
@@ -397,7 +397,7 @@ extra.rotor_swap Rotor dreht Ost/West
 extra.rounded_corners Eckendarstellung
 extra.rounded_corners_off eckig
 extra.rounded_corners_on abgerundet
-extra.saveconfig Neutrino Einstellungen: Sichern als
+extra.saveconfig Neutrino-HD Einstellungen: Sichern als
 extra.savekeys Speichere Tastenbelegung als
 extra.scrambled_message Verschlüsselung melden
 extra.show_mute_icon Mute-Icon bei Lautstärke 0
@@ -725,6 +725,8 @@ lcdmenu.statusline.playtime Sendungsfortschritt
 lcdmenu.statusline.volume Lautstärke
 lcdmenu.vfd_epg Sendername mit EPG
 lcdmenu.vfd_scroll Laufschrift
+ledcontroler.backlight Hintergrundbeleuchtung Buttons
+ledcontroler.backlight.tv TV Modus
 ledcontroler.blink Blinke im Deep-Standby, wenn Timer aktiv
 ledcontroler.menu Power Button LEDs
 ledcontroler.mode.deepstandby Deep-Standby
@@ -797,6 +799,7 @@ menu.hint_audioplayer_title Aktivieren Sie die Titelsuche (SMS-Stil) in der Play
 menu.hint_auto_lang Wählen Sie, ob automatisch ihre bevorzugte Tonspur ausgewählt wird, wenn sie vorhanden ist
 menu.hint_auto_subs Automatische Anzeige der Untertitel in Ihrer bevorzugten Sprache
 menu.hint_back Zurück zum vorherigen Menü.\nDie Taste 'Menü' schließt alle Menüs
+menu.hint_backlight Konfigurieren Sie die Hintergrundbeleuchtung der Buttons
 menu.hint_backup Sichern von Konfigurationen und Kanallisten
 menu.hint_bedit Bearbeiten ihrer Favoriten und der Bouquets
 menu.hint_bigwindows Kanalliste, EPG-Infos, Audioplayer und einige andere Fenster werden bildschirmfüllend angezeigt
@@ -943,7 +946,7 @@ menu.hint_leds_deepstandby Definiert den Status der Power-LEDs im Deep-Standby
 menu.hint_leds_record Definiert, ob die Power-LEDs blinken sollen, wenn eine Aufnahme aktiv ist
 menu.hint_leds_standby Definiert den Status der Power-LEDs im Standby
 menu.hint_leds_tv Definiert den Status der Power-LEDs im TV-Modus
-menu.hint_load Laden der Neutrino-Einstellungen aus einer Datei
+menu.hint_load Laden der Neutrino-HD-Einstellungen aus einer Datei
 menu.hint_make_hdlist Bei aktiver Option wird ein Bouquet namens 'HD' erzeugt, in dem alle HD-Sender zusammengefasst sind
 menu.hint_make_newlist Nach einer Kanalsuche wird ein Bouquet namens 'neue Kanäle' erzeugt
 menu.hint_make_removedlist Nach einer Kanalsuche wird ein Bouquet namens 'gelöschte Kanäle' erzeugt
@@ -1044,12 +1047,12 @@ menu.hint_record_zap_pre_time Stellen Sie eine Vorlaufzeit in Minuten für den U
 menu.hint_recording Aufnahme-, Timeshift- und Timer-Optionen, Einstellung von aufzunehmenden Tonspuren
 menu.hint_reload_channels Kanallisten neu laden, um Änderungen wirksam zu machen
 menu.hint_reload_plugins Plugins neu laden, um Änderungen wirksam zu machen
-menu.hint_reset Zurücksetzen von Neutrino-Einstellungen auf Standardwerte. Tuner-Einstellungen und Kanäle bleiben erhalten
+menu.hint_reset Zurücksetzen von Neutrino-HD-Einstellungen auf Standardwerte. Tuner-Einstellungen und Kanäle bleiben erhalten
 menu.hint_restore Wiederherstellen von vorher erstellten Sicherungen
 menu.hint_rotor_swap Tauschen der Rotordrehrichtung Ost/West in den Motor-Einstellungen
 menu.hint_rounded_corners Aktiviert die Darstellung abgerundeter Ecken für die Menüs
 menu.hint_save_settings Speichert ihre Einstellungen
-menu.hint_saveas Speichern der Neutrino-Einstellungen in eine Datei
+menu.hint_saveas Speichern der Neutrino-HD-Einstellungen in eine Datei
 menu.hint_scan_auto Automatischer Suchlauf ausgewählter Anbieter
 menu.hint_scan_autoall Automatischer Suchlauf aller ausgewählten Anbieter
 menu.hint_scan_autoall_select Suchlauf nur in ausgewählten Satelliten
@@ -1085,7 +1088,7 @@ menu.hint_scan_manual Manueller Transponder-Suchlauf mit ausgewählten Parameter
 menu.hint_scan_mod Wählen Sie eine Transponder-Modulation
 menu.hint_scan_motor_18v Benutze 18V für Motorbewegungen
 menu.hint_scan_motor_speed Rotor-Bewegungsgeschwindigkeit in 1/10 Grad pro Sekunde
-menu.hint_scan_motorpos Wählen Sie eine gespeicherten Positions-Nummer für diesen Satelliten
+menu.hint_scan_motorpos Wählen Sie eine gespeicherten Positions-Nummer für diesen Satelliten,\nwird ignoriert, wenn USALS aktiv
 menu.hint_scan_nid Geben Sie ihre Kabelnetzwerk-ID in dezimal ein
 menu.hint_scan_nit Lassen Sie Transponder über gesendete NIT-Daten (Network Information Table) hinzufügen
 menu.hint_scan_pids Duchsucht und speichert auch die Audio-, Video- und PMT-PIDs
@@ -1108,8 +1111,8 @@ menu.hint_scan_test Testen Sie das Signal für diesen Transponder
 menu.hint_scan_tpselect Wählen Sie einen einzelnen Transponder für den Suchlauf
 menu.hint_scan_uncommited Wählen Sie nicht festgeschriebene Angaben für diesen Satelliten
 menu.hint_scan_usals_repeat Geben Sie die USALS-Wiederholungen für den Rotor ein
-menu.hint_scan_usalsall Setzen oder entfernen Sie USALS-Merker für alle Satelliten
-menu.hint_scan_useusals Verwenden Sie USALS für diesen Satelitten
+menu.hint_scan_usalsall Verwenden Sie USALS für alle Satelliten an diesem Tuner
+menu.hint_scan_useusals Verwenden Sie USALS für diesen Satelliten,\nwenn aktiv, wird Rotorposition ignoriert
 menu.hint_scrambled_message Bei aktivierter Option erscheint eine Meldung, wenn ein verschlüsselter Sender nicht entschlüsselt werden kann
 menu.hint_screen_setup Konfigurieren Sie den Bildschirmbereich für die Menüanzeige
 menu.hint_screenshot_count Wählen Sie, wie viele Screenshots erstellt werden sollen
@@ -1125,14 +1128,14 @@ menu.hint_selected_back Ändern Sie die Hintergrundfarbe für ausgewählte Fenst
 menu.hint_selected_text Ändern Sie die Textfarbe für ausgewählte Fensterinhalte
 menu.hint_service Sendersuchlauf, Bouquet-Verwaltung, Software-Aktualisierung und mehr
 menu.hint_service_scan Tuner-Einstellungen und Service-Suchlauf
-menu.hint_settings Konfigurieren von Neutrino,\nNetzwerk, Video, Audio, OSD und mehr
+menu.hint_settings Konfigurieren von Neutrino-HD,\nNetzwerk, Video, Audio, OSD und mehr
 menu.hint_show_mute_icon Definiert, ob bei einem Lautstärkewert von 0 das Stumm-Symbol eingeblendet werden soll
 menu.hint_shutdown Setzen Sie Ihre Box in den Standby-Modus oder schalten Sie die Box komplett aus
 menu.hint_shutdown_count Die Zeit zum Herunterfahren in den Deep-Standby, wenn die Box im Standby-Modus ist
 menu.hint_shutdown_rcdelay Aktiviert den Deep-Standby, wenn die Power-Taste länger als 1 Sekunde betätigt wird
 menu.hint_shutdown_real Aktiviert den Standby-Modus. Ist diese Option deaktiviert, fährt die Box in den Deep-Standby
 menu.hint_sleeptimer Zeitschaltuhr auf Ihrer Box aktivieren\nDie Box fährt dann in den Standby-Modus
-menu.hint_soft_restart Neustarten von Neutrino, ohne die Box neu zu starten
+menu.hint_soft_restart Neustarten von Neutrino-HD, ohne die Box neu zu starten
 menu.hint_softupdate_check Im Internet nach verfügbaren Updates suchen, herunterladen und installieren
 menu.hint_softupdate_check_local Lokal nach verfügbaren Updates suchen und installieren
 menu.hint_softupdate_expert Einzelne Partitionen aus dem Flash lesen bzw. in den Flash schreiben
@@ -1243,8 +1246,6 @@ miscsettings.progressbar_design_0 farbige Punkte
 miscsettings.progressbar_design_1 farbige vertikale Linien
 miscsettings.progressbar_design_2 farbige horizontale Linien
 miscsettings.progressbar_design_3 Farbverlauf
-miscsettings.progressbar_design_4 monochrom
-miscsettings.progressbar_design_long Fortschrittsbalkendesign
 miscsettings.progressbar_infobar_position Position
 miscsettings.progressbar_infobar_position_0 Standard
 miscsettings.progressbar_infobar_position_1 unterhalb Kanalname
@@ -1272,6 +1273,7 @@ motorcontrol.install_menu Motor Installation
 motorcontrol.motor_pos (a) Motorposition:
 motorcontrol.movement (b) Bewegung:
 motorcontrol.msec Millisekunden
+motorcontrol.network Netzwerk Info
 motorcontrol.no_mode keine Sorge (wasn das?)
 motorcontrol.notdef nicht benutzt
 motorcontrol.override übersteuern
@@ -1497,7 +1499,7 @@ networkmenu.setuponstartup Beim Start Netzwerk setzen
 networkmenu.show Aktive Einstellungen zeigen
 networkmenu.ssid Netzwerkname (SSID)
 networkmenu.test Netzwerk testen
-neutrino_starting Neutrino wird gestartet...
+neutrino_starting Neutrino-HD wird gestartet...
 nfs.alreadymounted Verzeichnis bereits gemountet.
 nfs.automount Beim Start mounten
 nfs.dir Verzeichnis/Freigabe
@@ -1790,8 +1792,8 @@ servicemenu.head Service
 servicemenu.imageinfo Imageinfo
 servicemenu.reload Kanallisten neu laden
 servicemenu.reload_hint Kanallisten werden neu geladen,\nbitte warten...
-servicemenu.restart Neutrino neu starten
-servicemenu.restart_hint Neutrino wird neu gestartet...
+servicemenu.restart Neutrino-HD neu starten
+servicemenu.restart_hint Neutrino-HD wird neu gestartet...
 servicemenu.restart_refused_recording Aufnahme läuft. Neustart nicht möglich.
 servicemenu.scants Kanalsuche
 servicemenu.update Software-Aktualisierung
@@ -1801,8 +1803,8 @@ settings.help Hilfe
 settings.menu_hints Hinweise anzeigen
 settings.menu_pos Position
 settings.menus Menüs
-settings.missingoptionsconffile Die Neutrino Einstellungen wurden erweitert.\nDie neuen Werte werden auf Standard gesetzt.
-settings.noconffile Die Neutrino Einstellungen wurden nicht\ngefunden. Es werden Standardwerte benutzt.
+settings.missingoptionsconffile Die Neutrino-HD Einstellungen wurden erweitert.\nDie neuen Werte werden auf Standard gesetzt.
+settings.noconffile Die Neutrino-HD Einstellungen wurden nicht\ngefunden. Es werden Standardwerte benutzt.
 settings.pos_bottom_center unten zentriert
 settings.pos_bottom_left unten links
 settings.pos_bottom_right unten rechts
@@ -1832,7 +1834,7 @@ streaminfo.head Tech. Information
 streaminfo.not_available nicht verfügbar
 streaminfo.resolution Auflösung
 streaminfo.signal Empfangssignal
-streaming.busy Ein oder mehrere Aufnahmeprozesse sind aktiv.\nSollte die Aufnahme eigentlich beendet sein,\nschafft ein Neustart von Neutrino Abhilfe.
+streaming.busy Ein oder mehrere Aufnahmeprozesse sind aktiv.\nSollte die Aufnahme eigentlich beendet sein,\nschafft ein Neustart von Neutrino-HD Abhilfe.
 streaming.dir_not_writable Das Aufnahmeverzeichnis ist nicht beschreibbar.\nAufnahmen sind daher nicht möglich.
 streaming.overflow Aufnahme-Puffer Überlauf! Bitte ggf. einige Aufnahmen beenden.
 streaming.slow System oder Datenträger zu langsam! Bitte ggf. einige Aufnahmen beenden.
