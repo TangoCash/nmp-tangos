@@ -25,7 +25,7 @@
 #include <config.h>
 #endif
 
-#include <driver/framebuffer_ng.h>
+#include <driver/framebuffer.h>
 
 #include <stdio.h>
 #include <fcntl.h>
@@ -356,7 +356,6 @@ unsigned int CFrameBuffer::getScreenHeight(bool real)
 		return g_settings.screen_EndY - g_settings.screen_StartY;
 }
 
-
 unsigned int CFrameBuffer::getScreenPercentRel(bool force_small)
 {
 	if (force_small || !g_settings.big_windows)
@@ -592,6 +591,7 @@ void CFrameBuffer::paletteFade(int i, __u32 rgb1, __u32 rgb2, int level)
 	__u16 *r = cmap.red+i;
 	__u16 *g = cmap.green+i;
 	__u16 *b = cmap.blue+i;
+
 	*r= ((rgb2&0xFF0000)>>16)*level;
 	*g= ((rgb2&0x00FF00)>>8 )*level;
 	*b= ((rgb2&0x0000FF)    )*level;
@@ -629,7 +629,9 @@ void CFrameBuffer::paletteSet(struct fb_cmap *map)
 //printf("Set palette for %dbit\n", bpp);
 		ioctl(fd, FBIOPUTCMAP, map);
 	}
+
 	uint32_t  rl, ro, gl, go, bl, bo, tl, to;
+
         rl = screeninfo.red.length;
         ro = screeninfo.red.offset;
         gl = screeninfo.green.length;
@@ -913,7 +915,6 @@ _display:
 	blit2FB(data, width, height, x, yy);
 	checkFbArea(x, yy, width, height, false);
 	return true;
- 
 }
 
 void CFrameBuffer::loadPal(const std::string & filename, const unsigned char offset, const unsigned char endidx)
@@ -1119,17 +1120,6 @@ void CFrameBuffer::SaveScreen(int x, int y, int dx, int dy, fb_pixel_t * const m
 			*(bkpos++) = *(dest++);
 		pos += stride;
 	}
-#if 0
-	/* todo: check what the problem with this is, it should be better -- probably caching issue */
-	uint8_t * fbpos = ((uint8_t *)getFrameBufferPointer()) + x * sizeof(fb_pixel_t) + stride * y;
-	fb_pixel_t * bkpos = memp;
-	for (int count = 0; count < dy; count++)
-	{
-		memmove(bkpos, fbpos, dx * sizeof(fb_pixel_t));
-		fbpos += stride;
-		bkpos += dx;
-	}
-#endif
 	checkFbArea(x, y, dx, dy, false);
 }
 
@@ -1147,7 +1137,9 @@ void CFrameBuffer::RestoreScreen(int x, int y, int dx, int dy, fb_pixel_t * cons
 		fbpos += stride;
 		bkpos += dx;
 	}
+#if !HAVE_SPARK_HARDWARE && !HAVE_DUCKBOX_HARDWARE
 	blit();
+#endif
 	checkFbArea(x, y, dx, dy, false);
 }
 
@@ -1267,7 +1259,6 @@ void CFrameBuffer::set3DMode(Mode3D m)
 	if (mode3D != m) {
 		accel->ClearFB();
 		mode3D = m;
-		accel->borderColorOld = 0x01010101;
 		blit();
 	}
 }
@@ -1323,34 +1314,9 @@ bool CFrameBuffer::OSDShot(const std::string &name)
 	return true;
 }
 
-void CFrameBuffer::blitArea(int src_width, int src_height, int fb_x, int fb_y, int width, int height)
-{
-	accel->blitArea(src_width, src_height, fb_x, fb_y, width, height);
-}
-
 void CFrameBuffer::resChange(void)
 {
 	accel->resChange();
-}
-
-void CFrameBuffer::setBorder(int sx, int sy, int ex, int ey)
-{
-	accel->setBorder(sx, sy, ex, ey);
-}
-
-void CFrameBuffer::getBorder(int &sx, int &sy, int &ex, int &ey)
-{
-	accel->getBorder(sx, sy, ex, ey);
-}
-
-void CFrameBuffer::setBorderColor(fb_pixel_t col)
-{
-	accel->setBorderColor(col);
-}
-
-fb_pixel_t CFrameBuffer::getBorderColor(void)
-{
-	return accel->getBorderColor();
 }
 
 void CFrameBuffer::ClearFB(void)

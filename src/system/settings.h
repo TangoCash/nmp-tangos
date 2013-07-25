@@ -523,12 +523,6 @@ struct SNeutrinoSettings
 	int screen_StartY_lcd;
 	int screen_EndX_lcd;
 	int screen_EndY_lcd;
-#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
-	int screen_StartX_int;
-	int screen_StartY_int;
-	int screen_EndX_int;
-	int screen_EndY_int;
-#endif
 	int screen_preset;
 	int screen_width;
 	int screen_height;
@@ -644,6 +638,9 @@ struct SNeutrinoSettings
 	int filebrowser_showrights;
 	int filebrowser_sortmethod;
 	int filebrowser_denydirectoryleave;
+#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+	int filebrowser_use_filter;
+#endif
 
 	//zapit setup
 	std::string StartChannelTV;

@@ -208,6 +208,10 @@ typedef struct
 
 	int reload;
 	int remount;
+#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+	int ts_only;
+	int ts_probe;
+#endif
 
 	int browser_serie_mode;
 	int serie_auto_create;
@@ -344,6 +348,9 @@ class CMovieBrowser : public CMenuTarget
 		bool delFile_vlc(CFile& file);
 		bool delFile_std(CFile& file);
 		int  getMenuRet() { return menu_ret; }
+#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+		bool doProbe(void);
+#endif
 		int  getMode() { return show_mode; }
 		void  setMode(int mode) { show_mode = mode; }
 
@@ -361,7 +368,7 @@ class CMovieBrowser : public CMenuTarget
 		///// MovieBrowser Main Window//////////
 		int paint(void); //P1
 		void refresh(void); //P1
-        void hide(void); //P1
+		void hide(void); //P1
 		void refreshLastPlayList(void); //P2
 		void refreshLastRecordList(void); //P2
 		void refreshBrowserList(void); //P1

@@ -606,6 +606,10 @@ void CMovieBrowser::initGlobalSettings(void)
 	m_settings.browserRowWidth[4] = m_defaultRowWidth[m_settings.browserRowItem[4]]; 		//30;
 	m_settings.browserRowWidth[5] = m_defaultRowWidth[m_settings.browserRowItem[5]]; 		//30;
 
+#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+	m_settings.ts_only = 0;
+	m_settings.ts_probe = 0;
+#endif
 	m_settings.ytmode = cYTFeedParser::MOST_POPULAR;
 	m_settings.ytresults = 10;
 	m_settings.ytregion = "default";
@@ -736,6 +740,10 @@ bool CMovieBrowser::loadSettings(MB_SETTINGS* settings)
 	settings->lastRecordMaxItems = configfile.getInt32("mb_lastRecordMaxItems", NUMBER_OF_MOVIES_LAST);
 	settings->browser_serie_mode = configfile.getInt32("mb_browser_serie_mode", 0);
 	settings->serie_auto_create = configfile.getInt32("mb_serie_auto_create", 0);
+#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+	settings->ts_only = configfile.getInt32("mb_ts_only", 0);
+	settings->ts_probe = configfile.getInt32("mb_ts_probe", 0);
+#endif
 
 	settings->sorting.item = (MB_INFO_ITEM)configfile.getInt32("mb_sorting_item", MB_INFO_RECORDDATE);
 	settings->sorting.direction = (MB_DIRECTION)configfile.getInt32("mb_sorting_direction", MB_DIRECTION_UP);
@@ -773,7 +781,7 @@ bool CMovieBrowser::loadSettings(MB_SETTINGS* settings)
 	}
 	settings->ytmode = configfile.getInt32("mb_ytmode", cYTFeedParser::MOST_POPULAR);
 	settings->ytresults = configfile.getInt32("mb_ytresults", 10);
-	settings->ytquality = configfile.getInt32("mb_ytquality", 37); // itag value (MP4, 1080p)
+	settings->ytquality = configfile.getInt32("mb_ytquality", 22); // itag value (MP4, 720p)
 	settings->ytconcconn = configfile.getInt32("mb_ytconcconn", 4); // concurrent connections
 	settings->ytregion = configfile.getString("mb_ytregion", "default");
 	settings->ytsearch = configfile.getString("mb_ytsearch", "");
@@ -790,6 +798,10 @@ bool CMovieBrowser::saveSettings(MB_SETTINGS* settings)
 	configfile.setInt32("mb_lastRecordMaxItems", settings->lastRecordMaxItems);
 	configfile.setInt32("mb_browser_serie_mode", settings->browser_serie_mode);
 	configfile.setInt32("mb_serie_auto_create", settings->serie_auto_create);
+#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+	configfile.setInt32("mb_ts_only", settings->ts_only);
+	configfile.setInt32("mb_ts_probe", settings->ts_probe);
+#endif
 
 	configfile.setInt32("mb_gui", settings->gui);
 
@@ -2150,10 +2162,12 @@ void CMovieBrowser::onDeleteFile(MI_MOVIE_INFO& movieSelectionHandler, bool skip
 {
 	//TRACE( "[onDeleteFile] ");
 	int test= movieSelectionHandler.file.Name.find(".ts", movieSelectionHandler.file.Name.length()-3);
+	if (test < 0)
+		test= movieSelectionHandler.file.Name.find(".mp4", movieSelectionHandler.file.Name.length()-4);
 	if(test == -1)
 	{
 		// not a TS file, return!!!!!
-		TRACE( "show_ts_info: not a TS file ");
+		TRACE( "show_ts_info: not a TS or MP4 file ");
 	}
 	else
 	{
@@ -2572,45 +2586,45 @@ bool CMovieBrowser::loadTsFileNamesFromDir(const std::string & dirname)
 			}
 			else
 			{
-//				int test=flist[i].getFileName().find(".ts");
-				int test = -1;
-				int ext_pos = 0;
-				ext_pos = flist[i].getFileName().rfind('.');
-				if (ext_pos > 0) {
-					std::string extension;
-					extension = flist[i].getFileName().substr(ext_pos + 1, flist[i].getFileName().length() - ext_pos);
-					if (
-					    (strcasecmp("ts", extension.c_str()) == 0) ||
-#if HAVE_TRIPLEDRAGON
-					    (strcasecmp("vdr", extension.c_str()) == 0) ||
-#else
-					    (strcasecmp("avi", extension.c_str()) == 0) ||
-					    (strcasecmp("mkv", extension.c_str()) == 0) ||
-					    (strcasecmp("wav", extension.c_str()) == 0) ||
-					    (strcasecmp("asf", extension.c_str()) == 0) ||
-					    (strcasecmp("aiff", extension.c_str()) == 0) ||
-#endif
-					    (strcasecmp("mpg", extension.c_str()) == 0) ||
-					    (strcasecmp("mpeg", extension.c_str()) == 0) ||
-					    (strcasecmp("m2p", extension.c_str()) == 0) ||
-					    (strcasecmp("mpv", extension.c_str()) == 0) ||
-					    (strcasecmp("vob", extension.c_str()) == 0) ||
-					    (strcasecmp("m2ts", extension.c_str()) == 0) ||
-					    (strcasecmp("mp4", extension.c_str()) == 0) ||
-					    (strcasecmp("mov", extension.c_str()) == 0) ||
-					    (strcasecmp("m3u", extension.c_str()) == 0) ||
-					    (strcasecmp("pls", extension.c_str()) == 0)
 #if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
-					    || (strcasecmp("trp", extension.c_str()) == 0) ||
-					    (strcasecmp("vdr", extension.c_str()) == 0) ||
-					    (strcasecmp("mp3", extension.c_str()) == 0) ||
-					    (strcasecmp("flv", extension.c_str()) == 0) ||
-					    (strcasecmp("wmv", extension.c_str()) == 0)
-#endif
-					   )
-					    test = 0;
+				bool test = true;
+				std::string::size_type idx;
+				idx = flist[i].getFileName().rfind('.');
+				if (idx != std::string::npos) {
+					std::string extension = flist[i].getFileName().substr(idx+1);
+					const char *ext = extension.c_str();
+					test = strcasecmp(ext, "ts");
+					if (test && !m_settings.ts_only)
+						test = true
+# if HAVE_TRIPLEDRAGON
+						    && strcasecmp(ext, "vdr")
+# else
+						    && strcasecmp(ext, "avi")
+						    && strcasecmp(ext, "mkv")
+						    && strcasecmp(ext, "wav")
+						    && strcasecmp(ext, "asf")
+						    && strcasecmp(ext, "aiff")
+# endif
+						    && strcasecmp(ext, "mpg")
+						    && strcasecmp(ext, "mpeg")
+						    && strcasecmp(ext, "m2p")
+						    && strcasecmp(ext, "mpv")
+						    && strcasecmp(ext, "vob")
+						    && strcasecmp(ext, "m2ts")
+						    && strcasecmp(ext, "mp4")
+						    && strcasecmp(ext, "mov")
+# ifdef HAVE_SPARK_HARDWARE
+						    && strcasecmp(ext, "vdr")
+						    && strcasecmp(ext, "flv")
+						    && strcasecmp(ext, "wmv")
+# endif
+					;
 				}
+				if (test)
+#else
+				int test=flist[i].getFileName().find(".ts",flist[i].getFileName().length()-3);
 				if( test == -1)
+#endif
 				{
 					//TRACE("[mb] other file: '%s'\r\n",movieInfo.file.Name.c_str());
 				}
@@ -2618,8 +2632,15 @@ bool CMovieBrowser::loadTsFileNamesFromDir(const std::string & dirname)
 				{
 					m_movieInfo.clearMovieInfo(&movieInfo); // refresh structure
 					movieInfo.file.Name = flist[i].Name;
-//					if(m_movieInfo.loadMovieInfo(&movieInfo)) { //FIXME atm we show only ts+xml (records) here
-					m_movieInfo.loadMovieInfo(&movieInfo);
+#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+					if(!m_movieInfo.loadMovieInfo(&movieInfo)) {
+						movieInfo.epgChannel = string(g_Locale->getText(LOCALE_MOVIEPLAYER_HEAD));
+						movieInfo.epgTitle = flist[i].getFileName().substr(0, idx);
+					}
+					if (true) {
+#else
+					if(m_movieInfo.loadMovieInfo(&movieInfo)) { //FIXME atm we show only ts+xml (records) here
+#endif
 						movieInfo.file.Mode = flist[i].Mode;
 						//movieInfo.file.Size = flist[i].Size;
 						movieInfo.file.Size = get_full_len((char *)flist[i].Name.c_str());
@@ -2637,7 +2658,7 @@ bool CMovieBrowser::loadTsFileNamesFromDir(const std::string & dirname)
 						}
 						movieInfo.dirItNr = m_dirNames.size()-1;
 						m_vMovieInfo.push_back(movieInfo);
-//					}
+					}
 				}
 			}
 		}
@@ -3095,7 +3116,11 @@ int CMovieBrowser::showMovieInfoMenu(MI_MOVIE_INFO* movie_info)
 }
 
 extern "C" int pinghost( const char *hostname );
+#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+bool CMovieBrowser::showMenu(MI_MOVIE_INFO* movie_info)
+#else
 bool CMovieBrowser::showMenu(MI_MOVIE_INFO* /*movie_info*/)
+#endif
 {
     /* first clear screen */
     m_pcWindow->paintBackground();
@@ -3189,12 +3214,21 @@ bool CMovieBrowser::showMenu(MI_MOVIE_INFO* /*movie_info*/)
     optionsMenu.addItem( new CMenuOptionChooser(LOCALE_MOVIEBROWSER_HIDE_SERIES,       (int*)(&m_settings.browser_serie_mode), MESSAGEBOX_YES_NO_OPTIONS, MESSAGEBOX_YES_NO_OPTIONS_COUNT, true ));
     optionsMenu.addItem( new CMenuOptionChooser(LOCALE_MOVIEBROWSER_SERIE_AUTO_CREATE, (int*)(&m_settings.serie_auto_create), MESSAGEBOX_YES_NO_OPTIONS, MESSAGEBOX_YES_NO_OPTIONS_COUNT, true ));
     //optionsMenu.addItem(GenericMenuSeparator);
+#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+    optionsMenu.addItem(GenericMenuSeparatorLine);
+    int ts_only = m_settings.ts_only;
+    optionsMenu.addItem( new CMenuOptionChooser(LOCALE_MOVIEBROWSER_TS_ONLY,           (int*)(&m_settings.ts_only), MESSAGEBOX_YES_NO_OPTIONS, MESSAGEBOX_YES_NO_OPTIONS_COUNT, true ));
+    optionsMenu.addItem( new CMenuOptionChooser(LOCALE_MOVIEBROWSER_TS_PROBE,          (int*)(&m_settings.ts_probe), MESSAGEBOX_YES_NO_OPTIONS, MESSAGEBOX_YES_NO_OPTIONS_COUNT, true ));
+#endif
 
 /********************************************************************/
 /**  main menu ******************************************************/
     CMovieHelp* movieHelp = new CMovieHelp();
     CNFSSmallMenu* nfs =    new CNFSSmallMenu();
 
+#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+    if (movie_info) {
+#endif
     CMenuWidget mainMenu(LOCALE_MOVIEBROWSER_HEAD, NEUTRINO_ICON_MOVIEPLAYER);
     mainMenu.addIntroItems(LOCALE_MOVIEBROWSER_MENU_MAIN_HEAD);
     mainMenu.addItem( new CMenuForwarder(LOCALE_MOVIEBROWSER_INFO_HEAD, (m_movieSelectionHandler != NULL), NULL, this,   "show_movie_info_menu",    CRCInput::RC_red,    NEUTRINO_ICON_BUTTON_RED));
@@ -3208,6 +3242,10 @@ bool CMovieBrowser::showMenu(MI_MOVIE_INFO* /*movie_info*/)
     //mainMenu.addItem(GenericMenuSeparator);
 
     mainMenu.exec(NULL, " ");
+#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+    } else
+	optionsMenu.exec(NULL, "");
+#endif
 
     // post menu handling
     if (m_parentalLock != MB_PARENTAL_LOCK_OFF_TMP)
@@ -3228,6 +3266,12 @@ bool CMovieBrowser::showMenu(MI_MOVIE_INFO* /*movie_info*/)
             m_settings.browserRowWidth[i] = 1;
     }
 
+#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+    if (movie_info) {
+	if (ts_only != m_settings.ts_only)
+		loadMovies();
+	else
+#endif
     if(dirMenu.isChanged())
         loadMovies();
 
@@ -3238,6 +3282,10 @@ bool CMovieBrowser::showMenu(MI_MOVIE_INFO* /*movie_info*/)
     refreshFilterList();
     refreshMovieInfo();
     refresh();
+#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+    } else
+	saveSettings(&m_settings);
+#endif
 
    for(i=0; i<MB_MAX_DIRS ;i++)
    {
@@ -4766,3 +4814,9 @@ ret_err:
 		g_RCInput->postMsg(CRCInput::RC_home, 0);
 	return retval;
 }
+#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+bool CMovieBrowser::doProbe()
+{
+	return m_settings.ts_probe;
+}
+#endif

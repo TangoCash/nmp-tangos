@@ -105,7 +105,7 @@ fb_pixel_t * simple_resize32(uint8_t * orgin, uint32_t * colors, int nb_colors, 
 void cDvbSubtitleBitmaps::Draw(int &min_x, int &min_y, int &max_x, int &max_y)
 {
 	int i;
-#if !defined (HAVE_SPARK_HARDWARE) && !defined (HAVE_DUCKBOX_HARDWARE)
+#if !HAVE_SPARK_HARDWARE && !HAVE_DUCKBOX_HARDWARE
 	int stride = CFrameBuffer::getInstance()->getScreenWidth(true);
 #if 0
 	int wd = CFrameBuffer::getInstance()->getScreenWidth();
@@ -158,8 +158,7 @@ void cDvbSubtitleBitmaps::Draw(int &min_x, int &min_y, int &max_x, int &max_y)
 
 		fb_pixel_t * newdata = simple_resize32 (sub.rects[i]->pict.data[0], colors, sub.rects[i]->nb_colors, width, height, nw, nh);
 
-#if defined (HAVE_SPARK_HARDWARE) || defined (HAVE_DUCKBOX_HARDWARE)
-		// CFrameBuffer::getInstance()->waitForIdle();
+#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
 		CFrameBuffer::getInstance()->blit2FB(newdata, nw, nh, xoff, yoff, 0, 0);
 #else
 		fb_pixel_t * ptr = newdata;
@@ -180,8 +179,7 @@ void cDvbSubtitleBitmaps::Draw(int &min_x, int &min_y, int &max_x, int &max_y)
 		if(max_y < (yoff + nh))
 			max_y = yoff + nh;
 	}
-
-#if defined (HAVE_SPARK_HARDWARE) || defined (HAVE_DUCKBOX_HARDWARE)
+#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
 	if (Count())	/* sync framebuffer */
 		CFrameBuffer::getInstance()->blit();
 #endif

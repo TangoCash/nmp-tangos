@@ -26,10 +26,10 @@
 #include <algorithm>
 #include <system/debug.h>
 #include <system/set_threadname.h>
-#include <eitd/sectionsd.h>
-#include "pictureviewer/pictureviewer.h"
+#include <driver/pictureviewer/pictureviewer.h>
 #include <hardware_caps.h>
-#include "nglcd.h"
+#include <driver/nglcd.h>
+#include <eitd/sectionsd.h>
 
 static const char * kDefaultConfigFile = "/etc/graphlcd.conf";
 static nGLCD *nglcd = NULL;
@@ -581,7 +581,7 @@ void* nGLCD::Run(void *)
 				CChannelList *channelList = CNeutrinoApp::getInstance ()->channelList;
 				if (!channelList)
 					continue;
-				t_channel_id new_channel_id = channelList->getActiveChannel_ChannelID ();
+				t_channel_id new_channel_id = channelList->getActiveChannel_ChannelID();
 				if (!new_channel_id)
 					continue;
 

@@ -79,7 +79,7 @@ class CVFD
 		MODES				mode;
 
 		std::string			servicename;
-#ifdef HAVE_DUCKBOX_HARDWARE
+#if HAVE_DUCKBOX_HARDWARE
 		std::string			epg_title;
 #endif
 		char				volume;
@@ -87,7 +87,7 @@ class CVFD
 		bool				muted;
 		bool				showclock;
 		pthread_t			thrTime;
-#ifdef HAVE_DUCKBOX_HARDWARE
+#if HAVE_DUCKBOX_HARDWARE
 		pthread_t			thread_start_loop;
 #endif
 		int                             last_toggle_state_power;
@@ -104,7 +104,7 @@ class CVFD
 
 		static void* TimeThread(void*);
 		void setlcdparameter(int dimm, int power);
-#ifndef HAVE_DUCKBOX_HARDWARE
+#if !HAVE_DUCKBOX_HARDWARE
 		void setled(int led1, int led2);
 #endif
 	public:
@@ -112,10 +112,12 @@ class CVFD
 		~CVFD();
 		bool has_lcd;
 		void setlcdparameter(void);
-#ifndef HAVE_DUCKBOX_HARDWARE
+#if !HAVE_DUCKBOX_HARDWARE
 		void setled(void);
 		void setled(bool on_off);
 		void setBacklight(bool on_off);
+#else
+		void setBacklight(bool /*on_off*/) { };
 #endif
 		static CVFD* getInstance();
 		void init(const char * fontfile, const char * fontname);
@@ -123,7 +125,7 @@ class CVFD
 		void setMode(const MODES m, const char * const title = "");
 
 		void showServicename(const std::string & name, bool fromepg = false); // UTF-8
-#ifdef HAVE_DUCKBOX_HARDWARE
+#if HAVE_DUCKBOX_HARDWARE
 		std::string getServicename(void) { return servicename; }
 		void setEPGTitle(const std::string title);
 #endif
@@ -160,7 +162,7 @@ class CVFD
 		void Unlock();
 		void Clear();
 		void ShowIcon(fp_icon icon, bool show);
-#ifdef HAVE_DUCKBOX_HARDWARE
+#if HAVE_DUCKBOX_HARDWARE
 		void UpdateIcons();
 		void ShowScrollText(char * str);
 		static void* ThreadScrollText(void * arg);

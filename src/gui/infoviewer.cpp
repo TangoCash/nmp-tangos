@@ -884,6 +884,11 @@ void CInfoViewer::loop(bool show_dot)
 			else
 				res = messages_return::cancel_info;
 		} else if ((msg == NeutrinoMessages::EVT_TIMER) && (data == sec_timer_id)) {
+#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+			// doesn't belong here, but easiest way to check for a change ...
+			if (is_visible && showButtonBar)
+				infoViewerBB->showIcon_CA_Status(0);
+#endif
 			showSNR ();
 			paintTime (show_dot, false);
 			showRecordIcon (show_dot);
@@ -893,7 +898,7 @@ void CInfoViewer::loop(bool show_dot)
 				showRadiotext();
 
 			infoViewerBB->showIcon_16_9();
-			infoViewerBB->showIcon_CA_Status(0);
+			//infoViewerBB->showIcon_CA_Status(0);
 			infoViewerBB->showIcon_Resolution();
 		} else if ((g_settings.mode_left_right_key_tv == SNeutrinoSettings::VZAP) && ((msg == CRCInput::RC_right) || (msg == CRCInput::RC_left ))) {
 			virtual_zap_mode = true;

@@ -314,7 +314,7 @@ int CNeutrinoEventList::exec(const t_channel_id channel_id, const std::string& c
 	}
 	paint(channel_id);
 	showFunctionBar(true, channel_id);
-	frameBuffer->blit();
+//	frameBuffer->blit();
 
 	int oldselected = selected;
 
@@ -323,6 +323,7 @@ int CNeutrinoEventList::exec(const t_channel_id channel_id, const std::string& c
 	bool loop = true;
 	while (loop)
 	{
+		frameBuffer->blit();
 		g_RCInput->getMsgAbsoluteTimeout(&msg, &data, &timeoutEnd);
 
 		if ( msg <= CRCInput::RC_MaxRC )

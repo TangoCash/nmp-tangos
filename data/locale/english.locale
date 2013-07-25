@@ -1408,6 +1408,8 @@ moviebrowser.short_size MB
 moviebrowser.short_title Title
 moviebrowser.start_head Start movie from:
 moviebrowser.start_record_start Movie start
+moviebrowser.ts_only Show recordings only
+moviebrowser.ts_probe Probe TS files
 moviebrowser.update_if_dest_empty_only Copy if destination is empty only
 moviebrowser.use_dir Use directory
 moviebrowser.use_movie_dir Use movie directory

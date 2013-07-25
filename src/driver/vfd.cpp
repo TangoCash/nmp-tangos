@@ -150,9 +150,9 @@ static void ShowNormalText(char * str, bool fromScrollThread = false)
 	}
 
 	if (strlen(str)<VFDLENGTH)
-		ws=(VFDLENGTH-strlen(str))/2;
+		ws = (VFDLENGTH-strlen(str))/2;
 	else
-		ws=0;
+		ws = 0;
 	memset(data.data, ' ', 63);
 	if (!fromScrollThread)
 	{
@@ -243,7 +243,7 @@ CVFD::CVFD()
 #endif // VFD_UPDATE
 
 	has_lcd = 1;
-#ifndef HAVE_DUCKBOX_HARDWARE
+#if !HAVE_DUCKBOX_HARDWARE
 	fd = open("/dev/display", O_RDONLY);
 	if(fd < 0) {
 		perror("/dev/display");
@@ -259,7 +259,7 @@ CVFD::CVFD()
 
 CVFD::~CVFD()
 {
-#ifndef HAVE_DUCKBOX_HARDWARE
+#if !HAVE_DUCKBOX_HARDWARE
 	if(fd > 0){
 		close(fd);
 		fd = -1;
@@ -359,7 +359,7 @@ void CVFD::setlcdparameter(int dimm, const int power)
 	brightness = dimm;
 
 printf("CVFD::setlcdparameter dimm %d power %d\n", dimm, power);
-#ifndef HAVE_DUCKBOX_HARDWARE
+#if !HAVE_DUCKBOX_HARDWARE
 	int ret = ioctl(fd, IOC_FP_SET_BRIGHT, dimm);
 	if(ret < 0)
 		perror("IOC_FP_SET_BRIGHT");
@@ -392,7 +392,7 @@ void CVFD::setlcdparameter(void)
 			last_toggle_state_power);
 }
 
-#ifndef HAVE_DUCKBOX_HARDWARE
+#if !HAVE_DUCKBOX_HARDWARE
 void CVFD::setled(int led1, int led2){
 	int ret = -1;
 
@@ -583,7 +583,7 @@ void CVFD::showTime(bool force)
 	recstatus = tmp_recstatus;
 }
 
-#ifdef HAVE_DUCKBOX_HARDWARE
+#if HAVE_DUCKBOX_HARDWARE
 void CVFD::UpdateIcons()
 {
 	CZapitChannel * chan = CZapit::getInstance()->GetCurrentChannel();
@@ -615,7 +615,7 @@ void CVFD::showVolume(const char vol, const bool /*perform_update*/)
 
 	volume = vol;
 	wake_up();
-#ifndef HAVE_DUCKBOX_HARDWARE
+#if !HAVE_DUCKBOX_HARDWARE
 	ShowIcon(FP_ICON_FRAME, true);
 #endif
 
@@ -711,7 +711,7 @@ void CVFD::showPercentOver(const unsigned char perc, const bool /*perform_update
 	if ((mode == MODE_TVRADIO) && !(g_settings.lcd_setting[SNeutrinoSettings::LCD_SHOW_VOLUME])) {
 		//if (g_settings.lcd_setting[SNeutrinoSettings::LCD_SHOW_VOLUME] == 0)
 		{
-#ifndef HAVE_DUCKBOX_HARDWARE
+#if !HAVE_DUCKBOX_HARDWARE
 			ShowIcon(FP_ICON_FRAME, true);
 #endif
 			int pp;
@@ -920,7 +920,7 @@ void CVFD::setMode(const MODES m, const char * const title)
 #endif // VFD_UPDATE
 	}
 	wake_up();
-#ifndef HAVE_DUCKBOX_HARDWARE
+#if !HAVE_DUCKBOX_HARDWARE
 	setled();
 #endif
 }
@@ -1028,7 +1028,7 @@ void CVFD::Unlock()
 void CVFD::Clear()
 {
 	if(!has_lcd) return;
-#ifndef HAVE_DUCKBOX_HARDWARE
+#if !HAVE_DUCKBOX_HARDWARE
 	int ret = ioctl(fd, IOC_FP_CLEAR_ALL, 0);
 	if(ret < 0)
 		perror("IOC_FP_SET_TEXT");
@@ -1047,7 +1047,7 @@ void CVFD::Clear()
 
 void CVFD::ShowIcon(fp_icon icon, bool show)
 {
-#ifndef HAVE_DUCKBOX_HARDWARE
+#if !HAVE_DUCKBOX_HARDWARE
 	if(!has_lcd || fd < 0) return;
 //printf("CVFD::ShowIcon %s %x\n", show ? "show" : "hide", (int) icon);
 	int ret = ioctl(fd, show ? IOC_FP_SET_ICON : IOC_FP_CLEAR_ICON, icon);

@@ -30,8 +30,6 @@
 #include <system/setting_helpers.h>
 #include <driver/nglcd.h>
 
-#define EXTRA_SETTINGS_FILE CONFIGDIR "/extra.conf"
-
 class GLCD_Menu;
 
 class GLCD_Menu_Notifier : public CChangeObserver

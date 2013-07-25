@@ -62,7 +62,7 @@ bool glcd_play = false;
 #endif
 
 //extern CPlugins *g_PluginList;
-#if !defined HAVE_SPARK_HARDWARE && !defined HAVE_DUCKBOX_HARDWARE
+#if !HAVE_SPARK_HARDWARE && !HAVE_DUCKBOX_HARDWARE
 #define LCD_MODE CVFD::MODE_MOVIE
 #else
 #define LCD_MODE CVFD::MODE_MENU_UTF8
@@ -253,7 +253,7 @@ int CMoviePlayerGui::exec(CMenuTarget * parent, const std::string & actionKey)
 		file_name = (isWebTV ? g_settings.streaming_server_name : g_settings.streaming_server_url);
 		p_movie_info = NULL;
 		is_file_player = 1;
-		PlayFile ();
+		PlayFile();
 		menu_ret = menu_return::RETURN_EXIT_ALL;
 	}
 	else {
@@ -835,7 +835,6 @@ void CMoviePlayerGui::PlayFile(void)
 		} else if (msg == CRCInput::RC_0) {	// cancel bookmark jump
 			handleMovieBrowser(CRCInput::RC_0, position);
 		} else if (msg == CRCInput::RC_text) {
-			char Value[10];
 			bool cancel = true;
 			playback->GetPosition(position, duration);
 			int ss = position/1000;
@@ -843,12 +842,9 @@ void CMoviePlayerGui::PlayFile(void)
 			ss -= hh * 3600;
 			int mm = ss/60;
 			ss -= mm * 60;
-#if 1 // eplayer lacks precision, omit seconds
+			char Value[10];
 			snprintf(Value, sizeof(Value), "%.2d:%.2d", hh, mm);
 			ss = 0;
-#else
-			snprintf(Value, sizeof(Value), "%.2d:%.2d:%.2d", hh, mm, ss);
-#endif
 			CTimeInput jumpTime (LOCALE_MPKEY_TIME, Value, NONEXISTANT_LOCALE, NONEXISTANT_LOCALE, NULL, &cancel);
 			jumpTime.exec(NULL, "");
 			jumpTime.hide();

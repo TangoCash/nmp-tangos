@@ -183,7 +183,7 @@ void CVolume::setVolume(const neutrino_msg_t key)
 	} while (msg != CRCInput::RC_timeout);
 
 #ifdef ENABLE_GRAPHLCD
-		nGLCD::ShowVolume(false);
+	nGLCD::ShowVolume(false);
 #endif
 	hideVolscale();
 }
