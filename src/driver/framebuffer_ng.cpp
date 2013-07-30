@@ -1137,9 +1137,6 @@ void CFrameBuffer::RestoreScreen(int x, int y, int dx, int dy, fb_pixel_t * cons
 		fbpos += stride;
 		bkpos += dx;
 	}
-#if !HAVE_SPARK_HARDWARE && !HAVE_DUCKBOX_HARDWARE
-	blit();
-#endif
 	checkFbArea(x, y, dx, dy, false);
 }
 

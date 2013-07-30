@@ -1783,6 +1783,12 @@ screenshot.format Format
 screenshot.info Screenshot Taste ist nicht belegt
 screenshot.menu Screenshot
 screenshot.osd OSD-Auflösung
+screenshot.plane.all OSD und Video
+screenshot.plane.osd nur OSD
+screenshot.plane.video nur Video
+screenshot.planes Screenshot-Art
+screenshot.please_wait Erzeuge Video-Screenshot, bitte warten ...
+screenshot.please_wait_cover Erzeuge Video-Cover, bitte warten ...
 screenshot.png_compression PNG-Komprimierungsstärke
 screenshot.res Auflösung
 screenshot.scale Skalierung

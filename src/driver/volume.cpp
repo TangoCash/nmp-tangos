@@ -45,7 +45,6 @@
 #include <gui/audiomute.h>
 #include <gui/mediaplayer.h>
 #include <zapit/zapit.h>
-
 #ifdef ENABLE_GRAPHLCD
 #include <driver/nglcd.h>
 #endif
@@ -194,6 +193,7 @@ bool CVolume::hideVolscale()
 	if (volscale) {
 		if (volscale->isPainted()) {
 			volscale->hide();
+			frameBuffer->blit();
 			ret = true;
 		}
 		delete volscale;

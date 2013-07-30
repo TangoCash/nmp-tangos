@@ -46,7 +46,9 @@
 #include <zapit/pat.h>
 #include <zapit/scanpmt.h>
 #include <zapit/scan.h>
-//#include <zapit/fastscan.h>
+#ifdef ENABLE_FASTSCAN
+#include <zapit/fastscan.h>
+#endif
 #include <zapit/scansdt.h>
 #include <zapit/settings.h>
 #include <zapit/zapit.h>
@@ -958,7 +960,7 @@ bool CZapit::StartScanTP(TP_params * TPparams)
 	return true;
 }
 
-#if 0
+#ifdef ENABLE_FASTSCAN
 bool CZapit::StartFastScan(int scan_mode, int opid)
 {
 	scant.type = scan_mode;

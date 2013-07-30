@@ -214,7 +214,7 @@ std::string FBFontRenderClass::getFamily(const char * const filename) const
 			return f->family;
 	}
 
-  return "";
+	return "";
 }
 
 Font::Font(FBFontRenderClass *render, FTC_FaceID faceid, const int isize, const fontmodifier _stylemodifier)

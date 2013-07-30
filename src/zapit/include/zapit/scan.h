@@ -30,7 +30,9 @@
 
 #include <zapit/femanager.h>
 #include <zapit/getservices.h>
-//#include <zapit/fastscan.h>
+#ifdef ENABLE_FASTSCAN
+#include <zapit/fastscan.h>
+#endif
 #include "bouquets.h"
 #include <OpenThreads/Thread>
 
@@ -42,7 +44,9 @@ class CServiceScan : public OpenThreads::Thread
 		typedef enum scan_type {
 			SCAN_PROVIDER,
 			SCAN_TRANSPONDER
-//			, SCAN_FAST
+#ifdef ENABLE_FASTSCAN
+			, SCAN_FAST
+#endif
 		} scan_type_t;
 		typedef enum scan_flags {
 			SCAN_NIT		= 0x01,
@@ -101,7 +105,7 @@ class CServiceScan : public OpenThreads::Thread
 		void CleanAllMaps();
 		bool ReplaceTransponderParams(freq_id_t freq, t_satellite_position satellitePosition, struct dvb_frontend_parameters * feparams, uint8_t polarization);
 
-#if 0
+#ifdef ENABLE_FASTSCAN
 		/* fast scan */
 		std::map <t_channel_id, t_satellite_position> fast_services_sat;
 		std::map <t_channel_id, freq_id_t> fast_services_freq;

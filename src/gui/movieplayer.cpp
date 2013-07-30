@@ -44,7 +44,6 @@
 #include <driver/display.h>
 #include <driver/abstime.h>
 #include <system/helpers.h>
-#include <system/set_threadname.h>
 
 #include <unistd.h>
 #include <stdlib.h>
@@ -56,6 +55,10 @@
 #include <fstream>
 #include <iostream>
 #include <sstream>
+#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+#include <audio.h>
+#include <system/set_threadname.h>
+#endif
 #ifdef ENABLE_GRAPHLCD
 #include <driver/nglcd.h>
 bool glcd_play = false;
@@ -72,6 +75,9 @@ extern cVideo * videoDecoder;
 extern CRemoteControl *g_RemoteControl;	/* neutrino.cpp */
 extern CInfoClock *InfoClock;
 extern bool has_hdd;
+#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+extern cAudio * audioDecoder;
+#endif
 
 #define TIMESHIFT_SECONDS 3
 
@@ -543,20 +549,35 @@ void CMoviePlayerGui::PlayFile(void)
 			nGLCD::lockChannel(g_Locale->getText(LOCALE_MOVIEPLAYER_HEAD), file_name.c_str(), file_prozent);
 	}
 #endif
-#endif
 	pthread_t thrWebTVHint = 0;
 	if (isWebTV) {
 		showWebTVHint = true;
 		pthread_create(&thrWebTVHint, NULL, CMoviePlayerGui::ShowWebTVHint, this);
 	}
-	bool res = playback->Start((char *) full_name.c_str(), vpid, vtype, currentapid, currentac3, duration);
+	bool res = playback->Start((char *) full_name.c_str(), vpid, vtype, currentapid, currentac3, duration, !isMovieBrowser || !moviebrowser || !moviebrowser->doProbe());
 	if (thrWebTVHint) {
 		showWebTVHint = false;
 		pthread_join(thrWebTVHint, NULL);
 	}
 	if (!res) {
+#else
+	if(!playback->Start((char *) full_name.c_str(), vpid, vtype, currentapid, currentac3, duration)) {
+#endif
 		playback->Close();
 	} else {
+#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+		numpida = REC_MAX_APIDS;
+		playback->FindAllPids(apids, ac3flags, &numpida, language);
+		if (p_movie_info)
+			for (int i = 0; i < numpida; i++) {
+				EPG_AUDIO_PIDS pids;
+				pids.epgAudioPid = apids[i];
+				pids.selected = 0;
+				pids.atype = ac3flags[i];
+				pids.epgAudioPidName = language[i];
+				p_movie_info->audioPids.push_back(pids);
+			}
+#endif
 		playstate = CMoviePlayerGui::PLAY;
 		CVFD::getInstance()->ShowIcon(FP_ICON_PLAY, true);
 #if HAVE_DUCKBOX_HARDWARE || BOXMODEL_SPARK7162
@@ -871,7 +892,6 @@ void CMoviePlayerGui::PlayFile(void)
 			}
 			if(restore)
 				FileTime.show(position);
-#ifdef SCREENSHOT
 		} else if (msg == (neutrino_msg_t) g_settings.key_screenshot) {
 
 			char ending[(sizeof(int)*2) + 6] = ".jpg";
@@ -896,6 +916,30 @@ void CMoviePlayerGui::PlayFile(void)
 			if(!access(fname.c_str(), F_OK)) {
 			}
 #endif
+#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+			if (g_settings.screenshot_cover) {
+				unlink(fname.c_str());
+				CVFD::getInstance()->ShowText("SCREENSHOT");
+				CHintBox hintbox(LOCALE_SCREENSHOT_MENU, g_Locale->getText(LOCALE_SCREENSHOT_PLEASE_WAIT_COVER), 450, NEUTRINO_ICON_MOVIEPLAYER);
+				hintbox.paint();
+				CScreenShot sc(fname, CScreenShot::FORMAT_PNG);
+				sc.EnableVideo(true);
+				sc.EnableOSD(false);
+				sc.Start();
+				hintbox.hide();
+			} else {
+				CVFD::getInstance()->ShowText("SCREENSHOT");
+				CHintBox *hintbox = NULL;
+				if (g_settings.screenshot_mode == 1) {
+					hintbox = new CHintBox(LOCALE_SCREENSHOT_MENU, g_Locale->getText(LOCALE_SCREENSHOT_PLEASE_WAIT), 450, NEUTRINO_ICON_MOVIEPLAYER);
+					hintbox->paint();
+				}
+				CScreenShot sc(fname, CScreenShot::FORMAT_PNG);
+				sc.Start();
+				if (hintbox)
+					hintbox->hide();
+			}
+#else
 			CScreenShot * sc = new CScreenShot(fname);
 			if(g_settings.screenshot_cover && !g_settings.screenshot_video)
 				sc->EnableVideo(true);
@@ -1095,11 +1139,22 @@ void CMoviePlayerGui::selectAudioPid(bool file_player)
 	int select = -1;
 	CMenuSelectorTarget * selector = new CMenuSelectorTarget(&select);
 
+#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+	// these may change in-stream
+	numpida = REC_MAX_APIDS;
+	playback->FindAllPids(apids, ac3flags, &numpida, language);
+
+	if(numpida)
+		currentapid = playback->GetAPid();
+
+	std::string apidtitle[numpida];
+#else
 	if(file_player && !numpida){
 		playback->FindAllPids(apids, ac3flags, &numpida, language);
 		if(numpida)
 			currentapid = apids[0];
 	}
+#endif
 	for (unsigned int count = 0; count < numpida; count++) {
 		bool name_ok = false;
 		bool enabled = true;
@@ -1214,7 +1269,8 @@ void CMoviePlayerGui::handleMovieBrowser(neutrino_msg_t msg, int /*position*/)
 			p_movie_info->dateOfLastPlay = current_time.time;
 			current_time.time = time(NULL);
 			p_movie_info->bookmarks.lastPlayStop = position / 1000;
-			cMovieInfo.saveMovieInfo(*p_movie_info);
+			if (!isWebTV)
+				cMovieInfo.saveMovieInfo(*p_movie_info);
 			//p_movie_info->fileInfoStale(); //TODO: we might to tell the Moviebrowser that the movie info has changed, but this could cause long reload times  when reentering the Moviebrowser
 		}
 	}
@@ -1318,7 +1374,7 @@ void CMoviePlayerGui::handleMovieBrowser(neutrino_msg_t msg, int /*position*/)
 		}
 		return;
 	}
-	else if (msg == (neutrino_msg_t) g_settings.mpkey_bookmark) {
+	else if (msg == (neutrino_msg_t) g_settings.mpkey_bookmark && !isWebTV) {
 		if (newComHintBox.isPainted() == true) {
 			// yes, let's get the end pos of the jump forward
 			new_bookmark.length = play_sec - new_bookmark.pos;
@@ -1383,7 +1439,7 @@ void CMoviePlayerGui::handleMovieBrowser(neutrino_msg_t msg, int /*position*/)
 				/* Moviebrowser plain bookmark */
 				new_bookmark.pos = play_sec;
 				new_bookmark.length = 0;
-				if (cMovieInfo.addNewBookmark(p_movie_info, new_bookmark) == true)
+				if (!isWebTV && cMovieInfo.addNewBookmark(p_movie_info, new_bookmark) == true)
 					cMovieInfo.saveMovieInfo(*p_movie_info);	/* save immediately in xml file */
 				new_bookmark.pos = 0;	// clear again, since this is used as flag for bookmark activity
 				cSelectedMenuBookStart[1].selected = false;	// clear for next bookmark menu
@@ -1399,13 +1455,13 @@ void CMoviePlayerGui::handleMovieBrowser(neutrino_msg_t msg, int /*position*/)
 				TRACE("[mp] new bookmark 1. pos: %d\r\n", new_bookmark.pos);
 				newLoopHintBox.paint();
 				cSelectedMenuBookStart[3].selected = false;	// clear for next bookmark menu
-			} else if (cSelectedMenuBookStart[4].selected == true) {
+			} else if (!isWebTV && cSelectedMenuBookStart[4].selected == true) {
 				/* Moviebrowser movie start bookmark */
 				p_movie_info->bookmarks.start = play_sec;
 				TRACE("[mp] New movie start pos: %d\r\n", p_movie_info->bookmarks.start);
 				cMovieInfo.saveMovieInfo(*p_movie_info);	/* save immediately in xml file */
 				cSelectedMenuBookStart[4].selected = false;	// clear for next bookmark menu
-			} else if (cSelectedMenuBookStart[5].selected == true) {
+			} else if (!isWebTV && cSelectedMenuBookStart[5].selected == true) {
 				/* Moviebrowser movie end bookmark */
 				p_movie_info->bookmarks.end = play_sec;
 				TRACE("[mp]  New movie end pos: %d\r\n", p_movie_info->bookmarks.start);

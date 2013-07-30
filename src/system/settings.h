@@ -5,6 +5,7 @@
   Homepage: http://dbox.cyberphoria.org/
 
   Copyright (C) 2007-2012 Stefan Seyfried
+
   Kommentar:
 
   Diese GUI wurde von Grund auf neu programmiert und sollte nun vom
@@ -56,11 +57,6 @@ struct SNeutrinoSettings
 	int analog_mode1;
 	int analog_mode2;
 	int video_43mode;
-#ifdef BOXMODEL_APOLLO
-	int brightness;
-	int contrast;
-	int saturation;
-#endif
 #if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
 	int psi_contrast;
 	int psi_saturation;
@@ -68,6 +64,11 @@ struct SNeutrinoSettings
 	int psi_tint;
 	int psi_step;
 	int hdmi_color_space;
+#endif
+#ifdef BOXMODEL_APOLLO
+	int brightness;
+	int contrast;
+	int saturation;
 #endif
 	char current_volume;
 	int current_volume_step;
@@ -456,6 +457,7 @@ struct SNeutrinoSettings
 	int screenshot_format;
 	int screenshot_cover;
 	int screenshot_mode;
+	int screenshot_res;
 	int screenshot_video;
 	int screenshot_scale;
 #if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE

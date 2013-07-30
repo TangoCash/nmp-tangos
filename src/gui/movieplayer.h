@@ -87,9 +87,11 @@ class CMoviePlayerGui : public CMenuTarget
 	unsigned short apids[REC_MAX_APIDS];
 	unsigned short ac3flags[REC_MAX_APIDS];
 	unsigned short currentapid, currentac3;
-
+#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
 	bool isWebTV;
 	bool showWebTVHint;
+	bool probePids;
+#endif
 
 	/* subtitles vars */
 	unsigned short numsubs;
