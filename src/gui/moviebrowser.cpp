@@ -613,6 +613,8 @@ void CMovieBrowser::initGlobalSettings(void)
 	m_settings.ytmode = cYTFeedParser::MOST_POPULAR;
 	m_settings.ytresults = 10;
 	m_settings.ytregion = "default";
+	m_settings.ytquality = 37;
+	m_settings.ytconcconn = 4;
 }
 
 void CMovieBrowser::initFrames(void)
@@ -2931,7 +2933,6 @@ void CMovieBrowser::loadMovies(bool doRefresh)
 	loadBox.paint();
 
 //clock_act = clock()/10000;TRACE("[mb] *1: time %9ld  clock %6ld  dclock %6ld*\n",(long)time(NULL),clock_act,clock_act - clock_prev);clock_prev = clock_act;
-	m_file_info_stale = false;
 	if (show_mode == MB_SHOW_YT) {
 		loadYTitles(m_settings.ytmode, m_settings.ytsearch, m_settings.ytvid);
 	} else {
@@ -2947,6 +2948,7 @@ void CMovieBrowser::loadMovies(bool doRefresh)
 			autoFindSerie();
 		}
 	}
+	m_file_info_stale = false;
 
 	loadBox.hide();
 

@@ -586,6 +586,30 @@ bool CChannelList::updateSelection(int newpos)
 	return actzap;
 }
 
+int CChannelList::getPrevNextBouquet(bool next)
+{
+	bool found = true;
+	int dir = next ? 1 : -1;
+	int b_size = bouquetList->Bouquets.size(); /* bigger than 0 */
+	int nNext = (bouquetList->getActiveBouquetNumber() + b_size + dir) % b_size;
+	if(bouquetList->Bouquets[nNext]->channelList->isEmpty() ) {
+		found = false;
+		int n_old = nNext;
+		nNext = (nNext + b_size + dir) % b_size;
+		for (int i = nNext; i != n_old; i = (i + b_size + dir) % b_size) {
+			if( !bouquetList->Bouquets[i]->channelList->isEmpty() ) {
+				found = true;
+				nNext = i;
+				break;
+			}
+		}
+	}
+	if (found)
+		return nNext;
+
+	return -1;
+}
+
 #define CHANNEL_SMSKEY_TIMEOUT 800
 /* return: >= 0 to zap, -1 on cancel, -3 on list mode change, -4 list edited, -2 zap but no restore old list/chan ?? */
 int CChannelList::show()
@@ -685,9 +709,10 @@ int CChannelList::show()
 				if (!CRecordManager::getInstance()->Record(chanlist[selected]->channel_id)) {
 					paintHead();
 					paint();
-				} else
+				} else {
+					selected = oldselected;
 					loop=false;
-
+				}
 			}
 		}
 		else if( msg == CRCInput::RC_stop ) { //stopp recording
@@ -783,23 +808,8 @@ int CChannelList::show()
 			if (dline)
 				dline->kill(); //kill details line on change to next page
 			if (!bouquetList->Bouquets.empty()) {
-				bool found = true;
-				int dir = msg == (neutrino_msg_t)g_settings.key_bouquet_up ? 1 : -1;
-				int b_size = bouquetList->Bouquets.size(); /* bigger than 0 */
-				int nNext = (bouquetList->getActiveBouquetNumber() + b_size + dir) % b_size;
-				if(bouquetList->Bouquets[nNext]->channelList->isEmpty() ) {
-					found = false;
-					int n_old = nNext;
-					nNext = (nNext + b_size + dir) % b_size;
-					for (int i = nNext; i != n_old; i = (i + b_size + dir) % b_size) {
-						if( !bouquetList->Bouquets[i]->channelList->isEmpty() ) {
-							found = true;
-							nNext = i;
-							break;
-						}
-					}
-				}
-				if(found) {
+				int nNext = getPrevNextBouquet(msg == (neutrino_msg_t)g_settings.key_bouquet_up);
+				if(nNext >= 0) {
 					bouquetList->activateBouquet(nNext, false);
 					res = bouquetList->showChannelList();
 					loop = false;
@@ -1487,12 +1497,11 @@ CZapitChannel* CChannelList::getPrevNextChannel(int key, unsigned int &sl)
 		if ((key == g_settings.key_quickzap_down) || (key == CRCInput::RC_left)) {
 #endif
 			if(cactive == 0) {
-				if(bactive == 0)
-					bactive = bsize - 1;
-				else
-					bactive--;
-				bouquetList->activateBouquet(bactive, false);
-				cactive = bouquetList->Bouquets[bactive]->channelList->getSize() - 1;
+				bactive = getPrevNextBouquet(false);
+				if (bactive >= 0) {
+					bouquetList->activateBouquet(bactive, false);
+					cactive = bouquetList->Bouquets[bactive]->channelList->getSize() - 1;
+				}
 			} else
 				--cactive;
 		}
@@ -1503,9 +1512,11 @@ CZapitChannel* CChannelList::getPrevNextChannel(int key, unsigned int &sl)
 #endif
 			cactive++;
 			if(cactive >= chanlist.size()) {
-				bactive = (bactive + 1)  % bsize;
-				bouquetList->activateBouquet(bactive, false);
-				cactive = 0;
+				bactive = getPrevNextBouquet(true);
+				if (bactive >= 0) {
+					bouquetList->activateBouquet(bactive, false);
+					cactive = 0;
+				}
 			}
 		}
 		sl = cactive;
