@@ -478,6 +478,7 @@ void CInfoViewerBB::showIcon_DD()
 		dd_icon = NEUTRINO_ICON_DD;
 	else 
 		dd_icon = g_RemoteControl->has_ac3 ? NEUTRINO_ICON_DD_AVAIL : NEUTRINO_ICON_DD_GREY;
+
 	showBBIcons(CInfoViewerBB::ICON_DD, dd_icon);
 }
 

@@ -601,6 +601,7 @@ int CEpgData::show(const t_channel_id channel_id, uint64_t a_id, time_t* a_start
 		processTextToArray(std::string(g_Locale->getText(LOCALE_EPGVIEWER_GENRE)) + ": " + GetGenre(epgData.contentClassification[0])); // UTF-8
 //	processTextToArray( epgData.userClassification.c_str() );
 
+
 	// -- display more screenings on the same channel
 	// -- 2002-05-03 rasc
 	has_follow_screenings = false;

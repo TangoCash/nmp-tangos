@@ -467,9 +467,12 @@ void Font::RenderString(int x, int y, const int width, const char *text, const f
 		   it's ready, otherwise the font will sometimes "be overwritten" with
 		   background color or bgcolor will be wrong */
 		frameBuffer->waitForIdle("Font::RenderString 1");
-		/* fetch bgcolor from framebuffer, using lower left edge of the font... */
+	int yoff = y - height/2;
+	if (yoff < 0)
+		yoff  = 0;
+		/* fetch bgcolor from framebuffer, using middle left of the font... */
 		bg_color = *(frameBuffer->getFrameBufferPointer() + x +
-				y * frameBuffer->getStride() / sizeof(fb_pixel_t));
+				yoff * frameBuffer->getStride() / sizeof(fb_pixel_t));
 	}
 	else
 		bg_color = 0;
@@ -630,8 +633,6 @@ void Font::RenderString(int x, int y, const int width, const char *text, const f
 //printf("RenderStat: %d %d %d \n", renderer->cacheManager->num_nodes, renderer->cacheManager->num_bytes, renderer->cacheManager->max_bytes);
 	pthread_mutex_unlock( &renderer->render_mutex );
 	frameBuffer->checkFbArea(x, y-height, width, height, false);
-	/* x is the rightmost position of the last drawn character */
-	frameBuffer->mark(left, y + lower - height, x, y + lower);
 }
 
 void Font::RenderString(int x, int y, const int width, const std::string & text, const fb_pixel_t color, const int boxheight, const bool utf8_encoded, const bool useFullBg)

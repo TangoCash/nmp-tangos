@@ -30,7 +30,7 @@
 #include <gui/widget/buttons.h>
 #include <gui/customcolor.h>
 #include <system/settings.h>
-#include <driver/stacktrace.h>
+//#include <driver/stacktrace.h>
 
 
 
@@ -110,7 +110,7 @@ int paintButtons(	const int &x,
 	if (count > 16 || count == 0)
 	{
 		fprintf(stderr, "paintButtons does only support max 16 buttons yet (%d)\n", count);
-		print_stacktrace();
+		//print_stacktrace();
 		return 0;
 	}
 	if (maxwidth < 200 && show)
@@ -118,7 +118,7 @@ int paintButtons(	const int &x,
 		fprintf(stderr, "paintButtons: maxwidth very small\n");
 		fprintf(stderr, "  x: %d y: %d footw: %d count: %d maxw: %d footh: %d\n ",
 				x, y, footerwidth, count, maxwidth, footerheight);
-		print_stacktrace();
+		//print_stacktrace();
 	}
 
 	uint i;

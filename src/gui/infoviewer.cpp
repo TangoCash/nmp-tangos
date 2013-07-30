@@ -96,9 +96,6 @@ CInfoViewer::CInfoViewer ()
 	sigscale = NULL;
 	snrscale = NULL;
 	timescale = NULL;
-	info_CurrentNext.current_zeit.startzeit = 0;
-	info_CurrentNext.current_zeit.dauer = 0;
-	info_CurrentNext.flags = 0;
 	frameBuffer = CFrameBuffer::getInstance();
 	infoViewerBB = CInfoViewerBB::getInstance();
 	InfoHeightY = 0;
@@ -121,7 +118,6 @@ CInfoViewer::CInfoViewer ()
 	ChanInfoX = 0;
 	Init();
 	infoViewerBB->Init();
-	strcpy(old_timestr, "");
 	oldinfo.current_uniqueKey = 0;
 	oldinfo.next_uniqueKey = 0;
 	isVolscale = false;
@@ -1673,12 +1669,10 @@ void CInfoViewer::show_Data (bool calledFromEvent)
 	if (info_CurrentNext.flags & CSectionsdClient::epgflags::has_current) {
 		int seit = (abs(jetzt - info_CurrentNext.current_zeit.startzeit) + 30) / 60;
 		int rest = (info_CurrentNext.current_zeit.dauer / 60) - seit;
-		runningPercent = 0;
-		if (!gotTime)
-			snprintf(runningRest, sizeof(runningRest), "%d min", info_CurrentNext.current_zeit.dauer / 60);
-		else if (jetzt < info_CurrentNext.current_zeit.startzeit)
+		if (jetzt < info_CurrentNext.current_zeit.startzeit) {
+			runningPercent = 0;
 			snprintf (runningRest, sizeof(runningRest), "in %d min", seit);
-		else {
+		} else {
 			runningPercent = (jetzt - info_CurrentNext.current_zeit.startzeit) * 100 / info_CurrentNext.current_zeit.dauer;
 			if (runningPercent > 100)
 				runningPercent = 100;
@@ -2120,7 +2114,7 @@ void CInfoViewer::showLcdPercentOver ()
 			if (jetzt < info_CurrentNext.current_zeit.startzeit)
 				runningPercent = 0;
 			else
-				runningPercent = MIN ((jetzt - info_CurrentNext.current_zeit.startzeit) * 100 / info_CurrentNext.current_zeit.dauer, 100);
+				runningPercent = MIN ((unsigned) ((float) (jetzt - info_CurrentNext.current_zeit.startzeit) / (float) info_CurrentNext.current_zeit.dauer * 100.), 100);
 		}
 		CVFD::getInstance ()->showPercentOver (runningPercent);
 	}

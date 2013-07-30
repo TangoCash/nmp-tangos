@@ -136,6 +136,15 @@ int CAudioPlayerSetup::showAudioPlayerSetup()
 	mc->setHint("", LOCALE_MENU_HINT_AUDIOPLAYER_PLAYLIST);
 	audioplayerSetup->addItem(mc);
 
+	CStringInput audio_screensaver(LOCALE_AUDIOPLAYER_SCREENSAVER_TIMEOUT, g_settings.audioplayer_screensaver, 2, NONEXISTANT_LOCALE, NONEXISTANT_LOCALE, "0123456789 ");
+	mf = new CMenuForwarder(LOCALE_AUDIOPLAYER_SCREENSAVER_TIMEOUT, true, g_settings.audioplayer_screensaver, &audio_screensaver);
+	mf->setHint("", LOCALE_MENU_HINT_AUDIOPLAYER_SCREENSAVER);
+	audioplayerSetup->addItem(mf);
+
+	mf = new CMenuForwarder(LOCALE_AUDIOPLAYER_SCREENSAVER_DIR, true, g_settings.audioplayer_screensaver_dir, this, "screensaverdir");
+	mf->setHint("", LOCALE_MENU_HINT_AUDIOPLAYER_SCREENSAVER_DIR);
+	audioplayerSetup->addItem(mf);
+
 	mc = new CMenuOptionChooser(LOCALE_AUDIOPLAYER_HIGHPRIO, &g_settings.audioplayer_highprio, MESSAGEBOX_NO_YES_OPTIONS, MESSAGEBOX_NO_YES_OPTION_COUNT, true );
 	mc->setHint("", LOCALE_MENU_HINT_AUDIOPLAYER_HIGHPRIO);
 	audioplayerSetup->addItem(mc);
@@ -150,15 +159,6 @@ int CAudioPlayerSetup::showAudioPlayerSetup()
 	mc = new CMenuOptionChooser(LOCALE_AUDIOPLAYER_ENABLE_SC_METADATA, &g_settings.audioplayer_enable_sc_metadata, MESSAGEBOX_NO_YES_OPTIONS, MESSAGEBOX_NO_YES_OPTION_COUNT, true);
 	mc->setHint("", LOCALE_MENU_HINT_AUDIOPLAYER_SC_METADATA);
 	audioplayerSetup->addItem(mc);
-
-	CStringInput audio_screensaver(LOCALE_AUDIOPLAYER_SCREENSAVER_TIMEOUT, g_settings.audioplayer_screensaver, 2, NONEXISTANT_LOCALE, NONEXISTANT_LOCALE, "0123456789 ");
-	mf = new CMenuForwarder(LOCALE_AUDIOPLAYER_SCREENSAVER_TIMEOUT, true, g_settings.audioplayer_screensaver, &audio_screensaver);
-	mf->setHint("", LOCALE_MENU_HINT_AUDIOPLAYER_SCREENSAVER);
-	audioplayerSetup->addItem(mf);
-
-	mf = new CMenuForwarder(LOCALE_AUDIOPLAYER_SCREENSAVER_DIR, true, g_settings.audioplayer_screensaver_dir, this, "screensaverdir");
-	mf->setHint("", LOCALE_MENU_HINT_AUDIOPLAYER_SCREENSAVER_DIR);
-	audioplayerSetup->addItem(mf);
 
 	int res = audioplayerSetup->exec (NULL, "");
 	delete audioplayerSetup;

@@ -110,7 +110,7 @@ CScanSettings::CScanSettings(void)
 {
 	delivery_system = DVB_S;
 	bouquetMode     = CZapitClient::BM_UPDATEBOUQUETS;
-#if HAVE_DUCKBOX_HARDWARE
+#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
 	scanType = CServiceScan::SCAN_ALL;
 #else
 	scanType = CServiceScan::SCAN_TVRADIO;

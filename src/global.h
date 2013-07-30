@@ -42,7 +42,7 @@
 #include <driver/vfd.h>
 #endif
 #if HAVE_TRIPLEDRAGON || HAVE_SPARK_HARDWARE || HAVE_AZBOX_HARDWARE || HAVE_GENERIC_HARDWARE
-#include "driver/lcdd.h"
+#include <driver/lcdd.h>
 #define CVFD CLCD
 #endif
 
