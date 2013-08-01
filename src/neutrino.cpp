@@ -356,6 +356,14 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	g_settings.video_Format = configfile.getInt32("video_Format", DISPLAY_AR_16_9);
 	g_settings.video_43mode = configfile.getInt32("video_43mode", DISPLAY_AR_MODE_LETTERBOX);
 	g_settings.current_volume = configfile.getInt32("current_volume", 50);
+
+#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+	g_settings.audio_mixer_volume_analog = configfile.getInt32("audio_mixer_volume_analog", 50);
+	g_settings.audio_mixer_volume_hdmi = configfile.getInt32("audio_mixer_volume_hdmi", 75);
+	g_settings.audio_mixer_volume_spdif = configfile.getInt32("audio_mixer_volume_spdif", 75);
+	g_settings.audio_volume_percent_ac3 = configfile.getInt32("audio_volume_percent_ac3", 100);
+	g_settings.audio_volume_percent_pcm = configfile.getInt32("audio_volume_percent_pcm", 100);
+#endif
 	g_settings.current_volume_step = configfile.getInt32("current_volume_step", 2);
 #if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
 	g_settings.channel_mode = configfile.getInt32("channel_mode", LIST_MODE_FAV);
@@ -983,6 +991,13 @@ void CNeutrinoApp::saveSetup(const char * fname)
 
 	configfile.setInt32( "current_volume", g_settings.current_volume );
 	configfile.setInt32( "current_volume_step", g_settings.current_volume_step );
+#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+	configfile.setInt32("audio_mixer_volume_analog", g_settings.audio_mixer_volume_analog);
+	configfile.setInt32("audio_mixer_volume_hdmi", g_settings.audio_mixer_volume_hdmi);
+	configfile.setInt32("audio_mixer_volume_spdif", g_settings.audio_mixer_volume_spdif);
+	configfile.setInt32("audio_volume_percent_ac3", g_settings.audio_volume_percent_ac3);
+	configfile.setInt32("audio_volume_percent_pcm", g_settings.audio_volume_percent_pcm);
+#endif
 	configfile.setInt32( "channel_mode", g_settings.channel_mode );
 	configfile.setInt32( "channel_mode_radio", g_settings.channel_mode_radio );
 
@@ -2072,6 +2087,11 @@ fprintf(stderr, "[neutrino start] %d  -> %5ld ms\n", __LINE__, time_monotonic_ms
 	timerd_thread_started = true;
 	// timer_wakeup = false;
 
+#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+	audioSetupNotifier->changeNotify(LOCALE_AUDIOMENU_MIXER_VOLUME_ANALOG, &g_settings.audio_mixer_volume_analog);
+	audioSetupNotifier->changeNotify(LOCALE_AUDIOMENU_MIXER_VOLUME_SPDIF, &g_settings.audio_mixer_volume_spdif);
+	audioSetupNotifier->changeNotify(LOCALE_AUDIOMENU_MIXER_VOLUME_HDMI, &g_settings.audio_mixer_volume_hdmi);
+#endif
 	powerManager = new cPowerManager;
 	powerManager->Open();
 
@@ -2212,6 +2232,7 @@ fprintf(stderr, "[neutrino start] %d  -> %5ld ms\n", __LINE__, time_monotonic_ms
 
 	g_audioMute->AudioMute(current_muted, true);
 #if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+	CZapit::getInstance()->SetVolumePercent(g_settings.audio_volume_percent_ac3, g_settings.audio_volume_percent_pcm);
 	threeDSetup->exec(NULL, "zapped");
 	chPSISetup = new CPSISetup(LOCALE_VIDEOMENU_PSI);
 	chPSISetup->blankScreen(false);

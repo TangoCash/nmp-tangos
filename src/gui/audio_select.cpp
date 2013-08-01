@@ -117,6 +117,7 @@ int CAudioSelectMenuHandler::doMenu ()
 		AudioSelector.addItem(fw, (i == g_RemoteControl->current_PIDs.PIDs.selected_apid));
 		shortcut_num = i+1;
 	}
+#if !HAVE_SPARK_HARDWARE && !HAVE_DUCKBOX_HARDWARE
 	if (p_count)
 		AudioSelector.addItem(GenericMenuSeparatorLine);
 
@@ -133,6 +134,7 @@ int CAudioSelectMenuHandler::doMenu ()
 			true, audioSetupNotifier, CRCInput::RC_green, NEUTRINO_ICON_BUTTON_GREEN);
 
 	AudioSelector.addItem( oj );
+#endif
 
 	CChannelList *channelList = CNeutrinoApp::getInstance ()->channelList;
 	int curnum = channelList->getActiveChannelNumber();
@@ -193,7 +195,11 @@ int CAudioSelectMenuHandler::doMenu ()
 	CVolume::getInstance()->SetCurrentPid(0);
 	int percent[p_count];
 	for (uint i=0; i < p_count; i++) {
+#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+		percent[i] = CZapit::getInstance()->GetPidVolume(0, g_RemoteControl->current_PIDs.APIDs[i].pid, g_RemoteControl->current_PIDs.APIDs[i].is_ac3);
+#else
 		percent[i] = CZapit::getInstance()->GetPidVolume(0, g_RemoteControl->current_PIDs.APIDs[i].pid);
+#endif
 		AudioSelector.addItem(new CMenuOptionNumberChooser(NONEXISTANT_LOCALE, &percent[i],
 					i == g_RemoteControl->current_PIDs.PIDs.selected_apid,
 					0, 999, CVolume::getInstance(), 0, 0, NONEXISTANT_LOCALE,

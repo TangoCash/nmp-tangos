@@ -480,8 +480,11 @@ void CServiceManager::FindTransponder(xmlNodePtr search)
 			char * name = xmlGetAttribute(search, "name");
 			satellitePosition = GetSatellitePosition(name);
 		}
-		else if (!strcmp(xmlGetName(search), "terrestrial"))
+		else if (!strcmp(xmlGetName(search), "terrestrial")) {
 			delsys = FE_OFDM;
+			char * name = xmlGetAttribute(search, "name");
+			satellitePosition = GetSatellitePosition(name);
+		}
 		else if ((strcmp(xmlGetName(search), "sat"))) {
 			search = search->xmlNextNode;
 			continue;

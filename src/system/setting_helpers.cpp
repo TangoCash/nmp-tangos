@@ -264,7 +264,11 @@ bool CColorSetupNotifier::changeNotify(const neutrino_locale_t, void *)
 	return false;
 }
 
+#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+bool CAudioSetupNotifier::changeNotify(const neutrino_locale_t OptionName, void *data)
+#else
 bool CAudioSetupNotifier::changeNotify(const neutrino_locale_t OptionName, void *)
+#endif
 {
 	//printf("notify: %d\n", OptionName);
 #if 0 //FIXME to do ? manual audio delay
@@ -289,6 +293,17 @@ bool CAudioSetupNotifier::changeNotify(const neutrino_locale_t OptionName, void 
 	} else if (ARE_LOCALES_EQUAL(OptionName, LOCALE_AUDIOMENU_CLOCKREC)) {
 		//.Clock recovery enable/disable
 		// FIXME add code here.
+#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWAREE
+	} else if (ARE_LOCALES_EQUAL(OptionName, LOCALE_AUDIOMENU_MIXER_VOLUME_ANALOG)) {
+		static mixerVolume m("Analog", "1");
+		m.setVolume((long)(*((int *)(data))));
+	} else if (ARE_LOCALES_EQUAL(OptionName, LOCALE_AUDIOMENU_MIXER_VOLUME_HDMI)) {
+		static mixerVolume m("HDMI", "1");
+		m.setVolume((long)(*((int *)(data))));
+	} else if (ARE_LOCALES_EQUAL(OptionName, LOCALE_AUDIOMENU_MIXER_VOLUME_SPDIF)) {
+		static mixerVolume m("SPDIF", "1");
+		m.setVolume((long)(*((int *)(data))));
+#endif
 	} else if (ARE_LOCALES_EQUAL(OptionName, LOCALE_AUDIO_SRS_ALGO) ||
 			ARE_LOCALES_EQUAL(OptionName, LOCALE_AUDIO_SRS_NMGR) ||
 			ARE_LOCALES_EQUAL(OptionName, LOCALE_AUDIO_SRS_VOLUME)) {

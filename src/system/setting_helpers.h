@@ -34,6 +34,10 @@
 
 
 #include <gui/widget/menue.h>
+#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+#include <zapit/client/zapittypes.h>
+#include <playback.h>
+#endif
 
 #include <string>
 

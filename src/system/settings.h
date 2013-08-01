@@ -108,6 +108,13 @@ struct SNeutrinoSettings
 	//audio
 	int audio_AnalogMode;
 	int audio_DolbyDigital;
+#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+	int audio_mixer_volume_analog;
+	int audio_mixer_volume_spdif;
+	int audio_mixer_volume_hdmi;
+	int audio_volume_percent_ac3;
+	int audio_volume_percent_pcm;
+#endif
 	int auto_lang;
 	int auto_subs;
 	char audio_PCMOffset[3];

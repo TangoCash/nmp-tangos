@@ -45,6 +45,9 @@
 #include <driver/screen_max.h>
 
 #include <audio.h>
+#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+#include <zapit/zapit.h>
+#endif
 
 #include <system/debug.h>
 
@@ -64,8 +67,20 @@ CAudioSetup::~CAudioSetup()
 
 }
 
+#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+int CAudioSetup::exec(CMenuTarget* parent, const std::string &actionKey)
+#else
 int CAudioSetup::exec(CMenuTarget* parent, const std::string &/*actionKey*/)
+#endif
 {
+#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+	if (actionKey == "clear_vol_map") {
+		CZapit::getInstance()->ClearVolumeMap();
+		CZapit::getInstance()->SetVolumePercent(g_settings.audio_volume_percent_ac3, g_settings.audio_volume_percent_pcm);
+		return menu_return::RETURN_NONE;
+	}
+#endif
+
 	dprintf(DEBUG_DEBUG, "init audio setup\n");
 	int   res = menu_return::RETURN_REPAINT;
 
@@ -221,9 +236,26 @@ int CAudioSetup::showAudioSetup()
 #if 0
 	audioSettings->addItem(mf);
 #endif
-
+#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+	audioSettings->addItem(new CMenuSeparator(CMenuSeparator::LINE | CMenuSeparator::STRING, LOCALE_AUDIOMENU_MIXER_VOLUME));
+	audioSettings->addItem(new CMenuOptionNumberChooser(LOCALE_AUDIOMENU_MIXER_VOLUME_ANALOG,
+		(int *)&g_settings.audio_mixer_volume_analog, true, 0, 100, audioSetupNotifier));
+	audioSettings->addItem(new CMenuOptionNumberChooser(LOCALE_AUDIOMENU_MIXER_VOLUME_HDMI,
+		(int *)&g_settings.audio_mixer_volume_hdmi, true, 0, 100, audioSetupNotifier));
+	audioSettings->addItem(new CMenuOptionNumberChooser(LOCALE_AUDIOMENU_MIXER_VOLUME_SPDIF,
+		(int *)&g_settings.audio_mixer_volume_spdif, true, 0, 100, audioSetupNotifier));
+	audioSettings->addItem(new CMenuSeparator(CMenuSeparator::LINE | CMenuSeparator::STRING, LOCALE_AUDIOMENU_VOLUME_ADJUSTMENT));
+	audioSettings->addItem(new CMenuOptionNumberChooser(LOCALE_AUDIOMENU_VOLUME_ADJUSTMENT_AC3,
+		(int *)&g_settings.audio_volume_percent_ac3, true, 0, 100, audioSetupNotifier));
+	audioSettings->addItem(new CMenuOptionNumberChooser(LOCALE_AUDIOMENU_VOLUME_ADJUSTMENT_PCM,
+		(int *)&g_settings.audio_volume_percent_pcm, true, 0, 100, audioSetupNotifier));
+	audioSettings->addItem(new CMenuForwarder(LOCALE_AUDIOMENU_VOLUME_ADJUSTMENT_CLEAR, true, NULL, this, "clear_vol_map"));
+#endif
 	int res = audioSettings->exec(NULL, "");
 	selected = audioSettings->getSelected();
+#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+	CZapit::getInstance()->SetVolumePercent(g_settings.audio_volume_percent_ac3, g_settings.audio_volume_percent_pcm);
+#endif
 	delete audioSettings;
 	return res;
 }

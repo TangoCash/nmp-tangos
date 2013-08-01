@@ -992,6 +992,18 @@ bool COsdSetup::changeNotify(const neutrino_locale_t OptionName, void * data)
 		CVolumeHelper::getInstance()->refresh();
 		return false;
 	}
+#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+	if (ARE_LOCALES_EQUAL(OptionName, LOCALE_SCREENSHOT_PLANES)) {
+		if (g_settings.screenshot_mode == 3) {
+			screenshot_res = g_settings.screenshot_res;
+			screenshot_res_chooser->setActive(true);
+		} else {
+			screenshot_res = g_settings.screenshot_mode;
+			screenshot_res_chooser->setActive(false);
+		}
+		return true;
+	}
+#endif
 	return false;
 }
 
