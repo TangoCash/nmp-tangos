@@ -1119,6 +1119,7 @@ menu.hint_screenshot_count Wählen Sie, wie viele Screenshots erstellt werden so
 menu.hint_screenshot_cover Während der Wiedergabe von Aufnahmen kann ein Screenshot für die Vorschau im Moviebrowser erstellt werden
 menu.hint_screenshot_dir Wählen Sie das Verzeichnis zum Speichern der Screenshots
 menu.hint_screenshot_format Wählen Sie das Dateiformat zum Speichern der Screenshots
+menu.hint_screenshot_planes Wählen Sie den Inhalt des Screenshots.
 menu.hint_screenshot_res Screenshot Größe: aktuelle TV-Auflösung oder OSD-Auflösung (1280x720)
 menu.hint_screenshot_scale Skalierung auf TV-Auflösung, wenn OSD aktiviert ist
 menu.hint_screenshot_setup Konfigurieren Sie die Optionen zum Erstellen von Screenshots

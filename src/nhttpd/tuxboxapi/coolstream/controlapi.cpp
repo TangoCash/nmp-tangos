@@ -177,9 +177,7 @@ const CControlAPI::TyCgiCall CControlAPI::yCgiCallList[]=
 	{"version", 		&CControlAPI::VersionCGI,		""},
 	{"reloadsetup", 	&CControlAPI::ReloadNutrinoSetupfCGI,		""},
 	{"reloadplugins", 	&CControlAPI::ReloadPluginsCGI,		""},
-#ifdef SCREENSHOT
 	{"screenshot", 		&CControlAPI::ScreenshotCGI,		""},
-#endif
 	// boxcontrol - devices
 	{"volume", 			&CControlAPI::VolumeCGI,		"text/plain"},
 	{"lcd", 			&CControlAPI::LCDAction,		"text/plain"},
@@ -1478,7 +1476,6 @@ void CControlAPI::ReloadPluginsCGI(CyhookHandler *hh)
 	hh->SendOk();
 }
 
-#ifdef SCREENSHOT
 void CControlAPI::ScreenshotCGI(CyhookHandler *hh)
 {
 	bool enableOSD = true;
@@ -1492,9 +1489,21 @@ void CControlAPI::ScreenshotCGI(CyhookHandler *hh)
 	if(hh->ParamList["name"] != "")
 		filename = hh->ParamList["name"];
 
+#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+	if (!enableVideo) {
+		CFrameBuffer::getInstance()->OSDShot("/tmp/screenshot.png");
+		hh->SendOk();
+		return;
+	}
+#endif
+
 	CScreenShot * sc = new CScreenShot("/tmp/" + filename + ".png", (CScreenShot::screenshot_format_t)0 /*PNG*/);
 	sc->EnableOSD(enableOSD);
 	sc->EnableVideo(enableVideo);
+#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+	sc->Start();
+	hh->SendOk();
+#else
 #if 0
 	sc->Start();
 	hh->SendOk(); // FIXME what if sc->Start() failed?
@@ -1504,8 +1513,8 @@ void CControlAPI::ScreenshotCGI(CyhookHandler *hh)
 	else
 		hh->SendError();
 #endif
-}
 #endif
+}
 
 //-----------------------------------------------------------------------------
 void CControlAPI::ZaptoCGI(CyhookHandler *hh)
@@ -2105,6 +2114,12 @@ void CControlAPI::YWeb_SendRadioStreamingPid(CyhookHandler *hh)
 //-----------------------------------------------------------------------------
 std::string CControlAPI::YexecuteScript(CyhookHandler *, std::string cmd)
 {
+#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+	const char *fbshot = "Y_Tools fbshot fb /";
+	int len = strlen(fbshot);
+	if (!strncmp(cmd.c_str(), fbshot, len))
+		return CFrameBuffer::getInstance()->OSDShot(cmd.substr(len - 1)) ? "" : "error";
+#endif
 	std::string script, para, result;
 	bool found = false;
 

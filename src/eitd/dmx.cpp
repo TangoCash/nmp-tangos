@@ -68,7 +68,7 @@ DMX::DMX()
 	dmxBufferSizeInKB = 512;
 	init();
 	eit_version = 0;
-	dmx = 0;
+	dmx = NULL;
 }
 
 void DMX::init()
@@ -122,9 +122,11 @@ void DMX::closefd(void)
 	if (isOpen())
 	{
 		//dmx->Stop();
-		delete dmx;
-		dmx = NULL;
-		fd = -1;
+		if (dmx) {
+			delete dmx;
+			dmx = NULL;
+			fd = -1;
+		}
 	}
 }
 

@@ -1115,6 +1115,7 @@ menu.hint_screenshot_count When no GUI on screen, you can save 1-5\nscreenshot s
 menu.hint_screenshot_cover ON: When playing record, overwrite single\nscreenshot to show inside MovieBrowser
 menu.hint_screenshot_dir Select directory to save screenshots
 menu.hint_screenshot_format File format to save screenshot
+menu.hint_screenshot_planes Select what the screenshot should cover.
 menu.hint_screenshot_res Screenshot size: current channel's video size\nor OSD size (1280x720)
 menu.hint_screenshot_scale For video+OSD screenshots, scale to video size
 menu.hint_screenshot_setup Configure screenshots options

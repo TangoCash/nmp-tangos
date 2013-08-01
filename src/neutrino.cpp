@@ -723,10 +723,15 @@ int CNeutrinoApp::loadSetup(const char * fname)
 #if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
 	g_settings.screenshot_png_compression = configfile.getInt32( "screenshot_png_compression", 1);
 	g_settings.screenshot_backbuffer = configfile.getInt32( "screenshot_backbuffer", 1);
-#else
+#endif
 	g_settings.screenshot_count = configfile.getInt32( "screenshot_count",  1);
 	g_settings.screenshot_format = configfile.getInt32( "screenshot_format",  1);
 	g_settings.screenshot_cover = configfile.getInt32( "screenshot_cover",  0);
+#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+	g_settings.screenshot_mode = configfile.getInt32( "screenshot_mode",  1 /* video */);
+	g_settings.screenshot_res = configfile.getInt32( "screenshot_res",  2 /* = osd resolution */);
+
+#else
 	g_settings.screenshot_mode = configfile.getInt32( "screenshot_mode",  0);
 	g_settings.screenshot_video = configfile.getInt32( "screenshot_video",  1);
 	g_settings.screenshot_scale = configfile.getInt32( "screenshot_scale",  0);
@@ -1255,8 +1260,12 @@ void CNeutrinoApp::saveSetup(const char * fname)
 	configfile.setInt32( "screenshot_format", g_settings.screenshot_format );
 	configfile.setInt32( "screenshot_cover", g_settings.screenshot_cover );
 	configfile.setInt32( "screenshot_mode", g_settings.screenshot_mode );
+#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+	configfile.setInt32( "screenshot_res", g_settings.screenshot_res );
+#else
 	configfile.setInt32( "screenshot_video", g_settings.screenshot_video );
 	configfile.setInt32( "screenshot_scale", g_settings.screenshot_scale );
+#endif
 
 	configfile.setString( "screenshot_dir", g_settings.screenshot_dir);
 	configfile.setInt32( "cacheTXT", g_settings.cacheTXT );
@@ -1995,10 +2004,10 @@ fprintf(stderr, "[neutrino start] %d  -> %5ld ms\n", __LINE__, time_monotonic_ms
 #ifdef ENABLE_GRAPHLCD
 	nGLCD::getInstance();
 #endif
+fprintf(stderr, "[neutrino start] %d  -> %5ld ms\n", __LINE__, time_monotonic_ms() - starttime);
 #if !HAVE_SPARK_HARDWARE && !HAVE_DUCKBOX_HARDWARE
 	CVFD::getInstance()->setBacklight(g_settings.backlight_tv);
 #endif
-fprintf(stderr, "[neutrino start] %d  -> %5ld ms\n", __LINE__, time_monotonic_ms() - starttime);
 
 	/* set service manager options before starting zapit */
 	CServiceManager::getInstance()->KeepNumbers(g_settings.keep_channel_numbers);
@@ -2433,9 +2442,23 @@ void CNeutrinoApp::RealRun(CMenuWidget &mainMenu)
 			}
 			else if (msg == (neutrino_msg_t) g_settings.key_screenshot) {
 				for(int i = 0; i < g_settings.screenshot_count; i++) {
+#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+					CVFD::getInstance()->ShowText("SCREENSHOT");
+					CHintBox *hintbox = NULL;
+					if (g_settings.screenshot_mode == 1)
+						hintbox = new CHintBox(LOCALE_SCREENSHOT_MENU, g_Locale->getText(LOCALE_SCREENSHOT_PLEASE_WAIT), 450, NEUTRINO_ICON_MOVIEPLAYER);
+					if (hintbox)
+						hintbox->paint();
+#endif
 					CScreenShot * sc = new CScreenShot("", (CScreenShot::screenshot_format_t)g_settings.screenshot_format);
 					sc->MakeFileName(CZapit::getInstance()->GetCurrentChannelID());
 					sc->Start();
+#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+					if (hintbox) {
+						hintbox->hide();
+						delete hintbox;
+					}
+#endif
 				}
 			}
 			else if( msg == (neutrino_msg_t) g_settings.key_lastchannel ) {
@@ -2955,7 +2978,7 @@ _repeat:
 		delete sleepTimer;
 		return messages_return::handled;
 	}
-#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+#if 0
 	else if (msg == (neutrino_msg_t) g_settings.key_screenshot) {
 		char shotname[80];
 		time_t now = time(NULL);
@@ -2966,8 +2989,7 @@ _repeat:
 		CVFD::getInstance()->ShowText("done");
 		return messages_return::handled;
 	}
-#else
-#ifdef SCREENSHOT
+#endif
 	else if (msg == (neutrino_msg_t) g_settings.key_screenshot) {
 		//video+osd scaled to osd size
 		CScreenShot * sc = new CScreenShot("", (CScreenShot::screenshot_format_t)g_settings.screenshot_format);
@@ -2975,8 +2997,6 @@ _repeat:
 		sc->MakeFileName(CZapit::getInstance()->GetCurrentChannelID());
 		sc->Start();
 	}
-#endif
-#endif
 
 	/* ================================== MESSAGES ================================================ */
 	else if (msg == NeutrinoMessages::EVT_VOLCHANGED) {

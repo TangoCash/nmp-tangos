@@ -47,9 +47,6 @@
 extern bool timeset;
 time_t timer_minutes;
 bool timer_is_rec;
-#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
-bool timer_wakeup;
-#endif
 static pthread_mutex_t tm_eventsMutex = PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP;
 
 //------------------------------------------------------------

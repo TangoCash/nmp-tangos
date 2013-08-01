@@ -1068,11 +1068,19 @@ const CMenuOptionChooser::keyval_ext SCREENSHOT_FMT_OPTIONS[SCREENSHOT_FMT_OPTIO
 	{ CScreenShot::FORMAT_JPG,   NONEXISTANT_LOCALE, "JPEG" },
 	{ CScreenShot::FORMAT_BMP,   NONEXISTANT_LOCALE, "BMP" }
 };
-#define SCREENSHOT_OPTION_COUNT 2
-const CMenuOptionChooser::keyval SCREENSHOT_OPTIONS[SCREENSHOT_OPTION_COUNT] =
+#define SCREENSHOT_RES_OPTION_COUNT 2
+const CMenuOptionChooser::keyval SCREENSHOT_RES_OPTIONS[SCREENSHOT_RES_OPTION_COUNT] =
 {
-	{ 0, LOCALE_SCREENSHOT_TV },
-	{ 1, LOCALE_SCREENSHOT_OSD   }
+	{ 1, LOCALE_SCREENSHOT_TV },
+	{ 2, LOCALE_SCREENSHOT_OSD   }
+};
+
+#define SCREENSHOT_PLANE_OPTION_COUNT 3
+const CMenuOptionChooser::keyval SCREENSHOT_PLANE_OPTIONS[SCREENSHOT_PLANE_OPTION_COUNT] =
+{
+	{ 1, LOCALE_SCREENSHOT_PLANE_VIDEO },
+	{ 2, LOCALE_SCREENSHOT_PLANE_OSD },
+	{ 3, LOCALE_SCREENSHOT_PLANE_ALL }
 };
 
 void COsdSetup::showOsdScreenShotSetup(CMenuWidget *menu_screenshot)
@@ -1093,17 +1101,37 @@ void COsdSetup::showOsdScreenShotSetup(CMenuWidget *menu_screenshot)
 	mc->setHint("", LOCALE_MENU_HINT_SCREENSHOT_FORMAT);
 	menu_screenshot->addItem(mc);
 
+#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+	mc = new CMenuOptionChooser(LOCALE_SCREENSHOT_PLANES, &g_settings.screenshot_mode, SCREENSHOT_PLANE_OPTIONS, SCREENSHOT_PLANE_OPTION_COUNT, true, this);
+	mc->setHint("", LOCALE_MENU_HINT_SCREENSHOT_PLANES);
+#else
 	mc = new CMenuOptionChooser(LOCALE_SCREENSHOT_RES, &g_settings.screenshot_mode, SCREENSHOT_OPTIONS, SCREENSHOT_OPTION_COUNT, true);
 	mc->setHint("", LOCALE_MENU_HINT_SCREENSHOT_RES);
+#endif
 	menu_screenshot->addItem(mc);
 
+#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+	if (g_settings.screenshot_mode == 3)
+		screenshot_res = g_settings.screenshot_res;
+	else
+		screenshot_res = g_settings.screenshot_mode;
+#else
 	mc = new CMenuOptionChooser(LOCALE_SCREENSHOT_VIDEO, &g_settings.screenshot_video, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true);
 	mc->setHint("", LOCALE_MENU_HINT_SCREENSHOT_VIDEO);
 	menu_screenshot->addItem(mc);
+#endif
 
+#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+	mc = new CMenuOptionChooser(LOCALE_SCREENSHOT_RES, &screenshot_res, SCREENSHOT_RES_OPTIONS, SCREENSHOT_RES_OPTION_COUNT, g_settings.screenshot_mode == 3);
+	mc->setHint("", LOCALE_MENU_HINT_SCREENSHOT_RES);
+#else
 	mc = new CMenuOptionChooser(LOCALE_SCREENSHOT_SCALE, &g_settings.screenshot_scale, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true);
 	mc->setHint("", LOCALE_MENU_HINT_SCREENSHOT_SCALE);
+#endif
 	menu_screenshot->addItem(mc);
+#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+	screenshot_res_chooser = mc;
+#endif
 
 	mc = new CMenuOptionChooser(LOCALE_SCREENSHOT_COVER, &g_settings.screenshot_cover, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true);
 	mc->setHint("", LOCALE_MENU_HINT_SCREENSHOT_COVER);

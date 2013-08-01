@@ -1146,6 +1146,7 @@ const char * locale_real_names[] =
 	"menu.hint_screenshot_cover",
 	"menu.hint_screenshot_dir",
 	"menu.hint_screenshot_format",
+	"menu.hint_screenshot_planes",
 	"menu.hint_screenshot_res",
 	"menu.hint_screenshot_scale",
 	"menu.hint_screenshot_setup",

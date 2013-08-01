@@ -159,13 +159,14 @@ struct SNeutrinoSettings
 	std::string epg_max_events;
 	std::string epg_extendedcache;
 	std::string epg_dir;
+	int epg_scan;
+
 #if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
 	// WebTV
 	std::string streaming_server_url;
 	std::string streaming_server_name;
 	std::string webtv_xml;
 #endif
-	int epg_scan;
 
 	//network
 	std::string network_ntpserver;
@@ -457,12 +458,13 @@ struct SNeutrinoSettings
 	int screenshot_format;
 	int screenshot_cover;
 	int screenshot_mode;
-	int screenshot_res;
-	int screenshot_video;
-	int screenshot_scale;
 #if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
 	int screenshot_png_compression;
 	int screenshot_backbuffer;
+	int screenshot_res;
+#else
+	int screenshot_video;
+	int screenshot_scale;
 #endif
 	std::string screenshot_dir;
 
