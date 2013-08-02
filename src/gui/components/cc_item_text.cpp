@@ -152,6 +152,7 @@ void CComponentsText::initCCText()
 	ct_textbox->setTextColor(ct_col_text);
 	ct_textbox->setWindowMaxDimensions(width, height);
 	ct_textbox->setWindowMinDimensions(width, height);
+	ct_textbox->setBlit(false);
 
 	//send text to CTextBox object, but paint text only if text or text coloer has changed or force option is enabled
 	if ((ct_old_text != ct_text) || ct_old_col_text != ct_col_text || ct_force_text_paint)

@@ -235,4 +235,6 @@ void CComponentsWindow::paint(bool do_save_bg)
 	
 	//paint form contents
 	paintForm(do_save_bg);
+
+	frameBuffer->blit();
 }
