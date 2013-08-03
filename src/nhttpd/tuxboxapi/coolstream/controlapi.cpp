@@ -50,11 +50,12 @@
 
 extern CPlugins *g_PluginList;//for relodplugins
 extern CBouquetManager *g_bouquetManager;
-#if HAVE_DUCKBOX_HARDWARE
+#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
 #define EVENTDEV "/dev/input/event0"
 #else
 #define EVENTDEV "/dev/input/input0"
 #endif
+
 //-----------------------------------------------------------------------------
 enum {	// not defined in input.h but used like that, at least in 2.4.22
 	KEY_RELEASED = 0,
@@ -748,8 +749,7 @@ static const struct key keynames[] = {
 	{"KEY_SLEEP",           KEY_SLEEP},
 	{"KEY_AUDIO",		KEY_AUDIO},
 	{"KEY_REWIND",		KEY_REWIND},
-#ifdef HAVE_DUCKBOX_HARDWARE
-/* evremote don't use forward */
+#ifdef HAVE_DUCKBOX_HARDWARE /* evremote don't use forward */
 	{"KEY_FORWARD",		KEY_FASTFORWARD},
 #else
 	{"KEY_FORWARD",		KEY_FORWARD},
@@ -1497,7 +1497,7 @@ void CControlAPI::ScreenshotCGI(CyhookHandler *hh)
 	}
 #endif
 
-	CScreenShot * sc = new CScreenShot("/tmp/" + filename + ".png", (CScreenShot::screenshot_format_t)0 /*PNG*/);
+	CScreenShot * sc = new CScreenShot("/tmp/" + filename + ".bmp", CScreenShot::FORMAT_BMP);
 	sc->EnableOSD(enableOSD);
 	sc->EnableVideo(enableVideo);
 #if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE

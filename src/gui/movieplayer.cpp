@@ -662,45 +662,36 @@ void CMoviePlayerGui::PlayFile(void)
 		g_RCInput->getMsg(&msg, &data, 10);	// 1 secs..
 
 		if ((playstate >= CMoviePlayerGui::PLAY) && (timeshift || (playstate != CMoviePlayerGui::PAUSE))) {
-			if (!isWebTV)
-			if(playback->GetPosition(position, duration)) {
-				if(duration > 100)
-					file_prozent = (unsigned char) (position / (duration / 100));
+			if (isWebTV) {
+				if (!playback->GetPosition(position, duration))
+					g_RCInput->postMsg((neutrino_msg_t) g_settings.mpkey_stop, 0);
+			} else {
+				if(playback->GetPosition(position, duration)) {
+					if(duration > 100)
+						file_prozent = (unsigned char) (position / (duration / 100));
 #if HAVE_TRIPLEDRAGON
-				CVFD::getInstance()->showPercentOver(file_prozent, true, CVFD::MODE_MOVIE);
+					CVFD::getInstance()->showPercentOver(file_prozent, true, CVFD::MODE_MOVIE);
 #endif
 
-				playback->GetSpeed(speed);
-				/* at BOF lib set speed 1, check it */
-				if ((playstate != CMoviePlayerGui::PLAY) && (speed == 1)) {
-					playstate = CMoviePlayerGui::PLAY;
-					update_lcd = true;
-				}
+					playback->GetSpeed(speed);
+					/* at BOF lib set speed 1, check it */
+					if ((playstate != CMoviePlayerGui::PLAY) && (speed == 1)) {
+						playstate = CMoviePlayerGui::PLAY;
+						update_lcd = true;
+					}
 #ifdef DEBUG
-				printf("CMoviePlayerGui::PlayFile: speed %d position %d duration %d (%d, %d%%)\n", speed, position, duration, duration-position, file_prozent);
+					printf("CMoviePlayerGui::PlayFile: speed %d position %d duration %d (%d, %d%%)\n", speed, position, duration, duration-position, file_prozent);
 #endif
 #if HAVE_DUCKBOX_HARDWARE || BOXMODEL_SPARK7162
-				if ((position > 100) && (file_prozent < 3))
-				{
-					videoDecoder->getPictureInfo(xres, yres, framerate);
-					CVFD::getInstance()->ShowIcon(FP_ICON_HD, (yres > 576));
-				}
+					if ((position > 100) && (file_prozent < 3))
+					{
+						videoDecoder->getPictureInfo(xres, yres, framerate);
+						CVFD::getInstance()->ShowIcon(FP_ICON_HD, (yres > 576));
+					}
 #endif
-				/* in case ffmpeg report incorrect values */
-				int posdiff = duration - position;
-				if ((posdiff > 0) && (posdiff < 1000) && !timeshift)
-				{
-					/* 10 seconds after end-of-file, stop */
-					if (++eof > 10)
-						g_RCInput->postMsg((neutrino_msg_t) g_settings.mpkey_stop, 0);
-				}
-				else
-					eof = 0;
+				} else
+					g_RCInput->postMsg((neutrino_msg_t) g_settings.mpkey_stop, 0);
 			}
-#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
-			else if (++eof > 10)
-				g_RCInput->postMsg((neutrino_msg_t) g_settings.mpkey_stop, 0);
-#endif
 			handleMovieBrowser(0, position);
 			FileTime.update(position, duration);
 		}
@@ -1204,11 +1195,7 @@ void CMoviePlayerGui::selectAudioPid(bool file_player)
 	delete selector;
 	printf("CMoviePlayerGui::selectAudioPid: selected %d (%x) current %x\n", select, (select >= 0) ? apids[select] : -1, currentapid);
 	if((select >= 0) && (currentapid != apids[select])) {
-#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
-		currentapid = select;
-#else
 		currentapid = apids[select];
-#endif
 		currentac3 = ac3flags[select];
 		playback->SetAPid(currentapid, currentac3);
 #if HAVE_DUCKBOX_HARDWARE || BOXMODEL_SPARK7162
