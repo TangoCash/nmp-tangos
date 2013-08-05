@@ -409,13 +409,15 @@ void CScreenShot::MakeFileName(const t_channel_id channel_id)
 			}
 		}
 	}
+	if (g_settings.screenshot_cover != 1) {
 	pos = strlen(fname);
 
 	struct timeval tv;
-	gettimeofday(&tv, NULL);	
+	gettimeofday(&tv, NULL);
 	strftime(&(fname[pos]), sizeof(fname) - pos - 1, "_%Y%m%d_%H%M%S", localtime(&tv.tv_sec));
 	pos = strlen(fname);
 	snprintf(&(fname[pos]), sizeof(fname) - pos - 1, "_%03d", (int) tv.tv_usec/1000);
+	}
 
 	switch (format) {
 	case FORMAT_PNG:
