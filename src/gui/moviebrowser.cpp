@@ -1239,8 +1239,13 @@ std::string CMovieBrowser::getScreenshotName(std::string movie)
 	std::string ext;
 	std::string ret;
 
+#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+	size_t found = movie.find_last_of(".");
+	if (found == string::npos)
+#else
 	size_t found = movie.rfind(".ts");
 	if ((found == string::npos) || (found != (movie.length() - 3)))
+#endif
 		return "";
 
 	vector<std::string>::iterator it = PicExts.begin();
@@ -3400,9 +3405,8 @@ bool CMovieBrowser::isFiltered(MI_MOVIE_INFO& movie_info)
 			if(strcmp(m_settings.filter.optionString.c_str(),movie_info.serieName.c_str()) == 0)
 				result = false;
 			break;
-			break;
 		default:
-				result = false;
+			result = false;
 			break;
 	}
 	return (result);

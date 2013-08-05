@@ -746,7 +746,7 @@ int CNeutrinoApp::loadSetup(const char * fname)
 #endif
 
 #if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
-	g_settings.screenshot_dir = configfile.getString( "screenshot_dir", g_settings.network_nfs_picturedir );
+	g_settings.screenshot_dir = configfile.getString( "screenshot_dir", "/hdd/movie" );
 #else
 	g_settings.screenshot_dir = configfile.getString( "screenshot_dir", "/media/sda1/movies" );
 #endif

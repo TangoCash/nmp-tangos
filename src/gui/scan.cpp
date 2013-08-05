@@ -111,8 +111,8 @@ void CScanTs::prev_next_TP( bool up)
 			}
 		}
 	} else {
-		for (tI = select_transponders.end(); tI != select_transponders.begin();) {
-			--tI;
+		for (tI = select_transponders.end(); tI != select_transponders.begin(); --tI ) {
+			
 			if(tI->second.feparams.dvb_feparams.frequency < TP.feparams.dvb_feparams.frequency) {
 				next_tp = true;
 				break;
