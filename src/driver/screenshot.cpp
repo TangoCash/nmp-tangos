@@ -118,7 +118,7 @@ bool CScreenShot::Start()
 		case FORMAT_PNG:
 			cmd += "-p "; break;
 		case FORMAT_JPG:
-			cmd += "-j "; break;
+			cmd += "-j 100"; break;
 		default:
 			;
 	}
