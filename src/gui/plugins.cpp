@@ -326,8 +326,9 @@ void CPlugins::startScriptPlugin(int number)
 	{
 		char *output=NULL;
 		size_t len = 0;
+		g_RCInput->clearRCMsg();
+		g_RCInput->stopInput();
 		while (( getline(&output, &len, f)) != -1)
-
 		{
 			scriptOutput += output;
 		}
@@ -337,6 +338,8 @@ void CPlugins::startScriptPlugin(int number)
 		kill(pid,SIGTERM);
 		if(output)
 			free(output);
+		g_RCInput->restartInput();
+		g_RCInput->clearRCMsg();
 	}
 	else
 	{
