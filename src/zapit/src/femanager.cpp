@@ -553,8 +553,7 @@ bool CFEManager::loopCanTune(CFrontend * fe, CZapitChannel * channel)
 
 CFrontend * CFEManager::getFrontend(CZapitChannel * channel)
 {
-	CFrontend * free_frontend = NULL;
-	//CFrontend * same_tid_fe = NULL;
+	CFrontend * retfe = NULL;
 
 	if (livefe && livefe->tuned && livefe->sameTsidOnid(channel->getTransponderId()))
 		return livefe;
@@ -584,6 +583,7 @@ CFrontend * CFEManager::getFrontend(CZapitChannel * channel)
 					break;
 				}
 			}
+			CFrontend * free_frontend = NULL;
 			CFrontend * free_twin = NULL;
 			bool loop_busy = false;
 			for (unsigned int i = 0; i < mfe->linkmap.size(); i++) {
@@ -618,6 +618,8 @@ CFrontend * CFEManager::getFrontend(CZapitChannel * channel)
 			}
 			if (!free_frontend)
 				free_frontend = free_twin;
+			if (free_frontend && !retfe)
+				retfe = free_frontend;
 		}
 		if (mfe->getMode() == CFrontend::FE_MODE_INDEPENDENT) {
 			FEDEBUG("Check fe%d: mode %d locked %d freq %d TP %" PRIx64 " - channel freq %d TP %" PRIx64, mfe->fenumber, mfe->getMode(),
@@ -627,12 +629,12 @@ CFrontend * CFEManager::getFrontend(CZapitChannel * channel)
 					FEDEBUG("fe %d on the same TP", mfe->fenumber);
 					return mfe;
 				}
-			} else if(!free_frontend)
-				free_frontend = mfe;
+			} else if(!retfe)
+				retfe = mfe;
 		}
 	}
-	FEDEBUG("Selected fe: %d", free_frontend ? free_frontend->fenumber : -1);
-	return free_frontend;
+	FEDEBUG("Selected fe: %d", retfe ? retfe->fenumber : -1);
+	return retfe;
 }
 
 #ifdef DYNAMIC_DEMUX
