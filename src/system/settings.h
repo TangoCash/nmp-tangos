@@ -441,6 +441,10 @@ struct SNeutrinoSettings
 	int temp_timeshift;
 	int auto_delete;
 	int record_hours;
+#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+	int key_next43mode;
+	int key_switchformat;
+#endif
 
 	int mpkey_rewind;
 	int mpkey_forward;
@@ -453,6 +457,7 @@ struct SNeutrinoSettings
 	int mpkey_plugin;
 #if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
 	int mpkey_next3dmode;
+	int mpkey_goto;
 #endif
 	int mpkey_subtitle;
 	int key_timeshift;

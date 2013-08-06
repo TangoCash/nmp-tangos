@@ -1240,7 +1240,7 @@ std::string CMovieBrowser::getScreenshotName(std::string movie)
 	std::string ret;
 
 #if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
-	size_t found = movie.find_last_of(".");
+	size_t found = movie.rfind(".");
 	if (found == string::npos)
 #else
 	size_t found = movie.rfind(".ts");

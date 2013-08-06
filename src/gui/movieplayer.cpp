@@ -706,6 +706,10 @@ void CMoviePlayerGui::PlayFile(void)
 			playstate = CMoviePlayerGui::STOPPED;
 		} else if (msg == (neutrino_msg_t) g_settings.mpkey_next3dmode) {
 			frameBuffer->set3DMode((CFrameBuffer::Mode3D)(((frameBuffer->get3DMode()) + 1) % CFrameBuffer::Mode3D_SIZE));
+		} else if( msg == (neutrino_msg_t) g_settings.key_next43mode) {
+			g_videoSettings->next43Mode();
+		} else if( msg == (neutrino_msg_t) g_settings.key_switchformat) {
+			g_videoSettings->SwitchFormat();
 #endif
 		} else if (msg == (neutrino_msg_t) g_settings.mpkey_play) {
 			if (playstate > CMoviePlayerGui::PLAY) {
@@ -846,7 +850,8 @@ void CMoviePlayerGui::PlayFile(void)
 			playback->SetPosition(-10 * 1000);
 		} else if (msg == CRCInput::RC_0) {	// cancel bookmark jump
 			handleMovieBrowser(CRCInput::RC_0, position);
-		} else if (msg == CRCInput::RC_text) {
+#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+		} else if (msg == (neutrino_msg_t) g_settings.mpkey_goto) {
 			bool cancel = true;
 			playback->GetPosition(position, duration);
 			int ss = position/1000;
@@ -862,6 +867,7 @@ void CMoviePlayerGui::PlayFile(void)
 			jumpTime.hide();
 			if (!cancel && ((3 == sscanf(Value, "%d:%d:%d", &hh, &mm, &ss)) || (2 == sscanf(Value, "%d:%d", &hh, &mm))) && (1000 * (hh * 3600 + mm * 60 + ss) < duration))
 				playback->SetPosition(1000 * (hh * 3600 + mm * 60 + ss), true);
+#endif
 		} else if (msg == CRCInput::RC_help || msg == CRCInput::RC_info) {
 			callInfoViewer(/*duration, position*/);
 			update_lcd = true;
@@ -1072,11 +1078,12 @@ void CMoviePlayerGui::addAudioFormat(int count, std::string &apidtitle, bool& en
 			apidtitle.append(" (AAC)");
 			break;
 		case 6: /*DTS*/
+#if !defined (BOXMODEL_APOLLO)
 			if (apidtitle.find("DTS") == std::string::npos)
 				apidtitle.append(" (DTS)");
-#if !defined(HAVE_SPARK_HARDWARE) && !defined (HAVE_DUCKBOX_HARDWARE) && !defined (BOXMODEL_APOLLO)
-			enabled = false;
+			else
 #endif
+				enabled = false;
 			break;
 		case 7: /*MLP*/
 			apidtitle.append(" (MLP)");
