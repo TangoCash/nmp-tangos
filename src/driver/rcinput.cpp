@@ -1610,6 +1610,14 @@ int CRCInput::translate(int code, int /*num*/)
 {
 	switch(code)
 	{
+#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+		case KEY_EXIT:
+		case KEY_HOME:
+			return RC_home;
+		case KEY_FASTFORWARD:
+		case KEY_FORWARD:
+			return RC_forward;
+#endif
 		case 0x100:
 			return RC_up;
 		case 0x101:
