@@ -236,8 +236,7 @@ class CRCInput
 			RC_record	= KEY_RECORD,
 			RC_play		= KEY_PLAY,
 			RC_pause	= KEY_PAUSE,
-#ifdef HAVE_DUCKBOX_HARDWARE
-/* evremote don't use forward */
+#if defined(HAVE_DUCKBOX_HARDWARE) || defined(HAVE_SPARK_HARDWARE) /* evremote don't use forward */
 			RC_forward	= KEY_FASTFORWARD,
 #else
 			RC_forward	= KEY_FORWARD,
