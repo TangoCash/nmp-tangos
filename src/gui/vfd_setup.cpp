@@ -288,7 +288,7 @@ bool CVfdSetup::changeNotify(const neutrino_locale_t OptionName, void */* data *
 	{
 		CVFD::getInstance()->setBrightnessDeepStandby(brightnessdeepstandby);
 	}
-#ifndef HAVE_DUCKBOX_HARDWARE
+#if !HAVE_SPARK_HARDWARE && !HAVE_DUCKBOX_HARDWARE
 	else if (ARE_LOCALES_EQUAL(OptionName, LOCALE_LEDCONTROLER_MODE_TV))
 	{
 		CVFD::getInstance()->setled();
