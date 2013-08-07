@@ -125,8 +125,9 @@ neutrino_LDADD += -lnxp
 endif
 
 bin_PROGRAMS += drivertool
-
 drivertool_SOURCES = drivertool.c
+bin_PROGRAMS += dt
+dt_SOURCES = dt.c
 endif
 
 if USE_STB_HAL
