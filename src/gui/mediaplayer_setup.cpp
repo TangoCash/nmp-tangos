@@ -46,7 +46,10 @@
 
 #include <gui/audioplayer_setup.h>
 #include <gui/pictureviewer_setup.h>
+#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
 #include <gui/webtv_setup.h>
+#include <gui/moviebrowser.h>
+#endif
 
 
 #include <driver/screen_max.h>
@@ -88,15 +91,28 @@ int CMediaPlayerSetup::showMediaPlayerSetup()
 	mediaSetup->setSelected(selected);
 
 	// intros
+#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+	mediaSetup->addIntroItems(LOCALE_MAINMENU_MEDIA);
+#else
 	mediaSetup->addIntroItems(LOCALE_AUDIOPLAYERPICSETTINGS_GENERAL);
+#endif
 
+#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWAREI
+	CAudioPlayerSetup asetup;
+	mediaSetup->addItem(new CMenuForwarder(LOCALE_AUDIOPLAYER_NAME, true, NULL, &asetup, "", CRCInput::RC_red, NEUTRINO_ICON_BUTTON_RED));
+	CPictureViewerSetup psetup;
+	mediaSetup->addItem(new CMenuForwarder(LOCALE_PICTUREVIEWER_HEAD, true, NULL, &psetup, "", CRCInput::RC_blue, NEUTRINO_ICON_BUTTON_BLUE));
+	mediaSetup->addItem(new CMenuSeparator(CMenuSeparator::LINE | CMenuSeparator::STRING, LOCALE_MAINMENU_MOVIEPLAYER));
+	CMovieBrowser msetup;
+	mediaSetup->addItem(new CMenuForwarder(LOCALE_MOVIEBROWSER_HEAD, true, NULL, &msetup, "show_menu", CRCInput::RC_1));
+	CWebTVSetup wsetup;
+	mediaSetup->addItem(new CMenuForwarder(LOCALE_WEBTV_HEAD, true, NULL, &wsetup, "show_menu", CRCInput::RC_2));
+#else
 	CPictureViewerSetup psetup;
 	mediaSetup->addItem(new CMenuForwarder(LOCALE_PICTUREVIEWER_HEAD, true, NULL, &psetup, "", CRCInput::RC_red, NEUTRINO_ICON_BUTTON_RED));
 	CAudioPlayerSetup asetup;
 	mediaSetup->addItem(new CMenuForwarder(LOCALE_AUDIOPLAYER_NAME, true, NULL, &asetup, "", CRCInput::RC_green, NEUTRINO_ICON_BUTTON_GREEN));
-	CWebTVSetup wsetup;
-	mediaSetup->addItem(new CMenuForwarder(LOCALE_WEBTV_HEAD, true, NULL, &wsetup, "show_menu", CRCInput::RC_yellow, NEUTRINO_ICON_BUTTON_YELLOW));
-
+#endif
 
 	int res = mediaSetup->exec (NULL, "");
 	selected = mediaSetup->getSelected();

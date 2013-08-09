@@ -105,6 +105,7 @@ class CMoviePlayerGui : public CMenuTarget
 	/* playback from MB */
 	bool isMovieBrowser;
 	CMovieBrowser* moviebrowser;
+	CWebTV* webtv;
 	MI_MOVIE_INFO * p_movie_info;
 	const static short MOVIE_HINT_BOX_TIMER = 5;	// time to show bookmark hints in seconds
 

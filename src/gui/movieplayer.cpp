@@ -105,6 +105,7 @@ CMoviePlayerGui::~CMoviePlayerGui()
 	delete filebrowser;
 	delete bookmarkmanager;
 	delete playback;
+	delete webtv;
 	instance_mp = NULL;
 }
 
@@ -117,6 +118,7 @@ void CMoviePlayerGui::Init(void)
 	playback = new cPlayback(3);
 	moviebrowser = new CMovieBrowser();
 	bookmarkmanager = new CBookmarkManager();
+	webtv = new CWebTV();
 
 	tsfilefilter.addFilter("ts");
 #if HAVE_TRIPLEDRAGON
@@ -204,9 +206,17 @@ void CMoviePlayerGui::restoreNeutrino()
 	CNeutrinoApp::getInstance()->handleMsg(NeutrinoMessages::CHANGEMODE, m_LastMode);
 }
 
+#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+static bool running = false;
+#endif
 int CMoviePlayerGui::exec(CMenuTarget * parent, const std::string & actionKey)
 {
 	printf("[movieplayer] actionKey=%s\n", actionKey.c_str());
+#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+	if (running)
+		return menu_return::RETURN_EXIT_ALL;
+	running = true;
+#endif
 
 	if (parent)
 		parent->hide();
@@ -216,9 +226,11 @@ int CMoviePlayerGui::exec(CMenuTarget * parent, const std::string & actionKey)
 
 	startposition = 0;
 
-	puts("[movieplayer.cpp] executing " MOVIEPLAYER_START_SCRIPT ".");
-	if (my_system(MOVIEPLAYER_START_SCRIPT) != 0)
-		perror(MOVIEPLAYER_START_SCRIPT " failed");
+	if (!access(MOVIEPLAYER_START_SCRIPT, X_OK)) {
+		puts("[movieplayer.cpp] executing " MOVIEPLAYER_START_SCRIPT ".");
+		if (my_system(MOVIEPLAYER_START_SCRIPT) != 0)
+			perror(MOVIEPLAYER_START_SCRIPT " failed");
+	}
 	
 	isMovieBrowser = false;
 	bool isHTTP = false;
@@ -251,36 +263,58 @@ int CMoviePlayerGui::exec(CMenuTarget * parent, const std::string & actionKey)
 		isBookmark = true;
 	}
 #endif
-	else if (actionKey == "netstream" || actionKey == "webtv")
+	else if (actionKey == "webtv")
+	{
+		isWebTV = true;
+	}
+	else if (actionKey == "netstream")
 	{
 		isHTTP = true;
-		isWebTV = actionKey == "webtv";
 		full_name = g_settings.streaming_server_url;
 		file_name = (isWebTV ? g_settings.streaming_server_name : g_settings.streaming_server_url);
 		p_movie_info = NULL;
 		is_file_player = 1;
 		PlayFile();
-		menu_ret = menu_return::RETURN_EXIT_ALL;
 	}
 	else {
-		menu_ret = menu_return::RETURN_REPAINT;
+#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+		running = false;
+#endif
+		return menu_return::RETURN_REPAINT;
 	}
 
-	if (actionKey != "netstream" && actionKey != "webtv") {
-		while(SelectFile()) {
-			PlayFile();
-			if(timeshift)
-				break;
-		}
+#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+	std::string oldservicename = CVFD::getInstance()->getServicename();
+#endif
+	if (!isHTTP) while(SelectFile()) {
+#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+		CVFD::getInstance()->setMode(CVFD::MODE_TVRADIO);
+		if (isWebTV)
+			CVFD::getInstance()->showServicename(file_name.c_str());
+		else
+			CVFD::getInstance()->showServicename(full_name.c_str());
+#endif
+		PlayFile();
+		if(timeshift)
+			break;
 	}
+#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+	CVFD::getInstance()->showServicename(oldservicename.c_str());
+#endif
 
 	bookmarkmanager->flush();
 
-	puts("[movieplayer.cpp] executing " MOVIEPLAYER_END_SCRIPT ".");
-	if (my_system(MOVIEPLAYER_END_SCRIPT) != 0)
-		perror(MOVIEPLAYER_END_SCRIPT " failed");
+	if (!access(MOVIEPLAYER_END_SCRIPT, X_OK)) {
+		puts("[movieplayer.cpp] executing " MOVIEPLAYER_END_SCRIPT ".");
+		if (my_system(MOVIEPLAYER_END_SCRIPT) != 0)
+			perror(MOVIEPLAYER_END_SCRIPT " failed");
+	}
 
 	CVFD::getInstance()->setMode(CVFD::MODE_TVRADIO);
+
+#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+	running = false;
+#endif
 
 	if (moviebrowser->getMode() == MB_SHOW_YT)
 		CAudioMute::getInstance()->enableMuteIcon(true);
@@ -356,6 +390,10 @@ void CMoviePlayerGui::fillPids()
 			currentapid = p_movie_info->audioPids[i].epgAudioPid;
 			currentac3 = p_movie_info->audioPids[i].atype;
 		}
+#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+		if (numpida == REC_MAX_APIDS)
+			break;
+#endif
 	}
 	vpid = p_movie_info->epgVideoPid;
 	vtype = p_movie_info->VideoType;
@@ -429,6 +467,12 @@ bool CMoviePlayerGui::SelectFile()
 			}
 		} else
 			menu_ret = moviebrowser->getMenuRet();
+	} else if (isWebTV) {
+		if (webtv->getFile(file_name, full_name)) {
+			is_file_player = true;
+			fillPids();
+			ret = true;
+		}
 	}
 	else { // filebrowser
 		CAudioMute::getInstance()->enableMuteIcon(false);
@@ -489,7 +533,8 @@ bool CMoviePlayerGui::SelectFile()
 void *CMoviePlayerGui::ShowWebTVHint(void *arg) {
 	set_threadname(__func__);
 	CMoviePlayerGui *caller = (CMoviePlayerGui *)arg;
-	CHintBox hintbox(LOCALE_WEBTV_HEAD, g_settings.streaming_server_name.c_str());
+	neutrino_locale_t title = LOCALE_WEBTV_HEAD;
+	CHintBox hintbox(title, caller->file_name.c_str(), 450, NEUTRINO_ICON_MOVIEPLAYER);
 	hintbox.paint();
 	while (caller->showWebTVHint) {
 		neutrino_msg_t msg;
@@ -702,8 +747,10 @@ void CMoviePlayerGui::PlayFile(void)
 		} else if (msg == (neutrino_msg_t) g_settings.mpkey_stop) {
 			playstate = CMoviePlayerGui::STOPPED;
 #if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+			playback->RequestAbort();
 		} else if (msg == (neutrino_msg_t) CRCInput::RC_home) {
 			playstate = CMoviePlayerGui::STOPPED;
+			playback->RequestAbort();
 		} else if (msg == (neutrino_msg_t) g_settings.mpkey_next3dmode) {
 			frameBuffer->set3DMode((CFrameBuffer::Mode3D)(((frameBuffer->get3DMode()) + 1) % CFrameBuffer::Mode3D_SIZE));
 		} else if( msg == (neutrino_msg_t) g_settings.key_next43mode) {
@@ -862,7 +909,7 @@ void CMoviePlayerGui::PlayFile(void)
 			char Value[10];
 			snprintf(Value, sizeof(Value), "%.2d:%.2d", hh, mm);
 			ss = 0;
-			CTimeInput jumpTime (LOCALE_MPKEY_TIME, Value, NONEXISTANT_LOCALE, NONEXISTANT_LOCALE, NULL, &cancel);
+			CTimeInput jumpTime (LOCALE_MPKEY_GOTO, Value, NONEXISTANT_LOCALE, NONEXISTANT_LOCALE, NULL, &cancel);
 			jumpTime.exec(NULL, "");
 			jumpTime.hide();
 			if (!cancel && ((3 == sscanf(Value, "%d:%d:%d", &hh, &mm, &ss)) || (2 == sscanf(Value, "%d:%d", &hh, &mm))) && (1000 * (hh * 3600 + mm * 60 + ss) < duration))
@@ -1031,13 +1078,6 @@ void CMoviePlayerGui::callInfoViewer(/*const int duration, const int curr_pos*/)
 	}
 
 	/* not moviebrowser => use the filename as title */
-
-	if (isWebTV && file_name.find_first_of('(')) {
-		std::string description = file_name.substr(file_name.find_first_of('(')+1,file_name.find_last_of(')')-1);
-		std::string name = file_name.substr(0,file_name.find_first_of('('));
-		g_InfoViewer->showMovieTitle(playstate, name, description, "", duration, position);
-	}
-	else
 	g_InfoViewer->showMovieTitle(playstate, file_name, "", "", duration, position);
 }
 
@@ -1095,11 +1135,10 @@ void CMoviePlayerGui::addAudioFormat(int count, std::string &apidtitle, bool& en
 
 void CMoviePlayerGui::getCurrentAudioName( bool file_player, std::string &audioname)
 {
-  	if(file_player && !numpida){
-		playback->FindAllPids(apids, ac3flags, &numpida, language);
-		if(numpida)
-			currentapid = apids[0];
-	}
+	numpida = REC_MAX_APIDS;
+	playback->FindAllPids(apids, ac3flags, &numpida, language);
+	if(numpida)
+		currentapid = apids[0];
 	bool dumm = true;
 	for (unsigned int count = 0; count < numpida; count++) {
 		if(currentapid == apids[count]){

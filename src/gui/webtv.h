@@ -32,14 +32,21 @@ class CWebTV : public CMenuTarget
 {
 	private:
 		int width;
-		int selected;
+		bool fileSelected;
 		xmlDocPtr parser;
 		bool readXml();
-		std::vector<std::pair<std::string, char*> > channels;
+		struct web_channel {
+			char *url;
+			std::string name;
+		};
+		std::vector<web_channel> channels;
+		CMenuWidget* m;
+		int menu_offset;
 	public:
 		CWebTV();
 		~CWebTV();
-		int exec(CMenuTarget* parent, const std::string & actionKey);
 		void Show();
+		int exec(CMenuTarget* parent, const std::string & actionKey);
+		bool getFile(std::string &file_name, std::string &full_name);
 };
 #endif

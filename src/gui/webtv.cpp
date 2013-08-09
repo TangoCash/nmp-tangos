@@ -22,21 +22,23 @@
 */
 
 #define __USE_FILE_OFFSET64 1
-#include "filebrowser.h"
+#include <gui/filebrowser.h>
 #include <stdio.h>
 #include <global.h>
 #include <libgen.h>
 #include <neutrino.h>
 #include <driver/screen_max.h>
 #include <ctype.h>
-#include "movieplayer.h"
-#include "webtv.h"
+#include <gui/movieplayer.h>
+#include <gui/webtv.h>
+#include <gui/widget/hintbox.h>
 
 CWebTV::CWebTV()
 {
 	width = w_max (40, 10);
-	selected = -1;
 	parser = NULL;
+	m = NULL;
+	menu_offset = 0;
 }
 
 CWebTV::~CWebTV()
@@ -45,9 +47,29 @@ CWebTV::~CWebTV()
 		xmlFreeDoc(parser);
 }
 
+bool CWebTV::getFile(std::string &file_name, std::string &full_name)
+{
+	fileSelected = false;
+	exec(NULL, "");
+	if (fileSelected) {
+		file_name = g_settings.streaming_server_name;
+		full_name = g_settings.streaming_server_url;
+		return true;
+	}
+	return false;
+}
+
 int CWebTV::exec(CMenuTarget* parent, const std::string & actionKey)
 {
 	int res = menu_return::RETURN_REPAINT;
+
+	if (actionKey == "rc_info") {
+		int selected = m->getSelected() - menu_offset;
+		if (selected < 0)
+			return menu_return::RETURN_NONE;
+		ShowHintUTF(channels[selected].name.c_str(), channels[selected].url);
+		return res;
+	}
 
 	if(!actionKey.empty()) {
 		if(parent)
@@ -55,9 +77,9 @@ int CWebTV::exec(CMenuTarget* parent, const std::string & actionKey)
 		std::string streaming_server_url = actionKey;
 		std::string streaming_server_name;
 
-		for (std::vector<std::pair<std::string, char*> >::iterator i = channels.begin(); i != channels.end(); i++) {
-			if (i->second == streaming_server_url) {
-				streaming_server_name = i->first;
+		for (std::vector<web_channel>::iterator i = channels.begin(); i != channels.end(); i++) {
+			if (i->url == streaming_server_url) {
+				streaming_server_name = i->name;
 				break;
 			}
 		}
@@ -82,10 +104,11 @@ int CWebTV::exec(CMenuTarget* parent, const std::string & actionKey)
 
 		g_settings.streaming_server_name = streaming_server_name;
 		g_settings.streaming_server_url = streaming_server_url;
-
-		CMoviePlayerGui::getInstance().exec(NULL, "webtv");
-		return res;
+		fileSelected = true;
+		return menu_return::RETURN_EXIT_ALL;
 	}
+	if (m)
+		return res;
 
 	if (parent)
 		parent->hide();
@@ -98,23 +121,27 @@ int CWebTV::exec(CMenuTarget* parent, const std::string & actionKey)
 
 void CWebTV::Show()
 {
-	CMenuWidget* m = new CMenuWidget(LOCALE_WEBTV_HEAD, NEUTRINO_ICON_SETTINGS, width);
+	m = new CMenuWidget(LOCALE_WEBTV_HEAD, NEUTRINO_ICON_MOVIEPLAYER, width);
 	m->addItem(GenericMenuSeparator);
 	m->addItem(GenericMenuBack);
 	m->addItem(GenericMenuSeparatorLine);
+	m->addKey(CRCInput::RC_info, this, "rc_info");
+	menu_offset = m->getItemsCount();
 
-	for (std::vector<std::pair<std::string, char*> >::iterator i = channels.begin(); i != channels.end(); i++)
-		m->addItem(new CMenuForwarderNonLocalized(i->first.c_str(), true, NULL, this, i->second),
-			!strcmp(i->second, g_settings.streaming_server_url.c_str()));
+	for (std::vector<web_channel>::iterator i = channels.begin(); i != channels.end(); i++)
+		m->addItem(new CMenuForwarderNonLocalized(i->name.c_str(), true, NULL, this, i->url),
+			!strcmp(i->url, g_settings.streaming_server_url.c_str()));
 
 	m->exec(NULL, "");
 	m->hide();
 	delete m;
+	m = NULL;
 }
 
 bool CWebTV::readXml()
 {
-	channels.clear();
+	if (!channels.empty())
+		return true;
 	if (parser)
 		xmlFreeDoc(parser);
 	parser = parseXmlFile(g_settings.webtv_xml.c_str());
@@ -133,7 +160,10 @@ bool CWebTV::readXml()
 					std::string t = string(title);
 					if (desc && strlen(desc))
 						t += " (" + string(desc) + ")";
-					channels.push_back(std::make_pair(t, url));
+					web_channel w;
+					w.url = url;
+					w.name = t;
+					channels.push_back(w);
 				}
 
 				l1 = l1->xmlNextNode;

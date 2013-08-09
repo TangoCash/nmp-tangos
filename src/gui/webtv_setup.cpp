@@ -66,7 +66,7 @@ int CWebTVSetup::exec(CMenuTarget* parent, const std::string & actionKey)
 
 void CWebTVSetup::Show()
 {
-	CMenuWidget* m = new CMenuWidget(LOCALE_WEBTV_HEAD, NEUTRINO_ICON_SETTINGS, width);
+	CMenuWidget* m = new CMenuWidget(LOCALE_WEBTV_HEAD, NEUTRINO_ICON_MOVIEPLAYER, width);
 	m->setSelected(selected);
 	m->addItem(GenericMenuSeparator);
 	m->addItem(GenericMenuBack);

@@ -1344,7 +1344,7 @@ moviebrowser.foot_options Optionen
 moviebrowser.foot_play Film starten
 moviebrowser.foot_refresh Liste neu laden
 moviebrowser.foot_sort Sortieren:
-moviebrowser.head TS Filmarchiv (eigene Aufnahmen)
+moviebrowser.head Movie-Browser
 moviebrowser.head_filter Filme nach Kategorie filtern:
 moviebrowser.head_playlist Zuletzt gesehen:
 moviebrowser.head_recordlist Zuletzt aufgenommen:
@@ -1454,7 +1454,7 @@ movieplayer.bookmarkname Bookmark Name
 movieplayer.bookmarkname_hint1 Geben Sie den Namen für das neue Lesezeichen ein
 movieplayer.bookmarkname_hint2 
 movieplayer.defplugin Start-Plugin
-movieplayer.fileplayback Abspielen (Multiformat)
+movieplayer.fileplayback Datei-Browser
 movieplayer.head Movieplayer
 movieplayer.toomanybookmarks Sie haben bereits zu viele Lesezeichen angelegt.\nEs muß erst ein anderes gelöscht werden.
 movieplayer.tshelp1 Stopp
@@ -1469,7 +1469,7 @@ movieplayer.tshelp6 ca. 1 Minute zurück
 movieplayer.tshelp7 ca. 1 Minute vor
 movieplayer.tshelp8 ca. 5 Minuten zurück
 movieplayer.tshelp9 ca. 5 Minuten vor
-movieplayer.tsplayback TS Abspielen
+movieplayer.tsplayback Abspielen
 movieplayer.ytplayback Youtube-Feed Wiedergabe
 mpkey.audio Audiotrack
 mpkey.bookmark Speichere Lesezeichen
@@ -1658,7 +1658,7 @@ recording.time_hour Stunde
 recording.time_hours Stunden
 recording.time_min Min
 recordingmenu.apids Tonspuren
-recordingmenu.apids_ac3 AC3 Tonspuren aufnehmen
+recordingmenu.apids_ac3 AC-3 Tonspuren aufnehmen
 recordingmenu.apids_alt Alternative Tonspuren aufn.
 recordingmenu.apids_std Standard Tonspur aufnehmen
 recordingmenu.data_pids Daten-Spuren
@@ -2003,7 +2003,7 @@ videomenu.dbdr_deblock deBlock
 videomenu.dbdr_none aus
 videomenu.enabled_modes Videosysteme auf der VF-Taste
 videomenu.fullscreen Vollbild
-videomenu.hdmi_cec CSTLink (HDMI-CEC)
+videomenu.hdmi_cec HDMI-CEC
 videomenu.hdmi_cec_mode Receiver verwenden
 videomenu.hdmi_cec_mode_off nein
 videomenu.hdmi_cec_mode_recorder als Sat/Kabel PVR

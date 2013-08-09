@@ -718,8 +718,8 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	g_settings.plugin_hdd_dir = configfile.getString( "plugin_hdd_dir", "/hdd/tuxbox/plugins" );
 	g_settings.logo_hdd_dir = configfile.getString( "logo_hdd_dir", "/var/share/icons/logo" );
 #endif
-	g_settings.streaming_server_url = configfile.getString("streaming_server_url", "http://podfiles.zdf.de/podcast/zdf_podcasts/110924_hjo_p.mp4?2011-09-24+21-25");
-	g_settings.webtv_xml = configfile.getString( "webtv_xml", "/var/tuxbox/config/webtv.xml" );
+	g_settings.streaming_server_url = configfile.getString("streaming_server_url", "");
+	g_settings.webtv_xml = configfile.getString("webtv_xml", CONFIGDIR "/webtv.xml");
 
 	loadKeys();
 
@@ -857,7 +857,7 @@ int CNeutrinoApp::loadSetup(const char * fname)
 #if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
 	g_settings.audioplayer_screensaver_dir = configfile.getString( "audioplayer_screensaver_dir", "/hdd/pictures/screensaver" );
 #endif
-	g_settings.audioplayer_highprio  = configfile.getInt32("audioplayer_highprio",0);
+	g_settings.audioplayer_highprio = configfile.getInt32("audioplayer_highprio",0);
 	g_settings.audioplayer_select_title_by_name = configfile.getInt32("audioplayer_select_title_by_name",0);
 	g_settings.audioplayer_repeat_on = configfile.getInt32("audioplayer_repeat_on",0);
 	g_settings.audioplayer_show_playlist = configfile.getInt32("audioplayer_show_playlist",1);
@@ -4010,7 +4010,28 @@ int CNeutrinoApp::exec(CMenuTarget* parent, const std::string & actionKey)
 		delete hintBox;
 	}
 #if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+	else if(actionKey=="webtv") {
+		StopSubtitles();
+		if(g_settings.mode_clock)
+			InfoClock->StopClock();
+		CMoviePlayerGui::getInstance().exec(NULL, "webtv");
+		if(g_settings.mode_clock)
+			InfoClock->StartClock();
+		StartSubtitles();
+		return menu_return::RETURN_EXIT_ALL;
+	}
+	else if(actionKey=="ytplayback") {
+		StopSubtitles();
+		if(g_settings.mode_clock)
+			InfoClock->StopClock();
+		CMoviePlayerGui::getInstance().exec(NULL, "ytplayback");
+		if(g_settings.mode_clock)
+			InfoClock->StartClock();
+		StartSubtitles();
+		return menu_return::RETURN_EXIT_ALL;
+	}
 	else if(actionKey=="rass") {
+		CVFD::getInstance()->setMode(CVFD::MODE_TVRADIO);
 		if (g_Radiotext)
 			g_Radiotext->RASS_interactive_mode();
 		return menu_return::RETURN_EXIT_ALL;
