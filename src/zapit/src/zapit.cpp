@@ -2523,7 +2523,7 @@ void CZapit::run()
 					SendEvent(CZapitClient::EVT_PMT_CHANGED, &channel_id, sizeof(channel_id));
 				}
 			}
-#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+#if 0 // HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
 			/* hack: stop videodecoder if the tuner looses lock
 			 * at least the h264 decoder seems unhappy if he runs out of data...
 			 * ...until we fix the driver, let's work around it here.
