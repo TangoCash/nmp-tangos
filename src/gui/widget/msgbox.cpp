@@ -644,14 +644,13 @@ int CMsgBox::exec( int timeout, int returnDefaultOnTimeout)
 	int return_button = m_nFootButtons;
 	int res = menu_return::RETURN_REPAINT;
 
-	// show message box
-	paint();
-	m_pcWindow->blit();
 	if (m_pcWindow == NULL)
 	{
 		return res; /* out of memory */
 	}
 
+	// show message box
+	paint();
 	if ( timeout == -1 )
 		timeout = g_settings.timing[SNeutrinoSettings::TIMING_EPG];
 
@@ -660,6 +659,8 @@ int CMsgBox::exec( int timeout, int returnDefaultOnTimeout)
 	bool loop=true;
 	while (loop)
 	{
+		m_pcWindow->blit();
+
 		g_RCInput->getMsgAbsoluteTimeout( &msg, &data, &timeoutEnd );
 
 		if (msg == CRCInput::RC_timeout && returnDefaultOnTimeout)
@@ -726,7 +727,6 @@ int CMsgBox::exec( int timeout, int returnDefaultOnTimeout)
 			res  = menu_return::RETURN_EXIT_ALL;
 			loop = false;
 		}
-		m_pcWindow->blit();
 	}
 
 	hide();

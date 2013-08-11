@@ -1026,12 +1026,13 @@ int CMovieBrowser::exec(const char* path)
 
 	refreshTitle();
 	onSetGUIWindow(m_settings.gui);
-	m_pcWindow->blit();
 
 	bool loop = true;
 	bool result;
 	while (loop)
 	{
+		m_pcWindow->blit();
+
 		g_RCInput->getMsgAbsoluteTimeout( &msg, &data, &timeoutEnd );
 
 		result = onButtonPress(msg);
@@ -1089,12 +1090,12 @@ int CMovieBrowser::exec(const char* path)
 				loop = false;
 			}
 		}
-		m_pcWindow->blit();
 
 		if ( msg <= CRCInput::RC_MaxRC )
 			timeoutEnd = CRCInput::calcTimeoutEnd(timeout); // calcualate next timeout
 	}
 	hide();
+	m_pcWindow->blit();
 	//TRACE(" return %d\r\n",res);
 
 	m_prevBrowserSelection = m_currentBrowserSelection;

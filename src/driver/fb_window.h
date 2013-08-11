@@ -34,6 +34,9 @@ class CFBWindow
  private:
 	CFrameBuffer	* frameBuffer;
 	fb_pixel_t	* Background;
+#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+	bool mayBlit;
+#endif
 
  public:
 	int x, y;   /* upper left corner */
@@ -45,6 +48,10 @@ class CFBWindow
 	void paintBoxRel(const int _x, const int _y, const int _dx, const int _dy, const color_t _col, int radius = 0, int type = 0xF);
 	bool paintIcon(const char * const _filename, const int _x, const int _y, const int _h = 0, const color_t _offset = 1);
 	void RenderString(const font_t _font, const int _x, const int _y, const int _width, const char * const _text, const color_t _color, const int _boxheight = 0, const bool _utf8_encoded = false);
+#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+	void blit(bool b) { mayBlit = b; }
+	void blit(void) { if (frameBuffer) frameBuffer->blit(); }
+#endif
 };
 
 #endif /* __fb_window_h__ */

@@ -199,7 +199,7 @@ class CTextBox
 		void paint (void);
 		void hide (void);
 
-		void setBlit(bool b) { m_blit = b; };
+		void blit(bool b) { m_blit = b; };
 };
 
 #endif // !defined(AFX_TEXTBOX_H__208DED01_ABEC_491C_A632_5B21057DC5D8__INCLUDED_)
