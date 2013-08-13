@@ -811,7 +811,7 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	//Software-update
 	g_settings.softupdate_mode = configfile.getInt32( "softupdate_mode", 1 );
 	g_settings.apply_kernel = configfile.getBool("apply_kernel" , false);
-	g_settings.apply_settings = configfile.getBool("apply_settings" , true);
+	g_settings.apply_settings = configfile.getBool("apply_settings" , false);
 
 	strcpy(g_settings.softupdate_url_file, configfile.getString("softupdate_url_file", "/var/etc/update.urls").c_str());
 	strcpy(g_settings.softupdate_proxyserver, configfile.getString("softupdate_proxyserver", "" ).c_str());
@@ -1884,7 +1884,7 @@ void CNeutrinoApp::InitTimerdClient()
 void CNeutrinoApp::InitZapitClient()
 {
 	g_Zapit         = new CZapitClient;
-#define ZAPIT_EVENT_COUNT 27
+#define ZAPIT_EVENT_COUNT 28
 	const CZapitClient::events zapit_event[ZAPIT_EVENT_COUNT] =
 	{
 		CZapitClient::EVT_ZAP_COMPLETE,
@@ -1914,6 +1914,7 @@ void CNeutrinoApp::InitZapitClient()
 		CZapitClient::EVT_SDT_CHANGED,
 		CZapitClient::EVT_PMT_CHANGED,
 		CZapitClient::EVT_TUNE_COMPLETE,
+		CZapitClient::EVT_BACK_ZAP_COMPLETE
 	};
 
 	for (int i = 0; i < ZAPIT_EVENT_COUNT; i++)
@@ -2741,7 +2742,7 @@ int CNeutrinoApp::handleMsg(const neutrino_msg_t _msg, neutrino_msg_data_t data)
 			return messages_return::handled;
 		}
 	}
-	if ((msg == NeutrinoMessages::EVT_EIT_COMPLETE)) {
+	if ((msg == NeutrinoMessages::EVT_EIT_COMPLETE || msg == NeutrinoMessages::EVT_BACK_ZAP_COMPLETE)) {
 		CEpgScan::getInstance()->handleMsg(msg, data);
 		return messages_return::handled;
 	}

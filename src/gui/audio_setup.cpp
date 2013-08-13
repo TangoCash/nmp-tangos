@@ -80,7 +80,6 @@ int CAudioSetup::exec(CMenuTarget* parent, const std::string &/*actionKey*/)
 		return menu_return::RETURN_NONE;
 	}
 #endif
-
 	dprintf(DEBUG_DEBUG, "init audio setup\n");
 	int   res = menu_return::RETURN_REPAINT;
 

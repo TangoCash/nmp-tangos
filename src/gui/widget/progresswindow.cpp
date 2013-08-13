@@ -94,6 +94,7 @@ void CProgressWindow::showGlobalStatus(const unsigned int prog)
 	//hintergrund
 	frameBuffer->paintBox(pos, globalstatusY, x+width-10, globalstatusY+10, COL_MENUCONTENT_PLUS_2);
 	frameBuffer->blit();
+
 #ifdef VFD_UPDATE
 	CVFD::getInstance()->showProgressBar2(-1,NULL,global_progress);
 #endif // VFD_UPDATE
