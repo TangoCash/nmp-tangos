@@ -125,8 +125,12 @@ printf("%s '%s'\n", __func__, s);
 
 CLCD::CLCD()
 {
-	/* do not show menu in neutrino... */
+	/* do not show menu in neutrino...,at spark7162 true, because there is th GLCD Menu */
+#ifdef BOXMODEL_SPARK7162
+	has_lcd = true;
+#else
 	has_lcd = false;
+#endif
 	servicename = "";
 	thread_running = false;
 }
@@ -185,15 +189,16 @@ void CLCD::setlcdparameter(void)
 {
 }
 
-void CLCD::showServicename(std::string name, bool)
+void CLCD::showServicename(std::string name, bool fromepg)
 {
 	if (g_info.hw_caps->display_type == HW_DISPLAY_LED_NUM)
 		return;
-	servicename = name;
+	if (!fromepg)
+		servicename = name;
 	if (mode != MODE_TVRADIO)
 		return;
-	replace_umlauts(servicename);
-	strncpy(display_text, servicename.c_str(), sizeof(display_text) - 1);
+	replace_umlauts(name);
+	strncpy(display_text, name.c_str(), sizeof(display_text) - 1);
 	display_text[sizeof(display_text) - 1] = '\0';
 	upd_display = true;
 }
@@ -649,7 +654,17 @@ void CLCD::ShowIcon(fp_icon i, bool on)
 	}
 }
 
-void CLCD::setEPGTitle(const std::string)
+void CLCD::setEPGTitle(const std::string title)
 {
+printf("CVFD::setEPGTitle: %s\n", title.c_str());
+	if (g_settings.lcd_vfd_epg == 0) {
+		showServicename(servicename);
+		return;
+	}
+	if (title == epg_title)
+		return;
+
+	epg_title = title;
+	showServicename(servicename + " - " + epg_title, true);
 }
 

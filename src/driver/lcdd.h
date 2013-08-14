@@ -214,6 +214,7 @@ class CLCD
 		CLCD();
 		std::string	menutitle;
 		std::string	servicename;
+		std::string	epg_title;
 		MODES		mode;
 		void setled(int red, int green);
 		static void	*TimeThread(void *);
@@ -235,6 +236,9 @@ class CLCD
 		MODES getMode() { return mode; };
 
 		void showServicename(const std::string name, const bool clear_epg = false);
+#if HAVE_SPARK_HARDWARE
+		std::string getServicename(void) { return servicename; }
+#endif
 		void setEPGTitle(const std::string title);
 		void setMovieInfo(const AUDIOMODES playmode, const std::string big, const std::string small, const bool centered = false);
 		void setMovieAudio(const bool is_ac3);
