@@ -1135,10 +1135,11 @@ void CMoviePlayerGui::addAudioFormat(int count, std::string &apidtitle, bool& en
 
 void CMoviePlayerGui::getCurrentAudioName( bool file_player, std::string &audioname)
 {
-	numpida = REC_MAX_APIDS;
-	playback->FindAllPids(apids, ac3flags, &numpida, language);
-	if(numpida)
-		currentapid = apids[0];
+	if(file_player && !numpida) {
+		playback->FindAllPids(apids, ac3flags, &numpida, language);
+		if(numpida)
+			currentapid = apids[0];
+	}
 	bool dumm = true;
 	for (unsigned int count = 0; count < numpida; count++) {
 		if(currentapid == apids[count]){
@@ -1175,22 +1176,11 @@ void CMoviePlayerGui::selectAudioPid(bool file_player)
 	int select = -1;
 	CMenuSelectorTarget * selector = new CMenuSelectorTarget(&select);
 
-#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
-	// these may change in-stream
-	numpida = REC_MAX_APIDS;
-	playback->FindAllPids(apids, ac3flags, &numpida, language);
-
-	if(numpida)
-		currentapid = playback->GetAPid();
-
-	std::string apidtitle[numpida];
-#else
 	if(file_player && !numpida){
 		playback->FindAllPids(apids, ac3flags, &numpida, language);
 		if(numpida)
 			currentapid = apids[0];
 	}
-#endif
 	for (unsigned int count = 0; count < numpida; count++) {
 		bool name_ok = false;
 		bool enabled = true;
