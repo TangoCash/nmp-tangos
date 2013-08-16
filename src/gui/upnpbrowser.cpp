@@ -57,6 +57,9 @@
 #include <gui/eventlist.h>
 #include <gui/color.h>
 #include <gui/infoviewer.h>
+#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+#include <gui/movieplayer.h>
+#endif
 
 #include <gui/components/cc_frm.h>
 #include <gui/widget/buttons.h>
@@ -71,6 +74,9 @@
 
 #include <video.h>
 extern cVideo * videoDecoder;
+#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+extern CPictureViewer * g_PicViewer;
+#endif
 
 const struct button_label RescanButton = {NEUTRINO_ICON_BUTTON_BLUE  , LOCALE_UPNPBROWSER_RESCAN};
 const struct button_label BrowseButtons[4] =
@@ -162,6 +168,9 @@ int CUpnpBrowserGui::exec(CMenuTarget* parent, const std::string & /*actionKey*/
 	// Start Sectionsd
 	g_Sectionsd->setPauseScanning(false);
 	videoDecoder->StopPicture();
+#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+	g_Zapit->startPlayBack();
+#endif
 
 	CNeutrinoApp::getInstance()->handleMsg( NeutrinoMessages::CHANGEMODE , m_LastMode );
 	g_RCInput->postMsg( NeutrinoMessages::SHOW_INFOBAR, 0 );
@@ -202,7 +211,7 @@ void CUpnpBrowserGui::splitProtocol(std::string &protocol, std::string &prot, st
 			}
 		}
 	}
-//printf("%s -> %s - %s - %s - %s\n", protocol.c_str(), prot.c_str(), network.c_str(), mime.c_str(), additional.c_str());
+//	printf("%s -> %s - %s - %s - %s\n", protocol.c_str(), prot.c_str(), network.c_str(), mime.c_str(), additional.c_str());
 }
 
 //------------------------------------------------------------------------
@@ -336,6 +345,22 @@ std::vector<UPnPEntry> *CUpnpBrowserGui::decodeResult(std::string result)
 						pref=2;
 					}
 #endif
+#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+					if (mime.substr(0,6) == "image/" && pref < 1)
+					{
+						preferred=i;
+					}
+					if (mime == "image/jpeg" && pref < 1)
+					{
+						preferred=i;
+						pref=1;
+					}
+					if (mime == "image/gif" && pref < 2)
+					{
+						preferred=i;
+						pref=2;
+					}
+#endif
 					if (mime == "audio/mpeg" && pref < 3)
 					{
 						preferred=i;
@@ -346,6 +371,23 @@ std::vector<UPnPEntry> *CUpnpBrowserGui::decodeResult(std::string result)
 						preferred=i;
 						pref=4;
 					}
+#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+					if (mime.substr(0,6) == "video/" && pref < 5)
+					{
+						preferred=i;
+						pref=5;
+					}
+					if (mime == "video/x-flv" && pref < 6)
+					{
+						preferred=i;
+						pref=6;
+					}
+					if (mime == "video/mp4" && pref < 7)
+					{
+						preferred=i;
+						pref=7;
+					}
+#endif
 				}
 			}
 			p = node->GetAttributeValue("id");
@@ -557,6 +599,12 @@ void CUpnpBrowserGui::playnext(void)
 				std::string protocol, prot, network, mime, additional;
 				protocol=(*entries)[0].resources[preferred].protocol;
 				splitProtocol(protocol, prot, network, mime, additional);
+#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+				if (mime.substr(0,6) != "image/") {
+					m_frameBuffer->Clear();
+					videoDecoder->setBlank(true);
+				}
+#endif
 				if (mime == "audio/mpeg")
 				{
 					m_playing_entry = (*entries)[0];
@@ -573,6 +621,32 @@ void CUpnpBrowserGui::playnext(void)
 					CAudioPlayer::getInstance()->play(&mp3, g_settings.audioplayer_highprio == 1);
 					return;
 				}
+#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+				else if (mime.substr(0,6) == "video/")
+				{
+					g_settings.streaming_server_url = std::string((*entries)[0].resources[preferred].url); //FIXME
+					if (CAudioPlayer::getInstance()->getState() != CBaseDec::STOP)
+						CAudioPlayer::getInstance()->stop();
+					CMoviePlayerGui::getInstance().exec(NULL, "netstream");
+					return;
+				}
+				else if (mime.substr(0,6) == "image/")
+				{
+					g_PicViewer->SetScaling((CPictureViewer::ScalingMode)g_settings.picviewer_scaling);
+					g_PicViewer->SetVisible(g_settings.screen_StartX, g_settings.screen_EndX, g_settings.screen_StartY, g_settings.screen_EndY);
+					videoDecoder->setBlank(true);
+
+					if (g_settings.video_Format==3)
+						g_PicViewer->SetAspectRatio(16.0/9);
+					else
+						g_PicViewer->SetAspectRatio(4.0/3);
+
+					g_PicViewer->ShowImage((*entries)[0].resources[preferred].url, false);
+					m_frameBuffer->blit();
+					g_PicViewer->Cleanup();
+					return;
+				}
+#endif
 			}
 		} else {
 			neutrino_msg_t      msg;
@@ -586,6 +660,7 @@ void CUpnpBrowserGui::playnext(void)
 			}
 		}
 	}
+	m_frameBuffer->Clear();
 }
 
 //------------------------------------------------------------------------
@@ -788,6 +863,45 @@ bool CUpnpBrowserGui::selectItem(std::string id)
 						CAudiofile mp3((*entries)[selected - index].resources[preferred].url, CFile::FILE_OGG);
 						CAudioPlayer::getInstance()->play(&mp3, g_settings.audioplayer_highprio == 1);
 					}
+#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+					else if (mime.substr(0,6) == "video/")
+					{
+						m_frameBuffer->Clear();
+						g_settings.streaming_server_url = std::string((*entries)[selected - index].resources[preferred].url); //FIXME
+						CMoviePlayerGui::getInstance().exec(NULL, "netstream");
+						g_Zapit->stopPlayBack();
+						videoDecoder->ShowPicture(DATADIR "/neutrino/icons/mp3.jpg");
+						changed = true;
+					}
+					else if (mime.substr(0,6) == "image/")
+					{
+						videoDecoder->StopPicture();
+						videoDecoder->setBlank(true);
+						g_PicViewer->SetScaling((CPictureViewer::ScalingMode)g_settings.picviewer_scaling);
+						g_PicViewer->SetVisible(g_settings.screen_StartX, g_settings.screen_EndX, g_settings.screen_StartY, g_settings.screen_EndY);
+
+						if (g_settings.video_Format==3)
+							g_PicViewer->SetAspectRatio(16.0/9);
+						else
+							g_PicViewer->SetAspectRatio(4.0/3);
+
+						g_PicViewer->ShowImage((*entries)[selected - index].resources[preferred].url, false);
+						m_frameBuffer->blit();
+						g_PicViewer->Cleanup();
+
+						while (true)
+						{
+							g_RCInput->getMsg(&msg, &data, 10); // 1 sec timeout to update play/stop state display
+
+							if (msg == CRCInput::RC_home || msg == CRCInput::RC_ok)
+								break;
+							CNeutrinoApp::getInstance()->handleMsg(msg, data);
+						}
+						m_frameBuffer->Clear();
+						videoDecoder->ShowPicture(DATADIR "/neutrino/icons/mp3.jpg");
+						changed = true;
+					}
+#endif
 					m_playing_entry = (*entries)[selected - index];
 #if 0 // TODO !
 // #ifdef ENABLE_PICTUREVIEWER
@@ -961,7 +1075,6 @@ void CUpnpBrowserGui::paintItemPos(std::vector<UPnPEntry> *entry, unsigned int p
 			w, info, color, m_fheight);
 	g_Font[SNeutrinoSettings::FONT_TYPE_FILEBROWSER_ITEM]->RenderString(m_x + 30, ypos + m_fheight, m_width - 50 - w,
 			name, color, m_fheight, true); // UTF-8
-
 }
 
 //------------------------------------------------------------------------
@@ -982,7 +1095,7 @@ void CUpnpBrowserGui::paintDevice()
 
 	// first line
 	tmp = m_devices[m_selecteddevice].manufacturer + " " +
-	      m_devices[m_selecteddevice].manufacturerurl;
+		m_devices[m_selecteddevice].manufacturerurl;
 	w = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(tmp, true); // UTF-8
 	xstart = (m_width - w) / 2;
 	if (xstart < 10)
@@ -992,8 +1105,8 @@ void CUpnpBrowserGui::paintDevice()
 
 	// second line
 	tmp = m_devices[m_selecteddevice].modelname + " " +
-	      m_devices[m_selecteddevice].modelnumber + " " +
-	      m_devices[m_selecteddevice].modeldescription;
+		m_devices[m_selecteddevice].modelnumber + " " +
+		m_devices[m_selecteddevice].modeldescription;
 	w = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(tmp, true); // UTF-8
 	xstart = (m_width - w) / 2;
 	if (xstart < 10)
@@ -1126,7 +1239,7 @@ void CUpnpBrowserGui::paintItem(std::vector<UPnPEntry> *entry, unsigned int sele
 	ypos = m_y + m_title_height;
 	if (m_theight > 26)
 		ypos = (m_theight - 26) / 2 + m_y + m_title_height;
-	m_frameBuffer->paintIcon(NEUTRINO_ICON_BUTTON_MENU, m_x + m_width - 30, ypos);
+//	m_frameBuffer->paintIcon(NEUTRINO_ICON_BUTTON_MENU, m_x + m_width - 30, ypos);
 #if 0
 	if ( CNeutrinoApp::getInstance()->isMuted() )
 	{
@@ -1172,7 +1285,7 @@ void CUpnpBrowserGui::paintDetails(std::vector<UPnPEntry> *entry, unsigned int i
 
 	if ((!use_playing) && ((*entry)[index].isdir))
 	{
- 		m_frameBuffer->paintBackgroundBoxRel(m_x+2, top + 2, m_width-4, 2 * m_buttonHeight+8);
+		m_frameBuffer->paintBackgroundBoxRel(m_x+2, top + 2, m_width-4, 2 * m_buttonHeight+8);
 	}
 	else
 	{
@@ -1265,7 +1378,7 @@ void CUpnpBrowserGui::paintDetails(std::vector<UPnPEntry> *entry, unsigned int i
 // -- 2002-03-17 rasc
 //
 
-void CUpnpBrowserGui::clearItem2DetailsLine ()
+void CUpnpBrowserGui::clearItem2DetailsLine()
 {
 	paintItem2DetailsLine (-1, 0);
 }
@@ -1293,25 +1406,25 @@ void CUpnpBrowserGui::paintItem2DetailsLine (int pos, unsigned int /*ch_index*/)
 	{
 		// 1. col thick line
 		// vertical
- 		int mh = g_Font[SNeutrinoSettings::FONT_TYPE_FILEBROWSER_ITEM]->getHeight() +2;
+		int mh = g_Font[SNeutrinoSettings::FONT_TYPE_FILEBROWSER_ITEM]->getHeight() +2;
 		m_frameBuffer->paintBoxRel(xpos+ConnectLineBox_Width-4,  ypos1,  4,  m_fheight,	col1); //left from item
 		m_frameBuffer->paintBoxRel(xpos+ConnectLineBox_Width-4,  ypos2 + mh/2,  4,  mh, col1); //left from detailbox
 
 		// long vertical line
- 		m_frameBuffer->paintBoxRel(xpos+ConnectLineBox_Width-15, ypos1a, 4,  ypos2a-ypos1a, col1);
- 
-		// short horizontal lines
- 		m_frameBuffer->paintBoxRel(xpos+ConnectLineBox_Width-15, ypos1a, 12, 4, col1);
- 		m_frameBuffer->paintBoxRel(xpos+ConnectLineBox_Width-15, ypos2a, 12, 4, col1);
+		m_frameBuffer->paintBoxRel(xpos+ConnectLineBox_Width-15, ypos1a, 4,  ypos2a-ypos1a, col1);
+
+	// short horizontal lines
+		m_frameBuffer->paintBoxRel(xpos+ConnectLineBox_Width-15, ypos1a, 12, 4, col1);
+		m_frameBuffer->paintBoxRel(xpos+ConnectLineBox_Width-15, ypos2a, 12, 4, col1);
 
 		// 2. col small line
- 		m_frameBuffer->paintBoxRel(xpos+ConnectLineBox_Width-4,  ypos1,  1,  m_fheight, col2);
- 		m_frameBuffer->paintBoxRel(xpos+ConnectLineBox_Width-4,  ypos2 + mh/2,  1,  mh, col2);
+		m_frameBuffer->paintBoxRel(xpos+ConnectLineBox_Width-4,  ypos1,  1,  m_fheight, col2);
+		m_frameBuffer->paintBoxRel(xpos+ConnectLineBox_Width-4,  ypos2 + mh/2,  1,  mh, col2);
 
 		m_frameBuffer->paintBoxRel(xpos+ConnectLineBox_Width-15, ypos1a, 1,  ypos2a-ypos1a+4, col2);
 
- 		m_frameBuffer->paintBoxRel(xpos+ConnectLineBox_Width-15, ypos1a, 12, 1, col2);
- 		m_frameBuffer->paintBoxRel(xpos+ConnectLineBox_Width-12, ypos2a, 8,  1, col2);
+		m_frameBuffer->paintBoxRel(xpos+ConnectLineBox_Width-15, ypos1a, 12, 1, col2);
+		m_frameBuffer->paintBoxRel(xpos+ConnectLineBox_Width-12, ypos2a, 8,  1, col2);
 
 		// small Frame around infobox
 		m_frameBuffer->paintBoxFrame(m_x, ypos2, m_width, mh*2-2, 2, col1, RADIUS_LARGE);
