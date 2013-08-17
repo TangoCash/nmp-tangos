@@ -552,6 +552,12 @@ int CPictureViewerGui::show()
 					update=true;
 				}
 			}
+#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+			else
+			{
+				m_viewer->Zoom(0.0); // Reset original view
+			}
+#endif
 		}
 		else if ( msg == CRCInput::RC_6 )
 		{
@@ -763,11 +769,15 @@ void CPictureViewerGui::paint()
 	frameBuffer->paintBoxRel(x+ width- 15,ypos, 15, sb,  COL_MENUCONTENT_PLUS_1);
 
 	int sbc= ((playlist.size()- 1)/ listmaxshow)+ 1;
+	if (sbc < 1)
+		sbc = 1;
+
+	float sbh= (sb- 4)/ sbc;
 	int sbs= (selected/listmaxshow);
 	if (sbc < 1)
 		sbc = 1;
 
-	frameBuffer->paintBoxRel(x+ width- 13, ypos+ 2+ sbs * (sb-4)/sbc, 11, (sb-4)/sbc,  COL_MENUCONTENT_PLUS_3);
+	frameBuffer->paintBoxRel(x+ width- 13, ypos+ 2+ sbs * sbh, 11, sbh,  COL_MENUCONTENT_PLUS_3);
 
 	paintFoot();
 	paintInfo();
@@ -814,24 +824,20 @@ void* CPictureViewerGui::decodeThread(void *arg)
 
 void CPictureViewerGui::thrView()
 {
-	//if (m_unscaled)
-	//	m_viewer->DecodeImage(playlist[selected].Filename, true, m_unscaled);
+	if (m_unscaled)
+		m_viewer->DecodeImage(playlist[selected].Filename, true, m_unscaled);
 
 	m_viewer->ShowImage(playlist[selected].Filename, m_unscaled);
 
-#if 1
+#if 0
 	//Decode next
 	unsigned int next=selected+1;
 	if (next > playlist.size()-1)
 		next=0;
 	if (m_state==VIEW)
-		if (m_unscaled)
-			m_viewer->DecodeImage(playlist[next].Filename, true, m_unscaled);
-		//m_viewer->DecodeImage(playlist[next].Filename,true);
+		m_viewer->DecodeImage(playlist[next].Filename,true);
 	else
-		if (m_unscaled)
-			m_viewer->DecodeImage(playlist[next].Filename, true, m_unscaled);
-		//m_viewer->DecodeImage(playlist[next].Filename,false);
+		m_viewer->DecodeImage(playlist[next].Filename,false);
 #endif
 }
 

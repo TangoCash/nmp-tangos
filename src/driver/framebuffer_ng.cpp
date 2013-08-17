@@ -25,7 +25,7 @@
 #include <config.h>
 #endif
 
-#include <driver/framebuffer.h>
+#include <driver/framebuffer_ng.h>
 
 #include <stdio.h>
 #include <fcntl.h>
