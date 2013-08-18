@@ -67,7 +67,6 @@ typedef struct fb_var_screeninfo t_fb_var_screeninfo;
 #endif
 
 #if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
-#include <linux/stmfb.h>
 #define DEFAULT_XRES 1280
 #define DEFAULT_YRES 720
 #endif
@@ -111,9 +110,6 @@ class CFbAccel
 		void blitFB2FB(int fx0, int fy0, int fx1, int fy1, int tx0, int ty0, int tx1, int ty2);
 		void blitBoxFB(int x0, int y0, int x1, int y1, fb_pixel_t color);
 		void ClearFB(void);
-		bool allocBPAMem(int &bpa, unsigned char * &mem, size_t s);
-		void freeBPAMem(int &bpa, unsigned char * &mem, size_t s);
-		void blitBPA2FB(unsigned char *mem, SURF_FMT fmt, int w, int h, int x = 0, int y = 0, int pan_x = -1, int pan_y = -1, int fb_x = 0, int fb_y = 0, int fb_w = -1, int fb_h = -1, int transp = false);
 #endif
 };
 
@@ -313,9 +309,6 @@ class CFrameBuffer
 	public:
 		void ClearFB(void);
 		void resChange(void);
-		bool allocBPAMem(int &bpa, unsigned char * &mem, size_t s) { return accel->allocBPAMem(bpa, mem, s); };
-		void freeBPAMem(int &bpa, unsigned char * &mem, size_t s) { accel->freeBPAMem(bpa, mem, s); };
-		void blitBPA2FB(unsigned char *mem, SURF_FMT fmt, int w, int h, int x = 0, int y = 0, int pan_x = -1, int pan_y = -1, int fb_x = 0, int fb_y = 0, int fb_w = -1, int fb_h = -1, int transp = false) { accel->blitBPA2FB(mem, fmt, w, h, x, y, pan_x, pan_y, fb_x, fb_y, fb_w, fb_h, transp); };
 #endif
 
 // ## AudioMute / Clock ######################################
