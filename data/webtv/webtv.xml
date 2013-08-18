@@ -2,9 +2,8 @@
 <webtvs>
 <webtv title="NASA TV" urlkey="0" url="rtmp://cp76072.live.edgefcs.net/live/MED-HQ-Flash@42814" description="SCIENCE" />
 <webtv title="Space Cybertec" urlkey="0" url="rtmp://video-tochka.com:1945/videotest/user_stream" description="Space Cybertec" />
-<webtv title="Bridge" urlkey="0" url="mms://webcams.niagarafallshotels.com/CNH-Stream1" description="Live Webcam" />
-<webtv title="Waterfall" urlkey="0" url="mms://webcams.niagarafallshotels.com/CNH-Stream2" description="Live Webcam" />
-<webtv title="City Crossroads" urlkey="0" url="mms://webcams.niagarafallshotels.com/CNH-Stream3" description="Live Webcam" />
+<webtv title="Waterfall" urlkey="0" url="mmst://webcams.niagarafallshotels.com/CNH-Stream2" description="Live Webcam" />
+<webtv title="City Crossroads" urlkey="0" url="mmst://webcams.niagarafallshotels.com/CNH-Stream3" description="Live Webcam" />
 <webtv title="WebCam Amsterdam" urlkey="0" url="rtmp://media.terena.org/webcam/webcam.stream" description="Live Webcam" />
 <webtv title="Beach" urlkey="0" url="rtmp://oceanside.live.camzonecdn.com:1935/CamzoneStreams/oceanside.flv" description="Live Webcam >Slow Loading" />
 <webtv title="Panda" urlkey="0" url="rtmp://zssd-panda.live.camzonecdn.com:1935/CamzoneStreams/zssd-panda.flv" description="Live Webcam >Slow Loading" /> 
@@ -15,8 +14,6 @@
 <webtv title="My Back Garden hehe" urlkey="0" url="rtmp://konakai03.live.camzonecdn.com:1935/CamzoneStreams/konakai03.flv" description="Live Webcam >Slow Loading" />
 <webtv title="Lake of the Ozarks" urlkey="0" url="rtmp://streaming.realestateozarks.com/live/cam2/cam2.flv" description="Live Webcam >Slow Loading" />
 <webtv title="St Dogmaels" urlkey="0" url="rtmp://cp81990.live.edgefcs.net/live/cardigan_bay@18391.flv" description="Live Webcam >Slow Loading" />
-<webtv title="Bluehn Webcam" urlkey="0" url="mms://41.bluehn.com/LIVECAM1" description="Webcam" />
-<webtv title="Bluehn Webcam" urlkey="0" url="mms://43.bluehn.com/LIVECAM4" description="Webcam" />
 <webtv title="CityToronto" urlkey="0" url="rtmp://cp105185.live.edgefcs.net:1935/live/Citynewsch_online@15402" description="Online News" />
 <webtv title="Q-music TV" urlkey="0" url="rtmp://vmmaeventlivefs.fplive.net:1935/vmmaeventlive-live/vmma.radio-sdh" description="Music" />
 <webtv title="Slam Tv" urlkey="0" url="rtmp://82.201.53.52:80/livestream/slamtv" description="Music" />
@@ -227,13 +224,13 @@
 <webtv title="Disney" urlkey="0" url="http://88.212.35.222:2002/" description="" />
 <webtv title="Country Music" urlkey="0" url="rtmp://cp54218.live.edgefcs.net/live/SEGroup_AFN@14881" description="" /> 
 <webtv title="The Florida Channel" urlkey="0" url="rtmp://webcasting.thefloridachannel.org/live/tvweb1" description="" />
-<webtv title="RoswellLive US" urlkey="0" url="mms://roswell.ecstreams.com/RoswellLive" description="" />
+<webtv title="RoswellLive US" urlkey="0" url="mmst://roswell.ecstreams.com/RoswellLive" description="" />
 <webtv title="San Francisco 1" urlkey="0" url="rtmp://208.69.42.59/live/stream29" description="" />
 <webtv title="JBLive.TV" urlkey="0" url="rtmp://videocdn-us.geocdn.scaleengine.net/jblive/live/jblive.stream" description="US Tv" />
-<webtv title="A Pac" urlkey="0" url="mms://wm9.streaming.telstra.com/ucs-wh_APAC0Live2" description="" />
+<webtv title="A Pac" urlkey="0" url="mmst://wm9.streaming.telstra.com/ucs-wh_APAC0Live2" description="" />
 <webtv title="Sport Tv" urlkey="0" url="rtmp://flash.speednet.at:80/sporttime_playlist/Sporttime/sporttimetv-1100" description="Sport" />
-<webtv title="Ski Freez" urlkey="0" url="mms://stream01.massive-mag.tv/massivefreeze_hq" description="" />
-<webtv title="Ski Freez 2" urlkey="0" url="mms://stream01.massive-mag.tv/massivefreeze_mq" description="" />
+<webtv title="Ski Freez" urlkey="0" url="mmst://stream01.massive-mag.tv/massivefreeze_hq" description="" />
+<webtv title="Ski Freez 2" urlkey="0" url="mmst://stream01.massive-mag.tv/massivefreeze_mq" description="" />
 <webtv title="LunaSport" urlkey="0" url="rtmp://vs2.streamcaster.net/test_live/lunasport" description="" />
 <webtv title="Golf Tv" urlkey="0" url="rtmp://lm02.everyon.tv:1935/ptv//phd58" description="" />
 <webtv title="Wrestling Tv" urlkey="0" url="rtmp://80.93.53.88:1935/live/wrestling.stream" description="Sport" />
@@ -295,7 +292,7 @@
 <webtv title="TVR Cultural" urlkey="0" url="http://93.113.204.18:40020" description="" />
 <webtv title="Alfa Omega TV" urlkey="0" url="rtmp://s5.alfaomega.tv/alfaomega/alfaomega2.sdp" description="" />
 <webtv title="PRO CINEMA Tv" urlkey="0" url="http://89.45.164.123:1230" description="" />
-<webtv title="Korea" urlkey="0" url="mms://vod2.cbs.co.kr/cbs_tv_live34" description="" />
+<webtv title="Korea" urlkey="0" url="mmst://vod2.cbs.co.kr/cbs_tv_live34" description="" />
 <webtv title="Perwij kanal" url="rtmp://213.186.127.42:1935/live/first.stream" description="" />
 <webtv title="Кинозал 1" urlkey="0" url="http://stream.shura.tv/~shbdMF7kdyd8g/100/" description="Тест V.O.D 1" />
 <webtv title="Кинозал 2" urlkey="0" url="http://stream.shura.tv/~shbdMF7kdyd8g/101/" description="Тест V.O.D 2" />
@@ -464,7 +461,7 @@
 <webtv title="Chip-Chop" url="rtmp://broadcast04.quantumart.ru/hiphophit/hiphophit" description="" account="0" usrname="" psw="" type="0"/>
 <webtv title="REBEL TV" url="rtmp://46.105.108.166:80/publishlive/rebeltv" description="" account="0" usrname="" psw="" type="0"/>
 <webtv title="ENT.BAY TV CONCERT" url="rtmp://planetaonline.cdnvideo.ru/rr/channel_21" description="" account="0" usrname="" psw="" type="0"/>
-<webtv title="RADIO BH 1" urlkey="0" url="mms://media.bih.net.ba/bhradio1" description="BOSNIA" />
+<webtv title="RADIO BH 1" urlkey="0" url="mmst://media.bih.net.ba/bhradio1" description="BOSNIA" />
 <webtv title="RADIO BIH" urlkey="0" url="http://178.32.57.58:8022" description="BOSNIA" /> 
 <webtv title="RADIO SARAJEVO" urlkey="0" url="http://malla.softnet.si:8000" description="BOSNIA" />
 <webtv title="RADIO BOSNA EXPRESS" urlkey="0" url="http://expres-bosna.no-ip.biz:1936" description="BOSNIA" />
@@ -538,7 +535,7 @@
 <webtv title="???" urlkey="0" url="rtmp://83.229.210.89/TNV/tnv1200" description="" />
 <webtv title="Kasaxctan" urlkey="0" url="rtmp://95.56.237.107:1935/live/myStream1" description="" />
 <webtv title="NOROAa" urlkey="0" url="rtmp://62.80.184.51/PogodaTV/livestream1" description="" />
-<webtv title="Ruskii Krest" urlkey="0" url="mms://213.141.145.170/ts_tv2" description="" />
+<webtv title="Ruskii Krest" urlkey="0" url="mmst://213.141.145.170/ts_tv2" description="" />
 <webtv title="Planeta" urlkey="0" url="rtmp://www.planeta-online.tv:1936/live/channel_2" description="" />
 <webtv title="Planeta" urlkey="0" url="rtmp://www.planeta-online.tv:1936/live/channel_3" description="Fish Tank" />
 <webtv title="Planeta" urlkey="0" url="rtmp://www.planeta-online.tv:1936/live/channel_4" description="" />
@@ -607,7 +604,7 @@
 <webtv title="Live at Irish_Tour" urlkey="0" url="rtmp://93.114.43.3:1935/vod/Rory_Galagher-Irish_Tour.mp4" description="Rory_Galagher" /> 
 <webtv title="Live at Dublin" urlkey="0" url="rtmp://93.114.43.3:1935/vod/Gary_Moore_and_Friends-One_Night_In_Dublin.mp4" description="Gary_Moore" />
 <webtv title="L_O_T_D" urlkey="0" url="rtmp://93.114.43.3:1935/vod/lord_of_the_dance.mp4" description="Lord Of The Dance" /> 
-<webtv title="White Springs TV" urlkey="0" url="mms://75.112.144.110/WSTV" description="" />
+<webtv title="White Springs TV" urlkey="0" url="mmst://75.112.144.110/WSTV" description="" />
 <webtv title="EDGE Tv" urlkey="0" url="rtmp://arkmk.flashwebtown.com:1935/arkmk/mpegts6.stream" description="" />
 <webtv title="RTE ONE" urlkey="0" url="rtmp://fmsod.rte.ie/live/rte1" description="IRELAND" />
 <webtv title="RTE TWO" urlkey="0" url="rtmp://fmsod.rte.ie/live/rte2" description="IRELAND" />
@@ -675,7 +672,7 @@
 <webtv title="HD MEDIA 18+ " urlkey="0" url="http://iptv.root-host.pro/tvkanal.php?kanal=457" description="18+ hard" />
 <webtv title="Playboy TV" urlkey="0" url="rtmp://lm02.everyon.tv:1935/ptv/phd499" description="18+ Hard" />
 <webtv title="Playboy TV" urlkey="0" url="http://77.51.249.86:8112" description="18+ Hard" />
-<webtv title="Playboy TV (XxXrated)" urlkey="0" url="mms://67.159.30.86/playboy" description="18+ Hard" />
+<webtv title="Playboy TV (XxXrated)" urlkey="0" url="mmst://67.159.30.86/playboy" description="18+ Hard" />
 <webtv title="Thai Chat 2" urlkey="0" url="http://178.33.224.86:1935/leved/asianhc.stream/playlist.m3u8" description="18+ Hard" />
 <webtv title="Tranny" urlkey="0" url="rtmp://live190.la3.origin.filmon.com:1935/live/246.high.stream" description="18+ Hard" />
 <webtv title="Adult Gay" urlkey="0" url="rtmp://live190.la3.origin.filmon.com:1935/live/73.high.stream" description="18+ Hard" />
