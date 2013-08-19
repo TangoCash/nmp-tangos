@@ -195,7 +195,7 @@ void CLCD::showServicename(std::string name, bool fromepg)
 		return;
 	if (!fromepg)
 		servicename = name;
-	if (mode != MODE_TVRADIO)
+	if (mode != MODE_TVRADIO && mode != MODE_AUDIO)
 		return;
 	replace_umlauts(name);
 	strncpy(display_text, name.c_str(), sizeof(display_text) - 1);
@@ -384,11 +384,11 @@ void CLCD::showMenuText(const int, const char *text, const int, const bool)
 	upd_display = true;
 }
 
-void CLCD::showAudioTrack(const std::string &, const std::string & /*title*/, const std::string &)
+void CLCD::showAudioTrack(const std::string &, const std::string & title, const std::string &)
 {
 	if (mode != MODE_AUDIO)
 		return;
-//	ShowText(title.c_str());
+	ShowText(title.c_str());
 }
 
 void CLCD::showAudioPlayMode(AUDIOMODES)
