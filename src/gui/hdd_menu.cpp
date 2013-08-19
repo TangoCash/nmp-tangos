@@ -107,10 +107,44 @@ CHDDMenuHandler::~CHDDMenuHandler()
 
 }
 
+#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+static bool is_mounted(const char *dev)
+{
+	bool res = false;
+	char devpath[40];
+	snprintf(devpath, sizeof(devpath), "/dev/%s", dev);
+	int devpathlen = strlen(devpath);
+	char buffer[255];
+	FILE *f = fopen("/proc/mounts", "r");
+	if(f) {
+		while (!res && fgets (buffer, sizeof(buffer), f))
+			if (!strncmp(buffer, devpath, devpathlen)
+			 && (buffer[devpathlen] == ' ' || buffer[devpathlen] == '\t'))
+				res = true;
+		fclose(f);
+	}
+	return res;
+}
+
+
+int CHDDMenuHandler::exec(CMenuTarget* parent, const std::string &actionkey)
+#else
 int CHDDMenuHandler::exec(CMenuTarget* parent, const std::string &/*actionkey*/)
+#endif
 {
 	if (parent)
 		parent->hide();
+#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+	for (std::vector<hdd_s>::iterator it = hdd_list.begin(); it != hdd_list.end(); ++it)
+		if (it->devname == actionkey) {
+			std::string cmd = "ACTION=" + std::string((it->mounted ? "remove" : "add"))
+			+ " MOUNTBASE=/tmp MDEV=" + it->devname + " /etc/mdev/mdev-mount.sh";
+			system(cmd.c_str());
+			it->mounted = is_mounted(it->devname.c_str());
+			it->cmf->setOption(g_Locale->getText(it->mounted ? LOCALE_HDD_UMOUNT : LOCALE_HDD_MOUNT));
+			return menu_return::RETURN_REPAINT;
+		}
+#endif
 
 	return doMenu ();
 }
@@ -161,6 +195,9 @@ int CHDDMenuHandler::doMenu ()
 	//if(n > 0)
 	hddmenu->addItem(new CMenuSeparator(CMenuSeparator::LINE | CMenuSeparator::STRING, LOCALE_HDD_MANAGE));
 
+#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+	hdd_list.clear();
+#endif
 	ret = stat("/", &s);
 	int drive_mask = 0xfff0;
 	if (ret != -1) {
@@ -172,6 +209,9 @@ int CHDDMenuHandler::doMenu ()
 	std::string tmp_str[n];
 	CMenuWidget * tempMenu[n];
 	for(int i = 0; i < n;i++) {
+#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+		tempMenu[i] = NULL;
+#endif
 		char str[256];
 		char sstr[256];
 		char vendor[128], model[128];
@@ -233,9 +273,10 @@ int CHDDMenuHandler::doMenu ()
 			continue;
 		}
 		fscanf(f, "%d", &removable);
+		removable = 0;
 		fclose(f);
 
-		bool enabled = !CNeutrinoApp::getInstance()->recordingstatus && !isroot && !removable;
+		bool enabled = !CNeutrinoApp::getInstance()->recordingstatus && !removable && !isroot;
 
 		snprintf(str, sizeof(str), "%s %s %ld %s", vendor, model, (long)(megabytes < 10000 ? megabytes : megabytes/1000), megabytes < 10000 ? "MB" : "GB");
 		printf("HDD: %s\n", str);
@@ -266,8 +307,44 @@ int CHDDMenuHandler::doMenu ()
 
 	if(!hdd_found)
 		hddmenu->addItem(new CMenuForwarder(LOCALE_HDD_NOT_FOUND, false));
+#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+	else {
+		FILE *b = popen("/sbin/blkid", "r");
+		if (b) {
+			char buf[255];
+			while (fgets (buf, sizeof(buf), b)) {
+				if (strncmp(buf, "/dev/sd", 7) && strncmp(buf, "/dev/hd", 7))
+					continue;
+				char *e = strstr(buf + 7, ":");
+				if (!e)
+					continue;
+				*e = 0;
+				hdd_s hdd;
+				hdd.devname = std::string(buf + 5);
+				hdd.mounted = is_mounted(buf + 5);
+				hdd_list.push_back(hdd);
+			}
+			fclose(b);
+		}
+		if (!hdd_list.empty()) {
+			int shortcut = 1;
+			hddmenu->addItem(new CMenuSeparator(CMenuSeparator::LINE | CMenuSeparator::STRING, LOCALE_HDD_MOUNT_UMOUNT));
+			for (std::vector<hdd_s>::iterator it = hdd_list.begin(); it != hdd_list.end(); ++it) {
+				it->cmf = new CMenuForwarderNonLocalized(it->devname.c_str(), true,
+					g_Locale->getText(it->mounted ?  LOCALE_HDD_UMOUNT : LOCALE_HDD_MOUNT), this,
+					it->devname.c_str(), CRCInput::convertDigitToKey(shortcut++));
+				hddmenu->addItem(it->cmf);
+			}
+		}
+	}
+#endif
 
 	ret = hddmenu->exec(NULL, "");
+	for(int i = 0; i < n;i++) {
+		if( hdd_found && tempMenu[i] != NULL ){
+			delete tempMenu[i];
+		}
+	}
 
 	delete hddmenu;
 	return ret;
@@ -317,15 +394,14 @@ int CHDDDestExec::exec(CMenuTarget* /*parent*/, const std::string&)
 #if HAVE_DUCKBOX_HARDWARE
 			CVFD::getInstance()->ShowIcon(FP_ICON_HDD, true);
 #endif
-			printf("CHDDDestExec: noise %d sleep %d /dev/%s\n",
-				 g_settings.hdd_noise, g_settings.hdd_sleep, namelist[i]->d_name);
+			printf("CHDDDestExec: noise %d sleep %d /dev/%s\n", g_settings.hdd_noise, g_settings.hdd_sleep, namelist[i]->d_name);
 			snprintf(S_opt, sizeof(S_opt),"-S%d", g_settings.hdd_sleep);
 			snprintf(opt, sizeof(opt),"/dev/%s",namelist[i]->d_name);
 
-			if(hdparm_link){
+			if(hdparm_link) {
 				//hdparm -M is not included in busybox hdparm!
 				my_system(3, hdparm, S_opt, opt);
-			}else{
+			} else {
 				snprintf(M_opt, sizeof(M_opt),"-M%d", g_settings.hdd_noise);
 				my_system(4, hdparm, M_opt, S_opt, opt);
 			}

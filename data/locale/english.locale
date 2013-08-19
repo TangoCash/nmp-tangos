@@ -625,6 +625,8 @@ hdd_format_warn Start format...
 hdd_fs Filesystem
 hdd_manage Manage drives
 hdd_middle Mid
+hdd_mount mount
+hdd_mount_umount Mount/unmount drives
 hdd_noise Acoustic-control (AAM)
 hdd_not_found No HDD found
 hdd_reiser ReiserFS
@@ -632,6 +634,7 @@ hdd_removable_device Removable device
 hdd_settings Hard Disk Drive/USB
 hdd_sleep Switch off after...
 hdd_slow Slow
+hdd_umount unmount
 hdd_umount_warn unmount device
 imageinfo.creator Creator:
 imageinfo.date Date:
