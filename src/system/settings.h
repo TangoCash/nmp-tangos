@@ -41,6 +41,7 @@
 #include <zapit/client/zapittools.h>
 
 #include <hardware_caps.h>
+
 #include <string>
 
 #ifdef BOXMODEL_APOLLO

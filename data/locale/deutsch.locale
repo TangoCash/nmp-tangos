@@ -671,6 +671,15 @@ infoviewer.subservice Bildregie
 infoviewer.waittime Warte auf Uhrzeit...
 ipsetup.hint_1 Benutzen Sie 0..9 oder hoch/runter
 ipsetup.hint_2 OK speichert, EXIT bricht ab
+kerneloptions.apply Einstellungen anwenden
+kerneloptions.disabled deaktiviert
+kerneloptions.enabled aktiviert
+kerneloptions.head Kernel-Optionen
+kerneloptions.loaded geladen
+kerneloptions.lsmod Status
+kerneloptions.modules Kernel-Module
+kerneloptions.not_loaded nicht geladen
+kerneloptions.reset Einstellungen zurücksetzen
 keybindingmenu.RC Fernbedienung abstimmen
 keybindingmenu.addrecord Aufnahme-Timer hinzufügen
 keybindingmenu.addremind Umschalt-Timer hinzufügen

@@ -670,6 +670,15 @@ infoviewer.subservice Subservices
 infoviewer.waittime Waiting for time...
 ipsetup.hint_1 Use 0..9, or use Up/Down,
 ipsetup.hint_2 OK saves, Exit aborts
+kerneloptions.apply Apply
+kerneloptions.disabled disabled
+kerneloptions.enabled enabled
+kerneloptions.head Kernel Options
+kerneloptions.loaded loaded
+kerneloptions.lsmod Status
+kerneloptions.modules Kernel modules
+kerneloptions.not_loaded not loaded
+kerneloptions.reset Reset settings
 keybindingmenu.RC Tune Remote-Control
 keybindingmenu.addrecord add record timer
 keybindingmenu.addremind add zapto timer

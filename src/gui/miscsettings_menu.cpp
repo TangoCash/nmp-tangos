@@ -42,6 +42,9 @@
 #include <gui/plugins.h>
 #include <gui/sleeptimer.h>
 #include <gui/zapit_setup.h>
+#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+#include <gui/kerneloptions.h>
+#endif
 
 #include <gui/widget/icons.h>
 #include <gui/widget/stringinput.h>
@@ -238,6 +241,12 @@ int CMiscMenue::showMiscSettingsMenu()
 	showMiscSettingsMenuCPUFreq(&misc_menue_cpu);
 	misc_menue.addItem( new CMenuForwarderNonLocalized("CPU", true, NULL, &misc_menue_cpu, NULL, CRCInput::RC_4));
 #endif /*CPU_FREQ*/
+
+#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+	// kerneloptions
+	KernelOptions_Menu kernelOptions;
+	misc_menue.addItem(new CMenuForwarder(LOCALE_KERNELOPTIONS_HEAD, true, NULL, &kernelOptions, NULL, CRCInput::RC_5));
+#endif
 
 	int res = misc_menue.exec(NULL, "");
 	delete fanNotifier;
