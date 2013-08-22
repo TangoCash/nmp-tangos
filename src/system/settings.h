@@ -131,6 +131,9 @@ struct SNeutrinoSettings
 	int hdmi_cec_mode;
 	int hdmi_cec_view_on;
 	int hdmi_cec_standby;
+#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+	int hdmi_cec_broadcast;
+#endif
 	int enabled_video_modes[VIDEOMENU_VIDEOMODE_OPTION_COUNT];
 	int cpufreq;
 	int standby_cpufreq;

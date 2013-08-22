@@ -245,6 +245,7 @@ public:
 	void loadEventsFromConfig();
 	bool shutdown();
 	void shutdownOnWakeup(int currEventId);
+	void setWakeupTime();
 	void getRecordingSafety(int &pre, int &post){pre=m_extraTimeStart;post=m_extraTimeEnd;}
 	void setRecordingSafety(int pre, int post);
 	void loadRecordingSafety();

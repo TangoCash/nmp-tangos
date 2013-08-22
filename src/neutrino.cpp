@@ -348,6 +348,7 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	g_settings.hdmi_cec_view_on = configfile.getInt32("hdmi_cec_view_on", 0); // default off
 	g_settings.hdmi_cec_standby = configfile.getInt32("hdmi_cec_standby", 0); // default off
 #if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+	g_settings.hdmi_cec_broadcast = configfile.getInt32("hdmi_cec_broadcast", 0); // default off
 	g_settings.psi_contrast = configfile.getInt32("video_psi_contrast", 128);
 	g_settings.psi_saturation = configfile.getInt32("video_psi_saturation", 128);
 	g_settings.psi_brightness = configfile.getInt32("video_psi_brightness", 128);
@@ -985,6 +986,7 @@ void CNeutrinoApp::saveSetup(const char * fname)
 	configfile.setInt32( "hdmi_cec_view_on", g_settings.hdmi_cec_view_on );
 	configfile.setInt32( "hdmi_cec_standby", g_settings.hdmi_cec_standby );
 #if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+	configfile.setInt32( "hdmi_cec_broadcast", g_settings.hdmi_cec_broadcast );
 	configfile.setInt32( "video_psi_contrast", g_settings.psi_contrast );
 	configfile.setInt32( "video_psi_saturation", g_settings.psi_saturation );
 	configfile.setInt32( "video_psi_brightness", g_settings.psi_brightness );
@@ -1960,7 +1962,9 @@ void wake_up(long &wakeup)
 	/* not platform specific - this is created by the init process */
 	if (access("/tmp/.timer_wakeup", F_OK) == 0) {
 		wakeup = 1;
+#if !HAVE_SPARK_HARDWARE && !HAVE_DUCKBOX_HARDWARE
 		unlink("/tmp/.timer_wakeup");
+#endif
 	}
 
 	if(!wakeup){
@@ -1971,7 +1975,7 @@ void wake_up(long &wakeup)
 }
 
 #if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
-extern bool timer_wakeup;//timermanager.cpp
+long timer_wakeup = 0;
 #endif
 int CNeutrinoApp::run(int argc, char **argv)
 {
@@ -1992,6 +1996,14 @@ fprintf(stderr, "[neutrino start] %d  -> %5ld ms\n", __LINE__, time_monotonic_ms
 
 	int loadSettingsErg = loadSetup(NEUTRINO_SETTINGS_FILE);
 fprintf(stderr, "[neutrino start] %d  -> %5ld ms\n", __LINE__, time_monotonic_ms() - starttime);
+#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+	wake_up( timer_wakeup );
+//	CFSMounter::automount_async_start();
+//	{
+		CCECSetup cecsetup;
+		cecsetup.setCECSettings(true);
+//	}
+#endif
 
 	initialize_iso639_map();
 
@@ -2072,6 +2084,7 @@ fprintf(stderr, "[neutrino start] %d  -> %5ld ms\n", __LINE__, time_monotonic_ms
 	g_Zapit->setStandby(false);
 
 	//timer start
+#if !HAVE_SPARK_HARDWARE && !HAVE_DUCKBOX_HARDWARE
 	long timer_wakeup = 0;
 	wake_up( timer_wakeup );
 
@@ -2082,6 +2095,7 @@ fprintf(stderr, "[neutrino start] %d  -> %5ld ms\n", __LINE__, time_monotonic_ms
 		cecsetup.setCECSettings();
 		init_cec_setting = false;
 	}
+#endif
 	g_settings.shutdown_timer_record_type = false;
 
 	/* todo: check if this is necessary
@@ -2884,6 +2898,10 @@ _repeat:
 				new_msg = NeutrinoMessages::SHUTDOWN;
 			}
 			else {
+#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+				if((mode != mode_standby) && (g_settings.shutdown_real) && recordingstatus)
+					timer_wakeup = true;
+#endif
 				new_msg = (mode == mode_standby) ? NeutrinoMessages::STANDBY_OFF : NeutrinoMessages::STANDBY_ON;
 				//printf("standby: new msg %X\n", new_msg);
 				if ((g_settings.shutdown_real_rcdelay)) {
@@ -3541,6 +3559,8 @@ void CNeutrinoApp::ExitRun(const bool /*write_si*/, int retcode)
 			stop_video();
 #if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
 			if (retcode == 1) {
+				CCECSetup cecsetup;
+				cecsetup.setCECSettings(false);
 #ifdef ENABLE_GRAPHLCD
 				nGLCD::SetBrightness(0);
 #endif
@@ -3549,7 +3569,7 @@ void CNeutrinoApp::ExitRun(const bool /*write_si*/, int retcode)
 
 			printf("[neutrino] This is the end. exiting with code %d\n", retcode);
 			Cleanup();
-#ifdef __sh__
+#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
 			/* the sh4 gcc seems to dislike someting about openthreads... */
 			_exit(retcode);
 #else
@@ -3707,8 +3727,12 @@ void CNeutrinoApp::standbyMode( bool bOnOff, bool fromDeepStandby )
 	lockStandbyCall = true;
 
 	if( bOnOff ) {
+#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+		CCECSetup cecsetup;
+		cecsetup.setCECSettings(false);
 #ifdef ENABLE_GRAPHLCD
 		nGLCD::StandbyMode(true);
+#endif
 #endif
 		CVFD::getInstance()->ShowText("standby...");
 		if( mode == mode_scart ) {
@@ -3795,12 +3819,19 @@ void CNeutrinoApp::standbyMode( bool bOnOff, bool fromDeepStandby )
 #ifdef ENABLE_GRAPHLCD
 		nGLCD::StandbyMode(false);
 #endif
+#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+		if (timer_wakeup) {
+			CCECSetup cecsetup;
+			cecsetup.setCECSettings(true);
+		}
+#else
 		if(init_cec_setting){
 			//init cec settings
 			CCECSetup cecsetup;
 			cecsetup.setCECSettings();
 			init_cec_setting = false;
 		}
+#endif
 
 		if(!recordingstatus && g_settings.ci_standby_reset) {
 			g_CamHandler->exec(NULL, "ca_ci_reset0");
@@ -4237,7 +4268,7 @@ void sighandler (int signum)
 		delete CVFD::getInstance();
 		delete SHTDCNT::getInstance();
 		stop_video();
-#ifdef __sh__
+#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
 		_exit(CNeutrinoApp::SHUTDOWN);
 #else
 		exit(CNeutrinoApp::SHUTDOWN);
