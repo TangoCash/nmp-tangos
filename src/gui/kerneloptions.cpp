@@ -54,7 +54,7 @@ int KernelOptions_Menu::exec(CMenuTarget* parent, const std::string & actionKey)
 
 	if (actionKey == "apply" || actionKey == "change") {
 		bool needs_save = false;
-		for (unsigned int i = 0; i < modules.size(); i++)
+		for (unsigned int i = 0; i < modules.size(); i++) {
 			if (modules[i].active != modules[i].active_orig) {
 				needs_save = true;
 				char buf[80];
@@ -66,13 +66,14 @@ int KernelOptions_Menu::exec(CMenuTarget* parent, const std::string & actionKey)
 						system(buf);
 					}
 				else
-					for (unsigned int j = 0; j < modules[i].moduleList.size(); j++) {
-						snprintf(buf, sizeof(buf), "rmmod %s", modules[i].moduleList[j].first.c_str());
+					for (unsigned int j = modules[i].moduleList.size(); j > 0; j--) {
+						snprintf(buf, sizeof(buf), "rmmod %s", modules[i].moduleList[j - 1].first.c_str());
 						system(buf);
 					}
 				modules[i].active_orig = modules[i].active;
-				break;
+				//break;  // why ?
 			}
+		}
 		if (needs_save)
 			save();
 		if (actionKey == "change")
