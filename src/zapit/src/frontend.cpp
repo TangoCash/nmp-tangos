@@ -455,6 +455,7 @@ uint32_t CFrontend::getUncorrectedBlocks(void) const
 }
 #endif
 
+#if !HAVE_SPARK_HARDWARE && !HAVE_DUCKBOX_HARDWARE
 struct dvb_frontend_event CFrontend::getEvent(void)
 {
 	struct dvb_frontend_event event;
@@ -525,6 +526,77 @@ struct dvb_frontend_event CFrontend::getEvent(void)
 	//printf("[fe%d] event after: %d\n", fenumber, tmsec);
 	return event;
 }
+#else
+struct dvb_frontend_event CFrontend::getEvent(void)
+{
+	struct dvb_frontend_event event;
+	struct pollfd pfd;
+	static unsigned int timedout = 0;
+
+	FE_TIMER_INIT();
+
+	int msec = TIME_STEP;
+	int tmsec = msec;
+
+	pfd.fd = fd;
+	pfd.events = POLLIN | POLLPRI;
+	pfd.revents = 0;
+
+	memset(&event, 0, sizeof(struct dvb_frontend_event));
+
+	INFO("[fe%d,%d] ******** max timeout: %d\n", adapter, fenumber, TIMEOUT_MAX_MS);
+
+	FE_TIMER_START();
+
+	while ((int) timer_msec < TIMEOUT_MAX_MS) {
+		int ret = poll(&pfd, 1, TIMEOUT_MAX_MS);
+		if (ret < 0) {
+			perror("CFrontend::getEvent poll");
+			continue;
+		}
+		if (ret == 0) {
+			FE_TIMER_STOP("poll timeout, time");
+			msec += TIME_STEP;
+			continue;
+		}
+
+		if (pfd.revents & (POLLIN | POLLPRI)) {
+			FE_TIMER_STOP("poll has event after");
+			memset(&event, 0, sizeof(struct dvb_frontend_event));
+
+			if (ioctl(fd, FE_GET_EVENT, &event) < 0) {
+				perror("CFrontend::getEvent ioctl");
+				continue;
+			}
+
+			if (event.status & FE_HAS_LOCK) {
+				INFO("[fe%d,%d] ******** FE_HAS_LOCK: freq %lu", adapter , fenumber, (long unsigned int)event.parameters.frequency);
+				tuned = true;
+				break;
+			} else if (event.status & FE_TIMEDOUT) {
+				if(timedout < timer_msec)
+					timedout = timer_msec;
+				INFO("[fe%d,%d] ******** FE_TIMEDOUT\n", adapter, fenumber);
+			} else {
+				if (event.status & FE_HAS_SIGNAL)
+					printf("[fe%d,%d] ******** FE_HAS_SIGNAL\n", adapter, fenumber);
+				if (event.status & FE_HAS_CARRIER)
+					printf("[fe%d,%d] ******** FE_HAS_CARRIER\n", adapter, fenumber);
+				if (event.status & FE_HAS_VITERBI)
+					printf("[fe%d,%d] ******** FE_HAS_VITERBI\n", adapter, fenumber);
+				if (event.status & FE_HAS_SYNC)
+					printf("[fe%d,%d] ******** FE_HAS_SYNC\n", adapter, fenumber);
+				if (event.status & FE_REINIT)
+					printf("[fe%d,%d] ******** FE_REINIT\n", adapter, fenumber);
+			}
+		} else if (pfd.revents & POLLHUP) {
+			FE_TIMER_STOP("poll hup after");
+			reset();
+		}
+	}
+	return event;
+}
+#endif
 
 void CFrontend::getDelSys(int f, int m, char *&fec, char *&sys, char *&mod)
 {
