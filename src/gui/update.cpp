@@ -502,7 +502,7 @@ int CFlashUpdate::exec(CMenuTarget* parent, const std::string &actionKey)
 #endif
 	if(fileType < '3') {
 		//flash it...
-#if ENABLE_EXTUPDATE
+#if !HAVE_SPARK_HARDWARE && !HAVE_DUCKBOX_HARDWARE && !BOXMODEL_APOLLO
 		if (g_settings.apply_settings) {
 			if (ShowMsgUTF(LOCALE_MESSAGEBOX_INFO, g_Locale->getText(LOCALE_FLASHUPDATE_APPLY_SETTINGS), CMessageBox::mbrYes, CMessageBox::mbYes | CMessageBox::mbNo, NEUTRINO_ICON_UPDATE) == CMessageBox::mbrYes)
 				if (!CExtUpdate::getInstance()->applySettings(filename, CExtUpdate::MODE_SOFTUPDATE)) {
@@ -628,7 +628,7 @@ void CFlashExpert::readmtd(int preadmtd)
 	}
 
 	bool skipCheck = false;
-#ifndef BOXMODEL_APOLLO
+#if !HAVE_SPARK_HARDWARE && !HAVE_DUCKBOX_HARDWARE && !BOXMODEL_APOLLO
 	if ((std::string)g_settings.update_dir == "/tmp")
 		skipCheck = true;
 #endif
@@ -722,7 +722,7 @@ void CFlashExpert::showMTDSelector(const std::string & actionkey)
 		sprintf(sActionKey, "%s%d", actionkey.c_str(), lx);
 		mtdselector->addItem(new CMenuForwarderNonLocalized(mtdInfo->getMTDName(lx).c_str(), enabled, NULL, this, sActionKey, CRCInput::convertDigitToKey(shortcut++)));
 	}
-#if ENABLE_EXTUPDATE
+#if !HAVE_SPARK_HARDWARE && !HAVE_DUCKBOX_HARDWARE && !BOXMODEL_APOLLO
 	if (actionkey == "writemtd")
 		mtdselector->addItem(new CMenuForwarderNonLocalized("systemFS with settings", true, NULL, this, "writemtd10", CRCInput::convertDigitToKey(shortcut++)));
 #endif
@@ -791,14 +791,11 @@ int CFlashExpert::exec(CMenuTarget* parent, const std::string & actionKey)
 			selectedMTD = iWritemtd;
 			showFileSelector("");
 		} else {
-#if ENABLE_EXTUPDATE
 			if(selectedMTD == 10) {
 				std::string aK = actionKey;
 				CExtUpdate::getInstance()->applySettings(aK, CExtUpdate::MODE_EXPERT);
 			}
-			else
-#endif
-			if(selectedMTD==-1) {
+			else if(selectedMTD==-1) {
 				writemtd(actionKey, MTD_OF_WHOLE_IMAGE);
 			} else {
 				writemtd(actionKey, selectedMTD);
