@@ -32,7 +32,7 @@
 #endif
 
 #define CONFIGFILE      CONFIGDIR "/zapit/zapit.conf"
-#if !HAVE_SPARK_HARDWARE && !HAVE_DUCKBOX_HARDWARE
+#if HAVE_COOL_HARDWARE
 #define AUDIO_CONFIG_FILE CONFIGDIR "/zapit/audio.conf"
 #define VOLUME_CONFIG_FILE CONFIGDIR "/zapit/volume.conf"
 #endif
