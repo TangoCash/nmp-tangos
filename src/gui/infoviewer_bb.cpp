@@ -643,7 +643,11 @@ void CInfoViewerBB::showSysfsHdd()
 		//sysFS info
 		int percent = 0;
 		long t, u;
+#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+		if (get_fs_usage("/var", t, u))
+#else
 		if (get_fs_usage("/", t, u))
+#endif
 			percent = (u * 100ULL) / t;
 		showBarSys(percent);
 
