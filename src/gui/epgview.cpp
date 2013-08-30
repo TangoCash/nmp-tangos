@@ -612,15 +612,6 @@ int CEpgData::show(const t_channel_id channel_id, uint64_t a_id, time_t* a_start
 		has_follow_screenings = true;
 	}
 
-	/* neat for debugging duplicate event issues etc. */
-	char *epgid;
-	if (asprintf(&epgid, "EPG ID:%04X.%02X", (int)((epgData.eventID)&0x0FFFF), epgData.table_id) >= 0)
-	{
-		processTextToArray(""); // UTF-8
-		processTextToArray(epgid);
-		free(epgid);
-	}
-
 	COSDFader fader(g_settings.menu_Content_alpha);
 	fader.StartFadeIn();
 

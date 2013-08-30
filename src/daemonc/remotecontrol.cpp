@@ -498,9 +498,6 @@ void CRemoteControl::processAPIDnames()
 			pref_ac3_found = -1;
 	}
 
-	if (! current_PIDs.APIDs.empty())
-		printf("Neutrino: ");
-
 	for(unsigned int count=0; count< current_PIDs.APIDs.size(); count++)
 	{
 		const char *iso = getISO639Description(current_PIDs.APIDs[count].desc);

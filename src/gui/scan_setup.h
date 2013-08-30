@@ -42,7 +42,9 @@
 
 #define scansettings CNeutrinoApp::getInstance()->getScanSettings()
 
-//#define ENABLE_FASTSCAN //don't define this to remove fast scan menu
+#ifdef ENABLE_FASTSCAN
+#define ENABLE_FASTSCAN //don't define this to remove fast scan menu
+#endif
 
 class CScanSetup : public CMenuTarget, public CChangeObserver
 {

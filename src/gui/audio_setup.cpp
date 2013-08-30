@@ -235,7 +235,6 @@ int CAudioSetup::showAudioSetup()
 #if 0
 	audioSettings->addItem(mf);
 #endif
-
 #if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
 	audioSettings->addItem(new CMenuSeparator(CMenuSeparator::LINE | CMenuSeparator::STRING, LOCALE_AUDIOMENU_MIXER_VOLUME));
 	audioSettings->addItem(new CMenuOptionNumberChooser(LOCALE_AUDIOMENU_MIXER_VOLUME_ANALOG,

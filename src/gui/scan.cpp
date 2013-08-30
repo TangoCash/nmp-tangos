@@ -321,7 +321,9 @@ int CScanTs::exec(CMenuTarget* /*parent*/, const std::string & actionKey)
 	} else if(manual)
 		success = g_Zapit->scan_TP(TP);
 	else if(fast) {
-//		success = CZapit::getInstance()->StartFastScan(scansettings.fast_type, scansettings.fast_op);
+#ifdef ENABLE_FASTSCAN
+		success = CZapit::getInstance()->StartFastScan(scansettings.fast_type, scansettings.fast_op);
+#endif
 	}
 	else
 		success = g_Zapit->startScan(scan_flags);
