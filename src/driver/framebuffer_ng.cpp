@@ -659,6 +659,14 @@ void CFrameBuffer::paintBoxRel(const int x, const int y, const int dx, const int
 
 	checkFbArea(x, y, dx, dy, true);
 
+	// hack: don't paint round corners unless these are actually visible --martii
+	fb_pixel_t *p = accel->lbb + y * stride/sizeof(fb_pixel_t) + x;
+	if ((col == *p)
+	 && (col == *(p + dx - 1))
+	 && (col == *(p + (dy - 1) * stride/sizeof(fb_pixel_t)))
+	 && (col == *(p + (dy - 1) * stride/sizeof(fb_pixel_t) + dx - 1)))
+		type = 0;
+
 	if (!type || !radius)
 	{
 		accel->paintRect(x, y, dx, dy, col);
