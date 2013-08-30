@@ -98,6 +98,15 @@ int CMediaPlayerMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 		audiomute->enableMuteIcon(true);
 		return res /*menu_return::RETURN_REPAINT*/;
 	}
+	else if (actionKey == "shairport")
+	{
+		audiomute->enableMuteIcon(false);
+		if (audioPlayer == NULL)
+			audioPlayer = new CAudioPlayerGui();
+		int res = audioPlayer->exec(NULL, "shairport");
+		audiomute->enableMuteIcon(true);
+		return res /*menu_return::RETURN_REPAINT*/;
+	}
 	else if	(actionKey == "inetplayer")
 	{
 		audiomute->enableMuteIcon(false);
@@ -149,6 +158,7 @@ int CMediaPlayerMenu::initMenuMedia(CMenuWidget *m, CPersonalizeGui *p)
 	CMenuForwarder *fw_mp = NULL;
 #endif
 	CMenuForwarder *fw_pviewer = NULL;
+	CMenuForwarder *fw_shairport = NULL;
 	CPictureViewerGui *pictureviewergui = NULL;
 #if ENABLE_UPNP
 	CUpnpBrowserGui *upnpbrowsergui = NULL;
@@ -171,6 +181,15 @@ int CMediaPlayerMenu::initMenuMedia(CMenuWidget *m, CPersonalizeGui *p)
 		const char* inet_btn = usage_mode == MODE_AUDIO ? "" : NEUTRINO_ICON_BUTTON_GREEN;
 		fw_inet = new CMenuForwarder(LOCALE_INETRADIO_NAME, true, NULL, this, "inetplayer", inet_rc, inet_btn);
 		fw_inet->setHint(NEUTRINO_ICON_HINT_INET_RADIO, LOCALE_MENU_HINT_INET_RADIO);
+
+		//shairport
+		if (!access("/etc/init.d/shairport", X_OK)) {
+				neutrino_msg_t shairport_rc = usage_mode == MODE_AUDIO ? CRCInput::RC_blue : CRCInput::RC_nokey;
+				const char* shairport_btn = usage_mode == MODE_AUDIO ? NEUTRINO_ICON_BUTTON_BLUE : "";
+				fw_shairport = new CMenuForwarder(LOCALE_MAINMENU_SHAIRPORT, true, NULL, this, "shairport", shairport_rc, shairport_btn);
+				fw_shairport->setHint(NEUTRINO_ICON_HINT_INET_RADIO, LOCALE_MENU_HINT_SHAIRPORT);
+		}
+
 	}
 
 	if (usage_mode == MODE_DEFAULT)
@@ -208,6 +227,10 @@ int CMediaPlayerMenu::initMenuMedia(CMenuWidget *m, CPersonalizeGui *p)
 
  		//internet player
 		personalize->addItem(media, fw_inet, &g_settings.personalize[SNeutrinoSettings::P_MEDIA_INETPLAY]);
+
+		//shairport
+		if (fw_shairport)
+				personalize->addItem(media, fw_shairport, &g_settings.personalize[SNeutrinoSettings::P_MEDIA_INETPLAY]);
 	}
 	else if (usage_mode == MODE_VIDEO)
 	{
@@ -217,6 +240,12 @@ int CMediaPlayerMenu::initMenuMedia(CMenuWidget *m, CPersonalizeGui *p)
 	{
 		//audio player
 		personalize->addItem(media, fw_audio, &g_settings.personalize[SNeutrinoSettings::P_MEDIA_AUDIO]);
+
+		//shairport
+		if (fw_shairport) {
+				personalize->addItem(media, fw_shairport, &g_settings.personalize[SNeutrinoSettings::P_MEDIA_INETPLAY]);
+				personalize->addSeparator(0);
+		}
 		
 		//internet player
 		personalize->addItem(media, fw_inet, &g_settings.personalize[SNeutrinoSettings::P_MEDIA_INETPLAY]);

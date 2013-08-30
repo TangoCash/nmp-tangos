@@ -785,6 +785,7 @@ mainmenu.recording_stop stop
 mainmenu.scripts Scripts
 mainmenu.service Service
 mainmenu.settings Settings
+mainmenu.shairport ShairPort
 mainmenu.shutdown Shutdown
 mainmenu.sleeptimer SleepTimer
 mainmenu.tvmode TV-Mode

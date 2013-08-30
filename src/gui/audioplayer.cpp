@@ -251,21 +251,25 @@ int CAudioPlayerGui::exec(CMenuTarget* parent, const std::string &actionKey)
 	if (actionKey == "init")
 		Init();
 
+	m_shairport = (actionKey == "shairport");
+
 	CNeutrinoApp::getInstance()->StopSubtitles();
 
 	CAudioPlayer::getInstance()->init();
 	m_state = CAudioPlayerGui::STOP;
 
-	m_show_playlist = g_settings.audioplayer_show_playlist==1;
+	if (!m_shairport) {
+		m_show_playlist = g_settings.audioplayer_show_playlist==1;
 
-	if (m_select_title_by_name != (g_settings.audioplayer_select_title_by_name==1))
-	{
-		if ((g_settings.audioplayer_select_title_by_name == 1)
-				&& m_playlistHasChanged)
+		if (m_select_title_by_name != (g_settings.audioplayer_select_title_by_name==1))
 		{
-			buildSearchTree();
+			if ((g_settings.audioplayer_select_title_by_name == 1)
+					&& m_playlistHasChanged)
+			{
+				buildSearchTree();
+			}
+			m_select_title_by_name = g_settings.audioplayer_select_title_by_name;
 		}
-		m_select_title_by_name = g_settings.audioplayer_select_title_by_name;
 	}
 
 	if (m_playlist.empty())
@@ -376,18 +380,22 @@ int CAudioPlayerGui::show()
 	bool clear_before_update = false;
 	m_key_level = 0;
 
+	if (m_shairport)
+		my_system(2, "/etc/init.d/shairport", "start");
+
 	while (loop)
 	{
 		updateMetaData(m_screensaver);
 
-		updateTimes();
+		if (!m_shairport)
+			updateTimes();
 
 		if (CNeutrinoApp::getInstance()->getMode() != NeutrinoMessages::mode_audio)
 		{
 			// stop if mode was changed in another thread
 			loop = false;
 		}
-		if ((m_state != CAudioPlayerGui::STOP) &&
+		if (!m_shairport && (m_state != CAudioPlayerGui::STOP) &&
 				(CAudioPlayer::getInstance()->getState() == CBaseDec::STOP) &&
 				(!m_playlist.empty()))
 		{
@@ -395,7 +403,7 @@ int CAudioPlayerGui::show()
 				playNext();
 		}
 
-		if (update)
+		if (!m_shairport && update)
 		{
 			if (clear_before_update)
 			{
@@ -426,6 +434,19 @@ int CAudioPlayerGui::show()
 					continue;
 				}
 			}
+		}
+
+		if (m_shairport) {
+			if (msg == CRCInput::RC_home || msg == CRCInput::RC_stop) {
+				loop=false;
+			} else if (msg == NeutrinoMessages::EVT_TIMER) {
+				CNeutrinoApp::getInstance()->handleMsg( msg, data );
+			} else if (CNeutrinoApp::getInstance()->handleMsg( msg, data ) & messages_return::cancel_all) {
+				ret = menu_return::RETURN_EXIT_ALL;
+				loop = false;
+				paintLCD();
+			}
+			continue;
 		}
 
 		if (msg == CRCInput::RC_home || msg == CRCInput::RC_stop)
@@ -892,9 +913,12 @@ int CAudioPlayerGui::show()
 		}
 		m_frameBuffer->blit();
 	}
-	hide();
+	if (!m_shairport)
+		hide();
 
-	if (m_state != CAudioPlayerGui::STOP)
+	if (m_shairport)
+		my_system(2, "/etc/init.d/shairport", "stop");
+	else if (m_state != CAudioPlayerGui::STOP)
 		stop();
 
 	return ret;
@@ -1716,7 +1740,7 @@ const struct button_label ScondLineButtons[3] =
 	else
 		top = m_y + (m_height - 2 * m_buttonHeight);
 
- 	//int ButtonWidth = (m_width - 20) / 5;
+	//int ButtonWidth = (m_width - 20) / 5;
 
 	m_frameBuffer->paintBoxRel(m_x, top, m_width, 2 * m_buttonHeight, COL_INFOBAR_SHADOW_PLUS_1, c_rad_mid, (m_show_playlist ? CORNER_BOTTOM : CORNER_ALL));
 	// why? m_frameBuffer->paintHLine(m_x, m_x + m_width, top, COL_INFOBAR_SHADOW_PLUS_1);
@@ -2321,7 +2345,8 @@ void CAudioPlayerGui::screensaver(bool on)
 		m_screensaver = false;
 		videoDecoder->StopPicture();
 		videoDecoder->ShowPicture(DATADIR "/neutrino/icons/mp3.jpg");
-		paint();
+		if (!m_shairport)
+			paint();
 		m_idletime = time(NULL);
 	}
 }

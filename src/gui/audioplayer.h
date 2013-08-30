@@ -124,6 +124,8 @@ class CAudioPlayerGui : public CMenuTarget
 
 	bool           m_playlistHasChanged;
 
+	bool           m_shairport;
+
 	CAudioPlayList      m_playlist;
 	CAudioPlayList      m_radiolist;
 	CAudioPlayList      m_filelist;
