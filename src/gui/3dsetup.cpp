@@ -173,7 +173,7 @@ int C3DSetup::show3DSetup()
 	CMenuWidget* m = new CMenuWidget(LOCALE_THREE_D_SETTINGS, NEUTRINO_ICON_SETTINGS, width);
 
 	CFrameBuffer::Mode3D mode3d = frameBuffer->get3DMode();
-	
+
 	m->setSelected(selected);
 
 	m->addIntroItems(LOCALE_THREE_D_SETTINGS_GENERAL);

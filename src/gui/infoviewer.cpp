@@ -1330,10 +1330,6 @@ int CInfoViewer::handleMsg (const neutrino_msg_t msg, neutrino_msg_data_t data)
 				show_Data (true);
 		}
 		showLcdPercentOver ();
-#if 0
-		eventname = info_CurrentNext.current_name;
-		CVFD::getInstance()->setEPGTitle(eventname);
-#endif
 		return messages_return::handled;
 	} else if (msg == NeutrinoMessages::EVT_ZAP_SUB_FAILED) {
 		//chanready = 1;

@@ -215,11 +215,7 @@ void CMenuItem::paintItemButton(const bool select_mode, const int &item_height, 
 	int icon_h = 0;
 
 	//define icon name depends of numeric value
-#ifdef MARTII
-	if (g_settings.menu_numbers_as_icons && icon_name.empty() && CRCInput::isNumeric(directKey))
-#else
 	if (icon_name.empty() && CRCInput::isNumeric(directKey))
-#endif
 	{
 		char i_name[6]; /* X +'\0' */
 		snprintf(i_name, 6, "%d", CRCInput::getNumericValue(directKey));

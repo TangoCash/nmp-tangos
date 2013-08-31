@@ -314,6 +314,7 @@ int CNeutrinoEventList::exec(const t_channel_id channel_id, const std::string& c
 	}
 	paint(channel_id);
 	showFunctionBar(true, channel_id);
+	frameBuffer->blit();
 
 	int oldselected = selected;
 
