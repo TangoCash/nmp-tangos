@@ -623,7 +623,7 @@ struct SNeutrinoSettings
 	int lcd_info_line;
 	char lcd_setting_dim_time[4];
 	int lcd_setting_dim_brightness;
-#if HAVE_DUCKBOX_HARDWARE || HAVE_SPARK_HARDWARE
+#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
 	int lcd_vfd_scroll;
 	int lcd_vfd_epg;
 #endif

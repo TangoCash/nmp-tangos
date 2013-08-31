@@ -37,7 +37,7 @@
 #include <OpenThreads/Mutex>
 #include <OpenThreads/ScopedLock>
 
-#if HAVE_DUCKBOX_HARDWARE || HAVE_SPARK_HARDWARE
+#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
 #include <png.h>
 #endif
 

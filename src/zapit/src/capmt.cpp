@@ -235,7 +235,7 @@ bool CCamManager::SetMode(t_channel_id channel_id, enum runmode mode, bool start
 		case STREAM:
 #endif
 		case RECORD:
-#if HAVE_DUCKBOX_HARDWARE || HAVE_SPARK_HARDWARE
+#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
 			channel->setRecordDemux(CFEManager::getInstance()->allocateFE(channel)->getNumber(true));
 #endif
 			source = channel->getRecordDemux();
