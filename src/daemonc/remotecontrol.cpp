@@ -208,6 +208,7 @@ int CRemoteControl::handleMsg(const neutrino_msg_t msg, neutrino_msg_data_t data
 			return messages_return::handled;
 
 		/* current event came for current channel */
+		CVFD::getInstance()->setEPGTitle(info_CN->current_name);
 		if ( info_CN->current_uniqueKey != current_EPGid )
 		{
 			if ( current_EPGid != 0 )
