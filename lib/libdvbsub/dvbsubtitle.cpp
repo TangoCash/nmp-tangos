@@ -77,7 +77,7 @@ fb_pixel_t * simple_resize32(uint8_t * orgin, uint32_t * colors, int nb_colors, 
 	fb_pixel_t  *cr,*l;
 	int i,j,k,ip;
 
-#if !defined (HAVE_SPARK_HARDWARE) && !defined (HAVE_DUCKBOX_HARDWARE)
+#if !HAVE_SPARK_HARDWARE && !HAVE_DUCKBOX_HARDWARE
 	cr = (fb_pixel_t *) malloc(dx*dy*sizeof(fb_pixel_t));
 
 	if(cr == NULL) {
