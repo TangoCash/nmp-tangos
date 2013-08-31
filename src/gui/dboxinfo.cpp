@@ -240,7 +240,7 @@ void CDBoxInfoWidget::paint()
 				case 0x65735546L:	/*fuse for ntfs*/
 				case 0x58465342L:	/*xfs*/
 				case 0x4d44L:		/*msdos*/
-#if !defined HAVE_SPARK_HARDWARE && !defined HAVE_DUCKBOX_HARDWARE
+#if !HAVE_SPARK_HARDWARE && !HAVE_DUCKBOX_HARDWARE
 					break;
 #endif
 				case 0x72b6L:		/*jffs2*/
@@ -248,7 +248,7 @@ void CDBoxInfoWidget::paint()
 				case 0x5941ff53L:	/*yaffs2*/
 				case 0x3153464AL:	/*jfs*/
 #endif
-#if !defined HAVE_SPARK_HARDWARE && !defined HAVE_DUCKBOX_HARDWARE
+#if !HAVE_SPARK_HARDWARE && !HAVE_DUCKBOX_HARDWARE
 					height += mheight;
 #endif
 					break;
@@ -266,7 +266,7 @@ void CDBoxInfoWidget::paint()
 	x = getScreenStartX(width);
 	y = getScreenStartY(height);
 
-#if !defined HAVE_SPARK_HARDWARE && !defined HAVE_DUCKBOX_HARDWARE
+#if !HAVE_SPARK_HARDWARE && !HAVE_DUCKBOX_HARDWARE
 	fprintf(stderr, "CDBoxInfoWidget::CDBoxInfoWidget() x = %d, y = %d, width = %d height = %d\n", x, y, width, height);
 #endif
 	int ypos=y;
@@ -505,7 +505,7 @@ void CDBoxInfoWidget::paint()
 #endif
 			while ((mnt = getmntent(mountFile)) != 0) {
 				if (::statfs(mnt->mnt_dir, &s) == 0) {
-#if !defined HAVE_SPARK_HARDWARE && !defined HAVE_DUCKBOX_HARDWARE
+#if !HAVE_SPARK_HARDWARE && !HAVE_DUCKBOX_HARDWARE
 					if (strcmp(mnt->mnt_fsname, "rootfs") == 0) {
 						strcpy(mnt->mnt_fsname, "memory");
 						memory_flag = true;

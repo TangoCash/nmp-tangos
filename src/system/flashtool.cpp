@@ -440,7 +440,11 @@ bool CFlashTool::check_md5( const std::string & filename, const std::string & sm
 void CFlashTool::reboot()
 {
 	::reboot(RB_AUTOBOOT);
+#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
 	::exit(CNeutrinoApp::REBOOT);
+#else
+	::exit(0);
+#endif
 }
 
 //-----------------------------------------------------------------------------------------------------------------

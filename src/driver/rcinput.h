@@ -202,7 +202,7 @@ class CRCInput
 			RC_plus		= KEY_VOLUMEUP,     /* /include/linux/input.h: #define KEY_VOLUMEUP		115   */
 			RC_standby	= KEY_POWER,	    /* /include/linux/input.h: #define KEY_POWER		116   */
 			RC_help		= KEY_HELP,	    /* /include/linux/input.h: #define KEY_HELP			138   */
-#if defined(HAVE_DUCKBOX_HARDWARE) || defined(HAVE_SPARK_HARDWARE)
+#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
 			RC_home		= KEY_HOME,     /* /include/linux/input.h: #define KEY_HOME			102   */
 #else
 			RC_home		= KEY_EXIT,	    /* /include/linux/input.h: #define KEY_HOME			102   */
@@ -236,7 +236,7 @@ class CRCInput
 			RC_record	= KEY_RECORD,
 			RC_play		= KEY_PLAY,
 			RC_pause	= KEY_PAUSE,
-#if defined(HAVE_DUCKBOX_HARDWARE) || defined(HAVE_SPARK_HARDWARE) /* evremote don't use forward */
+#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE /* evremote don't use forward */
 			RC_forward	= KEY_FASTFORWARD,
 #else
 			RC_forward	= KEY_FORWARD,

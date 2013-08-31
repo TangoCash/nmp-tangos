@@ -101,6 +101,11 @@ AC_ARG_ENABLE(freesatepg,
 	[  --enable-freesatepg                  enable Freesat EPG code (experimental)],
 	[AC_DEFINE(ENABLE_FREESATEPG,1,[enable Freesat EPG code])])
 
+AC_ARG_ENABLE(fastscan,
+	AS_HELP_STRING(--enable-fastscan,include FASTSCAN support),
+	,[enable_fastscan=no])
+AM_CONDITIONAL(ENABLE_FASTSCAN,test "$enable_fastscan" = "yes")
+
 AC_ARG_ENABLE(graphlcd,
 	[  --enable-graphlcd                    enable GraphLCD support],
 	[AC_DEFINE(ENABLE_GRAPHLCD,1,[enable GraphLCD support])])
