@@ -488,16 +488,12 @@ void CVFD::setled(void)
 }
 #endif
 
-void CVFD::showServicename(const std::string & name, const bool clear_epg) // UTF-8
+void CVFD::showServicename(const std::string & name, bool clear_epg) // UTF-8
 {
 printf("CVFD::showServicename: %s\n", name.c_str());
 	if(!has_lcd) return;
-
-	if (!name.empty())
+	if (!clear_epg)
 		servicename = name;
-	if (clear_epg)
-		epg_title.clear();
-
 	if (mode != MODE_TVRADIO)
 		return;
 
