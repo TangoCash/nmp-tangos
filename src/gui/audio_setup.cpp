@@ -236,6 +236,7 @@ int CAudioSetup::showAudioSetup()
 	audioSettings->addItem(mf);
 #endif
 #if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+	audioSetupNotifier->openMixers();
 	audioSettings->addItem(new CMenuSeparator(CMenuSeparator::LINE | CMenuSeparator::STRING, LOCALE_AUDIOMENU_MIXER_VOLUME));
 	audioSettings->addItem(new CMenuOptionNumberChooser(LOCALE_AUDIOMENU_MIXER_VOLUME_ANALOG,
 		(int *)&g_settings.audio_mixer_volume_analog, true, 0, 100, audioSetupNotifier));
@@ -253,6 +254,7 @@ int CAudioSetup::showAudioSetup()
 	int res = audioSettings->exec(NULL, "");
 	selected = audioSettings->getSelected();
 #if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+	audioSetupNotifier->closeMixers();
 	CZapit::getInstance()->SetVolumePercent(g_settings.audio_volume_percent_ac3, g_settings.audio_volume_percent_pcm);
 #endif
 	delete audioSettings;

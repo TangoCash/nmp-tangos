@@ -265,6 +265,36 @@ bool CColorSetupNotifier::changeNotify(const neutrino_locale_t, void *)
 }
 
 #if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+CAudioSetupNotifier::CAudioSetupNotifier(void)
+{
+	mixerAnalog = mixerHDMI = mixerSPDIF = NULL;
+}
+
+CAudioSetupNotifier::~CAudioSetupNotifier(void)
+{
+	closeMixers();
+}
+
+void CAudioSetupNotifier::openMixers(void)
+{
+	if (!mixerAnalog)
+		mixerAnalog = new mixerVolume("Analog", "1");
+	if (!mixerHDMI)
+		mixerHDMI = new mixerVolume("HDMI", "1");
+	if (!mixerSPDIF)
+		mixerSPDIF = new mixerVolume("SPDIF", "1");
+}
+
+void CAudioSetupNotifier::closeMixers(void)
+{
+	if (mixerAnalog)
+		delete mixerAnalog;
+	if (mixerHDMI)
+		delete mixerHDMI;
+	if (mixerSPDIF)
+		delete mixerSPDIF;
+}
+
 bool CAudioSetupNotifier::changeNotify(const neutrino_locale_t OptionName, void *data)
 #else
 bool CAudioSetupNotifier::changeNotify(const neutrino_locale_t OptionName, void *)
@@ -295,14 +325,20 @@ bool CAudioSetupNotifier::changeNotify(const neutrino_locale_t OptionName, void 
 		// FIXME add code here.
 #if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
 	} else if (ARE_LOCALES_EQUAL(OptionName, LOCALE_AUDIOMENU_MIXER_VOLUME_ANALOG)) {
-		static mixerVolume m("Analog", "1");
-		m.setVolume((long)(*((int *)(data))));
+		if (mixerAnalog)
+			mixerAnalog->setVolume((long)(*((int *)(data))));
+		else
+			mixerVolume m("Analog", "1", (long)(*((int *)(data))));
 	} else if (ARE_LOCALES_EQUAL(OptionName, LOCALE_AUDIOMENU_MIXER_VOLUME_HDMI)) {
-		static mixerVolume m("HDMI", "1");
-		m.setVolume((long)(*((int *)(data))));
+		if (mixerHDMI)
+			mixerHDMI->setVolume((long)(*((int *)(data))));
+		else
+			mixerVolume m("HDMI", "1", (long)(*((int *)(data))));
 	} else if (ARE_LOCALES_EQUAL(OptionName, LOCALE_AUDIOMENU_MIXER_VOLUME_SPDIF)) {
-		static mixerVolume m("SPDIF", "1");
-		m.setVolume((long)(*((int *)(data))));
+		if (mixerSPDIF)
+			mixerSPDIF->setVolume((long)(*((int *)(data))));
+		else
+			mixerVolume m("SPDIF", "1", (long)(*((int *)(data))));
 #endif
 	} else if (ARE_LOCALES_EQUAL(OptionName, LOCALE_AUDIO_SRS_ALGO) ||
 			ARE_LOCALES_EQUAL(OptionName, LOCALE_AUDIO_SRS_NMGR) ||
