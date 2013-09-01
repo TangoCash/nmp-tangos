@@ -396,7 +396,7 @@ void CInfoViewer::paintBackground(int col_NumBox)
 			      BoxEndX + SHADOW_OFFSET,  BoxEndInfoY + SHADOW_OFFSET,
 			      COL_INFOBAR_SHADOW_PLUS_0, c_rad_large, CORNER_RIGHT);
 	frameBuffer->paintBox(ChanInfoX + SHADOW_OFFSET, BoxEndInfoY - c_shadow_width,
-			      BoxEndX - c_shadow_width, BoxEndInfoY + SHADOW_OFFSET,
+			      BoxEndX - c_shadow_width + 2, BoxEndInfoY + SHADOW_OFFSET,
 			      COL_INFOBAR_SHADOW_PLUS_0, c_rad_large, CORNER_BOTTOM_LEFT);
 
 	// background for channel name, epg data
