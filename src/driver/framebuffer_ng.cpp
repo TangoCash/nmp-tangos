@@ -146,11 +146,7 @@ static inline bool calcCorners(int *ofs, int *ofl, int *ofr, const int& dy, cons
 static inline int limitRadius(const int& dx, const int& dy, const int& radius)
 {
 	int m = std::min(dx, dy);
-	if (radius > m)
-		return m;
-	if (radius > 540)
-		return 540;
-	return radius;
+	return std::min(m, radius);
 }
 
 CFrameBuffer::CFrameBuffer()
