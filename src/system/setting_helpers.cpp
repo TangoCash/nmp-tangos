@@ -293,6 +293,7 @@ void CAudioSetupNotifier::closeMixers(void)
 		delete mixerHDMI;
 	if (mixerSPDIF)
 		delete mixerSPDIF;
+	mixerAnalog = mixerHDMI = mixerSPDIF = NULL;
 }
 
 bool CAudioSetupNotifier::changeNotify(const neutrino_locale_t OptionName, void *data)
