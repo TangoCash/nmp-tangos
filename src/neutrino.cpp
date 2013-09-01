@@ -817,6 +817,9 @@ int CNeutrinoApp::loadSetup(const char * fname)
 #if ENABLE_EXTUPDATE
 	g_settings.softupdate_name_mode_apply = configfile.getInt32( "softupdate_name_mode_apply", CExtUpdate::SOFTUPDATE_NAME_DEFAULT);
 	g_settings.softupdate_name_mode_backup = configfile.getInt32( "softupdate_name_mode_backup", CExtUpdate::SOFTUPDATE_NAME_DEFAULT);
+#else
+	g_settings.softupdate_name_mode_apply = 0;
+	g_settings.softupdate_name_mode_backup = 0; /* unused, but still initialize it */
 #endif
 
 	strcpy(g_settings.softupdate_url_file, configfile.getString("softupdate_url_file", "/var/etc/update.urls").c_str());
