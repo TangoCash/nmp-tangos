@@ -805,7 +805,7 @@ int CNeutrinoApp::loadSetup(const char * fname)
 #else
 	g_settings.bigFonts = configfile.getInt32("bigFonts", 0);
 #endif
-	g_settings.big_windows = configfile.getInt32("big_windows", 0);
+	g_settings.window_size = configfile.getInt32("window_size", 100);
 
 	g_settings.remote_control_hardware = configfile.getInt32( "remote_control_hardware",  CRCInput::RC_HW_COOLSTREAM);
 	g_settings.audiochannel_up_down_enable = configfile.getBool("audiochannel_up_down_enable", false);
@@ -1423,7 +1423,7 @@ void CNeutrinoApp::saveSetup(const char * fname)
 	}
 
 	configfile.setInt32("bigFonts", g_settings.bigFonts);
-	configfile.setInt32("big_windows", g_settings.big_windows);
+	configfile.setInt32("window_size", g_settings.window_size);
 #ifdef BOXMODEL_APOLLO
 	configfile.setInt32("brightness", g_settings.brightness );
 	configfile.setInt32("contrast", g_settings.contrast );
