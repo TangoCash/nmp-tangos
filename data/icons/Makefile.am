@@ -195,6 +195,7 @@ install_DATA += \
 	numericpad.png \
 	ok.png \
 	personalize.png \
+	picture.png \
 	pip.png \
 	power.png \
 	powervu_green.png \
