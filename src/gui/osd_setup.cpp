@@ -295,6 +295,7 @@ int COsdSetup::exec(CMenuTarget* parent, const std::string &actionKey)
 
 		bool loop=true;
 		while (loop) {
+			frameBuffer->blit();
 			g_RCInput->getMsgAbsoluteTimeout(&msg, &data, &timeoutEnd, true);
 
 			if ( msg <= CRCInput::RC_MaxRC )
