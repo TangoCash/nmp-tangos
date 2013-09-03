@@ -162,7 +162,7 @@ int CMediaPlayerMenu::initMenuMedia(CMenuWidget *m, CPersonalizeGui *p)
 	CMenuForwarder *fw_shairport = NULL;
 	CPictureViewerGui *pictureviewergui = NULL;
 #if ENABLE_UPNP
-	CUpnpBrowserGui *upnpbrowsergui = NULL;
+	static CUpnpBrowserGui *upnpbrowsergui = NULL;
 	CMenuForwarder *fw_upnp = NULL;
 #endif
 #if !HAVE_SPARK_HARDWARE && !HAVE_DUCKBOX_HARDWARE
@@ -211,7 +211,8 @@ int CMediaPlayerMenu::initMenuMedia(CMenuWidget *m, CPersonalizeGui *p)
 		fw_pviewer->setHint(NEUTRINO_ICON_HINT_PICVIEW, LOCALE_MENU_HINT_PICVIEW);
 #if ENABLE_UPNP
 		//upnp browser
-		upnpbrowsergui = new CUpnpBrowserGui();
+		if (!upnpbrowsergui)
+			upnpbrowsergui = new CUpnpBrowserGui();
 #if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
 		fw_upnp = new CMenuForwarder(LOCALE_UPNPBROWSER_HEAD, true, NULL, upnpbrowsergui, NULL, CRCInput::RC_yellow, NEUTRINO_ICON_BUTTON_YELLOW);
 #else
@@ -292,7 +293,7 @@ int CMediaPlayerMenu::initMenuMedia(CMenuWidget *m, CPersonalizeGui *p)
 		delete personalize;
 		//delete pictureviewergui;
 #if ENABLE_UPNP
-		delete upnpbrowsergui;
+		//delete upnpbrowsergui;
 #endif
 
 		setUsageMode();//set default usage_mode
