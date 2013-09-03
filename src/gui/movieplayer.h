@@ -87,11 +87,6 @@ class CMoviePlayerGui : public CMenuTarget
 	unsigned short apids[REC_MAX_APIDS];
 	unsigned short ac3flags[REC_MAX_APIDS];
 	unsigned short currentapid, currentac3;
-#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
-	bool isWebTV;
-	bool showWebTVHint;
-	bool probePids;
-#endif
 
 	/* subtitles vars */
 	unsigned short numsubs;
@@ -104,8 +99,15 @@ class CMoviePlayerGui : public CMenuTarget
 
 	/* playback from MB */
 	bool isMovieBrowser;
-	CMovieBrowser* moviebrowser;
+	bool isHTTP;
+	bool isUPNP;
+	bool showStartingHint;
+#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+	bool isWebTV;
+	bool probePids;
 	CWebTV* webtv;
+#endif
+	CMovieBrowser* moviebrowser;
 	MI_MOVIE_INFO * p_movie_info;
 	const static short MOVIE_HINT_BOX_TIMER = 5;	// time to show bookmark hints in seconds
 
@@ -140,12 +142,13 @@ class CMoviePlayerGui : public CMenuTarget
 	bool SelectFile();
 	void updateLcd();
 
-	static void *ShowWebTVHint(void *arg);
-
 	void selectSubtitle();
 	void showSubtitle(neutrino_msg_data_t data);
 	void clearSubtitle();
 	void selectChapter();
+
+	void Cleanup();
+	static void *ShowStartHint(void *arg);
 
 	CMoviePlayerGui(const CMoviePlayerGui&) {};
 	CMoviePlayerGui();
@@ -164,6 +167,7 @@ class CMoviePlayerGui : public CMenuTarget
 	void UpdatePosition();
 	int timeshift;
 	int file_prozent;
+	void SetFile(std::string &name, std::string &file) { file_name = name; full_name = file; }
 };
 
 #endif
