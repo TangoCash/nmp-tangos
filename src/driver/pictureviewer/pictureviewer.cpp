@@ -114,8 +114,8 @@ bool CPictureViewer::DecodeImage (const std::string & _name, bool showBusySign, 
 #endif
 	int x, y, imx, imy;
 
-// 	int xs = CFrameBuffer::getInstance()->getScreenWidth(true);
-// 	int ys = CFrameBuffer::getInstance()->getScreenHeight(true);
+	// 	int xs = CFrameBuffer::getInstance()->getScreenWidth(true);
+	// 	int ys = CFrameBuffer::getInstance()->getScreenHeight(true);
 
 	// Show red block for "next ready" in view state
 	if (showBusySign)
@@ -138,6 +138,30 @@ bool CPictureViewer::DecodeImage (const std::string & _name, bool showBusySign, 
 			curl_easy_perform(ch);
 			curl_easy_cleanup(ch);
 			fclose(tmpFile);
+		}
+		name = tmpname;
+	}
+
+	std::string name = _name;
+	bool url = false;
+
+	if (strstr(name.c_str(), "://")) {
+		std::string tmpname;
+		tmpname = "/tmp/pictureviewer" + name.substr(name.find_last_of("."));
+		FILE *tmpFile = fopen(tmpname.c_str(), "wb");
+		if (tmpFile) {
+			CURL *ch = curl_easy_init();
+			curl_easy_setopt(ch, CURLOPT_VERBOSE, 0L);
+			curl_easy_setopt(ch, CURLOPT_NOPROGRESS, 1L);
+			curl_easy_setopt(ch, CURLOPT_NOSIGNAL, 1L);
+			curl_easy_setopt(ch, CURLOPT_WRITEFUNCTION, NULL);
+			curl_easy_setopt(ch, CURLOPT_WRITEDATA, tmpFile);
+			curl_easy_setopt(ch, CURLOPT_FAILONERROR, 1L);
+			curl_easy_setopt(ch, CURLOPT_URL, name.c_str());
+			curl_easy_perform(ch);
+			curl_easy_cleanup(ch);
+			fclose(tmpFile);
+			url = true;
 		}
 		name = tmpname;
 	}
@@ -225,6 +249,8 @@ bool CPictureViewer::DecodeImage (const std::string & _name, bool showBusySign, 
 		m_NextPic_YPan = 0;
 	}
 	m_NextPic_Name = name;
+	if (url)
+		unlink(name.c_str());
 	hideBusy ();
 	//   dbout("DecodeImage }\n"); 
 	return (m_NextPic_Buffer != NULL);
