@@ -3576,7 +3576,7 @@ void CNeutrinoApp::ExitRun(const bool /*write_si*/, int retcode)
 
 			printf("[neutrino] This is the end. exiting with code %d\n", retcode);
 			Cleanup();
-#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+#ifdef __sh__
 			/* the sh4 gcc seems to dislike someting about openthreads... */
 			_exit(retcode);
 #else
@@ -4275,7 +4275,7 @@ void sighandler (int signum)
 		delete CVFD::getInstance();
 		delete SHTDCNT::getInstance();
 		stop_video();
-#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+#ifdef __sh__
 		_exit(CNeutrinoApp::SHUTDOWN);
 #else
 		exit(CNeutrinoApp::SHUTDOWN);

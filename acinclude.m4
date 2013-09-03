@@ -132,6 +132,8 @@ if test "$TARGET" = "cdk"; then
 	targetlocalstatedir="\${TARGET_PREFIX}/var"
 	targetlibdir="\${TARGET_PREFIX}/lib"
 	targetmntdir="\${TARGET_PREFIX}/mnt"
+else
+	mntdir="/mnt" # hack
 fi
 
 TUXBOX_APPS_DIRECTORY_ONE(configdir,CONFIGDIR,localstatedir,/var,/tuxbox/config,
@@ -165,7 +167,7 @@ TUXBOX_APPS_DIRECTORY_ONE(private_httpddir,PRIVATE_HTTPDDIR,datadir,/share,/tuxb
 	[--with-private_httpddir=PATH   ],[where to find the the private httpd files])
 
 TUXBOX_APPS_DIRECTORY_ONE(public_httpddir,PUBLIC_HTTPDDIR,localstatedir,/var,/httpd,
-	[--with-public_httpddir=PATH     ],[where to find the the public httpd files])
+	[--with-public_httpddir=PATH    ],[where to find the the public httpd files])
 
 TUXBOX_APPS_DIRECTORY_ONE(hosted_httpddir,HOSTED_HTTPDDIR,mntdir,/mnt,/hosted,
 	[--with-hosted_httpddir=PATH     ],[where to find the the hosted files])
@@ -539,14 +541,12 @@ AM_CONDITIONAL(BOXMODEL_IP250,test "$BOXMODEL" = "ip250")
 AM_CONDITIONAL(BOXMODEL_IP350,test "$BOXMODEL" = "ip350")
 AM_CONDITIONAL(BOXMODEL_IP400,test "$BOXMODEL" = "ip400")
 
-AM_CONDITIONAL(BOXMODEL_UFS910, test "$BOXMODEL" = "ufs910")
+AM_CONDITIONAL(BOXMODEL_UFS910,test "$BOXMODEL" = "ufs910")
 AM_CONDITIONAL(BOXMODEL_UFS912,test "$BOXMODEL" = "ufs912")
 AM_CONDITIONAL(BOXMODEL_UFS913,test "$BOXMODEL" = "ufs913")
 AM_CONDITIONAL(BOXMODEL_UFS922,test "$BOXMODEL" = "ufs922")
-
 AM_CONDITIONAL(BOXMODEL_SPARK7162,test "$BOXMODEL" = "spark7162")
-
-AM_CONDITIONAL(BOXMODEL_ATEVIO7500, test "$BOXMODEL" = "atevio7500")
+AM_CONDITIONAL(BOXMODEL_ATEVIO7500,test "$BOXMODEL" = "atevio7500")
 AM_CONDITIONAL(BOXMODEL_FORTIS_HDBOX,test "$BOXMODEL" = "fortis_hdbox")
 AM_CONDITIONAL(BOXMODEL_OCTAGON1008,test "$BOXMODEL" = "octagon1008")
 AM_CONDITIONAL(BOXMODEL_CUBEREVO_MINI2,test "$BOXMODEL" = "cuberevo_mini2")
