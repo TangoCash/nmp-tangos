@@ -503,6 +503,7 @@ int CFlashUpdate::exec(CMenuTarget* parent, const std::string &actionKey)
 	if(fileType < '3') {
 		//flash it...
 #if ENABLE_EXTUPDATE
+#ifndef BOXMODEL_APOLLO
 		if (g_settings.apply_settings) {
 			if (ShowMsgUTF(LOCALE_MESSAGEBOX_INFO, g_Locale->getText(LOCALE_FLASHUPDATE_APPLY_SETTINGS), CMessageBox::mbrYes, CMessageBox::mbYes | CMessageBox::mbNo, NEUTRINO_ICON_UPDATE) == CMessageBox::mbrYes)
 				if (!CExtUpdate::getInstance()->applySettings(filename, CExtUpdate::MODE_SOFTUPDATE)) {
@@ -510,6 +511,7 @@ int CFlashUpdate::exec(CMenuTarget* parent, const std::string &actionKey)
 					return menu_return::RETURN_REPAINT;
 				}
 		}
+#endif
 #endif
 
 #ifdef DEBUG1
@@ -725,8 +727,10 @@ void CFlashExpert::showMTDSelector(const std::string & actionkey)
 		mtdselector->addItem(new CMenuForwarderNonLocalized(mtdInfo->getMTDName(lx).c_str(), enabled, NULL, this, sActionKey, CRCInput::convertDigitToKey(shortcut++)));
 	}
 #if ENABLE_EXTUPDATE
+#ifndef BOXMODEL_APOLLO
 	if (actionkey == "writemtd")
 		mtdselector->addItem(new CMenuForwarderNonLocalized("systemFS with settings", true, NULL, this, "writemtd10", CRCInput::convertDigitToKey(shortcut++)));
+#endif
 #endif
 	mtdselector->exec(NULL,"");
 	delete mtdselector;
