@@ -341,6 +341,8 @@ void CMoviePlayerGui::updateLcd()
 		case CMoviePlayerGui::PAUSE:
 #if !defined(BOXMODEL_UFS910) && !defined(BOXMODEL_UFS912) && !defined(BOXMODEL_UFS913) && !defined(BOXMODEL_UFS922)
 			lcd = "|| ";
+#else
+			lcd = "";
 #endif
 			if (speed < 0) {
 				sprintf(tmp, "%dx<| ", abs(speed));
@@ -348,8 +350,13 @@ void CMoviePlayerGui::updateLcd()
 			} else if (speed > 0) {
 				sprintf(tmp, "%dx|> ", abs(speed));
 				lcd = tmp;
+#if !defined(BOXMODEL_UFS910) && !defined(BOXMODEL_UFS912) && !defined(BOXMODEL_UFS913) && !defined(BOXMODEL_UFS922)
 			} else
 				lcd = "|| ";
+#else
+			} else
+				lcd = "";
+#endif
 			break;
 		case CMoviePlayerGui::REW:
 			sprintf(tmp, "%dx<< ", abs(speed));
