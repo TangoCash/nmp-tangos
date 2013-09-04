@@ -1,5 +1,8 @@
+if ENABLE_UPNP
 AM_CPPFLAGS = -fno-rtti -D__STDC_FORMAT_MACROS
-#AM_CPPFLAGS = -fno-rtti
+else
+AM_CPPFLAGS = -fno-rtti -fno-exceptions -D__STDC_FORMAT_MACROS
+endif
 BUILT_SOURCES = version.h
 version.h:
 	@rm -f $@; \
