@@ -120,27 +120,6 @@ bool CPictureViewer::DecodeImage (const std::string & _name, bool showBusySign, 
 	// Show red block for "next ready" in view state
 	if (showBusySign)
 		showBusy (m_startx + 3, m_starty + 3, 10, 0xff, 00, 00);
-	std::string name = _name;
-
-	if (strstr(name.c_str(), "://")) {
-		std::string tmpname;
-		tmpname = "/tmp/pictureviewer" + name.substr(name.find_last_of("."));
-		FILE *tmpFile = fopen(tmpname.c_str(), "wb");
-		if (tmpFile) {
-			CURL *ch = curl_easy_init();
-			curl_easy_setopt(ch, CURLOPT_VERBOSE, 0L);
-			curl_easy_setopt(ch, CURLOPT_NOPROGRESS, 1L);
-			curl_easy_setopt(ch, CURLOPT_NOSIGNAL, 1L);
-			curl_easy_setopt(ch, CURLOPT_WRITEFUNCTION, NULL);
-			curl_easy_setopt(ch, CURLOPT_WRITEDATA, tmpFile);
-			curl_easy_setopt(ch, CURLOPT_FAILONERROR, 1L);
-			curl_easy_setopt(ch, CURLOPT_URL, name.c_str());
-			curl_easy_perform(ch);
-			curl_easy_cleanup(ch);
-			fclose(tmpFile);
-		}
-		name = tmpname;
-	}
 
 	std::string name = _name;
 	bool url = false;
