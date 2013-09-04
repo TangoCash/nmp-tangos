@@ -243,7 +243,6 @@ int CMoviePlayerGui::exec(CMenuTarget * parent, const std::string & actionKey)
 		moviebrowser->setMode(MB_SHOW_RECORDS);
 	}
 	else if (actionKey == "ytplayback") {
-		frameBuffer->Clear();
 		CAudioMute::getInstance()->enableMuteIcon(false);
 		isMovieBrowser = true;
 		moviebrowser->setMode(MB_SHOW_YT);

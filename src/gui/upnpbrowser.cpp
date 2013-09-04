@@ -145,6 +145,7 @@ int CUpnpBrowserGui::exec(CMenuTarget* parent, const std::string & /*actionKey*/
 	// Start Sectionsd
 	g_Sectionsd->setPauseScanning(false);
 	videoDecoder->StopPicture();
+	m_frameBuffer->Clear();
 
 #if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
 	g_Zapit->startPlayBack();
@@ -771,6 +772,7 @@ bool CUpnpBrowserGui::selectItem(std::string id)
 					}
 					else if (mime.substr(0,6) == "image/")
 					{
+						videoDecoder->StopPicture();
 						videoDecoder->setBlank(true);
 						showPicture((*entries)[selected - liststart].resources[preferred].url);
 						m_playid = selected;
@@ -1240,8 +1242,6 @@ void CUpnpBrowserGui::playAudio(std::string name, std::string mime)
 
 void CUpnpBrowserGui::showPicture(std::string name)
 {
-	videoDecoder->StopPicture();
-	videoDecoder->setBlank(true);
 	g_PicViewer->SetScaling((CPictureViewer::ScalingMode)g_settings.picviewer_scaling);
 	g_PicViewer->SetVisible(g_settings.screen_StartX, g_settings.screen_EndX, g_settings.screen_StartY, g_settings.screen_EndY);
 
