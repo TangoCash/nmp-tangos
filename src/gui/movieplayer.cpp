@@ -238,6 +238,13 @@ int CMoviePlayerGui::exec(CMenuTarget * parent, const std::string & actionKey)
 
 	Cleanup();
 
+	isMovieBrowser = false;
+	isBookmark = false;
+	timeshift = 0;
+	isHTTP = false;
+	isUPNP = false;
+	isWebTV = false;
+
 	if (actionKey == "tsmoviebrowser") {
 		isMovieBrowser = true;
 		moviebrowser->setMode(MB_SHOW_RECORDS);
@@ -276,7 +283,6 @@ int CMoviePlayerGui::exec(CMenuTarget * parent, const std::string & actionKey)
 	}
 	else if (actionKey == "upnp") {
 		isUPNP = true;
-		p_movie_info = NULL;
 		is_file_player = 1;
 		PlayFile();
 	}
@@ -423,12 +429,6 @@ void CMoviePlayerGui::Cleanup()
 	numsubs = 0;
 
 	startposition = 0;
-	isMovieBrowser = false;
-	isBookmark = false;
-	timeshift = 0;
-	isHTTP = false;
-	isUPNP = false;
-	isWebTV = false;
 	is_file_player = false;
 	p_movie_info = NULL;
 }
@@ -438,6 +438,7 @@ bool CMoviePlayerGui::SelectFile()
 	bool ret = false;
 	menu_ret = menu_return::RETURN_REPAINT;
 
+	Cleanup();
 	file_name = "";
 	full_name = "";
 
