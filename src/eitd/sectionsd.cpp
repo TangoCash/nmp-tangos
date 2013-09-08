@@ -94,8 +94,7 @@ static bool messaging_zap_detected = false;
 //NTP-Config
 #define CONF_FILE CONFIGDIR "/neutrino.conf"
 
-//std::string ntp_system_cmd_prefix = "/usr/sbin/rdate -s "; // from busybox
-std::string ntp_system_cmd_prefix = "/sbin/ntpdate ";
+std::string ntp_system_cmd_prefix = "/usr/sbin/rdate -s "; // from busybox
 
 std::string ntp_system_cmd;
 std::string ntpserver;
@@ -2125,7 +2124,7 @@ bool CEitManager::Start()
 	oldEventsAre = config.epg_old_events*60L*60L; //hours
 	max_events = config.epg_max_events;
 
-	if (access("/sbin/ntpdate", F_OK))
+	if (access("/usr/sbin/rdate", F_OK))
 		ntp_system_cmd_prefix = "/usr/sbin/ntpd -n -q -p ";
 
 	printf("[sectionsd] Caching: %d days, %d hours Extended Text, max %d events, Events are old %d hours after end time\n",
