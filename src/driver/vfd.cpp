@@ -251,8 +251,9 @@ CVFD::CVFD()
 	}
 #endif
 	text[0] = 0;
-	g_str[0] = 0;
 	clearClock = 0;
+	vfd_scrollText = 0;
+	g_str[0] = 0;
 	mode = MODE_TVRADIO;
 	switch_name_time_cnt = 0;
 }
@@ -490,8 +491,9 @@ void CVFD::setled(void)
 
 void CVFD::showServicename(const std::string & name, bool clear_epg) // UTF-8
 {
-printf("CVFD::showServicename: %s\n", name.c_str());
 	if(!has_lcd) return;
+
+printf("CVFD::showServicename: %s\n", name.c_str());
 	if (!clear_epg)
 		servicename = name;
 	if (mode != MODE_TVRADIO)
