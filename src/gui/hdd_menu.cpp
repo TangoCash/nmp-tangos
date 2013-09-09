@@ -283,7 +283,6 @@ int CHDDMenuHandler::doMenu ()
 		tmp_str[i]=str;
 		tempMenu[i] = new CMenuWidget(str, NEUTRINO_ICON_SETTINGS);
 		tempMenu[i]->addIntroItems();
-
 		tempMenu[i]->addItem( new CMenuOptionChooser(LOCALE_HDD_FS, &g_settings.hdd_fs, HDD_FILESYS_OPTIONS, HDD_FILESYS_OPTION_COUNT, true));
 
 		mf = new CMenuForwarder(LOCALE_HDD_FORMAT, true, "", &fmtexec, namelist[i]->d_name);

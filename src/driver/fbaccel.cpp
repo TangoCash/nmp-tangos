@@ -29,7 +29,7 @@
 #include <config.h>
 #endif
 
-#include <driver/framebuffer.h>
+#include <driver/framebuffer_ng.h>
 #ifdef ENABLE_GRAPHLCD
 #include <driver/nglcd.h>
 #endif
