@@ -121,9 +121,13 @@ void DMX::closefd(void)
 #endif
 	if (isOpen())
 	{
-		//dmx->Stop();
+#if HAVE_TRIPLEDRAGON || HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+		/* not sure why, but we lose CN events if we do delete / new :-( */
+		dmx->Stop();
+#else
 		delete dmx;
 		dmx = NULL;
+#endif
 		fd = -1;
 	}
 }

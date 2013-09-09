@@ -111,7 +111,7 @@ const CMenuOptionChooser::keyval LCD_INFO_OPTIONS[LCD_INFO_OPTION_COUNT] =
 	{ 0, LOCALE_LCD_INFO_LINE_CHANNEL },
 	{ 1, LOCALE_LCD_INFO_LINE_CLOCK }
 };
-#if HAVE_DUCKBOX_HARDWARE
+#if HAVE_DUCKBOX_HARDWARE || BOXMODEL_SPARK7162
 #define OPTIONS_OFF_ON_OPTION_COUNT 2
 const CMenuOptionChooser::keyval OPTIONS_OFF_ON_OPTIONS[OPTIONS_OFF_ON_OPTION_COUNT] =
 {
@@ -137,7 +137,7 @@ int CVfdSetup::showSetup()
 	mf->setHint("", LOCALE_MENU_HINT_VFD_BRIGHTNESS_SETUP);
 	vfds->addItem(mf);
 
-#if HAVE_DUCKBOX_HARDWARE
+#if HAVE_DUCKBOX_HARDWARE || BOXMODEL_SPARK7162
 	vfds->addItem(new CMenuOptionChooser(LOCALE_LCDMENU_VFD_EPG, &g_settings.lcd_vfd_epg, OPTIONS_OFF_ON_OPTIONS, OPTIONS_OFF_ON_OPTION_COUNT, true, NULL));
 	vfds->addItem(new CMenuOptionNumberChooser(LOCALE_LCDMENU_VFD_SCROLL, &g_settings.lcd_vfd_scroll, true, 0, 999, this, 0, 0, NONEXISTANT_LOCALE, NULL, true));
 #endif

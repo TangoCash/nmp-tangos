@@ -2325,12 +2325,9 @@ void CNeutrinoApp::showInfo()
 
 static void setEPGTitle()
 {
-	CChannelList *channelList = CNeutrinoApp::getInstance()->channelList;
-	if (channelList) {
-		CSectionsdClient::CurrentNextInfo info_CurrentNext;
-		CEitManager::getInstance()->getCurrentNextServiceKey(channelList->getActiveChannel_ChannelID() & 0xFFFFFFFFFFFFULL, info_CurrentNext);
-		CVFD::getInstance()->setEPGTitle(info_CurrentNext.current_name);
-	}
+	CSectionsdClient::CurrentNextInfo info_CurrentNext;
+	CEitManager::getInstance()->getCurrentNextServiceKey(CZapit::getInstance()->GetCurrentChannelID(), info_CurrentNext);
+	CVFD::getInstance()->setEPGTitle(info_CurrentNext.current_name);
 }
 
 #if HAVE_DUCKBOX_HARDWARE || BOXMODEL_SPARK7162
