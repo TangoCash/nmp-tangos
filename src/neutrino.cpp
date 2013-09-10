@@ -2008,11 +2008,8 @@ fprintf(stderr, "[neutrino start] %d  -> %5ld ms\n", __LINE__, time_monotonic_ms
 fprintf(stderr, "[neutrino start] %d  -> %5ld ms\n", __LINE__, time_monotonic_ms() - starttime);
 #if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
 	wake_up( timer_wakeup );
-//	CFSMounter::automount_async_start();
-//	{
-		CCECSetup cecsetup;
-		cecsetup.setCECSettings(true);
-//	}
+	CCECSetup cecsetup;
+	cecsetup.setCECSettings(true);
 #endif
 
 	initialize_iso639_map();
@@ -2095,7 +2092,7 @@ fprintf(stderr, "[neutrino start] %d  -> %5ld ms\n", __LINE__, time_monotonic_ms
 
 	//timer start
 #if !HAVE_SPARK_HARDWARE && !HAVE_DUCKBOX_HARDWARE
-	long timer_wakeup = 0;
+	timer_wakeup = false;//init
 	wake_up( timer_wakeup );
 
 	init_cec_setting = true;
@@ -2106,6 +2103,7 @@ fprintf(stderr, "[neutrino start] %d  -> %5ld ms\n", __LINE__, time_monotonic_ms
 		init_cec_setting = false;
 	}
 #endif
+	timer_wakeup = (timer_wakeup && g_settings.shutdown_timer_record_type);
 	g_settings.shutdown_timer_record_type = false;
 
 	/* todo: check if this is necessary
@@ -2113,7 +2111,6 @@ fprintf(stderr, "[neutrino start] %d  -> %5ld ms\n", __LINE__, time_monotonic_ms
 	 */
 	pthread_create (&timer_thread, NULL, timerd_main_thread, (void *)&timer_wakeup);
 	timerd_thread_started = true;
-	// timer_wakeup = false;
 
 #if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
 	audioSetupNotifier->changeNotify(LOCALE_AUDIOMENU_MIXER_VOLUME_ANALOG, &g_settings.audio_mixer_volume_analog);
@@ -3136,6 +3133,29 @@ _repeat:
 #if HAVE_DUCKBOX_HARDWARE
 		CVFD::getInstance()->ShowIcon(FP_ICON_REC, true);
 #endif
+#if 0
+		//zap to rec channel if box start from deepstandby
+		if(timer_wakeup){
+			timer_wakeup=false;
+			dvbsub_stop();
+			CTimerd::RecordingInfo * eventinfo = (CTimerd::RecordingInfo *) data;
+			t_channel_id channel_id=eventinfo->channel_id;
+			g_Zapit->zapTo_serviceID_NOWAIT(channel_id);
+		}
+#endif
+		//zap to rec channel in standby-mode
+		if(mode == mode_standby){
+			CTimerd::RecordingInfo * eventinfo = (CTimerd::RecordingInfo *) data;
+			bool recordingStatus = CRecordManager::getInstance()->RecordingStatus(eventinfo->channel_id);
+			t_channel_id live_channel_id = CZapit::getInstance()->GetCurrentChannelID();
+
+			if( !recordingStatus && (eventinfo->channel_id != live_channel_id) && channelList->SameTP(eventinfo->channel_id) && !(SAME_TRANSPONDER(live_channel_id, eventinfo->channel_id)) ){
+  				dvbsub_stop();
+				t_channel_id channel_id=eventinfo->channel_id;
+				g_Zapit->zapTo_serviceID_NOWAIT(channel_id);
+			}
+		}
+
 		if (g_settings.recording_type != CNeutrinoApp::RECORDING_OFF) {
 			CRecordManager::getInstance()->Record((CTimerd::RecordingInfo *) data);
 			autoshift = CRecordManager::getInstance()->TimeshiftOnly();
@@ -4676,7 +4696,13 @@ void CNeutrinoApp::Cleanup()
 	printf("cleanup 5\n");fflush(stdout);
 	delete CEitManager::getInstance();
 	printf("cleanup 6\n");fflush(stdout);
-	//delete CVFD::getInstance();
-	//malloc_stats();
+#if HAVE_COOL_HARDWARE
+	delete CVFD::getInstance();
+#ifdef __UCLIBC__
+	malloc_stats(NULL);
+#else
+	malloc_stats();
+#endif
+#endif
 #endif
 }
