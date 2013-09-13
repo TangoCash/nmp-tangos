@@ -755,7 +755,6 @@ lcdmenu.statusline Statuszeile
 lcdmenu.statusline.both Lautstärke/Fortschritt
 lcdmenu.statusline.playtime Sendungsfortschritt
 lcdmenu.statusline.volume Lautstärke
-lcdmenu.vfd_epg Sendername mit EPG
 lcdmenu.vfd_scroll Laufschrift
 ledcontroler.backlight Hintergrundbeleuchtung Buttons
 ledcontroler.backlight.tv TV Modus

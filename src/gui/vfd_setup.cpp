@@ -138,8 +138,7 @@ int CVfdSetup::showSetup()
 	vfds->addItem(mf);
 
 #if HAVE_DUCKBOX_HARDWARE || BOXMODEL_SPARK7162
-	vfds->addItem(new CMenuOptionChooser(LOCALE_LCDMENU_VFD_EPG, &g_settings.lcd_vfd_epg, OPTIONS_OFF_ON_OPTIONS, OPTIONS_OFF_ON_OPTION_COUNT, true, NULL));
-	vfds->addItem(new CMenuOptionNumberChooser(LOCALE_LCDMENU_VFD_SCROLL, &g_settings.lcd_vfd_scroll, true, 0, 999, this, 0, 0, NONEXISTANT_LOCALE, NULL, true));
+	vfds->addItem(new CMenuOptionChooser(LOCALE_LCDMENU_VFD_SCROLL, &g_settings.lcd_vfd_scroll, OPTIONS_OFF_ON_OPTIONS, OPTIONS_OFF_ON_OPTION_COUNT, true, NULL));
 #endif
 #ifndef HAVE_DUCKBOX_HARDWARE
 	//led menu
@@ -151,7 +150,6 @@ int CVfdSetup::showSetup()
 		mf->setHint("", LOCALE_MENU_HINT_POWER_LEDS);
 		vfds->addItem(mf);
 	}
-
 	if(cs_get_revision() == 9)
 	{
  		CMenuWidget * blMenu = new CMenuWidget(LOCALE_LCDMENU_HEAD, NEUTRINO_ICON_LCD, width, MN_WIDGET_ID_VFDSETUP_BACKLIGHT);
@@ -251,7 +249,6 @@ void CVfdSetup::showLedSetup(CMenuWidget *mn_led_widget)
 }
 #endif
 
-#if !HAVE_SPARK_HARDWARE && !HAVE_DUCKBOX_HARDWARE
 void CVfdSetup::showBacklightSetup(CMenuWidget *mn_led_widget)
 {
 	CMenuOptionChooser * mc;
@@ -269,7 +266,6 @@ void CVfdSetup::showBacklightSetup(CMenuWidget *mn_led_widget)
 	mc->setHint("", LOCALE_MENU_HINT_LEDS_DEEPSTANDBY);
 	mn_led_widget->addItem(mc);
 }
-#endif
 
 bool CVfdSetup::changeNotify(const neutrino_locale_t OptionName, void */* data */)
 {
@@ -293,10 +289,10 @@ bool CVfdSetup::changeNotify(const neutrino_locale_t OptionName, void */* data *
 	{
 		CVFD::getInstance()->setled();
 	}
+#endif
 	else if (ARE_LOCALES_EQUAL(OptionName, LOCALE_LEDCONTROLER_BACKLIGHT_TV))
 	{
 		CVFD::getInstance()->setBacklight(g_settings.backlight_tv);
 	}
-#endif
 	return false;
 }

@@ -35,6 +35,7 @@ while read id; do
 done
 
 cat >> locals.h <<EOF
+
 } neutrino_locale_t;
 #endif
 EOF

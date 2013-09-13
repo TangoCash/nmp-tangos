@@ -754,7 +754,6 @@ lcdmenu.statusline status line
 lcdmenu.statusline.both volume / playtime
 lcdmenu.statusline.playtime playtime
 lcdmenu.statusline.volume volume
-lcdmenu.vfd_epg Channelname with EPG
 lcdmenu.vfd_scroll Scrolling
 ledcontroler.backlight Buttons backlight
 ledcontroler.backlight.tv TV mode

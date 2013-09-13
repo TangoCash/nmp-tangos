@@ -853,7 +853,6 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	g_settings.lcd_info_line = configfile.getInt32("lcd_info_line", 0);//channel name or clock
 #if HAVE_DUCKBOX_HARDWARE || BOXMODEL_SPARK7162
 	g_settings.lcd_vfd_scroll = configfile.getInt32("lcd_vfd_scroll", 1);//VFD scrolling default on
-	g_settings.lcd_vfd_epg = configfile.getInt32("lcd_vfd_epg", 1);//VFD with EPG, default on
 #endif
 
 	//Picture-Viewer
@@ -1244,9 +1243,9 @@ void CNeutrinoApp::saveSetup(const char * fname)
 	configfile.setInt32 ("recording_type",                      g_settings.recording_type);
 	configfile.setBool  ("recording_stopsectionsd"            , g_settings.recording_stopsectionsd        );
 
-	configfile.setInt32 ("recording_audio_pids_default"       , g_settings.recording_audio_pids_default);
+	configfile.setInt32 ("recording_audio_pids_default"       , g_settings.recording_audio_pids_default   );
 	configfile.setBool  ("recording_zap_on_announce"          , g_settings.recording_zap_on_announce      );
-	configfile.setBool  ("shutdown_timer_record_type"          , g_settings.shutdown_timer_record_type      );
+	configfile.setBool  ("shutdown_timer_record_type"          , g_settings.shutdown_timer_record_type    );
 
 	configfile.setBool  ("recordingmenu.stream_vtxt_pid"      , g_settings.recording_stream_vtxt_pid      );
 #if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
@@ -1254,12 +1253,12 @@ void CNeutrinoApp::saveSetup(const char * fname)
 	configfile.setInt32 ("recording_bufsize_dmx"              , g_settings.recording_bufsize_dmx);
 #endif
 	configfile.setBool  ("recordingmenu.stream_subtitle_pids" , g_settings.recording_stream_subtitle_pids );
-	configfile.setBool  ("recordingmenu.stream_pmt_pid"       , g_settings.recording_stream_pmt_pid      );
+	configfile.setBool  ("recordingmenu.stream_pmt_pid"       , g_settings.recording_stream_pmt_pid       );
 	configfile.setInt32 ("recording_choose_direct_rec_dir"    , g_settings.recording_choose_direct_rec_dir);
 	configfile.setBool  ("recording_epg_for_filename"         , g_settings.recording_epg_for_filename     );
 	configfile.setBool  ("recording_epg_for_end"              , g_settings.recording_epg_for_end          );
-	configfile.setBool  ("recording_save_in_channeldir"       , g_settings.recording_save_in_channeldir     );
-	configfile.setBool  ("recording_slow_warning"             , g_settings.recording_slow_warning     );
+	configfile.setBool  ("recording_save_in_channeldir"       , g_settings.recording_save_in_channeldir   );
+	configfile.setBool  ("recording_slow_warning"             , g_settings.recording_slow_warning         );
 
 	// default plugin for movieplayer
 	configfile.setString ( "movieplayer_plugin", g_settings.movieplayer_plugin );
@@ -1366,7 +1365,6 @@ void CNeutrinoApp::saveSetup(const char * fname)
 	configfile.setInt32("lcd_info_line", g_settings.lcd_info_line);//channel name or clock
 #if HAVE_DUCKBOX_HARDWARE || BOXMODEL_SPARK7162
 	configfile.setInt32("lcd_vfd_scroll", g_settings.lcd_vfd_scroll);
-	configfile.setInt32("lcd_vfd_epg", g_settings.lcd_vfd_epg);
 #endif
 
 	//Picture-Viewer
@@ -2138,7 +2136,7 @@ fprintf(stderr, "[neutrino start] %d  -> %5ld ms\n", __LINE__, time_monotonic_ms
 	/* only SAT-hd1 before rev 8 has fan */
 	g_info.has_fan = (cs_get_revision()  < 8 && g_info.delivery_system == DVB_S);
 #endif
-#if HAVE_DUCKBOX_HARDWARE
+#if BOXMODEL_UFS922
 	FILE* rd = fopen("/proc/stb/fan/fan_ctrl", "r");
 	if (rd!=NULL)
 	{
@@ -2318,13 +2316,6 @@ void CNeutrinoApp::showInfo()
 
 	g_InfoViewer->showTitle(channelList->getActiveChannelNumber(), channelList->getActiveChannelName(), channelList->getActiveSatellitePosition(), channelList->getActiveChannel_ChannelID(), false, 0, pname);
 	StartSubtitles();
-}
-
-static void setEPGTitle()
-{
-	CSectionsdClient::CurrentNextInfo info_CurrentNext;
-	CEitManager::getInstance()->getCurrentNextServiceKey(CZapit::getInstance()->GetCurrentChannelID(), info_CurrentNext);
-	CVFD::getInstance()->setEPGTitle(info_CurrentNext.current_name);
 }
 
 #if HAVE_DUCKBOX_HARDWARE || BOXMODEL_SPARK7162
@@ -2673,17 +2664,12 @@ void CNeutrinoApp::RealRun(CMenuWidget &mainMenu)
 				if(show_info && channelList->getSize()) {
 					showInfo();
 				}
-				if (msg == NeutrinoMessages::EVT_CURRENTNEXT_EPG) {
 #ifdef ENABLE_GRAPHLCD
+				if (msg == NeutrinoMessages::EVT_CURRENTNEXT_EPG)
 					nGLCD::Update();
-#endif
-					setEPGTitle();
-				}
 			} else if (msg == NeutrinoMessages::EVT_CURRENTNEXT_EPG) {
-#ifdef ENABLE_GRAPHLCD
 				nGLCD::Update();
 #endif
-				setEPGTitle();
 			}
 			else if (msg == CRCInput::RC_timer)
 			{
@@ -2698,9 +2684,7 @@ void CNeutrinoApp::RealRun(CMenuWidget &mainMenu)
 						g_settings.mode_clock=false;
 						InfoClock->StopClock();
 					}
-					CVFD::getInstance()->setEPGTitle("");
 					CVFD::getInstance()->setMode(CVFD::MODE_TVRADIO);
-					setEPGTitle();
 				}
 				handleMsg(msg, data);
 			}
@@ -2826,9 +2810,8 @@ _show:
 				nNewChannel = bouquetList->exec(true);
 			}
 _repeat:
-			CVFD::getInstance()->setEPGTitle("");
+			CVFD::getInstance()->showServicename(channelList->getActiveChannelName());
 			CVFD::getInstance()->setMode(CVFD::MODE_TVRADIO);
-			setEPGTitle();
 			printf("************************* ZAP RES: nNewChannel %d\n", nNewChannel);fflush(stdout);
 			if(nNewChannel == -1) { // restore orig. bouquet and selected channel on cancel
 				/* FIXME if mode was changed while browsing,
@@ -2975,8 +2958,7 @@ _repeat:
 		g_volume->setVolume(msg);
 #if HAVE_DUCKBOX_HARDWARE
 		if((mode == mode_tv) || (mode == mode_radio)) {
-			CVFD::getInstance()->setEPGTitle("");
-			setEPGTitle();
+			CVFD::getInstance()->showServicename(channelList->getActiveChannelName());
 		}
 #endif
 		return messages_return::handled;

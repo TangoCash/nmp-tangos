@@ -35,6 +35,7 @@ while read id; do
 done
 
 cat >> locals_intern.h <<EOF
+
 };
 #endif
 EOF

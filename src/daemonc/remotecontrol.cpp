@@ -208,7 +208,6 @@ int CRemoteControl::handleMsg(const neutrino_msg_t msg, neutrino_msg_data_t data
 			return messages_return::handled;
 
 		/* current event came for current channel */
-		CVFD::getInstance()->setEPGTitle(info_CN->current_name);
 		if ( info_CN->current_uniqueKey != current_EPGid )
 		{
 			if ( current_EPGid != 0 )
@@ -526,8 +525,6 @@ void CRemoteControl::processAPIDnames()
 		else if (current_PIDs.APIDs[count].is_aac &&  !strstr(current_PIDs.APIDs[count].desc, " (AAC)"))
 			strncat(current_PIDs.APIDs[count].desc, " (AAC)", DESC_MAX_LEN - strlen(current_PIDs.APIDs[count].desc)-1);
 	}
-	if (! current_PIDs.APIDs.empty())
-		printf("\n");
 
 	if ( has_unresolved_ctags )
 	{

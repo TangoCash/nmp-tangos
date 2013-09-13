@@ -51,6 +51,7 @@
 static bool usb_icon = false;
 static bool timer_icon = false;
 #endif
+
 static char volume = 0;
 //static char percent = 0;
 static bool power = true;
@@ -189,12 +190,11 @@ void CLCD::setlcdparameter(void)
 {
 }
 
-void CLCD::showServicename(std::string name, bool fromepg)
+void CLCD::showServicename(std::string name, bool)
 {
 	if (g_info.hw_caps->display_type == HW_DISPLAY_LED_NUM)
 		return;
-	if (!fromepg)
-		servicename = name;
+	servicename = name;
 	if (mode != MODE_TVRADIO && mode != MODE_AUDIO)
 		return;
 	replace_umlauts(name);
@@ -359,7 +359,7 @@ void CLCD::showVolume(const char vol, const bool update)
 		SetIcons(SPARK_MUTE, 1);
 #endif
 		strcpy(s, mutestr[type]);
-	}else{
+	} else {
 #ifdef BOXMODEL_SPARK7162
 		SetIcons(SPARK_MUTE, 0);
 #endif
@@ -654,17 +654,7 @@ void CLCD::ShowIcon(fp_icon i, bool on)
 	}
 }
 
-void CLCD::setEPGTitle(const std::string title)
+void CLCD::setEPGTitle(const std::string)
 {
-printf("CVFD::setEPGTitle: %s\n", title.c_str());
-	if (g_settings.lcd_vfd_epg == 0) {
-		showServicename(servicename);
-		return;
-	}
-	if (title == epg_title)
-		return;
-
-	epg_title = title;
-	showServicename(servicename + " - " + epg_title, true);
 }
 

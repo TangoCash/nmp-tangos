@@ -214,7 +214,6 @@ class CLCD
 		CLCD();
 		std::string	menutitle;
 		std::string	servicename;
-		std::string	epg_title;
 		MODES		mode;
 		void setled(int red, int green);
 		static void	*TimeThread(void *);
@@ -225,8 +224,8 @@ class CLCD
 		bool has_lcd;
 		void wake_up();
 		void setled(void) { return; };
-		void setBacklight(bool /*on_off*/) { };
 		void setlcdparameter(void);
+		void setBacklight(bool) { return; };
 
 		static CLCD* getInstance();
 		void init(const char * fontfile, const char * fontname,

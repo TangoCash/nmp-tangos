@@ -143,7 +143,7 @@ static void ShowNormalText(char * str, bool fromScrollThread = false)
 			vfd_scrollText = 0;
 		}
 	}
-	if ((strlen(str) > VFDLENGTH && !fromScrollThread) && (g_settings.lcd_vfd_scroll >= 1))
+	if ((strlen(str) > VFDLENGTH && !fromScrollThread) && (g_settings.lcd_vfd_scroll == 1))
 	{
 		CVFD::getInstance()->ShowScrollText(str);
 		return;
@@ -201,7 +201,7 @@ void* CVFD::ThreadScrollText(void * arg)
 
 	memset(out, 0, VFDLENGTH+1);
 
-	int retries = g_settings.lcd_vfd_scroll;
+	int retries = 1;
 
 	while(retries--)
 	{
@@ -251,9 +251,8 @@ CVFD::CVFD()
 	}
 #endif
 	text[0] = 0;
-	clearClock = 0;
-	vfd_scrollText = 0;
 	g_str[0] = 0;
+	clearClock = 0;
 	mode = MODE_TVRADIO;
 	switch_name_time_cnt = 0;
 }
@@ -489,32 +488,17 @@ void CVFD::setled(void)
 }
 #endif
 
-void CVFD::showServicename(const std::string & name, bool clear_epg) // UTF-8
+void CVFD::showServicename(const std::string & name) // UTF-8
 {
 	if(!has_lcd) return;
 
 printf("CVFD::showServicename: %s\n", name.c_str());
-	if (!clear_epg)
-		servicename = name;
+	servicename = name;
 	if (mode != MODE_TVRADIO)
 		return;
 
 	ShowText(name.c_str());
 	wake_up();
-}
-
-void CVFD::setEPGTitle(const std::string title)
-{
-printf("CVFD::setEPGTitle: %s\n", title.c_str());
-	if (g_settings.lcd_vfd_epg == 0) {
-		showServicename(servicename);
-		return;
-	}
-	if (title == epg_title)
-		return;
-
-	epg_title = title;
-	showServicename(servicename + " - " + epg_title, true);
 }
 
 void CVFD::showTime(bool force)

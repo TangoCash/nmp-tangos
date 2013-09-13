@@ -625,7 +625,6 @@ struct SNeutrinoSettings
 	int lcd_setting_dim_brightness;
 #if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
 	int lcd_vfd_scroll;
-	int lcd_vfd_epg;
 #endif
 	int led_tv_mode;
 	int led_standby_mode;

@@ -967,6 +967,7 @@ void  CNeutrinoEventList::showFunctionBar (bool show, t_channel_id channel_id)
 		buttons[btn_cnt].locale = LOCALE_EVENTFINDER_SEARCH; // search button
 		btn_cnt++;
 	}
+
 	// Button: Timer Channelswitch
 	if ((uint) g_settings.key_channelList_addremind != CRCInput::RC_nokey) {
 		if (!g_settings.minimode) {

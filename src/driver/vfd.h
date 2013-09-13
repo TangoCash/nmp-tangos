@@ -79,9 +79,6 @@ class CVFD
 		MODES				mode;
 
 		std::string			servicename;
-#if HAVE_DUCKBOX_HARDWARE
-		std::string			epg_title;
-#endif
 		char				volume;
 		unsigned char			percentOver;
 		bool				muted;
@@ -124,11 +121,9 @@ class CVFD
 
 		void setMode(const MODES m, const char * const title = "");
 
-		void showServicename(const std::string & name, bool clear_epg = false); // UTF-8
-#if HAVE_DUCKBOX_HARDWARE
+		void showServicename(const std::string & name); // UTF-8
+		void setEPGTitle(const std::string) { return; };
 		std::string getServicename(void) { return servicename; }
-		void setEPGTitle(const std::string title);
-#endif
 		void showTime(bool force = false);
 		/** blocks for duration seconds */
 		void showRCLock(int duration = 2);

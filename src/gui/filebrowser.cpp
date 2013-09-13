@@ -856,7 +856,6 @@ bool CFileBrowser::exec(const char * const dirname)
 		
 	ChangeDir(name, selection);
 	//paint();
-
 	paintFoot();
 	frameBuffer->blit();
 
