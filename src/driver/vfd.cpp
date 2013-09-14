@@ -55,7 +55,7 @@ extern CRemoteControl * g_RemoteControl; /* neutrino.cpp */
 	#define VFDLENGTH 12
 #elif defined (BOXMODEL_ATEVIO7500)
 	#define VFDLENGTH 12
-#elif defined (PLATFORM_SPARK)
+#elif defined (BOXMODEL_SPARK)
 	#define VFDLENGTH 4
 #else
 	#define VFDLENGTH 16
@@ -1057,7 +1057,7 @@ void CVFD::ShowIcon(fp_icon icon, bool show)
 #ifdef HAVE_DUCKBOX_HARDWARE
 void CVFD::ClearIcons()
 {
-#if defined (BOXMODEL_ATEVIO7500)
+#if defined (BOXMODEL_ATEVIO7500) || defined (BOXMODEL_SPARK)
 	return;
 #endif
 	for (int id = 0x10; id < FP_ICON_MAX; id++) {
