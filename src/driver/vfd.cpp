@@ -143,7 +143,7 @@ static void ShowNormalText(char * str, bool fromScrollThread = false)
 			vfd_scrollText = 0;
 		}
 	}
-	if ((strlen(str) > VFDLENGTH && !fromScrollThread) && (g_settings.lcd_vfd_scroll == 1))
+	if ((strlen(str) > VFDLENGTH && !fromScrollThread) && (g_settings.lcd_vfd_scroll >= 1))
 	{
 		CVFD::getInstance()->ShowScrollText(str);
 		return;
@@ -201,7 +201,7 @@ void* CVFD::ThreadScrollText(void * arg)
 
 	memset(out, 0, VFDLENGTH+1);
 
-	int retries = 1;
+	int retries = g_settings.lcd_vfd_scroll;
 
 	while(retries--)
 	{
