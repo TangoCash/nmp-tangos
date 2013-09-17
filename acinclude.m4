@@ -468,6 +468,10 @@ AC_ARG_WITH(boxtype,
 			BOXTYPE="duckbox"
 			BOXMODEL="$withval"
 			;;
+		tf*)
+			BOXTYPE="duckbox"
+			BOXMODEL="$withval"
+			;;
 		*)
 			AC_MSG_ERROR([bad value $withval for --with-boxtype]) ;;
 	esac], [BOXTYPE="coolstream"])
