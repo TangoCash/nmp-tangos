@@ -97,7 +97,7 @@ int CMediaPlayerSetup::showMediaPlayerSetup()
 	mediaSetup->addIntroItems(LOCALE_AUDIOPLAYERPICSETTINGS_GENERAL);
 #endif
 
-#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWAREI
+#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
 	CAudioPlayerSetup asetup;
 	mediaSetup->addItem(new CMenuForwarder(LOCALE_AUDIOPLAYER_NAME, true, NULL, &asetup, "", CRCInput::RC_red, NEUTRINO_ICON_BUTTON_RED));
 	CPictureViewerSetup psetup;
