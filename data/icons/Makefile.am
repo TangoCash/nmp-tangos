@@ -201,6 +201,7 @@ install_DATA += \
 	powervu_green.png \
 	powervu_white.png \
 	powervu_yellow.png \
+	question.png \
 	radar.pal \
 	radar_red.pal \
 	radar0.raw \
