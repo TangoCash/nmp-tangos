@@ -4449,11 +4449,11 @@ void CNeutrinoApp::saveKeys(const char * fname)
 	tconfig.setInt32( "mpkey.audio", g_settings.mpkey_audio );
 	tconfig.setInt32( "mpkey.time", g_settings.mpkey_time );
 	tconfig.setInt32( "mpkey.bookmark", g_settings.mpkey_bookmark );
-	tconfig.setInt32( "mpkey.plugin", g_settings.mpkey_plugin );
 #if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
 	tconfig.setInt32( "mpkey.next3dmode", g_settings.mpkey_next3dmode );
 	tconfig.setInt32( "mpkey.goto", g_settings.mpkey_goto );
 #endif
+	tconfig.setInt32( "mpkey.plugin", g_settings.mpkey_plugin );
 	tconfig.setInt32( "mpkey.subtitle", g_settings.mpkey_subtitle );
 
 	tconfig.setInt32( "key_format_mode_active", g_settings.key_format_mode_active );
