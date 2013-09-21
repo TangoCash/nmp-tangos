@@ -476,11 +476,9 @@ int timerd_main_thread(void *data)
 
 	// Start timer thread
 	CTimerManager::getInstance();
-#if !HAVE_SPARK_HARDWARE && !HAVE_DUCKBOX_HARDWARE
-	CTimerManager::getInstance()->wakeup = !!(*(long *)data);
-#endif
+	CTimerManager::getInstance()->wakeup = (bool *)data;
 
-	*(long *)data = -1; /* signal we're up and running */
+	*(bool *)data = true; /* signal we're up and running */
 
 	timerd_server.run(timerd_parse_command, CTimerdMsg::ACTVERSION);
 	printf("timerd shutdown complete\n");

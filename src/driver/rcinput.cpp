@@ -53,11 +53,11 @@
 #include <global.h>
 #include <driver/shutdown_count.h>
 #include <neutrino.h>
+#include <neutrinoMessages.h>
 #include <timerd/timermanager.h>
 #include <cs_api.h>
 
 #include <gui/cec_setup.h>
-#include <timerd/timermanager.h>
 
 //#define RCDEBUG
 //#define USE_GETTIMEOFDAY
@@ -91,9 +91,11 @@ static bool input_stopped = false;
 *	Constructor - opens rc-input device, selects rc-hardware and starts threads
 *
 *********************************************************************************/
-CRCInput::CRCInput()
+CRCInput::CRCInput(bool &_timer_wakeup)
 {
 	timerid= 1;
+	repeatkeys = NULL;
+	timer_wakeup = &_timer_wakeup;
 
 	// pipe for internal event-queue
 	// -----------------------------
@@ -156,7 +158,6 @@ CRCInput::CRCInput()
 	repeat_block = repeat_block_generic = 0;
 	open();
 	rc_last_key =  KEY_MAX;
-	firstKey = true;
 
 	//select and setup remote control hardware
 	set_rc_hw();
@@ -1243,10 +1244,6 @@ void CRCInput::getMsg_us(neutrino_msg_t * msg, neutrino_msg_data_t * data, uint6
 				if (ev.type == EV_SYN)
 					continue; /* ignore... */
 				SHTDCNT::getInstance()->resetSleepTimer();
-				if (firstKey) {
-					firstKey = false;
-					CTimerManager::getInstance()->cancelShutdownOnWakeup();
-				}
 				uint32_t trkey = translate(ev.code, i);
 #ifdef _DEBUG
 				printf("key: %04x value %d, translate: %04x -%s-\n", ev.code, ev.value, trkey, getKeyName(trkey).c_str());
@@ -1259,15 +1256,12 @@ void CRCInput::getMsg_us(neutrino_msg_t * msg, neutrino_msg_data_t * data, uint6
 					printf("rc_last_key %04x rc_last_repeat_key %04x\n\n", rc_last_key, rc_last_repeat_key);
 #endif
 #if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
-					if (firstKey) {
-						extern long timer_wakeup; // neutrino.cpp
-						if (timer_wakeup) {
-							unlink("/tmp/.timer_wakeup");
-							timer_wakeup = false;
-							CCECSetup cecsetup;
-							cecsetup.setCECSettings(true);
-							CTimerManager::getInstance()->cancelShutdownOnWakeup();
-						}
+					if (*timer_wakeup) {
+						unlink("/tmp/.timer_wakeup");
+						*timer_wakeup = false;
+						CCECSetup cecsetup;
+						cecsetup.setCECSettings(true);
+						CTimerManager::getInstance()->cancelShutdownOnWakeup();
 					}
 #endif
 					uint64_t now_pressed;

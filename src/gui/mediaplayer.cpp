@@ -291,7 +291,7 @@ int CMediaPlayerMenu::initMenuMedia(CMenuWidget *m, CPersonalizeGui *p)
 		res = media->exec(NULL, "");
 		delete media;
 		delete personalize;
-		//delete pictureviewergui;
+		delete pictureviewergui;
 #if ENABLE_UPNP
 		//delete upnpbrowsergui;
 #endif

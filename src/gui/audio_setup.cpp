@@ -229,7 +229,9 @@ int CAudioSetup::showAudioSetup()
 	audioSettings->addItem(GenericMenuSeparatorLine);
 	audioSettings->addItem(as_oj_srsonoff);
 	audioSettings->addItem(as_oj_algo);
+#ifndef BOXMODEL_APOLLO
 	audioSettings->addItem(as_oj_noise);
+#endif
 	audioSettings->addItem(as_oj_volrev);
 #endif
 #if 0
@@ -258,6 +260,9 @@ int CAudioSetup::showAudioSetup()
 	CZapit::getInstance()->SetVolumePercent(g_settings.audio_volume_percent_ac3, g_settings.audio_volume_percent_pcm);
 #endif
 	delete audioSettings;
+#ifdef BOXMODEL_APOLLO
+	delete as_oj_noise;
+#endif
 	return res;
 }
 

@@ -33,6 +33,7 @@
 #include <eitd/sectionsd.h>
 #include <cs_api.h>
 #include <system/configure_network.h>
+#include <hardware_caps.h>
 
 extern CBouquetManager *g_bouquetManager;
 
@@ -691,6 +692,9 @@ std::string  CNeutrinoYParser::func_get_partition_list(CyhookHandler *, std::str
 //-------------------------------------------------------------------------
 std::string  CNeutrinoYParser::func_get_boxtype(CyhookHandler *, std::string)
 {
+#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+	std::string boxname = string(g_info.hw_caps->boxvendor) + " " + string(g_info.hw_caps->boxname);
+#else
 	unsigned int system_rev = cs_get_revision();
 	std::string boxname = "CST ";
 
@@ -733,9 +737,8 @@ std::string  CNeutrinoYParser::func_get_boxtype(CyhookHandler *, std::string)
 			break;
 	}
 
-	boxname += (g_info.delivery_system == DVB_S || (system_rev == 1)) ? " SAT":" CABLE";
-#if BOXMODEL_UFS910 ||  BOXMODEL_UFS922
-	boxname = "ufs910";
+	if (system_rev != 9) // don't add delivery_system for Tank
+		boxname += (g_info.delivery_system == DVB_S || (system_rev == 1)) ? " SAT":" CABLE";
 #endif
 	return boxname;
 }

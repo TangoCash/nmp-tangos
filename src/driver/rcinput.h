@@ -141,6 +141,7 @@ class CRCInput
 		uint32_t               timerid;
 		std::vector<timer> timers;
 
+		uint32_t	*repeatkeys;
 		int 		fd_pipe_high_priority[2];
 		int 		fd_pipe_low_priority[2];
 		int         	fd_gamerc;
@@ -159,7 +160,7 @@ class CRCInput
 
 		int		fd_max;
 		int		clickfd;
-		bool		firstKey;
+		bool		*timer_wakeup;
 		__u16 rc_last_key;
 		void set_dsp();
 
@@ -295,7 +296,7 @@ class CRCInput
 
 		uint64_t repeat_block;
 		uint64_t repeat_block_generic;
-		CRCInput();      //constructor - opens rc-device and starts needed threads
+		CRCInput(bool &_timer_wakeup);      //constructor - opens rc-device and starts needed threads
 		~CRCInput();     //destructor - closes rc-device
 
 

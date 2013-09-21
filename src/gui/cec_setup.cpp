@@ -137,8 +137,6 @@ int CCECSetup::showMenu()
 }
 
 #if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
-extern long timer_wakeup; // neutrino.cpp
-
 void CCECSetup::setCECSettings(bool b)
 {	
 	printf("[neutrino CEC Settings] %s init CEC settings...\n", __FUNCTION__);
@@ -146,7 +144,7 @@ void CCECSetup::setCECSettings(bool b)
 		// wakeup
 		if (g_settings.hdmi_cec_mode &&
 			 ((g_settings.hdmi_cec_standby == 1) ||
-			 (g_settings.hdmi_cec_standby == 2 && !timer_wakeup))) {
+			 (g_settings.hdmi_cec_standby == 2 && !CNeutrinoApp::getInstance()->timer_wakeup))) {
 			int otp = ::open("/proc/stb/cec/onetouchplay", O_WRONLY);
 			if (otp > -1) {
 				write(otp, g_settings.hdmi_cec_broadcast ? "f\n" : "0\n", 2);

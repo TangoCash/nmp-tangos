@@ -586,6 +586,18 @@ int CAudioPlayerGui::show()
 					play(m_selected);
 			}
 		}
+		else if (msg == CRCInput::RC_forward && m_key_level == 1 && m_curr_audiofile.FileType != CFile::STREAM_AUDIO)
+			ff();
+		else if (msg == CRCInput::RC_rewind && m_key_level == 1 && m_curr_audiofile.FileType != CFile::STREAM_AUDIO)
+			rev();
+		else if (msg == CRCInput::RC_stop && m_key_level == 1 && m_curr_audiofile.FileType != CFile::STREAM_AUDIO)
+			stop();
+		else if (msg == CRCInput::RC_pause && m_key_level == 1 && m_curr_audiofile.FileType != CFile::STREAM_AUDIO)
+			pause();
+		else if (msg == CRCInput::RC_next && m_key_level == 1 && m_curr_audiofile.FileType != CFile::STREAM_AUDIO)
+			playNext();
+		else if (msg == CRCInput::RC_prev && m_key_level == 1 && m_curr_audiofile.FileType != CFile::STREAM_AUDIO)
+			playPrev();
 		else if (msg == CRCInput::RC_red)
 		{
 			if (m_key_level == 0)
@@ -1656,7 +1668,7 @@ void CAudioPlayerGui::paintHead()
 		return;
 
 	CComponentsHeader header(m_x, m_y + m_title_height, m_width, m_theight, LOCALE_AUDIOPLAYER_HEAD, NEUTRINO_ICON_MP3);
-	header.setCornerRadius(RADIUS_MID);
+	header.setCorner(RADIUS_MID);
 
 	if (m_inetmode)
 		header.setCaption(LOCALE_INETRADIO_NAME);
@@ -1670,7 +1682,7 @@ void CAudioPlayerGui::paintHead()
 #endif
 
 	header.paint(CC_SAVE_SCREEN_NO);
-	//m_frameBuffer->blit(); // ??
+	m_frameBuffer->blit();
 }
 
 //------------------------------------------------------------------------
@@ -1943,7 +1955,7 @@ void CAudioPlayerGui::paintItemID3DetailsLine (int pos)
 		// paint id3 infobox
 		if (ibox == NULL)
 			ibox = new CComponentsInfoBox(m_x, ypos2, m_width, m_info_height);
-		ibox->setCornerRadius(RADIUS_LARGE);
+		ibox->setCorner(RADIUS_LARGE);
 		ibox->setYPos(ypos2);
 		ibox->setColorBody(COL_MENUCONTENTDARK_PLUS_0);
 		ibox->paint(false);

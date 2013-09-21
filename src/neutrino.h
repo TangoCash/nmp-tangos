@@ -103,9 +103,6 @@ private:
 	bool 				skipSleepTimer;
 	bool                            lockStandbyCall;
 	bool 				pbBlinkChange;
-#if !HAVE_SPARK_HARDWARE && !HAVE_DUCKBOX_HARDWARE
-	bool                            timer_wakeup;
-#endif
 	int tvsort[LIST_MODE_LAST];
 	int radiosort[LIST_MODE_LAST];
 
@@ -177,6 +174,7 @@ public:
 	CPSISetup			*chPSISetup;
 	C3DSetup			*threeDSetup;
 #endif
+	bool				timer_wakeup;
 
 	static CNeutrinoApp* getInstance();
 

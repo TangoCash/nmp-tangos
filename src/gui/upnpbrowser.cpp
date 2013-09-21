@@ -464,9 +464,9 @@ void CUpnpBrowserGui::selectDevice()
 		{
 			paintDevices();
 			refresh=false;
-			m_frameBuffer->blit();
 		}
 
+		m_frameBuffer->blit();
 		g_RCInput->getMsg(&msg, &data, 10); // 1 sec timeout to update play/stop state display
 		neutrino_msg_t msg_repeatok = msg & ~CRCInput::RC_Repeat;
 
@@ -532,16 +532,19 @@ void CUpnpBrowserGui::selectDevice()
 			loop=false;
 			g_RCInput->postMsg(msg, data);
 		}
+#if 0
 		else if (msg == NeutrinoMessages::EVT_TIMER)
 		{
 			CNeutrinoApp::getInstance()->handleMsg(msg, data);
 		}
 		else if (msg > CRCInput::RC_MaxRC)
+#endif
+		else
 		{
+printf("msg: %x\n", (int) msg);
 			if (CNeutrinoApp::getInstance()->handleMsg(msg, data) & messages_return::cancel_all)
 				loop = false;
 		}
-		m_frameBuffer->blit();
 	}
 	CAudioMute::getInstance()->enableMuteIcon(true);
 }
@@ -699,6 +702,7 @@ bool CUpnpBrowserGui::selectItem(std::string id)
 				paintItems(entries, selected - liststart, total - liststart, liststart);
 			refresh=false;
 		}
+		m_frameBuffer->blit();
 
 		g_RCInput->getMsg(&msg, &data, 10); // 1 sec timeout to update play/stop state display
 		neutrino_msg_t msg_repeatok = msg & ~CRCInput::RC_Repeat;
@@ -842,11 +846,14 @@ bool CUpnpBrowserGui::selectItem(std::string id)
 			loop = false;
 			g_RCInput->postMsg(msg, data);
 		}
+#if 0
 		else if (msg == NeutrinoMessages::EVT_TIMER)
 		{
 			CNeutrinoApp::getInstance()->handleMsg(msg, data);
 		}
 		else if (msg > CRCInput::RC_MaxRC)
+#endif
+		else
 		{
 			if (CNeutrinoApp::getInstance()->handleMsg(msg, data) & messages_return::cancel_all)
 				loop = false;
@@ -857,12 +864,12 @@ bool CUpnpBrowserGui::selectItem(std::string id)
 			playnext();
 			m_playid++;
 		}
-		m_frameBuffer->blit();
 	}
 
 	delete entries;
 	timeout = 0;
 	m_frameBuffer->Clear();
+	m_frameBuffer->blit();
 
 	return endall;
 }
@@ -976,7 +983,6 @@ void CUpnpBrowserGui::paintDevices()
 	::paintButtons(m_x, top, 0, 1, &RescanButton, m_width, m_buttonHeight);
 
 	paintItem2DetailsLine (-1); // clear it
-	m_frameBuffer->blit();
 }
 
 void CUpnpBrowserGui::paintItem(std::vector<UPnPEntry> *entry, unsigned int pos, unsigned int selected)
@@ -1136,7 +1142,6 @@ printf("CUpnpBrowserGui::paintItem:s selected %d max %d offset %d\n", selected, 
 	top = m_y + (m_height - m_info_height - 2 * m_buttonHeight);
 	m_frameBuffer->paintBoxRel(m_x, top, m_width, m_buttonHeight+2, COL_INFOBAR_SHADOW_PLUS_1, RADIUS_LARGE, CORNER_BOTTOM);
 	::paintButtons(m_x, top, 0, 4, BrowseButtons, m_width, m_buttonHeight);
-	m_frameBuffer->blit();
 }
 
 void CUpnpBrowserGui::paintDetails(std::vector<UPnPEntry> *entry, unsigned int index, bool use_playing)

@@ -179,6 +179,8 @@ CBouquetList   * RADIOsatList;
 CBouquetList   * RADIOfavList;
 CBouquetList   * RADIOallList;
 
+CBouquetList   * AllFavBouquetList;
+
 CPlugins       * g_PluginList;
 CRemoteControl * g_RemoteControl;
 CPictureViewer * g_PicViewer;
@@ -1599,12 +1601,14 @@ void CNeutrinoApp::channelsInit(bool bOnly)
 		TIMER_STOP("[neutrino] sats took");
 	}
 
+	delete AllFavBouquetList;
+	AllFavBouquetList = new CBouquetList(g_Locale->getText(LOCALE_CHANNELLIST_FAVS));
 	/* Favorites and providers bouquets */
 	tvi = ri = 0;
 	for (i = 0; i < g_bouquetManager->Bouquets.size(); i++) {
 		CZapitBouquet *b = g_bouquetManager->Bouquets[i];
 		if (!b->bHidden) {
-			if (b->getTvChannels(zapitList) || b->bUser) {
+			if (b->getTvChannels(zapitList) /* || b->bUser */) {
 				if(b->bUser)
 					tmp = TVfavList->addBouquet(b);
 				else
@@ -1613,7 +1617,7 @@ void CNeutrinoApp::channelsInit(bool bOnly)
 				tmp->channelList->SetChannelList(&zapitList);
 				tvi++;
 			}
-			if (b->getRadioChannels(zapitList) || b->bUser) {
+			if (b->getRadioChannels(zapitList) /* || b->bUser */) {
 				if(b->bUser)
 					tmp = RADIOfavList->addBouquet(b);
 				else
@@ -1622,6 +1626,8 @@ void CNeutrinoApp::channelsInit(bool bOnly)
 				tmp->channelList->SetChannelList(&zapitList);
 				ri++;
 			}
+			if(b->bUser)
+				AllFavBouquetList->addBouquet(b);
 		}
 	}
 	printf("[neutrino] got %d TV and %d RADIO bouquets\n", tvi, ri); fflush(stdout);
@@ -1944,7 +1950,7 @@ void CNeutrinoApp::InitSectiondClient()
 #include <cs_frontpanel.h>
 #endif
 
-void wake_up(long &wakeup)
+void wake_up(bool &wakeup)
 {
 #if HAVE_COOL_HARDWARE
 #ifndef FP_IOCTL_CLEAR_WAKEUP_TIMER
@@ -1969,7 +1975,7 @@ void wake_up(long &wakeup)
 #endif
 	/* not platform specific - this is created by the init process */
 	if (access("/tmp/.timer_wakeup", F_OK) == 0) {
-		wakeup = 1;
+		wakeup = true;
 #if !HAVE_SPARK_HARDWARE && !HAVE_DUCKBOX_HARDWARE
 		unlink("/tmp/.timer_wakeup");
 #endif
@@ -1982,9 +1988,6 @@ void wake_up(long &wakeup)
 	}
 }
 
-#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
-long timer_wakeup = 0;
-#endif
 int CNeutrinoApp::run(int argc, char **argv)
 {
 time_t starttime = time_monotonic_ms();
@@ -2037,15 +2040,14 @@ fprintf(stderr, "[neutrino start] %d  -> %5ld ms\n", __LINE__, time_monotonic_ms
 	CVFD::getInstance()->init(neutrinoFonts->fontDescr.filename.c_str(), neutrinoFonts->fontDescr.name.c_str());
 	CVFD::getInstance()->Clear();
 	CVFD::getInstance()->ShowText(g_Locale->getText(LOCALE_NEUTRINO_STARTING));
+fprintf(stderr, "[neutrino start] %d  -> %5ld ms\n", __LINE__, time_monotonic_ms() - starttime);
+	CVFD::getInstance()->setBacklight(g_settings.backlight_tv);
+
 #if HAVE_DUCKBOX_HARDWARE
 	CVFD::getInstance()->ClearIcons();
 #endif
 #ifdef ENABLE_GRAPHLCD
 	nGLCD::getInstance();
-#endif
-fprintf(stderr, "[neutrino start] %d  -> %5ld ms\n", __LINE__, time_monotonic_ms() - starttime);
-#if !HAVE_SPARK_HARDWARE && !HAVE_DUCKBOX_HARDWARE
-	CVFD::getInstance()->setBacklight(g_settings.backlight_tv);
 #endif
 
 	/* set service manager options before starting zapit */
@@ -2080,7 +2082,7 @@ fprintf(stderr, "[neutrino start] %d  -> %5ld ms\n", __LINE__, time_monotonic_ms
 	g_videoSettings->setVideoSettings();
 fprintf(stderr, "[neutrino start] %d  -> %5ld ms\n", __LINE__, time_monotonic_ms() - starttime);
 
-	g_RCInput = new CRCInput();
+	g_RCInput = new CRCInput(timer_wakeup);
 
 	/* later on, we'll crash anyway, so tell about it. */
 	if (! zapit_init)
@@ -2110,6 +2112,10 @@ fprintf(stderr, "[neutrino start] %d  -> %5ld ms\n", __LINE__, time_monotonic_ms
 	/* todo: check if this is necessary
 	pthread_create (&timer_thread, NULL, timerd_main_thread, (void *) (timer_wakeup && g_settings.shutdown_timer_record_type));
 	 */
+	// The thread argument sets a pointer to Neutrinos timer_wakeup. *pointer is set to true
+	// when timerd is ready, so save the real timer_wakeup value and restore it later. --martii
+	bool timer_wakup_real = timer_wakeup;
+	timer_wakeup = false;
 	pthread_create (&timer_thread, NULL, timerd_main_thread, (void *)&timer_wakeup);
 	timerd_thread_started = true;
 
@@ -2221,9 +2227,10 @@ fprintf(stderr, "[neutrino start] %d  -> %5ld ms\n", __LINE__, time_monotonic_ms
 	videoDecoder->Stop(1); //stopping videodecoder before 1st tune
 	/* wait until timerd is ready... */
 	time_t timerd_wait = time_monotonic_ms();
-	while (timer_wakeup >= 0)
+	while (!timer_wakeup)
 		usleep(100);
 	dprintf(DEBUG_NORMAL, "had to wait %ld ms for timerd start...\n", time_monotonic_ms() - timerd_wait);
+	timer_wakeup = timer_wakup_real;
 	InitTimerdClient();
 
 	g_volume = CVolume::getInstance();
@@ -2336,6 +2343,7 @@ static void check_timer()
 	tmpTimerList.clear();
 }
 #endif
+
 void CNeutrinoApp::RealRun(CMenuWidget &mainMenu)
 {
 	neutrino_msg_t      msg;
@@ -2363,6 +2371,7 @@ void CNeutrinoApp::RealRun(CMenuWidget &mainMenu)
 #if HAVE_DUCKBOX_HARDWARE || BOXMODEL_SPARK7162
 		check_timer();
 #endif
+
 		if( ( mode == mode_tv ) || ( ( mode == mode_radio ) ) ) {
 			if( (msg == NeutrinoMessages::SHOW_EPG) /* || (msg == CRCInput::RC_info) */ ) {
 				StopSubtitles();
@@ -3300,6 +3309,7 @@ _repeat:
 	else if( msg == NeutrinoMessages::SHUTDOWN ) {
 		if(!skipShutdownTimer) {
 #if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+			timer_wakeup = true;
 			ExitRun(true, !can_deepstandby);
 #else
 			ExitRun(true, (cs_get_revision() > 7));
@@ -3796,9 +3806,7 @@ void CNeutrinoApp::standbyMode( bool bOnOff, bool fromDeepStandby )
 			CVFD::getInstance()->Clear();
 			CVFD::getInstance()->setMode(CVFD::MODE_STANDBY);
 		}
-#if !HAVE_SPARK_HARDWARE && !HAVE_DUCKBOX_HARDWARE
 		CVFD::getInstance()->setBacklight(g_settings.backlight_standby);
-#endif
 
 		if(g_settings.mode_clock) {
 			InfoClock->StopClock();
@@ -3862,9 +3870,7 @@ void CNeutrinoApp::standbyMode( bool bOnOff, bool fromDeepStandby )
 			perror(NEUTRINO_LEAVE_STANDBY_SCRIPT " failed");
 
 		CVFD::getInstance()->setMode(CVFD::MODE_TVRADIO);
-#if !HAVE_SPARK_HARDWARE && !HAVE_DUCKBOX_HARDWARE
 		CVFD::getInstance()->setBacklight(g_settings.backlight_tv);
-#endif
 
 		g_Zapit->setStandby(false);
 		/* the old code did:
@@ -4233,9 +4239,7 @@ void stop_daemons(bool stopall, bool for_flash)
 	printf("zapit shutdown done\n");
 	if (!for_flash) {
 		CVFD::getInstance()->Clear();
-#if !HAVE_SPARK_HARDWARE && !HAVE_DUCKBOX_HARDWARE
 		CVFD::getInstance()->setBacklight(g_settings.backlight_deepstandby);
-#endif
 	}
 	if(stopall && !for_flash) {
 		if (cpuFreq) {
