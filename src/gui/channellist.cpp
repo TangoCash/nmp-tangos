@@ -476,7 +476,7 @@ int CChannelList::doChannelMenu(void)
 
 			break;
 		case 4: // reset new
-			chanlist[selected]->flags &= ~CZapitChannel::NEW;
+			chanlist[selected]->flags = CZapitChannel::UPDATED;
 			CServiceManager::getInstance()->SetServicesChanged(true);
 			/* if make_new_list == ON, signal to re-init services */
 			if(g_settings.make_new_list)
@@ -484,7 +484,7 @@ int CChannelList::doChannelMenu(void)
 			break;
 		case 5: // reset all new
 			for (unsigned int j = 0 ; j < chanlist.size(); j++) {
-				chanlist[j]->flags &= ~CZapitChannel::NEW;
+				chanlist[j]->flags = CZapitChannel::UPDATED;
 			}
 			if (g_settings.make_new_list)
 				return 2;
