@@ -53,6 +53,10 @@ class CHDDMenuHandler : public CMenuTarget
 #if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
 		struct hdd_s {
 			std::string devname;
+			std::string name;
+			const char *label;
+			const char *type;
+			std::string mountpoint;
 			CMenuForwarderNonLocalized *cmf;
 			bool mounted;
 		};

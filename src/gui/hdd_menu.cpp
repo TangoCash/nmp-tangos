@@ -38,13 +38,16 @@
 #include <sys/vfs.h>
 #include <dirent.h>
 #include <dlfcn.h>
+#include <mntent.h>
 #include <sys/mount.h>
+#include <blkid/blkid.h>
 
 #include <global.h>
 #include <neutrino.h>
 #include <neutrino_menue.h>
 #include "hdd_menu.h"
 
+#include <gui/filebrowser.h>
 #include <gui/widget/icons.h>
 #include <gui/widget/stringinput.h>
 #include <gui/widget/messagebox.h>
@@ -112,7 +115,7 @@ static bool is_mounted(const char *dev)
 {
 	bool res = false;
 	char devpath[40];
-	snprintf(devpath, sizeof(devpath), "/dev/%s", dev);
+	snprintf(devpath, sizeof(devpath), "%s", dev);
 	int devpathlen = strlen(devpath);
 	char buffer[255];
 	FILE *f = fopen("/proc/mounts", "r");
@@ -136,12 +139,26 @@ int CHDDMenuHandler::exec(CMenuTarget* parent, const std::string &/*actionkey*/)
 		parent->hide();
 #if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
 	for (std::vector<hdd_s>::iterator it = hdd_list.begin(); it != hdd_list.end(); ++it)
-		if (it->devname == actionkey) {
-			std::string cmd = "ACTION=" + std::string((it->mounted ? "remove" : "add"))
-			+ " MOUNTBASE=/tmp MDEV=" + it->devname + " /etc/mdev/mdev-mount.sh";
-			system(cmd.c_str());
+		if (it->name == actionkey)
+		{
+			if (!it->mounted)
+			{
+				CFileBrowser b;
+				b.Dir_Mode=true;
+				if (it->mountpoint == "no mountpoint")
+					b.exec("/mnt");
+				it->mountpoint = b.getSelectedFile()->Name.c_str();
+				if (mount(it->devname.c_str(), it->mountpoint.c_str(), it->type, MS_MGC_VAL | MS_NOATIME | MS_NODIRATIME,"") == -1)
+					ShowMsgUTF ( LOCALE_NFS_MOUNTERROR , g_Locale->getText(LOCALE_NFS_MOUNTERROR_NOTSUP) , CMessageBox::mbrOk, CMessageBox::mbrOk);
+			}
+			else
+				umount2(it->mountpoint.c_str(), MNT_FORCE);
 			it->mounted = is_mounted(it->devname.c_str());
+			if (!it->mounted) it->mountpoint = "no mountpoint";
 			it->cmf->setOption(g_Locale->getText(it->mounted ? LOCALE_HDD_UMOUNT : LOCALE_HDD_MOUNT));
+			char sstr[256];
+			snprintf(sstr, sizeof(sstr), "%s (%s - %s) @ %s", it->devname.c_str(), it->label, it->type, it->mountpoint.c_str());
+			it->cmf->setText(sstr);
 			return menu_return::RETURN_REPAINT;
 		}
 #endif
@@ -308,30 +325,81 @@ int CHDDMenuHandler::doMenu ()
 		hddmenu->addItem(new CMenuForwarder(LOCALE_HDD_NOT_FOUND, false));
 #if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
 	else {
-		FILE *b = popen("/sbin/blkid", "r");
-		if (b) {
-			char buf[255];
-			while (fgets (buf, sizeof(buf), b)) {
-				if (strncmp(buf, "/dev/sd", 7) && strncmp(buf, "/dev/hd", 7))
+		FILE *          mountFile;
+		struct mntent * mnt;
+
+		if ((mountFile = setmntent("/proc/mounts", "r")) == NULL)
+		{
+			perror("/proc/mounts");
+		}
+		else {
+			while ((mnt = getmntent(mountFile)) != NULL)
+			{
+				if (strncmp(mnt->mnt_fsname, "/dev/sd", 7) && strncmp(mnt->mnt_fsname, "/dev/hd", 7))
 					continue;
-				char *e = strstr(buf + 7, ":");
-				if (!e)
-					continue;
-				*e = 0;
 				hdd_s hdd;
-				hdd.devname = std::string(buf + 5);
-				hdd.mounted = is_mounted(buf + 5);
+				hdd.name = mnt->mnt_fsname;
+				hdd.devname = mnt->mnt_fsname;
+				hdd.label = blkid_get_tag_value(NULL,"LABEL",mnt->mnt_fsname);
+				if (hdd.label == NULL) hdd.label = "unknown";
+				hdd.type = blkid_get_tag_value(NULL,"TYPE",mnt->mnt_fsname);
+				if (hdd.type == NULL) hdd.type = "unknown";
+				hdd.mounted = true;
+				hdd.mountpoint = mnt->mnt_dir;
 				hdd_list.push_back(hdd);
 			}
-			fclose(b);
+			endmntent(mountFile);
 		}
+
+		int n = scandir("/sys/block", &namelist, my_filter, alphasort);
+		for(int i = 0; i < n; i++)
+		{
+			struct dirent **namelist_part;
+			char blockdir[256];
+			sprintf(blockdir, "/sys/block/%s", namelist[i]->d_name);
+			int p = scandir(blockdir, &namelist_part, my_filter, alphasort);
+
+			for (int j = 0; j < p; j++)
+			{
+				char buf[255];
+				sprintf(buf, "/dev/%s", namelist_part[j]->d_name);
+				if (is_mounted(buf)) continue;
+				const char *label;
+				const char *type;
+
+				label = blkid_get_tag_value(NULL,"LABEL",buf);
+				if (label == NULL) label = "unknown";
+
+				type = blkid_get_tag_value(NULL,"TYPE",buf);
+				if (type == NULL) type = "unknown";
+
+				//do not show logical partition or swap partition
+				if (((!strncmp(label, "unknown", 7)) && (!strncmp(type, "unknown", 7))) || (!strncmp(type, "swap", 4))) continue;
+				hdd_s hdd;
+				hdd.name =std::string(buf);
+				hdd.devname = std::string(buf);
+				hdd.label = label;
+				hdd.type = type;
+				hdd.mounted = is_mounted(buf);
+				hdd.mountpoint = "no mountpoint";
+				hdd_list.push_back(hdd);
+			}
+			if (p >= 0)
+			free(namelist_part);
+		}
+		if (n >= 0)
+		free(namelist);
+
+
 		if (!hdd_list.empty()) {
 			int shortcut = 1;
+			char sstr[256];
 			hddmenu->addItem(new CMenuSeparator(CMenuSeparator::LINE | CMenuSeparator::STRING, LOCALE_HDD_MOUNT_UMOUNT));
 			for (std::vector<hdd_s>::iterator it = hdd_list.begin(); it != hdd_list.end(); ++it) {
-				it->cmf = new CMenuForwarderNonLocalized(it->devname.c_str(), true,
+				snprintf(sstr, sizeof(sstr), "%s (%s - %s) @ %s", it->devname.c_str(), it->label, it->type, it->mountpoint.c_str());
+				it->cmf = new CMenuForwarderNonLocalized(sstr, true,
 					g_Locale->getText(it->mounted ?  LOCALE_HDD_UMOUNT : LOCALE_HDD_MOUNT), this,
-					it->devname.c_str(), CRCInput::convertDigitToKey(shortcut++));
+					it->name.c_str(), CRCInput::convertDigitToKey(shortcut++));
 				hddmenu->addItem(it->cmf);
 			}
 		}
