@@ -479,6 +479,16 @@ flashupdate.cantopenfile can't open file
 flashupdate.cantopenmtd can't open MTD
 flashupdate.checkupdate_internet Check for online updates
 flashupdate.checkupdate_local Local update
+flashupdate.createimage Save image
+flashupdate.createimage_add_env Add 'env' to image
+flashupdate.createimage_add_kernel Add 'kernel' to image
+flashupdate.createimage_add_spare Add 'spare' to image
+flashupdate.createimage_add_u_boot Add 'u-boot' to image
+flashupdate.createimage_add_uldr Add 'uldr' to image
+flashupdate.createimage_menu Save current software
+flashupdate.createimage_options Options
+flashupdate.createimage_other Create image for %s STB
+flashupdate.createimage_warning Now an image for the %s STB is created.\nThis image will also run on only one %s STB!\n \nNevertheless continued?
 flashupdate.currentversion_sep Current version
 flashupdate.currentversiondate Date
 flashupdate.currentversiontime Time
@@ -499,6 +509,9 @@ flashupdate.md5check checking image
 flashupdate.md5sumerror image has errors
 flashupdate.menu_apply_kernel Flashing kernel
 flashupdate.menu_apply_settings Allow apply settings
+flashupdate.mkfs_create_image Create image
+flashupdate.mkfs_preparing_files Preparing files and directories
+flashupdate.mkfs_using_sumtool Using sumtool
 flashupdate.msgbox Found the following new file:\nDate: %s, %s\nBaseImage: %s\nType: %s\n\nDo you want to download and install this version now?
 flashupdate.msgbox_manual Found the following new image:\nDate: %s, %s\nBaseImage: %s\nImageType: %s\n\nDo you want to install this version now?
 flashupdate.mtdselector Partition-Selector
@@ -1168,6 +1181,7 @@ menu.hint_sleeptimer Set timer to put your box\nin sleep mode
 menu.hint_soft_restart Restart Neutrino without reboot
 menu.hint_softupdate_check Check online update, download and flash firmware
 menu.hint_softupdate_check_local Select and flash firmware from local file
+menu.hint_softupdate_createimage_menu Backup of current software, including all settings
 menu.hint_softupdate_expert Separate partitions from the flash read / write to the flash
 menu.hint_softupdate_expert_read Separate partitions (U-Boot, Splash, Kernel, SystemFS) from the flash read
 menu.hint_softupdate_expert_write Separate partitions (Splash, Kernel, SystemFS) write to the flash

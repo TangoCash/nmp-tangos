@@ -48,11 +48,13 @@
 
 #include <gui/widget/icons.h>
 #include <gui/widget/stringinput.h>
+#include <gui/widget/messagebox.h>
 
 #include <driver/screen_max.h>
 
 #include <system/debug.h>
 #include <zapit/femanager.h>
+#include <eitd/sectionsd.h>
 
 //#define ONE_KEY_PLUGIN
 
@@ -116,6 +118,14 @@ int CMiscMenue::exec(CMenuTarget* parent, const std::string &actionKey)
 		return menu_return::RETURN_REPAINT;
 	}
 #endif /*ONE_KEY_PLUGIN*/
+	else if(actionKey == "info")
+	{
+		unsigned num = CEitManager::getInstance()->getEventsCount();
+		char str[128];
+		sprintf(str, "Event count: %d", num);
+		ShowMsgUTF(LOCALE_MESSAGEBOX_INFO, str, CMessageBox::mbrBack, CMessageBox::mbBack);
+		return menu_return::RETURN_REPAINT;
+	}
 
 	return showMiscSettingsMenu();
 }
@@ -327,7 +337,7 @@ void CMiscMenue::showMiscSettingsMenuEnergy(CMenuWidget *ms_energy)
 void CMiscMenue::showMiscSettingsMenuEpg(CMenuWidget *ms_epg)
 {
 	ms_epg->addIntroItems(LOCALE_MISCSETTINGS_EPG_HEAD);
-
+	ms_epg->addKey(CRCInput::RC_info, this, "info");
 
 	CMenuOptionChooser * mc1 = new CMenuOptionChooser(LOCALE_MISCSETTINGS_EPG_SAVE_STANDBY, &g_settings.epg_save_standby, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, g_settings.epg_save);
 	mc1->setHint("", LOCALE_MENU_HINT_EPG_SAVE_STANDBY);

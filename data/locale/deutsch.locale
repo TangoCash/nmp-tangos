@@ -243,6 +243,7 @@ channellist.nonefound Es wurden keine Kanäle gefunden!\nFühren Sie bitte eine 
 channellist.numeric_adjust Numeric zap adjust
 channellist.provs Anbieter
 channellist.recording_not_possible Aufnahme nicht möglich!
+channellist.reset_all Entferne Markierung "Neu" für alle Kanäle
 channellist.reset_flags Entferne Kanal-Markierung "Neu"
 channellist.sats Satelliten
 channellist.since seit
@@ -479,6 +480,16 @@ flashupdate.cantopenfile kann Datei nicht öffnen
 flashupdate.cantopenmtd kann MTD nicht öffnen
 flashupdate.checkupdate_internet Online nach Updates suchen
 flashupdate.checkupdate_local Lokales Update
+flashupdate.createimage Image speichern
+flashupdate.createimage_add_env 'env' hinzufügen
+flashupdate.createimage_add_kernel 'kernel' hinzufügen
+flashupdate.createimage_add_spare 'spare' hinzufügen
+flashupdate.createimage_add_u_boot 'u-boot' hinzufügen
+flashupdate.createimage_add_uldr 'uldr' hinzufügen
+flashupdate.createimage_menu Aktuelle Software sichern
+flashupdate.createimage_options Einstellungen
+flashupdate.createimage_other Image für %s STB erstellen
+flashupdate.createimage_warning Nachfolgend wird ein Image für die %s STB erstellt.\nDieses Image wird auch nur auf einer %s STB lauffähig sein!\n \nTrotzdem fortsetzten?
 flashupdate.currentversion_sep Installierte Version
 flashupdate.currentversiondate Datum
 flashupdate.currentversiontime Uhrzeit
@@ -499,6 +510,9 @@ flashupdate.md5check Imageprüfung
 flashupdate.md5sumerror Das Image ist fehlerhaft
 flashupdate.menu_apply_kernel Kernel flashen
 flashupdate.menu_apply_settings Settingsübernahme erlauben
+flashupdate.mkfs_create_image Image erstellen
+flashupdate.mkfs_preparing_files Dateien und Verzeichnisse vorbereiten
+flashupdate.mkfs_using_sumtool Benutze Sumtool
 flashupdate.msgbox Es wurde folgendes neues File gefunden:\nDatum: %s, %s\nBasisImage: %s\nTyp: %s\n\nWollen Sie diese Version jetzt herunterladen\nund installieren?
 flashupdate.msgbox_manual Es wurde ein neues Image gefunden:\nDatum: %s, %s\nBasisImage: %s\nImageTyp: %s\n\nWollen Sie diese Version jetzt installieren?
 flashupdate.mtdselector Partitions-Auswahl
@@ -1171,6 +1185,7 @@ menu.hint_sleeptimer Zeitschaltuhr auf Ihrer Box aktivieren\nDie Box fährt dann
 menu.hint_soft_restart Neustarten von Neutrino, ohne die Box neu zu starten
 menu.hint_softupdate_check Im Internet nach verfügbaren Updates suchen, herunterladen und installieren
 menu.hint_softupdate_check_local Lokal nach verfügbaren Updates suchen und installieren
+menu.hint_softupdate_createimage_menu Sicherung der aktuellen Software inklusive aller Einstellungen
 menu.hint_softupdate_expert Einzelne Partitionen aus dem Flash lesen bzw. in den Flash schreiben
 menu.hint_softupdate_expert_read Einzelne Partitionen (U-Boot, Splash, Kernel, SystemFS) aus dem Flash lesen
 menu.hint_softupdate_expert_write Einzelne Partitionen (Splash, Kernel, SystemFS) in den Flash schreiben
