@@ -7,6 +7,7 @@ INCLUDES = \
 	-I$(top_srcdir)/src \
 	-I$(top_srcdir)/src/system/mtdutils/include
 
+if BOXMODEL_APOLLO
 noinst_LIBRARIES = libneutrino_system_mtdutils_lib.a
 
 libneutrino_system_mtdutils_lib_a_SOURCES = \
@@ -14,3 +15,4 @@ libneutrino_system_mtdutils_lib_a_SOURCES = \
 	libfec.cpp \
 	libmtd.cpp \
 	libmtd_legacy.cpp
+endif
