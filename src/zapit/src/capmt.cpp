@@ -265,14 +265,22 @@ bool CCamManager::SetMode(t_channel_id channel_id, enum runmode mode, bool start
 	INFO("channel %" PRIx64 " [%s] mode %d %s src %d mask %d -> %d update %d", channel_id, channel->getName().c_str(),
 			mode, start ? "START" : "STOP", source, oldmask, newmask, force_update);
 	//INFO("source %d old mask %d new mask %d force update %s", source, oldmask, newmask, force_update ? "yes" : "no");
+
+	if (mode == RECORD && start == false &&
+#if HAVE_SPARK_HARDWARE
+		source != cDemux::GetSource(0)
+#else
+		source != CFEManager::getInstance()->allocateFE(channel)->getNumber(true)
+#endif
+	) {
+		cam->sendMessage(NULL, 0, false);
+		cam->sendCaPmt(channel->getChannelID(), NULL, 0);
+	}
+
 	if((oldmask != newmask) || force_update) {
 		cam->setCaMask(newmask);
 		cam->setSource(source);
-#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
-		if(newmask == 0 || start == false) {
-#else
 		if(newmask == 0) {
-#endif
 			cam->sendMessage(NULL, 0, false);
 			cam->sendCaPmt(channel->getChannelID(), NULL, 0);
 		} else {
