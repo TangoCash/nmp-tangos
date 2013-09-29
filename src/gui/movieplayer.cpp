@@ -107,6 +107,7 @@ CMoviePlayerGui::~CMoviePlayerGui()
 	delete bookmarkmanager;
 	delete playback;
 	delete webtv;
+	filelist.clear();
 	instance_mp = NULL;
 }
 
@@ -161,11 +162,14 @@ void CMoviePlayerGui::Init(void)
 
 	filebrowser->Filter = &tsfilefilter;
 	filebrowser->Hide_records = true;
+	filebrowser->Multi_Select = true;
 
 	speed = 1;
 	timeshift = 0;
 	numpida = 0;
 	showStartingHint = false;
+
+	filelist_it = filelist.end();
 }
 
 void CMoviePlayerGui::cutNeutrino()
@@ -293,6 +297,7 @@ int CMoviePlayerGui::exec(CMenuTarget * parent, const std::string & actionKey)
 		return menu_return::RETURN_REPAINT;
 	}
 
+	repeat_mode = REPEAT_OFF;
 #if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
 	std::string oldservicename = CVFD::getInstance()->getServicename();
 #endif
@@ -304,9 +309,13 @@ int CMoviePlayerGui::exec(CMenuTarget * parent, const std::string & actionKey)
 		else
 			CVFD::getInstance()->showServicename(full_name.c_str());
 #endif
-		PlayFile();
-		if(timeshift)
+		if(timeshift) {
+			PlayFile();
 			break;
+		}
+		do
+			PlayFile();
+		while (repeat_mode);
 	}
 #if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
 	CVFD::getInstance()->showServicename(oldservicename.c_str());
@@ -497,15 +506,40 @@ bool CMoviePlayerGui::SelectFile()
 			fillPids();
 			ret = true;
 		}
+	} else if (filelist.size() > 0 && repeat_mode == REPEAT_TRACK) {
+		--filelist_it;
+		is_file_player = true;
+		full_name = (*filelist_it).Name;
+		++filelist_it;
+		ret = true;
+	} else if (filelist.size() > 0 && filelist_it == filelist.end() && repeat_mode == REPEAT_ALL) {
+		filelist_it = filelist.begin();
+		is_file_player = true;
+		full_name = (*filelist_it).Name;
+		++filelist_it;
+		ret = true;
+	} else if (filelist.size() > 0 && filelist_it != filelist.end()) {
+		is_file_player = true;
+		full_name = (*filelist_it).Name;
+		++filelist_it;
+		ret = true;
 	}
 	else { // filebrowser
 		CAudioMute::getInstance()->enableMuteIcon(false);
 		if (filebrowser->exec(Path_local.c_str()) == true) {
 			Path_local = filebrowser->getCurrentDir();
-			CFile *file;
-			if ((file = filebrowser->getSelectedFile()) != NULL) {
+			CFile *file = filebrowser->getSelectedFile();
+			filelist = filebrowser->getSelectedFiles();
+			filelist_it = filelist.end();
+			if (filelist.size() > 1) {
+				filelist_it = filelist.begin();
 				is_file_player = true;
-				full_name = file->Name.c_str();
+				full_name = (*filelist_it).Name;
+				++filelist_it;
+				ret = true;
+			} else if (file) {
+				is_file_player = true;
+				full_name = file->Name;
 				ret = true;
 				if(file->getType() == CFile::FILE_PLAYLIST) {
 					std::ifstream infile;
@@ -568,7 +602,7 @@ void *CMoviePlayerGui::ShowStartHint(void *arg)
 	set_threadname(__func__);
 	CMoviePlayerGui *caller = (CMoviePlayerGui *)arg;
 	CHintBox *hintbox = NULL;
-	if(!caller->file_name.empty()){
+	if(!caller->file_name.empty() && (caller->isWebTV )){
 		hintbox = new CHintBox(LOCALE_MOVIEPLAYER_STARTING, caller->file_name.c_str(), 450, NEUTRINO_ICON_MOVIEPLAYER);
 		hintbox->paint();
 	}
@@ -645,7 +679,7 @@ void CMoviePlayerGui::PlayFile(void)
 		pthread_join(thrStartHint, NULL);
 	}
 
-	if (!res) {
+	if(!res) {
 		playback->Close();
 	} else {
 #if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
@@ -782,20 +816,55 @@ void CMoviePlayerGui::PlayFile(void)
 
 		if (msg == (neutrino_msg_t) g_settings.mpkey_plugin) {
 			//g_PluginList->start_plugin_by_name (g_settings.movieplayer_plugin.c_str (), pidt);
-		} else if (msg == (neutrino_msg_t) g_settings.mpkey_stop) {
+		} else if (msg == (neutrino_msg_t) g_settings.mpkey_stop || (filelist.size() > 0 && msg == (neutrino_msg_t) CRCInput::RC_right)) {
 			playstate = CMoviePlayerGui::STOPPED;
-#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
 			playback->RequestAbort();
+			if (filelist.size() > 0) {
+				if (filelist_it == filelist.end() && repeat_mode == REPEAT_ALL)
+					filelist_it = filelist.begin();
+				else if (repeat_mode == REPEAT_TRACK)
+					--filelist_it;
+
+				if (filelist_it == filelist.end())
+					repeat_mode = REPEAT_OFF;
+				else {
+					is_file_player = true;
+					full_name = (*filelist_it).Name;
+					++filelist_it;
+					std::string::size_type pos = full_name.find_last_of('/');
+					if(pos != std::string::npos) {
+						file_name = full_name.substr(pos+1);
+						std::replace(file_name.begin(), file_name.end(), '_', ' ');
+					} else
+						file_name = full_name;
+				}
+			}
 		} else if (msg == (neutrino_msg_t) CRCInput::RC_home) {
 			playstate = CMoviePlayerGui::STOPPED;
 			playback->RequestAbort();
+			filelist.clear();
+			repeat_mode = REPEAT_OFF;
+#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
 		} else if (msg == (neutrino_msg_t) g_settings.mpkey_next3dmode) {
 			frameBuffer->set3DMode((CFrameBuffer::Mode3D)(((frameBuffer->get3DMode()) + 1) % CFrameBuffer::Mode3D_SIZE));
+#endif
+		} else if(filelist.size() > 1 && msg == (neutrino_msg_t) CRCInput::RC_left) {
+			if (filelist_it != filelist.begin())
+				--filelist_it;
+			if (filelist_it == filelist.begin())
+				filelist_it = filelist.end();
+			--filelist_it;
+			playstate = CMoviePlayerGui::STOPPED;
+			playback->RequestAbort();
+		} else if(!timeshift && !isWebTV && (msg == (neutrino_msg_t) g_settings.mpkey_next_repeat_mode)) {
+			repeat_mode = (repeat_mode_enum)((int)repeat_mode + 1);
+			if (repeat_mode > (int) REPEAT_ALL)
+				repeat_mode = REPEAT_OFF;
+			callInfoViewer();
 		} else if( msg == (neutrino_msg_t) g_settings.key_next43mode) {
 			g_videoSettings->next43Mode();
 		} else if( msg == (neutrino_msg_t) g_settings.key_switchformat) {
 			g_videoSettings->SwitchFormat();
-#endif
 		} else if (msg == (neutrino_msg_t) g_settings.mpkey_play) {
 			if (playstate > CMoviePlayerGui::PLAY) {
 				playstate = CMoviePlayerGui::PLAY;
@@ -1052,6 +1121,7 @@ void CMoviePlayerGui::PlayFile(void)
 				printf("CMoviePlayerGui::PlayFile: neutrino handleMsg messages_return::cancel_all\n");
 				playstate = CMoviePlayerGui::STOPPED;
 				menu_ret = menu_return::RETURN_EXIT_ALL;
+				repeat_mode = REPEAT_OFF;
 			}
 			else if ( msg <= CRCInput::RC_MaxRC ) {
 				update_lcd = true;
@@ -1110,12 +1180,12 @@ void CMoviePlayerGui::callInfoViewer(/*const int duration, const int curr_pos*/)
 
 	if (isMovieBrowser && p_movie_info) {
 		g_InfoViewer->showMovieTitle(playstate, p_movie_info->epgChannel, p_movie_info->epgTitle, p_movie_info->epgInfo1,
-					     duration, position);
+					     duration, position, repeat_mode);
 		return;
 	}
 
 	/* not moviebrowser => use the filename as title */
-	g_InfoViewer->showMovieTitle(playstate, file_name, "", "", duration, position);
+	g_InfoViewer->showMovieTitle(playstate, file_name, "", "", duration, position, repeat_mode);
 }
 
 bool CMoviePlayerGui::getAudioName(int apid, std::string &apidtitle)

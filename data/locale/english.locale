@@ -1509,6 +1509,7 @@ mpkey.bookmark save bookmark
 mpkey.forward Forward
 mpkey.goto Enter playtime
 mpkey.next3dmode next 3D mode
+mpkey.next_repeat_mode next repeat mode
 mpkey.pause Pause
 mpkey.play Play
 mpkey.plugin Run plugin

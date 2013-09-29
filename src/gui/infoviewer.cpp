@@ -479,7 +479,8 @@ void CInfoViewer::show_current_next(bool new_chan, int  epgpos)
 
 void CInfoViewer::showMovieTitle(const int playState, const std::string &Channel,
 				 const std::string &g_file_epg, const std::string &g_file_epg1,
-				 const int duration, const int curr_pos)
+				 const int duration, const int curr_pos,
+				 const int repeat_mode)
 {
 	if (g_settings.volume_pos == CVolumeBar::VOLUMEBAR_POS_BOTTOM_LEFT || 
 	    g_settings.volume_pos == CVolumeBar::VOLUMEBAR_POS_BOTTOM_RIGHT || 
@@ -539,7 +540,16 @@ void CInfoViewer::showMovieTitle(const int playState, const std::string &Channel
 	const char *playicon = NULL;
 	switch (playState) {
 	case CMoviePlayerGui::PLAY:
-		playicon = NEUTRINO_ICON_PLAY;
+		switch (repeat_mode) {
+		case CMoviePlayerGui::REPEAT_ALL:
+			playicon = NEUTRINO_ICON_PLAY_REPEAT_ALL;
+			break;
+		case CMoviePlayerGui::REPEAT_TRACK:
+			playicon = NEUTRINO_ICON_PLAY_REPEAT_TRACK;
+			break;
+		default:
+			playicon = NEUTRINO_ICON_PLAY;
+		}
 		speed = 0;
 		break;
 	case CMoviePlayerGui::PAUSE:

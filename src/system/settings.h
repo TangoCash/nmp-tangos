@@ -464,6 +464,7 @@ struct SNeutrinoSettings
 	int mpkey_goto;
 #endif
 	int mpkey_subtitle;
+	int mpkey_next_repeat_mode;
 	int key_timeshift;
 	int key_plugin;
 
@@ -668,6 +669,9 @@ struct SNeutrinoSettings
 #if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
 	int filebrowser_use_filter;
 #endif
+
+	//movieplayer
+	int   movieplayer_repeat_on;
 
 	//zapit setup
 	std::string StartChannelTV;

@@ -105,6 +105,8 @@
 #define NEUTRINO_ICON_NOT_MOUNTED	"not_mounted"
 #define NEUTRINO_ICON_PAUSE		"mp_pause"
 #define NEUTRINO_ICON_PLAY 		"mp_play"
+#define NEUTRINO_ICON_PLAY_REPEAT_ALL 	"mp_play_repeat_all"
+#define NEUTRINO_ICON_PLAY_REPEAT_TRACK	"mp_play_repeat_track"
 #define NEUTRINO_ICON_REW		"mp_b-skip"
 #define NEUTRINO_ICON_FF 		"mp_f-skip"
 #define NEUTRINO_ICON_PROTECTING	"protecting"

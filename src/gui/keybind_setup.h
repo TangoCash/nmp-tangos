@@ -82,6 +82,7 @@ class CKeybindSetup : public CMenuTarget, public CChangeObserver
 			KEY_UNLOCK,
 #if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
 			KEY_NEXT43MODE,
+			KEY_NEXT_REPEAT_MODE,
 			KEY_SWITCHFORMAT,
 #endif
 			KEY_SCREENSHOT,

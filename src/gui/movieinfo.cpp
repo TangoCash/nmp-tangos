@@ -898,7 +898,6 @@ void CMovieInfo::clearMovieInfo(MI_MOVIE_INFO * movie_info)
 	timePlay.tm_mon = 1;
 
 	movie_info->file.Name = "";
-	movie_info->file.Url = "";
 	movie_info->file.Size = 0;	// Megabytes
 	movie_info->file.Time = mktime(&timePlay);
 	movie_info->dateOfLastPlay = mktime(&timePlay);	// (date, month, year)

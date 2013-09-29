@@ -1259,15 +1259,15 @@ void CRCInput::getMsg_us(neutrino_msg_t * msg, neutrino_msg_data_t * data, uint6
 					printf("got keydown native key: %04x %04x, translate: %04x -%s-\n", ev.code, ev.code&0x1f, translate(ev.code, 0), getKeyName(translate(ev.code, 0)).c_str());
 					printf("rc_last_key %04x rc_last_repeat_key %04x\n\n", rc_last_key, rc_last_repeat_key);
 #endif
-#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
 					if (*timer_wakeup) {
 						unlink("/tmp/.timer_wakeup");
 						*timer_wakeup = false;
+#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
 						CCECSetup cecsetup;
 						cecsetup.setCECSettings(true);
+#endif
 						CTimerManager::getInstance()->cancelShutdownOnWakeup();
 					}
-#endif
 					uint64_t now_pressed;
 					bool keyok = true;
 

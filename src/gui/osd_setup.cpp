@@ -725,31 +725,31 @@ private:
 protected:
 
 	virtual const char * getOption(void)
-		{
-			sprintf(value, "%u", configfile->getInt32(locale_real_names[text], defaultvalue));
-			return value;
-		}
+	{
+		sprintf(value, "%u", configfile->getInt32(locale_real_names[text], defaultvalue));
+		return value;
+	}
 
 	virtual bool changeNotify(const neutrino_locale_t OptionName, void * Data)
-		{
-			configfile->setInt32(locale_real_names[text], atoi(value));
-			return observer->changeNotify(OptionName, Data);
-		}
+	{
+		configfile->setInt32(locale_real_names[text], atoi(value));
+		return observer->changeNotify(OptionName, Data);
+	}
 
 
 public:
 	CMenuNumberInput(const neutrino_locale_t Text, const int32_t DefaultValue, CChangeObserver * const Observer, CConfigFile * const Configfile) : CMenuForwarder(Text, true, NULL, this)
-		{
-			observer     = Observer;
-			configfile   = Configfile;
-			defaultvalue = DefaultValue;
-		}
+	{
+		observer     = Observer;
+		configfile   = Configfile;
+		defaultvalue = DefaultValue;
+	}
 
 	int exec(CMenuTarget * parent, const std::string & action_Key)
-		{
-			CStringInput input(text, (char *)getOption(), 3, LOCALE_IPSETUP_HINT_1, LOCALE_IPSETUP_HINT_2, "0123456789 ", this);
-			return input.exec(parent, action_Key);
-		}
+	{
+		CStringInput input(text, (char *)getOption(), 3, LOCALE_IPSETUP_HINT_1, LOCALE_IPSETUP_HINT_2, "0123456789 ", this);
+		return input.exec(parent, action_Key);
+	}
 };
 
 void COsdSetup::AddFontSettingItem(CMenuWidget &font_Settings, const SNeutrinoSettings::FONT_TYPES number_of_fontsize_entry)

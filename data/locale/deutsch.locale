@@ -1514,6 +1514,7 @@ mpkey.bookmark Speichere Lesezeichen
 mpkey.forward Vorlauf
 mpkey.goto Zeiteingabe
 mpkey.next3dmode Nächster 3D-Modus
+mpkey.next_repeat_mode Nächster Wiederholungs-Modus
 mpkey.pause Pause
 mpkey.play Play
 mpkey.plugin Starte Plugin
