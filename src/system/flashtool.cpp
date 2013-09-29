@@ -303,14 +303,15 @@ bool CFlashTool::program( const std::string & filename, int globalProgressEndEra
 		write(fd, buf, meminfo.writesize);
 		fsize -= block;
 		mtdoffset += meminfo.writesize;
+		int prog = int(100-(100./filesize*fsize));
 		if(statusViewer) {
-			char prog = char(100-(100./filesize*fsize));
 			statusViewer->showLocalStatus(prog);
 			if(globalProgressEndFlash!=-1) {
 				int globalProg = globalProgressBegin + int((globalProgressEndFlash-globalProgressBegin) * prog/100. );
 				statusViewer->showGlobalStatus(globalProg);
 			}
 		}
+		printf( "Writing %u Kbyte @ 0x%08X -- %2u %% complete.\n", block/1024, mtdoffset, prog);
 	}
 
 	if(statusViewer)
