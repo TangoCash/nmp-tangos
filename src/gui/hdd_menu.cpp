@@ -327,6 +327,9 @@ int CHDDMenuHandler::doMenu ()
 	else {
 		FILE *          mountFile;
 		struct mntent * mnt;
+		blkid_cache c;
+
+		blkid_get_cache(&c, "/dev/null");
 
 		if ((mountFile = setmntent("/proc/mounts", "r")) == NULL)
 		{
@@ -340,9 +343,9 @@ int CHDDMenuHandler::doMenu ()
 				hdd_s hdd;
 				hdd.name = mnt->mnt_fsname;
 				hdd.devname = mnt->mnt_fsname;
-				hdd.label = blkid_get_tag_value(NULL,"LABEL",mnt->mnt_fsname);
+				hdd.label = blkid_get_tag_value(c,"LABEL",mnt->mnt_fsname);
 				if (hdd.label == NULL) hdd.label = "unknown";
-				hdd.type = blkid_get_tag_value(NULL,"TYPE",mnt->mnt_fsname);
+				hdd.type = blkid_get_tag_value(c,"TYPE",mnt->mnt_fsname);
 				if (hdd.type == NULL) hdd.type = "unknown";
 				hdd.mounted = true;
 				hdd.mountpoint = mnt->mnt_dir;
@@ -367,10 +370,10 @@ int CHDDMenuHandler::doMenu ()
 				const char *label;
 				const char *type;
 
-				label = blkid_get_tag_value(NULL,"LABEL",buf);
+				label = blkid_get_tag_value(c,"LABEL",buf);
 				if (label == NULL) label = "unknown";
 
-				type = blkid_get_tag_value(NULL,"TYPE",buf);
+				type = blkid_get_tag_value(c,"TYPE",buf);
 				if (type == NULL) type = "unknown";
 
 				//do not show logical partition or swap partition
@@ -390,6 +393,7 @@ int CHDDMenuHandler::doMenu ()
 		if (n >= 0)
 		free(namelist);
 
+		blkid_put_cache(c);
 
 		if (!hdd_list.empty()) {
 			int shortcut = 1;
