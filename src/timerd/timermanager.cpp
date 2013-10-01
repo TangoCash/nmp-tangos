@@ -62,11 +62,10 @@ void CTimerManager::Init(void)
 	m_saveEvents = false;
 	m_isTimeSet = false;
 	timer_is_rec = false;
-#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
-	shutdown_eventID = -1;
-#else
+#if !HAVE_SPARK_HARDWARE && !HAVE_DUCKBOX_HARDWARE
 	wakeup = 0;
 #endif
+	shutdown_eventID = -1;
 	loadRecordingSafety();
 
 	//thread starten
