@@ -514,7 +514,7 @@ start-block~remote
 		{=if-equal:{=var-get:boxtype=}~ufs910~			{=include-block:Y_Blocks.txt;remote_ufs910=}~
 		{=if-equal:{=var-get:boxtype=}~ufs922~			{=include-block:Y_Blocks.txt;remote_ufs910=}~
 
-		{=comment:fallback~=}					{=include-block:Y_Blocks.txt;rc_cst_v1=}
+		{=comment:fallback~=}					{=include-block:Y_Blocks.txt;remote_ufs910=}
 		=}=}=}=}=}=}=}=}=}
 	=}=}
 ~
@@ -527,7 +527,7 @@ start-block~remote
 	{=if-equal:{=var-get:yfbtype=}~5~	{=include-block:Y_Blocks.txt;rc_cst_v5=}~
 	{=if-equal:{=var-get:yfbtype=}~6~	{=include-block:Y_Blocks.txt;rc_cst_v6=}~
 
-	{=comment:fallback~=}			{=include-block:Y_Blocks.txt;rc_cst_v1=}
+	{=comment:fallback~=}			{=include-block:Y_Blocks.txt;remote_ufs910=}
 	=}=}=}=}=}=}=}=}
 =}
 end-block~remote
