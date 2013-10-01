@@ -511,6 +511,8 @@ start-block~remote
 		{=if-equal:{=var-get:boxtype=}~CST Tank~		{=include-block:Y_Blocks.txt;rc_cst_v5=}~
 		{=if-equal:{=var-get:boxtype=}~CST Trinity SAT~		{=include-block:Y_Blocks.txt;rc_cst_v6=}~
 		{=if-equal:{=var-get:boxtype=}~CST Trinity CABLE~	{=include-block:Y_Blocks.txt;rc_cst_v6=}~
+		{=if-equal:{=var-get:boxtype=}~ufs910~			{=include-block:Y_Blocks.txt;remote_ufs910=}~
+		{=if-equal:{=var-get:boxtype=}~ufs922~			{=include-block:Y_Blocks.txt;remote_ufs910=}~
 
 		{=comment:fallback~=}					{=include-block:Y_Blocks.txt;rc_cst_v1=}
 		=}=}=}=}=}=}=}=}=}

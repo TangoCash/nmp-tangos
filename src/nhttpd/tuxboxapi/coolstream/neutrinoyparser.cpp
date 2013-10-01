@@ -740,6 +740,12 @@ std::string  CNeutrinoYParser::func_get_boxtype(CyhookHandler *, std::string)
 	if (system_rev != 9) // don't add delivery_system for Tank
 		boxname += (g_info.delivery_system == DVB_S || (system_rev == 1)) ? " SAT":" CABLE";
 #endif
+#if BOXMODEL_UFS910
+	boxname = "ufs910"
+#endif
+#if BOXMODEL_UFS922
+	boxname = "ufs922"
+#endif
 	return boxname;
 }
 //-------------------------------------------------------------------------
