@@ -84,7 +84,8 @@ const struct personalize_settings_t personalize_settings[SNeutrinoSettings::P_SE
 	//media menu
 	{"personalize_media_menu"		, CPersonalizeGui::PERSONALIZE_PROTECT_MODE_NOT_PROTECTED},
 	{"personalize_media_audio"		, CPersonalizeGui::PERSONALIZE_MODE_VISIBLE},
-	{"personalize_media_intetplay"		, CPersonalizeGui::PERSONALIZE_MODE_VISIBLE},
+	{"personalize_media_shairport"		, CPersonalizeGui::PERSONALIZE_MODE_VISIBLE},
+	{"personalize_media_inetplay"		, CPersonalizeGui::PERSONALIZE_MODE_VISIBLE},
 	{"personalize_media_movieplayer"	, CPersonalizeGui::PERSONALIZE_PROTECT_MODE_NOT_PROTECTED},
 	{"personalize_media_pviewer"		, CPersonalizeGui::PERSONALIZE_MODE_VISIBLE},
 	{"personalize_media_upnp"		, CPersonalizeGui::PERSONALIZE_MODE_VISIBLE},

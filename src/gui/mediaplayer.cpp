@@ -232,7 +232,7 @@ int CMediaPlayerMenu::initMenuMedia(CMenuWidget *m, CPersonalizeGui *p)
 
 		//shairport
 		if (fw_shairport)
-				personalize->addItem(media, fw_shairport, &g_settings.personalize[SNeutrinoSettings::P_MEDIA_INETPLAY]);
+				personalize->addItem(media, fw_shairport, &g_settings.personalize[SNeutrinoSettings::P_MEDIA_SHAIRPORT]);
 	}
 	else if (usage_mode == MODE_VIDEO)
 	{
@@ -245,7 +245,7 @@ int CMediaPlayerMenu::initMenuMedia(CMenuWidget *m, CPersonalizeGui *p)
 
 		//shairport
 		if (fw_shairport) {
-				personalize->addItem(media, fw_shairport, &g_settings.personalize[SNeutrinoSettings::P_MEDIA_INETPLAY]);
+				personalize->addItem(media, fw_shairport, &g_settings.personalize[SNeutrinoSettings::P_MEDIA_SHAIRPORT]);
 				personalize->addSeparator(0);
 		}
 		
