@@ -218,26 +218,14 @@ bool CCamManager::SetMode(t_channel_id channel_id, enum runmode mode, bool start
 			source = DEMUX_SOURCE_0;
 			demux = LIVE_DEMUX;
 #else
-		/* see the comment in src/driver/streamts.cpp:CStreamInstance::run() */
-		/* TODO: FIXME */
-		case STREAM:
-#if HAVE_SPARK_HARDWARE
-			/* this might be SPARK-specific, not tested elsewhere */
-			source = cDemux::GetSource(0); /* demux0 is always the live demux */
-			demux = source;
-#else
-			source = CFEManager::getInstance()->allocateFE(channel)->getNumber(true);
-			demux = LIVE_DEMUX + source;
-#endif
+			source = cDemux::GetSource(0);
+			demux = cDemux::GetSource(0);
+			INFO("PLAY: fe_num %d dmx_src %d", CFEManager::getInstance()->allocateFE(channel)->getNumber(), cDemux::GetSource(0));
 #endif
 			break;
-#if HAVE_COOL_HARDWARE
 		case STREAM:
-#endif
 		case RECORD:
-#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
-			channel->setRecordDemux(CFEManager::getInstance()->allocateFE(channel)->getNumber(true));
-#endif
+			INFO("RECORD/STREAM(%d): fe_num %d rec_dmx %d", mode, CFEManager::getInstance()->allocateFE(channel)->getNumber(), channel->getRecordDemux());
 			source = channel->getRecordDemux();
 			demux = channel->getRecordDemux();
 			break;
@@ -266,13 +254,9 @@ bool CCamManager::SetMode(t_channel_id channel_id, enum runmode mode, bool start
 			mode, start ? "START" : "STOP", source, oldmask, newmask, force_update);
 	//INFO("source %d old mask %d new mask %d force update %s", source, oldmask, newmask, force_update ? "yes" : "no");
 
-	if (mode == RECORD && start == false &&
-#if HAVE_SPARK_HARDWARE
-		source != cDemux::GetSource(0)
-#else
-		source != CFEManager::getInstance()->allocateFE(channel)->getNumber(true)
-#endif
-	) {
+	/* stop decoding if record stops unless it's the live channel. TODO:PIP? */
+	if (mode == RECORD && start == false && source != cDemux::GetSource(0)) {
+		INFO("MODE!=record(%d) start=false, src %d getsrc %d", mode, source, cDemux::GetSource(0));
 		cam->sendMessage(NULL, 0, false);
 		cam->sendCaPmt(channel->getChannelID(), NULL, 0);
 	}
