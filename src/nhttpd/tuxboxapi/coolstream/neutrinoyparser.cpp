@@ -746,6 +746,12 @@ std::string  CNeutrinoYParser::func_get_boxtype(CyhookHandler *, std::string)
 #if BOXMODEL_UFS922
 	boxname = "ufs922";
 #endif
+#if BOXTYPE_SPARK
+	boxname = "spark";
+#endif
+#if BOXMODEL_SPARK7162
+	boxname = "spark7162";
+#endif
 	return boxname;
 }
 //-------------------------------------------------------------------------
