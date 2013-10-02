@@ -1292,6 +1292,8 @@ const char * locale_real_names[] =
 	"miscsettings.epg_save",
 	"miscsettings.epg_save_standby",
 	"miscsettings.epg_scan",
+	"miscsettings.epg_scan_bq",
+	"miscsettings.epg_scan_fav",
 	"miscsettings.general",
 	"miscsettings.head",
 	"miscsettings.infobar",
