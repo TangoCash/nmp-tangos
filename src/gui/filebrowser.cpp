@@ -1280,8 +1280,8 @@ void CFileBrowser::paintItem(unsigned int pos)
 				bgcolor = COL_MENUCONTENTSELECTED_PLUS_2;
 			}
 			else {
-				color   = COL_MENUCONTENT_TEXT;
-				bgcolor = COL_MENUCONTENT_PLUS_2;
+				color   = COL_MENUCONTENTINACTIVE_TEXT;
+				bgcolor = COL_MENUCONTENT_PLUS_1;
 			}
 		}
 
@@ -1331,7 +1331,11 @@ void CFileBrowser::paintItem(unsigned int pos)
 			default:
 				fileicon = NEUTRINO_ICON_FILE;
 			}
-			frameBuffer->paintIcon(fileicon, x+5 , ypos + (fheight-16) / 2 );
+			//frameBuffer->paintIcon(fileicon, x+5 , ypos + (fheight-16) / 2 );
+			int w, h;
+			frameBuffer->getIconSize(fileicon.c_str(), &w, &h);
+			if (w && h)
+				frameBuffer->paintIcon(fileicon, x+5 , ypos + (fheight - h)/2);
 
 			fnt_item->RenderString(x + 35, ypos + fheight, colwidth1 - 10 , FILESYSTEM_ENCODING_TO_UTF8_STRING(actual_file->getFileName()), color, 0, true); // UTF-8
 
