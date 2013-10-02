@@ -703,7 +703,7 @@ int CScanSetup::showFrontendSetup(int number)
 		for (int i = 0; i < fecount; i++) {
 			CFrontend * testfe = CFEManager::getInstance()->getFE(i);
 			if (i != fenumber && (fe->getType() == testfe->getType()) && (testfe->getMode() == CFrontend::FE_MODE_MASTER)) {
-				int num = testfe->getNumber();
+				int num = testfe->getNumber(true);
 				snprintf(fename[select_count], sizeof(fename[select_count]), "%d: %s", num+1, testfe->getInfo()->name);
 				feselect[select_count].key = num;
 				feselect[select_count].value = NONEXISTANT_LOCALE;
