@@ -175,9 +175,6 @@ class CFileBrowser
 		std::string		m_baseurl;
 		int 			width;
 		int 			height;
-#if !HAVE_SPARK_HARDWARE && !HAVE_DUCKBOX_HARDWARE
-		bool			use_filter;
-#endif
 		bool			bCancel;
 
 		int 			x;

@@ -369,11 +369,7 @@ void CFileBrowser::commonInit()
 	sc_init_dir = "/legacy/genrelist?k="  + g_settings.shoutcast_dev_id;
 
 	Filter = NULL;
-#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
-#define use_filter g_settings.filebrowser_use_filter
-#else
-	use_filter = true;
-#endif
+
 	Multi_Select = false;
 	Dirs_Selectable = false;
 	Dir_Mode = false;
@@ -467,7 +463,7 @@ void CFileBrowser::ChangeDir(const std::string & filename, int selection)
 	CFileList::iterator file = allfiles.begin();
 	for(; file != allfiles.end() ; file++)
 	{
-		if(Filter != NULL && (!S_ISDIR(file->Mode)) && use_filter)
+		if(Filter != NULL && (!S_ISDIR(file->Mode)) && g_settings.filebrowser_use_filter)
 		{
 			if(!Filter->matchFilter(file->Name))
 			{
@@ -846,7 +842,11 @@ bool CFileBrowser::exec(const char * const dirname)
 	}
 #endif
 
-	name = dirname;
+	if (!*dirname)
+		name = "/";
+	else
+		name = dirname;
+
 	std::replace(name.begin(), name.end(), '\\', '/');
 
 	paintHead();
@@ -1002,7 +1002,7 @@ bool CFileBrowser::exec(const char * const dirname)
 		{
 			if(Filter != NULL)
 			{
-				use_filter = !use_filter;
+				g_settings.filebrowser_use_filter = !g_settings.filebrowser_use_filter;
 				paintFoot();
 				ChangeDir(Path);
 			}
@@ -1216,7 +1216,7 @@ void CFileBrowser::addRecursiveDir(CFileList * re_filelist, std::string rpath, b
 			std::string basename = tmplist[i].Name.substr(tmplist[i].Name.rfind('/')+1);
 			if( basename != ".." )
 			{
-				if(Filter != NULL && (!S_ISDIR(tmplist[i].Mode)) && use_filter)
+				if(Filter != NULL && (!S_ISDIR(tmplist[i].Mode)) && g_settings.filebrowser_use_filter)
 				{
 					if(!Filter->matchFilter(tmplist[i].Name))
 					{
@@ -1509,8 +1509,8 @@ void CFileBrowser::paintFoot()
 		int num_buttons = Multi_Select ? 3 : 2;
 		if (Filter != NULL)
 		{
-			FileBrowserButtons[num_buttons].button = FileBrowserFilterButton[!use_filter].button;
-			FileBrowserButtons[num_buttons].locale = FileBrowserFilterButton[!use_filter].locale;
+			FileBrowserButtons[num_buttons].button = FileBrowserFilterButton[!g_settings.filebrowser_use_filter].button;
+			FileBrowserButtons[num_buttons].locale = FileBrowserFilterButton[!g_settings.filebrowser_use_filter].locale;
 			num_buttons++;
 		}
 		//red, green, yellow button
