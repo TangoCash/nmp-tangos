@@ -1267,9 +1267,6 @@ void CFileBrowser::paintItem(unsigned int pos)
 		c_rad_small = 0;
 	}
 	
-	frameBuffer->paintBoxRel(x,ypos, width- 15, fheight, COL_MENUCONTENT_PLUS_0);
-	frameBuffer->paintBoxRel(x,ypos, width- 15, fheight, bgcolor, c_rad_small);
-
 	if( (liststart + pos) < filelist.size() )
 	{
 		actual_file = &filelist[liststart+pos];
@@ -1280,10 +1277,13 @@ void CFileBrowser::paintItem(unsigned int pos)
 				bgcolor = COL_MENUCONTENTSELECTED_PLUS_2;
 			}
 			else {
-				color   = COL_MENUCONTENTINACTIVE_TEXT;
+				color   = COL_MENUCONTENT_TEXT;
 				bgcolor = COL_MENUCONTENT_PLUS_1;
 			}
 		}
+
+		frameBuffer->paintBoxRel(x,ypos, width- 15, fheight, COL_MENUCONTENT_PLUS_0);
+		frameBuffer->paintBoxRel(x,ypos, width- 15, fheight, bgcolor, c_rad_small);
 
 		if (g_settings.filebrowser_showrights == 0 && S_ISREG(actual_file->Mode))
 			colwidth2 = 0;
