@@ -38,5 +38,6 @@ src/zapit/src/pzapit
 src/zapit/src/udpstreampes
 src/drivertool
 src/dt
+src/rcsim.h
 src/gui/version.h
 src/nhttpd/nhttpd.conf

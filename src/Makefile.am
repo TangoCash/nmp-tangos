@@ -1,3 +1,9 @@
+BUILT_SOURCES = rcsim.h
+rcsim.h:
+	pushd $(top_srcdir)/src/ && ./create_rcsim_h.sh > $@
+
+.PHONY: rcsim.h
+
 AM_CXXFLAGS = -fno-rtti -fno-exceptions -D__STDC_FORMAT_MACROS
 
 SUBDIRS = zapit gui daemonc driver system eitd timerd nhttpd
@@ -33,7 +39,7 @@ SUBDIRS += lcddisplay
 endif
 
 if USE_TREMOR
-VORBISLIBS = @VORBISIDEC_LIBS@ -logg
+VORBISLIBS = @VORBISIDEC_LIBS@
 else
 VORBISLIBS = -lvorbisfile -lvorbis -logg
 endif
@@ -139,6 +145,9 @@ bin_PROGRAMS += drivertool
 drivertool_SOURCES = drivertool.c
 bin_PROGRAMS += dt
 dt_SOURCES = dt.c
+bin_PROGRAMS += rcsim
+rcsim_SOURCES = rcsim.c rcsim.h
+
 endif
 
 if USE_STB_HAL
