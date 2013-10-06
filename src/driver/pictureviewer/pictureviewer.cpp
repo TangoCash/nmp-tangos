@@ -514,7 +514,7 @@ void CPictureViewer::getSize(const char* name, int* width, int *height)
 #define LOGO_FMT ".jpg"
 
 #if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
-bool CPictureViewer::GetLogoName(uint64_t channel_id, std::string ChannelName, std::string & name, int *width, int *height)
+bool CPictureViewer::GetLogoName(const uint64_t& channel_id, const std::string& ChannelName, std::string & name, int *width, int *height)
 {
 	char strChanId[16];
 
