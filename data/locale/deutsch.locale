@@ -461,6 +461,7 @@ filebrowser.filter.active Filter an
 filebrowser.filter.inactive Filter aus
 filebrowser.head Dateibrowser
 filebrowser.mark Markieren
+filebrowser.multi_select Mehrfach-Auswahl
 filebrowser.nextpage Seite vor
 filebrowser.prevpage Seite zurück
 filebrowser.scan Durchsuche Verzeichnisse

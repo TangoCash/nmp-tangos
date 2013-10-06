@@ -488,6 +488,7 @@ const char * locale_real_names[] =
 	"filebrowser.filter.inactive",
 	"filebrowser.head",
 	"filebrowser.mark",
+	"filebrowser.multi_select",
 	"filebrowser.nextpage",
 	"filebrowser.prevpage",
 	"filebrowser.scan",

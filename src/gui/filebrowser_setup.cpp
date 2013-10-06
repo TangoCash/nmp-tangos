@@ -1,7 +1,7 @@
 /*
-	WebTV Setup
+	FileBrowser Setup
 
-	(c) 2012 by martii
+	(c) 2013 by martii
 
 
 	License: GPL
@@ -22,39 +22,23 @@
 */
 
 #define __USE_FILE_OFFSET64 1
-#include "filebrowser.h"
 #include <stdio.h>
 #include <global.h>
-#include <libgen.h>
 #include <neutrino.h>
 #include <driver/screen_max.h>
-#include "webtv_setup.h"
+#include "mymenu.h"
+#include "filebrowser_setup.h"
 
-CWebTVSetup::CWebTVSetup()
+CFileBrowserSetup::CFileBrowserSetup()
 {
 	width = w_max (40, 10);
 	selected = -1;
 }
 
 
-int CWebTVSetup::exec(CMenuTarget* parent, const std::string & actionKey)
+int CFileBrowserSetup::exec(CMenuTarget* parent, const std::string & /*actionKey*/)
 {
 	int res = menu_return::RETURN_REPAINT;
-
-	if(actionKey == "select_xml") {
-		if(parent)
-			parent->hide();
-		CFileBrowser fileBrowser;
-		CFileFilter fileFilter;
-		fileFilter.addFilter("xml");
-		fileBrowser.Filter = &fileFilter;
-		std::string dn = g_settings.webtv_xml;
-		char *d = dirname((char *) dn.c_str());
-		if (fileBrowser.exec(d) == true) {
-			g_settings.webtv_xml = fileBrowser.getSelectedFile()->Name;
-		}
-		return res;
-	}
 
 	if (parent)
 		parent->hide();
@@ -64,16 +48,19 @@ int CWebTVSetup::exec(CMenuTarget* parent, const std::string & actionKey)
 	return res;
 }
 
-void CWebTVSetup::Show()
+void CFileBrowserSetup::Show()
 {
 	int shortcut = 1;
 
-	CMenuWidget m(LOCALE_WEBTV_HEAD, NEUTRINO_ICON_MOVIEPLAYER, width);
-	m.setSelected(selected);
+	CMenuWidget m(LOCALE_MOVIEPLAYER_FILEPLAYBACK, NEUTRINO_ICON_MOVIEPLAYER, width);
 	m.addIntroItems(LOCALE_EPGPLUS_OPTIONS);
-	m.addItem(new CMenuForwarder(LOCALE_WEBTV_XML, true, g_settings.webtv_xml, this, "select_xml",
-								 CRCInput::convertDigitToKey(shortcut++)));
+	m.setSelected(selected);
+	int multi_select = g_settings.filebrowser_multi_select;
+	m.addItem(new CMenuOptionChooser(LOCALE_FILEBROWSER_MULTI_SELECT, &multi_select,
+				OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true, NULL,
+				CRCInput::convertDigitToKey(shortcut++)));
 	m.exec(NULL, "");
 	m.hide();
+	g_settings.filebrowser_multi_select = multi_select;
 }
 // vim:ts=4

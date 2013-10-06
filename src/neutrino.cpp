@@ -892,6 +892,7 @@ int CNeutrinoApp::loadSetup(const char * fname)
 		g_settings.filebrowser_sortmethod = 0;
 	g_settings.filebrowser_denydirectoryleave = configfile.getBool("filebrowser_denydirectoryleave", false);
 	g_settings.filebrowser_use_filter = configfile.getBool("filebrowser_usefilter", true);
+	g_settings.filebrowser_multi_select = configfile.getBool("filebrowser_multi_select", true);
 
 	//zapit setup
 	g_settings.StartChannelTV = configfile.getString("startchanneltv","");
@@ -1411,6 +1412,7 @@ void CNeutrinoApp::saveSetup(const char * fname)
 	configfile.setInt32("filebrowser_sortmethod", g_settings.filebrowser_sortmethod);
 	configfile.setBool("filebrowser_denydirectoryleave", g_settings.filebrowser_denydirectoryleave);
 	configfile.setBool("filebrowser_usefilter", g_settings.filebrowser_use_filter);
+	configfile.setBool("filebrowser_multi_select", g_settings.filebrowser_multi_select);
 
 	//zapit setup
 	configfile.setString( "startchanneltv", g_settings.StartChannelTV );

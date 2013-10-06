@@ -460,6 +460,7 @@ filebrowser.filter.active Filter on
 filebrowser.filter.inactive Filter off
 filebrowser.head Filebrowser
 filebrowser.mark Mark
+filebrowser.multi_select Multiple selection
 filebrowser.nextpage Next Page
 filebrowser.prevpage Prev. Page
 filebrowser.scan Scaning folder

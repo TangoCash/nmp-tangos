@@ -162,7 +162,6 @@ void CMoviePlayerGui::Init(void)
 
 	filebrowser->Filter = &tsfilefilter;
 	filebrowser->Hide_records = true;
-	filebrowser->Multi_Select = true;
 
 	speed = 1;
 	timeshift = 0;
@@ -526,6 +525,7 @@ bool CMoviePlayerGui::SelectFile()
 	}
 	else { // filebrowser
 		CAudioMute::getInstance()->enableMuteIcon(false);
+		filebrowser->Multi_Select = g_settings.filebrowser_multi_select;
 		if (filebrowser->exec(Path_local.c_str()) == true) {
 			Path_local = filebrowser->getCurrentDir();
 			CFile *file = filebrowser->getSelectedFile();

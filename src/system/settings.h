@@ -667,9 +667,8 @@ struct SNeutrinoSettings
 	int filebrowser_showrights;
 	int filebrowser_sortmethod;
 	int filebrowser_denydirectoryleave;
-#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
 	int filebrowser_use_filter;
-#endif
+	int filebrowser_multi_select;
 
 	//movieplayer
 	int   movieplayer_repeat_on;
