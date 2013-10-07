@@ -721,8 +721,8 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	g_settings.plugin_hdd_dir = configfile.getString( "plugin_hdd_dir", "/var/plugins" );
 	g_settings.logo_hdd_dir = configfile.getString( "logo_hdd_dir", "/logos" );
 #else
-	g_settings.plugin_hdd_dir = configfile.getString( "plugin_hdd_dir", "/hdd/tuxbox/plugins" );
-	g_settings.logo_hdd_dir = configfile.getString( "logo_hdd_dir", "/var/share/icons/logo" );
+	g_settings.plugin_hdd_dir = configfile.getString( "plugin_hdd_dir", "/media/sda1/plugins" );
+	g_settings.logo_hdd_dir = configfile.getString( "logo_hdd_dir", "/media/sda1/logos" );
 #endif
 	g_settings.streaming_server_url = configfile.getString("streaming_server_url", "");
 	g_settings.webtv_xml = configfile.getString("webtv_xml", CONFIGDIR "/webtv.xml");
