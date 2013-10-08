@@ -95,11 +95,7 @@ int CUpdateSettings::exec(CMenuTarget* parent, const std::string &actionKey)
 
 	if(actionKey == "update_dir") {
 		const char *action_str = "update";
-#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
-		if(chooserDir(g_settings.update_dir, false, action_str, sizeof(g_settings.update_dir)-1))
-#else
-		if(chooserDir(g_settings.update_dir, true, action_str, sizeof(g_settings.update_dir)-1))
-#endif
+		if(chooserDir(g_settings.update_dir, true, action_str, sizeof(g_settings.update_dir)-1,true))
 			printf("[neutrino] new %s dir %s\n", action_str, g_settings.update_dir);
 
 		return res;
