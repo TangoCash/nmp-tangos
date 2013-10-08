@@ -224,7 +224,6 @@ int check_dir(const char * dir, bool allow_tmp)
 			case 0x58465342L:	/*xfs*/
 			case 0x4d44L:		/*msdos*/
 			case 0x0187:		/* AUTOFS_SUPER_MAGIC */
-			case 0x858458f6L: 	/*ramfs*/
 			case 0x3153464AL:	/*jfs*/
 #if 0
 			case 0x72b6L:		/*jffs2*/
