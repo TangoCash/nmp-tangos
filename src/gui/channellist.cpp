@@ -122,6 +122,7 @@ CChannelList::CChannelList(const char * const pName, bool phistoryMode, bool _vl
 	dline = NULL;
 	cc_minitv = NULL;
 	logo_off = 0;
+	pig_on_win = false;
 //printf("************ NEW LIST %s : %x\n", name.c_str(), (int) this);fflush(stdout);
 }
 
@@ -536,7 +537,7 @@ void CChannelList::calcSize()
 		fheight = 1; /* avoid div-by-zero crash on invalid font */
 	footerHeight = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->getHeight()+6;
 
-	bool pig_on_win = ( (g_settings.channellist_additional == 2) /* with miniTV */ && (CNeutrinoApp::getInstance()->getMode() != NeutrinoMessages::mode_ts) );
+	pig_on_win = ( (g_settings.channellist_additional == 2) /* with miniTV */ && (CNeutrinoApp::getInstance()->getMode() != NeutrinoMessages::mode_ts) );
 	// calculate width
 	full_width = pig_on_win ? (frameBuffer->getScreenWidth()-2*ConnectLineBox_Width) : frameBuffer->getScreenWidthRel();
 
@@ -1147,7 +1148,7 @@ bool CChannelList::adjustToChannelID(const t_channel_id channel_id, bool bToo)
 	printf("CChannelList::adjustToChannelID me %p [%s] list size %d channel_id %" PRIx64 "\n", this, getName(), (int)chanlist.size(), channel_id);
 	for (i = 0; i < chanlist.size(); i++) {
 		if(chanlist[i] == NULL) {
-			printf("CChannelList::adjustToChannelID REPORT BUG !! ******************************** %d is NULL !!\n", i);
+			printf("CChannelList::adjustToChannelID REPORT BUG !! ******************************** %u is NULL !!\n", i);
 			continue;
 		}
 		if (chanlist[i]->channel_id == channel_id) {
@@ -1688,7 +1689,7 @@ void CChannelList::paintDetails(int index)
 			int noch = (p_event->startTime + p_event->duration - time(NULL)) / 60;
 			if ((noch< 0) || (noch>=10000))
 				noch= 0;
-			snprintf(cNoch, sizeof(cNoch), "(%d / %d min)", seit, noch);
+			snprintf(cNoch, sizeof(cNoch), "(%u / %d min)", seit, noch);
 		}
 		int seit_len = g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST_DESCR]->getRenderWidth(cSeit, true); // UTF-8
 		int noch_len = g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST_DESCR]->getRenderWidth(cNoch, true); // UTF-8
@@ -1752,11 +1753,12 @@ void CChannelList::paintDetails(int index)
 		g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST]->RenderString(x+ 10, y+ height+ 5+ 2*fheight +fdescrheight, full_width - 30, desc.c_str(), COL_MENUCONTENTDARK_TEXT, 0, true);
 	}
 	else if( !displayNext && g_settings.channellist_foot == 1 && g_settings.channellist_additional == 0) { // next Event
-		char buf[128] = {0};
-		char cFrom[50] = {0}; // UTF-8
+
 		CSectionsdClient::CurrentNextInfo CurrentNext;
 		CEitManager::getInstance()->getCurrentNextServiceKey(chanlist[index]->channel_id, CurrentNext);
 		if (!CurrentNext.next_name.empty()) {
+			char buf[128] = {0};
+			char cFrom[50] = {0}; // UTF-8
 			struct tm *pStartZeit = localtime (& CurrentNext.next_zeit.startzeit);
 			snprintf(cFrom, sizeof(cFrom), "%s %02d:%02d",g_Locale->getText(LOCALE_WORD_FROM),pStartZeit->tm_hour, pStartZeit->tm_min );
 			snprintf(buf, sizeof(buf), "%s", CurrentNext.next_name.c_str());
@@ -1933,7 +1935,6 @@ void CChannelList::paintItem(int pos, const bool firstpaint)
 	bool iscurrent = true;
 	bool paintbuttons = false;
 	unsigned int curr = liststart + pos;
-	int rec_mode;
 	fb_pixel_t c_rad_small = 0;
 #if 0
 	if(CNeutrinoApp::getInstance()->recordingstatus && !autoshift && curr < chanlist.size()) {
@@ -1952,7 +1953,7 @@ void CChannelList::paintItem(int pos, const bool firstpaint)
 		c_rad_small = RADIUS_LARGE;
 		paintbuttons = true;
 	}
-	else if (getKey(curr) == CNeutrinoApp::getInstance()->channelList->getActiveChannelNumber())
+	else if (getKey(curr) == CNeutrinoApp::getInstance()->channelList->getActiveChannelNumber()  && new_zap_mode != 2/*active*/)
 	{
 		color   = !displayNext ? COL_MENUCONTENT_TEXT  : COL_MENUCONTENTINACTIVE_TEXT;
 		bgcolor = !displayNext ? COL_MENUCONTENT_PLUS_1 : COL_MENUCONTENTINACTIVE_PLUS_0;
@@ -1974,7 +1975,7 @@ void CChannelList::paintItem(int pos, const bool firstpaint)
 		int title_offset=0;
 		fb_pixel_t tcolor=(liststart + pos == selected) ? color : COL_MENUCONTENTINACTIVE_TEXT;
 		int xtheight=fheight-2;
-
+		int rec_mode;
 		if(g_settings.channellist_extended)
 		{
 			prg_offset = g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST_NUMBER]->getRenderWidth("00:00");
@@ -2200,7 +2201,7 @@ void CChannelList::paint()
 	liststart = (selected/listmaxshow)*listmaxshow;
 	updateEvents(this->historyMode ? 0:liststart, this->historyMode ? 0:(liststart + listmaxshow));
 
-	if (g_settings.channellist_additional == 2) // with miniTV
+	if (pig_on_win) // with miniTV
 		paintPig(x+width, y+theight, pig_width, pig_height);
 
 	// paint background for main box
@@ -2353,11 +2354,10 @@ void CChannelList::paint_events(int index)
 		//Display the remaining events
 		if ((y+ theight+ pig_height + i*ffheight) < (y+ theight+ pig_height + infozone_height))
 		{
-			bool first = false;
 			fb_pixel_t color = COL_MENUCONTENTDARK_TEXT;
 			if (e->eventID)
 			{
-				first = (i == 1);
+				bool first = (i == 1);
 				if ((first && g_settings.colored_events_channellist == 1 /* current */) || (!first && g_settings.colored_events_channellist == 2 /* next */))
 					color = COL_COLORED_EVENTS_TEXT;
 				struct tm *tmStartZeit = localtime(&e->startTime);
@@ -2405,8 +2405,7 @@ void CChannelList::showdescription(int index)
 {
 	ffheight = g_Font[eventFont]->getHeight();
 	CZapitChannel* chan = chanlist[index];
-	CChannelEvent *p_event=NULL;
-	p_event = &chan->currentEvent;
+	CChannelEvent *p_event = &chan->currentEvent;
 	epgData.info2.clear();
 	epgText.clear();
 	CEitManager::getInstance()->getEPGid(p_event->eventID, p_event->startTime, &epgData);

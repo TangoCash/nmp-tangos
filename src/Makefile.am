@@ -50,7 +50,7 @@ neutrino_SOURCES = neutrino_menue.cpp neutrino.cpp
 
 rcsim_SOURCES = rcsim.c rcsim.h
 
-AM_CPPFLAGS =
+AM_CPPFLAGS = -D_FILE_OFFSET_BITS=64
 
 if ENABLE_FLAC
 FLACLIBS = -lFLAC

@@ -38,6 +38,11 @@
 
 using namespace std;
 
+CComponentsFrmClock::CComponentsFrmClock()
+{
+	initVarClock();
+}
+
 CComponentsFrmClock::CComponentsFrmClock( const int x_pos, const int y_pos, const int w, const int h,
 						const char* format_str, bool activ, bool has_shadow,
 						fb_pixel_t color_frame, fb_pixel_t color_body, fb_pixel_t color_shadow)
@@ -181,7 +186,6 @@ void CComponentsFrmClock::initCCLockItems()
 		//ensure paint of text and label bg on changed text or painted form background
 		bool force_txt_and_bg = (lbl->textChanged() || this->paint_bg);
 		lbl->forceTextPaint(force_txt_and_bg);
-		lbl->doPaintTextBoxBg(force_txt_and_bg);
 
 		//set xpos of item
 		cl_x += wtmp;
