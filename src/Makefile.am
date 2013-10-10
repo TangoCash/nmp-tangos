@@ -44,11 +44,9 @@ else
 VORBISLIBS = -lvorbisfile -lvorbis -logg
 endif
 
-bin_PROGRAMS = neutrino rcsim
+bin_PROGRAMS = neutrino
 
 neutrino_SOURCES = neutrino_menue.cpp neutrino.cpp
-
-rcsim_SOURCES = rcsim.c rcsim.h
 
 AM_CPPFLAGS = -D_FILE_OFFSET_BITS=64
 
@@ -151,6 +149,9 @@ rcsim_SOURCES = rcsim.c rcsim.h
 endif
 
 if USE_STB_HAL
+bin_PROGRAMS += rcsim
+rcsim_SOURCES = rcsim.c rcsim.h
+
 neutrino_LDADD += \
 	-lstb-hal
 neutrino_LDFLAGS = \
