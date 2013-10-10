@@ -3117,9 +3117,13 @@ _repeat:
 		if(!CRecordManager::getInstance()->RecordingStatus() && (!data))
 		{
 			if(mode == mode_standby) {
-				g_Zapit->setStandby(true);
+				/* do not put zapit to standby, if epg scan not finished */
+				if (!CEpgScan::getInstance()->Running())
+					g_Zapit->setStandby(true);
 				cpuFreq->SetCpuFreq(g_settings.standby_cpufreq * 1000 * 1000);
 			}
+			/* try to wakeup epg scan */
+			CEpgScan::getInstance()->Next();
 		}
 		recordingstatus = data;
 		autoshift = CRecordManager::getInstance()->TimeshiftOnly();
@@ -3800,7 +3804,7 @@ void CNeutrinoApp::standbyMode( bool bOnOff, bool fromDeepStandby )
 		g_Zapit->stopPip();
 #endif
 		bool stream_status = CStreamManager::getInstance()->StreamStatus();
-		if(!fromDeepStandby && !CRecordManager::getInstance()->RecordingStatus() && !stream_status) {
+		if(!g_settings.epg_scan && !fromDeepStandby && !CRecordManager::getInstance()->RecordingStatus() && !stream_status) {
 			g_Zapit->setStandby(true);
 		} else {
 			g_Zapit->stopPlayBack();
@@ -3848,6 +3852,7 @@ void CNeutrinoApp::standbyMode( bool bOnOff, bool fromDeepStandby )
 		frameBuffer->setActive(false);
 		// Active standby on
 		powerManager->SetStandby(false, false);
+		CEpgScan::getInstance()->StartStandby();
 	} else {
 		// Active standby off
 		powerManager->SetStandby(false, false);
@@ -3855,14 +3860,13 @@ void CNeutrinoApp::standbyMode( bool bOnOff, bool fromDeepStandby )
 		CVFD::getInstance()->ShowText("resume");
 		cpuFreq->SetCpuFreq(g_settings.cpufreq * 1000 * 1000);
 		videoDecoder->Standby(false);
-		CSectionsdClient::CurrentNextInfo dummy;
-		g_InfoViewer->getEPG(0, dummy);
+		CEpgScan::getInstance()->StopStandby();
 
 #ifdef ENABLE_GRAPHLCD
 		nGLCD::StandbyMode(false);
 #endif
 #if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
-		if (timer_wakeup) {
+		if (!timer_wakeup) {
 			CCECSetup cecsetup;
 			cecsetup.setCECSettings(true);
 		}
