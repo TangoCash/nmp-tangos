@@ -541,11 +541,11 @@ void CLCD::ShowDiskLevel()
 {
 	int hdd_icons[9] ={24, 23, 21, 20, 19, 18, 17, 16, 22};
 	int percent, digits, i, j;
-	long t, u;
+	uint64_t t, u;
 	if (get_fs_usage(g_settings.network_nfs_recordingdir, t, u))
 	{
 		SetIcons(SPARK_HDD, true);
-		percent = (u * 1000ULL) / t + 60; 
+		percent = (int)((u * 1000ULL) / t + 60); 
 		digits = percent / 125;
 		if (percent > 1050)
 			digits = 9;
