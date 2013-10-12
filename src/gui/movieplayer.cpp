@@ -830,7 +830,6 @@ void CMoviePlayerGui::PlayFile(void)
 				else {
 					is_file_player = true;
 					full_name = (*filelist_it).Name;
-					++filelist_it;
 					std::string::size_type pos = full_name.find_last_of('/');
 					if(pos != std::string::npos) {
 						file_name = full_name.substr(pos+1);
