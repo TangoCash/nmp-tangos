@@ -462,6 +462,8 @@ filebrowser.filter.inactive Filter aus
 filebrowser.head Dateibrowser
 filebrowser.mark Markieren
 filebrowser.multi_select Mehrfach-Auswahl
+filebrowser.multi_select_add_dir Verzeichnis auswählen?
+filebrowser.multi_select_confirm_dir Verzeichnis-Auswahl bestätigen
 filebrowser.nextpage Seite vor
 filebrowser.prevpage Seite zurück
 filebrowser.scan Durchsuche Verzeichnisse

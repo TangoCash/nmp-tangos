@@ -55,12 +55,13 @@ void CFileBrowserSetup::Show()
 	CMenuWidget m(LOCALE_MOVIEPLAYER_FILEPLAYBACK, NEUTRINO_ICON_MOVIEPLAYER, width);
 	m.addIntroItems(LOCALE_EPGPLUS_OPTIONS);
 	m.setSelected(selected);
-	int multi_select = g_settings.filebrowser_multi_select;
-	m.addItem(new CMenuOptionChooser(LOCALE_FILEBROWSER_MULTI_SELECT, &multi_select,
+	m.addItem(new CMenuOptionChooser(LOCALE_FILEBROWSER_MULTI_SELECT, &g_settings.filebrowser_multi_select,
+				OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true, NULL,
+				CRCInput::convertDigitToKey(shortcut++)));
+	m.addItem(new CMenuOptionChooser(LOCALE_FILEBROWSER_MULTI_SELECT_CONFIRM_DIR, &g_settings.filebrowser_multi_select_confirm_dir,
 				OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true, NULL,
 				CRCInput::convertDigitToKey(shortcut++)));
 	m.exec(NULL, "");
 	m.hide();
-	g_settings.filebrowser_multi_select = multi_select;
 }
 // vim:ts=4

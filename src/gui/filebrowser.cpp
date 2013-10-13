@@ -1086,7 +1086,11 @@ bool CFileBrowser::exec(const char * const dirname)
 								ChangeDir(filelist[selected].Name);
 							}
 						}
-						else
+						else if (!S_ISDIR(filelist[selected].Mode)
+							|| (Multi_Select &&
+							    (!g_settings.filebrowser_multi_select_confirm_dir ||
+							     ShowMsg(LOCALE_MESSAGEBOX_INFO, LOCALE_FILEBROWSER_MULTI_SELECT_ADD_DIR, CMessageBox::mbrYes,
+								     CMessageBox::mbYes | CMessageBox::mbNo, NEUTRINO_ICON_FOLDER) == CMessageBox::mbrYes)))
 						{
 							filelist[selected].Marked = true;
 							loop = false;

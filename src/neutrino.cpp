@@ -894,6 +894,7 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	g_settings.filebrowser_denydirectoryleave = configfile.getBool("filebrowser_denydirectoryleave", false);
 	g_settings.filebrowser_use_filter = configfile.getBool("filebrowser_usefilter", true);
 	g_settings.filebrowser_multi_select = configfile.getBool("filebrowser_multi_select", true);
+	g_settings.filebrowser_multi_select_confirm_dir = configfile.getBool("filebrowser_multi_select_confirm_dir", false);
 
 	//zapit setup
 	g_settings.StartChannelTV = configfile.getString("startchanneltv","");
@@ -1415,6 +1416,7 @@ void CNeutrinoApp::saveSetup(const char * fname)
 	configfile.setBool("filebrowser_denydirectoryleave", g_settings.filebrowser_denydirectoryleave);
 	configfile.setBool("filebrowser_usefilter", g_settings.filebrowser_use_filter);
 	configfile.setBool("filebrowser_multi_select", g_settings.filebrowser_multi_select);
+	configfile.setBool("filebrowser_multi_select_confirm_dir", g_settings.filebrowser_multi_select_confirm_dir);
 
 	//zapit setup
 	configfile.setString( "startchanneltv", g_settings.StartChannelTV );

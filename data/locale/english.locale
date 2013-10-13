@@ -460,7 +460,9 @@ filebrowser.filter.active Filter on
 filebrowser.filter.inactive Filter off
 filebrowser.head Filebrowser
 filebrowser.mark Mark
-filebrowser.multi_select Multiple selection
+filebrowser.multi_select Enable multiple-file selection
+filebrowser.multi_select_add_dir Select directory?
+filebrowser.multi_select_confirm_dir Confirm directory selection
 filebrowser.nextpage Next Page
 filebrowser.prevpage Prev. Page
 filebrowser.scan Scaning folder
