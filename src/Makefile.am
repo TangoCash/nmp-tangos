@@ -8,7 +8,7 @@ AM_CXXFLAGS = -fno-rtti -fno-exceptions -D__STDC_FORMAT_MACROS
 
 SUBDIRS = zapit gui daemonc driver system eitd timerd nhttpd
 
-INCLUDES = \
+AM_CPPFLAGS = \
 	-I$(srcdir) \
 	-I$(top_builddir) \
 	-I$(top_srcdir) \
@@ -26,13 +26,13 @@ INCLUDES = \
 
 if BOXTYPE_COOL
 if BOXMODEL_APOLLO
-INCLUDES += -I$(top_srcdir)/lib/libcoolstream2
+AM_CPPFLAGS += -I$(top_srcdir)/lib/libcoolstream2
 else
-INCLUDES += -I$(top_srcdir)/lib/libcoolstream
+AM_CPPFLAGS += -I$(top_srcdir)/lib/libcoolstream
 endif
 endif
 if USE_STB_HAL
-INCLUDES += -I$(STB_HAL_INC)
+AM_CPPFLAGS += -I$(STB_HAL_INC)
 endif
 if BOXTYPE_TRIPLE
 SUBDIRS += lcddisplay
@@ -48,7 +48,7 @@ bin_PROGRAMS = neutrino
 
 neutrino_SOURCES = neutrino_menue.cpp neutrino.cpp
 
-AM_CPPFLAGS = -D_FILE_OFFSET_BITS=64
+AM_CPPFLAGS += -D_FILE_OFFSET_BITS=64
 
 if ENABLE_FLAC
 FLACLIBS = -lFLAC
