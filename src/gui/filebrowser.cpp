@@ -1087,7 +1087,7 @@ bool CFileBrowser::exec(const char * const dirname)
 							}
 						}
 						else if (!Multi_Select
-							|| (Multi_Select &&
+							|| (!S_ISDIR(filelist[selected].Mode) ||
 							    (!g_settings.filebrowser_multi_select_confirm_dir ||
 							     ShowMsgUTF(LOCALE_MESSAGEBOX_INFO, g_Locale->getText(LOCALE_FILEBROWSER_MULTI_SELECT_ADD_DIR), CMessageBox::mbrYes,
 								     CMessageBox::mbYes | CMessageBox::mbNo, NEUTRINO_ICON_FOLDER) == CMessageBox::mbrYes)))
