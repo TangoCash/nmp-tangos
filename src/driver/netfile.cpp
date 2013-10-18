@@ -543,7 +543,7 @@ int request_file(URL *url)
 
 #define getHeaderVal(a,b) { \
   char *_ptr; \
-  _ptr = strstr(header, a); \
+  _ptr = strcasestr(header, a); \
   if(_ptr) \
   { \
     _ptr = strchr(_ptr, ':'); \
@@ -553,7 +553,7 @@ int request_file(URL *url)
 
 #define getHeaderStr(a,b) { \
   char *_ptr; \
-  _ptr = strstr(header, a); \
+  _ptr = strcasestr(header, a); \
   if(_ptr) \
   { \
     unsigned int i; \
