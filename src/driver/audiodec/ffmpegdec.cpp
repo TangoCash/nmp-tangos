@@ -314,8 +314,8 @@ bool CFfmpegDec::SetMetaData(FILE * /* _in */, CAudioMetaData* m)
 		mChannels = av_get_channel_layout_nb_channels(avc->streams[best_stream]->codec->channel_layout);
 	}
 	m->samplerate = mSampleRate;
-	std::stringstream ss;
-	if (codec)
+	std::stringstream ss("No codec found for id ");
+	if (!codec)
 		ss << std::string(codec->long_name) + " / " << mChannels << " channel" << ( mChannels > 1 ? "s" : "");
 	m->type_info = ss.str();
 	m->changed=true;
