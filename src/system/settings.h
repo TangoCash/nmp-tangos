@@ -149,9 +149,7 @@ struct SNeutrinoSettings
 	int ci_clock;
 	int ci_ignore_messages;
 	int radiotext_enable;
-#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
 	std::string radiotext_rass_dir;
-#endif
 	
 	//vcr
 	int vcr_AutoSwitch;
@@ -173,12 +171,10 @@ struct SNeutrinoSettings
 	std::string epg_dir;
 	int epg_scan;
 
-#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
 	// WebTV
 	std::string streaming_server_url;
 	std::string streaming_server_name;
 	std::string webtv_xml;
-#endif
 
 	//network
 	std::string network_ntpserver;
@@ -732,6 +728,9 @@ struct SNeutrinoSettings
 		ITEM_THREE_D_MODE = 22,
 		ITEM_WEBTV = 23,
 		ITEM_RASS = 24,
+#endif
+#if HAVE_GENERIC_HARDWARE
+		ITEM_WEBTV = 23,
 #endif
 		ITEM_MAX   // MUST be always the last in the list
 	} USER_ITEM;

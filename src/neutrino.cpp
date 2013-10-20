@@ -4314,7 +4314,11 @@ void sighandler (int signum)
 #ifdef __sh__
 		_exit(CNeutrinoApp::SHUTDOWN);
 #else
+#if HAVE_GENERIC_HARDWARE
+		exit(0);
+#else
 		exit(CNeutrinoApp::SHUTDOWN);
+#endif
 #endif
 	default:
 		break;

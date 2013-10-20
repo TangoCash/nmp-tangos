@@ -196,7 +196,6 @@ const key_settings_struct_t key_settings[CKeybindSetup::KEYBINDS_COUNT] =
 	{LOCALE_MPKEY_GOTO,				&g_settings.mpkey_goto,	 			NONEXISTANT_LOCALE},
 	{LOCALE_MPKEY_NEXT3DMODE,		&g_settings.mpkey_next3dmode,		NONEXISTANT_LOCALE},
 #endif
-	{LOCALE_MPKEY_NEXT_REPEAT_MODE,		&g_settings.mpkey_next_repeat_mode,	NONEXISTANT_LOCALE},
 	{LOCALE_EXTRA_KEY_TIMESHIFT,		&g_settings.key_timeshift,  		LOCALE_MENU_HINT_KEY_MPTIMESHIFT },
 	{LOCALE_MPKEY_PLUGIN,			&g_settings.mpkey_plugin,		LOCALE_MENU_HINT_KEY_MPPLUGIN },
 	/*{LOCALE_EXTRA_KEY_PLUGIN,		&g_settings.key_plugin,			},*/
@@ -204,6 +203,7 @@ const key_settings_struct_t key_settings[CKeybindSetup::KEYBINDS_COUNT] =
 #if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
 	{LOCALE_EXTRA_KEY_NEXT43MODE,		&g_settings.key_next43mode,		NONEXISTANT_LOCALE},
 	{LOCALE_EXTRA_KEY_SWITCHFORMAT,		&g_settings.key_switchformat,	NONEXISTANT_LOCALE},
+	{LOCALE_MPKEY_NEXT_REPEAT_MODE,		&g_settings.mpkey_next_repeat_mode,	NONEXISTANT_LOCALE},
 #endif
 	{LOCALE_EXTRA_KEY_SCREENSHOT,		&g_settings.key_screenshot,		LOCALE_MENU_HINT_KEY_SCREENSHOT },
 	{LOCALE_EXTRA_KEY_PIP_CLOSE,		&g_settings.key_pip_close,		LOCALE_MENU_HINT_KEY_PIP_CLOSE },
@@ -329,6 +329,7 @@ void CKeybindSetup::showKeyBindSetup(CMenuWidget *bindSettings)
 	mf->setHint("", LOCALE_MENU_HINT_KEY_MOVIEPLAYER);
 	bindSettings->addItem(mf);
 
+#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
 	//video
 	bindSettings->addItem(new CMenuSeparator(CMenuSeparator::LINE | CMenuSeparator::STRING, LOCALE_KEYBINDINGMENU_VIDEO));
 	for (int i = KEY_NEXT43MODE; i <= KEY_SWITCHFORMAT; i++) {
@@ -336,6 +337,7 @@ void CKeybindSetup::showKeyBindSetup(CMenuWidget *bindSettings)
 		mf->setHint("", key_settings[i].hint);
 		bindSettings->addItem(mf);
 	}
+#endif
 
 	//misc
 	bindSettings->addItem(new CMenuSeparator(CMenuSeparator::LINE | CMenuSeparator::STRING, LOCALE_KEYBINDINGMENU_MISC));

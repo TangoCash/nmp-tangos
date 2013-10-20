@@ -35,7 +35,7 @@ typedef std::multimap<t_channel_id, pid_pair_t> volume_map_t;
 typedef volume_map_t::iterator volume_map_iterator_t;
 typedef std::pair<volume_map_iterator_t,volume_map_iterator_t> volume_map_range_t;
 
-#if HAVE_COOL_HARDWARE
+#if HAVE_COOL_HARDWARE || HAVE_GENERIC_HARDWARE
 #define VOLUME_PERCENT_AC3 100
 #define VOLUME_PERCENT_PCM 100
 #endif

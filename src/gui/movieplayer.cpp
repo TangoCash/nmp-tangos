@@ -860,10 +860,12 @@ void CMoviePlayerGui::PlayFile(void)
 			if (repeat_mode > (int) REPEAT_ALL)
 				repeat_mode = REPEAT_OFF;
 			callInfoViewer();
+#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
 		} else if( msg == (neutrino_msg_t) g_settings.key_next43mode) {
 			g_videoSettings->next43Mode();
 		} else if( msg == (neutrino_msg_t) g_settings.key_switchformat) {
 			g_videoSettings->SwitchFormat();
+#endif
 		} else if (msg == (neutrino_msg_t) g_settings.mpkey_play) {
 			if (playstate > CMoviePlayerGui::PLAY) {
 				playstate = CMoviePlayerGui::PLAY;

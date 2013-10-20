@@ -49,7 +49,6 @@ endif
 noinst_LIBRARIES = libtimerlist.a libneutrino_gui.a libneutrino_gui2.a
 
 libneutrino_gui_a_SOURCES = \
-	3dsetup.cpp \
 	audio_select.cpp \
 	audio_setup.cpp \
 	audiomute.cpp \
@@ -91,7 +90,6 @@ libneutrino_gui_a_SOURCES = \
 	pluginlist.cpp \
 	plugins.cpp \
 	proxyserver_setup.cpp \
-	psisetup.cpp \
 	rc_lock.cpp \
 	record_setup.cpp \
 	scan.cpp \
@@ -117,6 +115,12 @@ libneutrino_gui_a_SOURCES = \
 	webtv_setup.cpp \
 	volumebar.cpp \
 	zapit_setup.cpp
+
+if !BOXTYPE_GENERIC
+libneutrino_gui_a_SOURCES += \
+	3dsetup.cpp \
+	psisetup.cpp
+endif
 
 if ENABLE_GRAPHLCD
 libneutrino_gui_a_SOURCES += \

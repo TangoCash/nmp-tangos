@@ -59,10 +59,8 @@ class COsdSetup : public CMenuTarget, public CChangeObserver
 		int show_menu_hints;
 		int show_tuner_icon;
 
-#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
 		int screenshot_res;
 		CMenuOptionChooser *screenshot_res_chooser;
-#endif
 
 		int showOsdSetup();
  		void showOsdMenueColorSetup(CMenuWidget *menu_colors);

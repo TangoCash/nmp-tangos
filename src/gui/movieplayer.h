@@ -106,11 +106,10 @@ class CMoviePlayerGui : public CMenuTarget
 	bool isHTTP;
 	bool isUPNP;
 	bool showStartingHint;
-#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
 	bool isWebTV;
 	bool probePids;
 	CWebTV* webtv;
-#endif
+
 	CMovieBrowser* moviebrowser;
 	MI_MOVIE_INFO * p_movie_info;
 	const static short MOVIE_HINT_BOX_TIMER = 5;	// time to show bookmark hints in seconds

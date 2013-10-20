@@ -183,6 +183,15 @@ font_sizes_struct neutrino_font[SNeutrinoSettings::FONT_TYPE_COUNT] =
 	{LOCALE_FONTSIZE_MENU_HINT          ,  16, CNeutrinoFonts::FONT_STYLE_REGULAR, 0}
 };
 
+#if HAVE_GENERIC_HARDWARE
+#define SCREENSHOT_OPTION_COUNT 2
+const CMenuOptionChooser::keyval SCREENSHOT_OPTIONS[SCREENSHOT_OPTION_COUNT] =
+{
+	{ 0, LOCALE_SCREENSHOT_TV },
+	{ 1, LOCALE_SCREENSHOT_OSD }
+};
+#endif
+
 int COsdSetup::exec(CMenuTarget* parent, const std::string &actionKey)
 {
 	dprintf(DEBUG_DEBUG, "init osd setup\n");

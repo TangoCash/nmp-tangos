@@ -844,7 +844,9 @@ void CRadioText::RassDecode(unsigned char *mtext, int len)
 						fwrite(daten, 1, filemax, fd);
 						fclose(fd);
 					}
+#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
 					rename(filepath_tmp, filepath);
+#endif
 					if (true) {
 						if (filetype == 1)
 							RassUpdate(filepath, slidenumr);
