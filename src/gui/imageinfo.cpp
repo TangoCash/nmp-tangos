@@ -38,7 +38,6 @@
 #include <string>
 #include <daemonc/remotecontrol.h>
 #include <system/flashtool.h>
-#include <gui/components/cc_item_text.h>
 #include "version.h"
 
 #define LICENSEDIR DATADIR "/neutrino/license/"
@@ -356,7 +355,7 @@ void CImageInfo::hide()
 {
 	printf("[CImageInfo]   [%s - %d] hide...\n", __FUNCTION__, __LINE__);
 	if (cc_win){
-		cc_win->hide();
+		cc_win->hideCC();
 		Clean();
 	}
 }

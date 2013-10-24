@@ -28,16 +28,15 @@
 #include <config.h>
 #endif
 
+
+#include <global.h>
+#include <neutrino.h>
 #include <gui/widget/menue.h>
 
 #include <driver/fontrenderer.h>
 #include <driver/screen_max.h>
-
-#include <gui/components/cc_frm.h>
 #include <gui/widget/stringinput.h>
-#include <gui/components/cc_item_shapes.h>
-#include <global.h>
-#include <neutrino.h>
+
 #include <neutrino_menue.h>
 #include <driver/fade.h>
 #include <driver/display.h>
@@ -1104,7 +1103,7 @@ void CMenuWidget::paintHint(int pos)
 			if (savescreen)
 				details_line->restore();
 			else
-				details_line->hide();
+				details_line->hideCC();
 		}
 		/* clear info box */
 		if (info_box != NULL) {
@@ -1112,7 +1111,7 @@ void CMenuWidget::paintHint(int pos)
 				if (savescreen)
 					info_box->restore();
 				else
-					info_box->hide();
+					info_box->hideCC();
 			}
 		}
 		hint_painted = false;
@@ -1120,10 +1119,10 @@ void CMenuWidget::paintHint(int pos)
 	if (hint_painted) {
 		/* clear detailsline line */
 		if (details_line)
-			details_line->hide();
+			details_line->hideCC();
 		/* clear info box */
 		if ((info_box) && (pos == -1))
-			info_box->hide(true);
+			info_box->hideCC(true);
 		hint_painted = false;
 	}
 	if (pos < 0)
@@ -1137,11 +1136,11 @@ void CMenuWidget::paintHint(int pos)
 			if (savescreen)
 #endif
 		if (info_box)
-			info_box->hide(false);	
+			info_box->hideCC(false);	
 #if 0				
 				info_box->restore();
 			else
-				info_box->hide();
+				info_box->hideCC();
 		}
 #endif
 		return;

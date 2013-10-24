@@ -31,8 +31,8 @@
 #include <config.h>
 #endif
 
-#include <global.h>
-#include <neutrino.h>
+// #include <global.h>
+// #include <neutrino.h>
 #include <gui/components/cc_frm.h>
 #include <gui/components/cc_item_progressbar.h>
 #include <gui/components/cc_item_text.h>
@@ -225,7 +225,7 @@ void CSampleClass::hide ()
 	//other code;
 
 //Note: not required if signalbox is added to a CC-Container!
-	signalbox->hide(true);
+	signalbox->hideCC(true);
 	delete signalbox;
 	signalbox = NULL;
 

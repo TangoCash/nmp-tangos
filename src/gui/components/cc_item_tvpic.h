@@ -30,7 +30,7 @@
 #include <config.h>
 #endif
 
-#include "cc.h"
+#include "cc_base.h"
 #include <string>
 
 //! Sub class of CComponentsItem. Shows a mini tv box, similar to a PIP-Feature with current tv-channel.
@@ -63,7 +63,7 @@ class CComponentsPIP : public CComponentsItem
 		///show tv box
 		void paint(bool do_save_bg = CC_SAVE_SCREEN_YES);
 		///remove tv box from screen
-		void hide(bool no_restore = false);
+		void hideCC(bool no_restore = false);
 };
 
 #endif

@@ -77,7 +77,7 @@ CComponentsText::CComponentsText(	const int x_pos, const int y_pos, const int w,
 
 CComponentsText::~CComponentsText()
 {
-	hide();
+	hideCC();
 	clearSavedScreen();
 	clearCCText();
 	clear();
@@ -247,7 +247,7 @@ void CComponentsText::paint(bool do_save_bg)
 	paintText(do_save_bg);
 }
 
-void CComponentsText::hide(bool no_restore)
+void CComponentsText::hideCC(bool no_restore)
 {
 	if (ct_textbox)
 		ct_textbox->hide();
@@ -273,4 +273,19 @@ string CComponentsText::iToString(int int_val)
 	i_str << int_val;
 	string i_string(i_str.str());
 	return i_string;
+}
+
+//helper, get lines per textbox page
+int CComponentsText::getTextLinesAutoHeight(const int& textMaxHeight, const int& textWidth, const int& mode)
+{
+	CComponentsText box;
+	box.iX      = 0;
+	box.iY      = 0;
+	box.iWidth  = textWidth;
+	box.iHeight = textMaxHeight;
+
+	CTextBox tb(ct_text.c_str(), ct_font, mode, &box);
+	int ret = tb.getLinesPerPage();
+
+	return ret;
 }
