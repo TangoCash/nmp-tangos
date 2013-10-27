@@ -200,10 +200,10 @@ int CRemoteControl::handleMsg(const neutrino_msg_t msg, neutrino_msg_data_t data
 
 #if 0
 		printf("[neutrino] EVT_CURRENTEPG: uniqueKey %llx chid %llx subid %llx flags %x\n",
-				info_CN->current_uniqueKey >> 16, current_channel_id & 0xFFFFFFFFFFFFULL,
+				GET_CHANNEL_ID_FROM_EVENT_ID(info_CN->current_uniqueKey), current_channel_id & 0xFFFFFFFFFFFFULL,
 				current_sub_channel_id&0xFFFFFFFFFFFFULL, info_CN->flags);
 #endif
-		t_channel_id chid = (info_CN->current_uniqueKey >> 16);
+		t_channel_id chid = GET_CHANNEL_ID_FROM_EVENT_ID(info_CN->current_uniqueKey);
 		if(chid != (current_channel_id&0xFFFFFFFFFFFFULL) && chid != (current_sub_channel_id&0xFFFFFFFFFFFFULL))
 			return messages_return::handled;
 
@@ -239,24 +239,25 @@ int CRemoteControl::handleMsg(const neutrino_msg_t msg, neutrino_msg_data_t data
 			current_programm_timer = g_RCInput->addTimer( &end_program );
 #endif
 		}
-
+#if 0 // FIXME, needs investigation. Has side effect on capmt handling when active.
 		// is_video_started is only false if channel is locked
 		if ((!is_video_started) &&
-				(info_CN->current_fsk == 0 || g_settings.parentallock_prompt == PARENTALLOCK_PROMPT_CHANGETOLOCKED))
+			(info_CN->current_fsk == 0 || g_settings.parentallock_prompt == PARENTALLOCK_PROMPT_CHANGETOLOCKED))
 			g_RCInput->postMsg(NeutrinoMessages::EVT_PROGRAMLOCKSTATUS, 0x100, false);
 		else
 			g_RCInput->postMsg(NeutrinoMessages::EVT_PROGRAMLOCKSTATUS, info_CN->current_fsk, false);
+#endif
 		return messages_return::handled;
 	}
 	else if ( msg == NeutrinoMessages::EVT_NEXTEPG )
 	{
 		CSectionsdClient::CurrentNextInfo* info_CN = (CSectionsdClient::CurrentNextInfo*) data;
-		t_channel_id chid = (info_CN->next_uniqueKey >> 16);
+		t_channel_id chid = GET_CHANNEL_ID_FROM_EVENT_ID(info_CN->next_uniqueKey);
 		if(chid != (current_channel_id&0xFFFFFFFFFFFFULL) && chid != (current_sub_channel_id&0xFFFFFFFFFFFFULL))
 			return messages_return::handled;
 
 #if 0
-		if ( ( info_CN->next_uniqueKey >> 16) == (current_channel_id&0xFFFFFFFFFFFFULL) )
+		if ( GET_CHANNEL_ID_FROM_EVENT_ID(info_CN->next_uniqueKey) == (current_channel_id&0xFFFFFFFFFFFFULL) )
 		{
 			// next-EPG für den aktuellen Kanal bekommen, current ist leider net da?!;
 			if ( info_CN->next_uniqueKey != next_EPGid )
@@ -552,7 +553,7 @@ void CRemoteControl::processAPIDnames()
 									strncat(current_PIDs.APIDs[j].desc, " (AC3)", DESC_MAX_LEN - strlen(current_PIDs.APIDs[j].desc)-1);
 								else if (current_PIDs.APIDs[j].is_aac &&  !strstr(current_PIDs.APIDs[j].desc, " (AAC)"))
 									strncat(current_PIDs.APIDs[j].desc, " (AAC)", DESC_MAX_LEN - strlen(current_PIDs.APIDs[j].desc)-1);
-								else if (current_PIDs.APIDs[j].is_aac &&  !strstr(current_PIDs.APIDs[j].desc, " (EAC3)"))
+								else if (current_PIDs.APIDs[j].is_eac3 && !strstr(current_PIDs.APIDs[j].desc, " (EAC3)"))
 									strncat(current_PIDs.APIDs[j].desc, " (EAC3)", DESC_MAX_LEN - strlen(current_PIDs.APIDs[j].desc)-1);
 							}
 							current_PIDs.APIDs[j].component_tag = -1;

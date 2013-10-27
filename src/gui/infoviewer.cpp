@@ -96,6 +96,9 @@ CInfoViewer::CInfoViewer ()
 	sigscale = NULL;
 	snrscale = NULL;
 	timescale = NULL;
+	info_CurrentNext.current_zeit.startzeit = 0;
+	info_CurrentNext.current_zeit.dauer = 0;
+	info_CurrentNext.flags = 0;
 	frameBuffer = CFrameBuffer::getInstance();
 	infoViewerBB = CInfoViewerBB::getInstance();
 	InfoHeightY = 0;
@@ -118,6 +121,7 @@ CInfoViewer::CInfoViewer ()
 	ChanInfoX = 0;
 	Init();
 	infoViewerBB->Init();
+	strcpy(old_timestr, "");
 	oldinfo.current_uniqueKey = 0;
 	oldinfo.next_uniqueKey = 0;
 	isVolscale = false;
@@ -1405,34 +1409,38 @@ void CInfoViewer::sendNoEpg(const t_channel_id for_channel_id)
 	}
 }
 
-CSectionsdClient::CurrentNextInfo CInfoViewer::getEPG (const t_channel_id for_channel_id, CSectionsdClient::CurrentNextInfo &info)
+void CInfoViewer::getEPG(const t_channel_id for_channel_id, CSectionsdClient::CurrentNextInfo &info)
 {
+	/* to clear the oldinfo for channels without epg, call getEPG() with for_channel_id = 0 */
+	if (for_channel_id == 0)
+	{
+		oldinfo.current_uniqueKey = 0;
+		return;
+	}
 	CEitManager::getInstance()->getCurrentNextServiceKey(for_channel_id, info);
 
 	/* of there is no EPG, send an event so that parental lock can work */
 	if (info.current_uniqueKey == 0 && info.next_uniqueKey == 0) {
 		sendNoEpg(for_channel_id);
 		oldinfo = info;
-		return info;
+		return;
 	}
 
 	if (info.current_uniqueKey != oldinfo.current_uniqueKey || info.next_uniqueKey != oldinfo.next_uniqueKey) {
 		if (info.flags & (CSectionsdClient::epgflags::has_current | CSectionsdClient::epgflags::has_next)) {
-			char *_info = new char[sizeof(CSectionsdClient::CurrentNextInfo)];
-			memcpy(_info, &info, sizeof(CSectionsdClient::CurrentNextInfo));
+			CSectionsdClient::CurrentNextInfo *_info = new CSectionsdClient::CurrentNextInfo;
+			*_info = info;
 			neutrino_msg_t msg;
 			if (info.flags & CSectionsdClient::epgflags::has_current)
 				msg = NeutrinoMessages::EVT_CURRENTEPG;
 			else
 				msg = NeutrinoMessages::EVT_NEXTEPG;
-			g_RCInput->postMsg(msg, (unsigned) _info, false );
+			g_RCInput->postMsg(msg, (const neutrino_msg_data_t) _info, false);
 		} else {
 			sendNoEpg(for_channel_id);
 		}
 		oldinfo = info;
 	}
-
-	return info;
 }
 
 void CInfoViewer::showSNR ()
@@ -1680,10 +1688,12 @@ void CInfoViewer::show_Data (bool calledFromEvent)
 	if (info_CurrentNext.flags & CSectionsdClient::epgflags::has_current) {
 		int seit = (abs(jetzt - info_CurrentNext.current_zeit.startzeit) + 30) / 60;
 		int rest = (info_CurrentNext.current_zeit.dauer / 60) - seit;
-		if (jetzt < info_CurrentNext.current_zeit.startzeit) {
-			runningPercent = 0;
+		runningPercent = 0;
+		if (!gotTime)
+			snprintf(runningRest, sizeof(runningRest), "%d min", info_CurrentNext.current_zeit.dauer / 60);
+		else if (jetzt < info_CurrentNext.current_zeit.startzeit)
 			snprintf (runningRest, sizeof(runningRest), "in %d min", seit);
-		} else {
+		else {
 			runningPercent = (jetzt - info_CurrentNext.current_zeit.startzeit) * 100 / info_CurrentNext.current_zeit.dauer;
 			if (runningPercent > 100)
 				runningPercent = 100;
@@ -2098,7 +2108,7 @@ void CInfoViewer::showLcdPercentOver ()
 			if (jetzt < info_CurrentNext.current_zeit.startzeit)
 				runningPercent = 0;
 			else
-				runningPercent = MIN ((unsigned) ((float) (jetzt - info_CurrentNext.current_zeit.startzeit) / (float) info_CurrentNext.current_zeit.dauer * 100.), 100);
+				runningPercent = MIN ((jetzt - info_CurrentNext.current_zeit.startzeit) * 100 / info_CurrentNext.current_zeit.dauer, 100);
 		}
 		CVFD::getInstance ()->showPercentOver (runningPercent);
 	}

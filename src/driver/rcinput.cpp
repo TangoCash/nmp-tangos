@@ -1211,10 +1211,21 @@ void CRCInput::getMsg_us(neutrino_msg_t * msg, neutrino_msg_data_t * data, uint6
 					}
 					else
 						printf("[neutrino] event - unknown initiatorID 0x%x\n",  emsg.initiatorID);
-					if ( !dont_delete_p )
-					{
-						delete[] p;//new [] delete []
-						p= NULL;
+
+					switch (emsg.eventID) {
+						case NeutrinoMessages::EVT_CURRENTEPG:
+						case NeutrinoMessages::EVT_NEXTEPG:
+							{
+								CSectionsdClient::CurrentNextInfo *cn = (CSectionsdClient::CurrentNextInfo *) p;
+								delete cn;
+								p = NULL;
+								break;
+							}
+						default:
+							if (!dont_delete_p) {
+								delete[] p;
+								p = NULL;
+							}
 					}
 				}
 			}
