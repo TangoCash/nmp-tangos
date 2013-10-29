@@ -102,7 +102,7 @@ extern cDemux *videoDemux;
 
 #ifdef ENABLE_PIP
 extern cVideo *pipDecoder;
-extern cDemux *pipDemux;
+cDemux *pipDemux;
 #endif
 
 cDemux *pcrDemux = NULL;
@@ -1758,7 +1758,8 @@ bool CZapit::ParseCommand(CBasicMessage::Header &rmsg, int connfd)
 		playbackStopForced = false;
 		if (lock_channel_id == live_channel_id) {
 			StartPlayBack(current_channel);
-			SendPMT();
+			if (msgBool.truefalse)
+				SendPMT();
 		} else {
 			live_fe->setTsidOnid(0);
 			ZapIt(lock_channel_id);
@@ -2221,6 +2222,15 @@ bool CZapit::StartPlayBack(CZapitChannel *thisChannel)
 		pcrDemux->Start();
 	}
 
+#if HAVE_AZBOX_HARDWARE
+	/* new (> 20130917) AZbox drivers switch to radio mode if audio is started first */
+	/* start video */
+	if (have_video) {
+		videoDecoder->Start(0, thisChannel->getPcrPid(), thisChannel->getVideoPid());
+		videoDemux->Start();
+	}
+#endif
+
 	/* select audio output and start audio */
 	if (have_audio) {
 		SetAudioStreamType(thisChannel->getAudioChannel()->audioChannelType);
@@ -2228,12 +2238,8 @@ bool CZapit::StartPlayBack(CZapitChannel *thisChannel)
 		audioDecoder->Start();
 	}
 
+#if ! HAVE_AZBOX_HARDWARE
 	/* start video */
-#if HAVE_AZBOX_HARDWARE
-	videoDemux->Start();
-	/* no idea why we need to start *video* to get sound for radio... :-) */
-	videoDecoder->Start();
-#else
 	if (have_video) {
 		videoDecoder->Start(0, thisChannel->getPcrPid(), thisChannel->getVideoPid());
 		videoDemux->Start();

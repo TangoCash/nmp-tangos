@@ -150,6 +150,7 @@ struct SNeutrinoSettings
 	int ci_ignore_messages;
 	int radiotext_enable;
 	std::string radiotext_rass_dir;
+	int easymenu;
 	
 	//vcr
 	int vcr_AutoSwitch;
@@ -246,6 +247,7 @@ struct SNeutrinoSettings
 		P_MSET_MISC,
 		
 		//service menu
+		P_MSER_TUNER,
 		P_MSER_SCANTS,
 		P_MSER_RELOAD_CHANNELS,
 		P_MSER_BOUQUET_EDIT,

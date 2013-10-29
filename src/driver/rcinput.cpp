@@ -144,7 +144,7 @@ CRCInput::CRCInput(bool &_timer_wakeup)
 	}
 
 
-	if (listen(fd_event, 15) !=0)
+	if (listen(fd_event, 25) !=0)
 	{
 		perror("[neutrino] listen failed...\n");
 		exit( -1 );

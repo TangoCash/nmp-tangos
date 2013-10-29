@@ -374,7 +374,7 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 				button->setSelected(true);
 			button->paint();
 		}else			
-			button->hideCC();
+			button->hide();
 		
 		return res;
 	}
@@ -385,7 +385,7 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 		if (!circle->isPainted())	
 			circle->paint();
 		else
-			circle->hideCC();			
+			circle->hide();			
 		return res;
 	}
 	else if (actionKey == "square"){
@@ -395,7 +395,7 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 		if (!sq->isPainted())
 			sq->paint();
 		else
-			sq->hideCC();
+			sq->hide();
 		return res;
 	}
 	else if (actionKey == "picture"){
@@ -405,7 +405,7 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 		if (!pic->isPainted() && !pic->isPicPainted())
 			pic->paint();
 		else
-			pic->hideCC();
+			pic->hide();
 		return res;
 	}
 	else if (actionKey == "channellogo"){
@@ -415,7 +415,7 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 		if (!chnl_pic->isPainted() && !chnl_pic->isPicPainted())
 			chnl_pic->paint();
 		else
-			chnl_pic->hideCC();
+			chnl_pic->hide();
 		return res;
 	}
 	else if (actionKey == "form"){
@@ -450,7 +450,7 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 		
 		
 		if (form->isPainted()) {
-			form->hideCC();
+			form->hide();
 			delete form;
 			form = NULL;
 		}
@@ -465,7 +465,7 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
  		txt->setText("This is a text for testing textbox", CTextBox::NO_AUTO_LINEBREAK);
 
 		if (txt->isPainted())
-			txt->hideCC();
+			txt->hide();
 		else
 			txt->paint();
 		return res;
@@ -509,7 +509,7 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 		if (!header->isPainted())
 			header->paint();
 		else
-			header->hideCC();
+			header->hide();
 		return res;
 	}
 	else if (actionKey == "footer"){
@@ -525,7 +525,7 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 		if (!footer->isPainted())
 			footer->paint();
 		else
-			footer->hideCC();
+			footer->hide();
 		return res;
 	}
 	else if (actionKey == "iconform"){
@@ -558,7 +558,7 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 // 		iconform->setIconAlign(CComponentsIconForm::CC_ICONS_FRM_ALIGN_RIGHT);
 		
 		if (iconform->isPainted())
-			iconform->hideCC();
+			iconform->hide();
 		else{
 			iconform->paint();
 		}
@@ -596,7 +596,7 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 		if (!window->isPainted())
 			window->paint();
 		else
-			window->hideCC();
+			window->hide();
 
 		return res;
 	}
@@ -614,7 +614,7 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 		}
 		else {
 			if (clock_r->Stop()){
-				clock_r->hideCC();
+				clock_r->hide();
 				delete clock_r;
 				clock_r = NULL;
 				return menu_return::RETURN_EXIT_ALL;
@@ -630,7 +630,7 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 		if (!clock->isPainted())
 			clock->paint();
 		else {
-			clock->hideCC();
+			clock->hide();
 			delete clock;
 			clock = NULL;
 		}

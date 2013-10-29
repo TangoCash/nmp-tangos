@@ -218,8 +218,11 @@ public:
 	CConfigFile* getConfigFile() {return &configfile;};
 	bool 		SDTreloadChannels;
 	bool 		g_channel_list_changed;
+
 	void saveEpg(bool cvfd_mode);
 	void stopDaemonsForFlash();
+	int showChannelList(const neutrino_msg_t msg, bool from_menu = false);
+	CPersonalizeGui & getPersonalizeGui() { return personalize; }
 #if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
 	enum {
 		SHUTDOWN,

@@ -149,5 +149,6 @@ class CFEManager
 		bool		terrOnly() { return (have_terr && !have_sat && ! have_cable); }
 		void		Lock() { mutex.lock(); }
 		void		Unlock() { mutex.unlock(); }
+
 };
 #endif /* __femanager_h__ */
