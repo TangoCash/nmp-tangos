@@ -234,8 +234,8 @@ bool CFEManager::loadSettings()
 		}
 	}
 	bool fsat = true;
-	bool fcable = true;
-	bool fterr = true;
+	//bool fcable = true;
+	//bool fterr = true;
 	for(fe_map_iterator_t it = femap.begin(); it != femap.end(); it++) {
 		CFrontend * fe = it->second;
 		frontend_config_t & fe_config = fe->getConfig();
@@ -260,20 +260,26 @@ bool CFEManager::loadSettings()
 			def_mode = def_mode0;
 		}
 		if (fe->isCable()) {
+#if 0
 			if (fcable) {
 				fcable = false;
 				def_mode = def_mode0;
 			}
 			if (def_mode > CFrontend::FE_MODE_INDEPENDENT)
 				def_mode = CFrontend::FE_MODE_INDEPENDENT;
+#endif
+			def_mode = CFrontend::FE_MODE_INDEPENDENT;
 		}
 		if (fe->isTerr()) {
+#if 0
 			if (fterr) {
 				fterr = false;
 				def_mode = def_mode0;
 			}
 			if (def_mode > CFrontend::FE_MODE_INDEPENDENT)
 				def_mode = CFrontend::FE_MODE_INDEPENDENT;
+#endif
+			def_mode = CFrontend::FE_MODE_INDEPENDENT;
 		}
 		if (femap.size() == 1)
 			def_mode = CFrontend::FE_MODE_INDEPENDENT;
