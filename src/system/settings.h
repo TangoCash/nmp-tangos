@@ -150,7 +150,6 @@ struct SNeutrinoSettings
 	int ci_ignore_messages;
 	int radiotext_enable;
 	std::string radiotext_rass_dir;
-	int easymenu;
 	
 	//vcr
 	int vcr_AutoSwitch;

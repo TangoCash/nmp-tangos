@@ -325,45 +325,38 @@ int CNetworkSetup::showNetworkSetup()
 
 		networkSettings->addItem( m9);	//ssid
 		networkSettings->addItem( m10);	//key
-		if (!g_settings.easymenu)
-			networkSettings->addItem(GenericMenuSeparatorLine);
+		networkSettings->addItem(GenericMenuSeparatorLine);
 	}
 	//------------------------------------------------
-	sectionsdConfigNotifier = NULL;
+	//ntp submenu
+	sectionsdConfigNotifier = new CSectionsdConfigNotifier;
 	CMenuWidget ntp(LOCALE_MAINSETTINGS_NETWORK, NEUTRINO_ICON_SETTINGS, width, MN_WIDGET_ID_NETWORKSETUP_NTP);
+	mf = new CMenuForwarder(LOCALE_NETWORKMENU_NTPTITLE, true, NULL, &ntp, NULL, CRCInput::RC_yellow, NEUTRINO_ICON_BUTTON_YELLOW);
+	mf->setHint("", LOCALE_MENU_HINT_NET_NTP);
+	networkSettings->addItem(mf);
+
+	showNetworkNTPSetup(&ntp);
+
 #ifdef ENABLE_GUI_MOUNT
+	//nfs mount submenu
 	CMenuWidget networkmounts(LOCALE_MAINSETTINGS_NETWORK, NEUTRINO_ICON_SETTINGS, width, MN_WIDGET_ID_NETWORKSETUP_MOUNTS);
+	mf = new CMenuForwarder(LOCALE_NETWORKMENU_MOUNT, true, NULL, &networkmounts, NULL, CRCInput::RC_blue, NEUTRINO_ICON_BUTTON_BLUE);
+	mf->setHint("", LOCALE_MENU_HINT_NET_MOUNT);
+	networkSettings->addItem(mf);
+	showNetworkNFSMounts(&networkmounts);
 #endif
+
+	//proxyserver submenu
 	CProxySetup proxy(LOCALE_MAINSETTINGS_NETWORK);
+	mf = new CMenuForwarder(LOCALE_FLASHUPDATE_PROXYSERVER_SEP, true, NULL, &proxy, NULL, CRCInput::RC_0, NEUTRINO_ICON_BUTTON_0);
+	mf->setHint("", LOCALE_MENU_HINT_NET_PROXY);
+	networkSettings->addItem(mf);
+
+	//services
 	CNetworkServiceSetup services;
-
-	if (!g_settings.easymenu) {
-		//ntp submenu
-		sectionsdConfigNotifier = new CSectionsdConfigNotifier;
-		mf = new CMenuForwarder(LOCALE_NETWORKMENU_NTPTITLE, true, NULL, &ntp, NULL, CRCInput::RC_yellow, NEUTRINO_ICON_BUTTON_YELLOW);
-		mf->setHint("", LOCALE_MENU_HINT_NET_NTP);
-		networkSettings->addItem(mf);
-
-		showNetworkNTPSetup(&ntp);
-
-#ifdef ENABLE_GUI_MOUNT
-		//nfs mount submenu
-		mf = new CMenuForwarder(LOCALE_NETWORKMENU_MOUNT, true, NULL, &networkmounts, NULL, CRCInput::RC_blue, NEUTRINO_ICON_BUTTON_BLUE);
-		mf->setHint("", LOCALE_MENU_HINT_NET_MOUNT);
-		networkSettings->addItem(mf);
-		showNetworkNFSMounts(&networkmounts);
-#endif
-
-		//proxyserver submenu
-		mf = new CMenuForwarder(LOCALE_FLASHUPDATE_PROXYSERVER_SEP, true, NULL, &proxy, NULL, CRCInput::RC_0, NEUTRINO_ICON_BUTTON_0);
-		mf->setHint("", LOCALE_MENU_HINT_NET_PROXY);
-		networkSettings->addItem(mf);
-
-		//services
-		mf = new CMenuForwarder(LOCALE_NETWORKMENU_SERVICES, true, NULL, &services, NULL, CRCInput::RC_1, NEUTRINO_ICON_BUTTON_1);
-		mf->setHint("", LOCALE_MENU_HINT_NET_SERVICES);
-		networkSettings->addItem(mf);
-	}
+	mf = new CMenuForwarder(LOCALE_NETWORKMENU_SERVICES, true, NULL, &services, NULL, CRCInput::RC_1, NEUTRINO_ICON_BUTTON_1);
+	mf->setHint("", LOCALE_MENU_HINT_NET_SERVICES);
+	networkSettings->addItem(mf);
 
 	int ret = 0;
 	while(true) {

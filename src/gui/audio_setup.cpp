@@ -173,17 +173,16 @@ int CAudioSetup::showAudioSetup()
 
 	CMenuOptionChooser * as_oj_avsync = NULL;
 	CMenuOptionNumberChooser * as_oj_vsteps = NULL;
-	if (!g_settings.easymenu) {
-		//av synch
-		as_oj_avsync	= new CMenuOptionChooser(LOCALE_AUDIOMENU_AVSYNC, &g_settings.avsync, AUDIOMENU_AVSYNC_OPTIONS, AUDIOMENU_AVSYNC_OPTION_COUNT, true, audioSetupNotifier);
-		as_oj_avsync->setHint("", LOCALE_MENU_HINT_AUDIO_AVSYNC);
+	//av synch
+	as_oj_avsync	= new CMenuOptionChooser(LOCALE_AUDIOMENU_AVSYNC, &g_settings.avsync, AUDIOMENU_AVSYNC_OPTIONS, AUDIOMENU_AVSYNC_OPTION_COUNT, true, audioSetupNotifier);
+	as_oj_avsync->setHint("", LOCALE_MENU_HINT_AUDIO_AVSYNC);
 
-		//volume steps
-		as_oj_vsteps = new CMenuOptionNumberChooser(LOCALE_AUDIOMENU_VOLUME_STEP, (int *)&g_settings.current_volume_step, true, 1, 25, NULL);
-		as_oj_vsteps->setHint("", LOCALE_MENU_HINT_AUDIO_VOLSTEP);
-		//clock rec
-		//CMenuOptionChooser * as_oj_clockrec new CMenuOptionChooser(LOCALE_AUDIOMENU_CLOCKREC, &g_settings.clockrec, AUDIOMENU_CLOCKREC_OPTIONS, AUDIOMENU_CLOCKREC_OPTION_COUNT, true, audioSetupNotifier);
-	}
+	//volume steps
+	as_oj_vsteps = new CMenuOptionNumberChooser(LOCALE_AUDIOMENU_VOLUME_STEP, (int *)&g_settings.current_volume_step, true, 1, 25, NULL);
+	as_oj_vsteps->setHint("", LOCALE_MENU_HINT_AUDIO_VOLSTEP);
+
+	//clock rec
+//	CMenuOptionChooser * as_oj_clockrec new CMenuOptionChooser(LOCALE_AUDIOMENU_CLOCKREC, &g_settings.clockrec, AUDIOMENU_CLOCKREC_OPTIONS, AUDIOMENU_CLOCKREC_OPTION_COUNT, true, audioSetupNotifier);
 
 #if HAVE_COOL_HARDWARE
 	/* only coolstream has SRS stuff, so only compile it there */
@@ -222,12 +221,10 @@ int CAudioSetup::showAudioSetup()
 	audioSettings->addItem(as_oj_dd_spdif);
 	audioSettings->addItem(as_oj_ddsubchn);
 	//---------------------------------------------------------
-	if (!g_settings.easymenu) {
-		audioSettings->addItem(GenericMenuSeparatorLine);
-		audioSettings->addItem(as_oj_avsync);
-		audioSettings->addItem(as_oj_vsteps);
-		//audioSettings->addItem(as_clockrec);
-	}
+	audioSettings->addItem(GenericMenuSeparatorLine);
+	audioSettings->addItem(as_oj_avsync);
+	audioSettings->addItem(as_oj_vsteps);
+//	audioSettings->addItem(as_clockrec);
 	//---------------------------------------------------------
 #if HAVE_COOL_HARDWARE
 	/* only coolstream has SRS stuff, so only compile it there */

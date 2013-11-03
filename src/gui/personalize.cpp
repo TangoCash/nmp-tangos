@@ -256,7 +256,7 @@ int CPersonalizeGui::exec(CMenuTarget* parent, const string & actionKey)
 	//pin protected access to personalize menu also if found any pin protected items 
 	bool is_pin_protected = g_settings.personalize[SNeutrinoSettings::P_MAIN_PINSTATUS];
 	
-	if (!g_settings.easymenu && (is_pin_protected || hasPinItems())) {
+	if ( is_pin_protected || hasPinItems()){
 		setHint(LOCALE_PERSONALIZE_PINHINT); //from CPINProtection
 		if (check())
 			is_pin_protected = false;
@@ -283,44 +283,13 @@ int CPersonalizeGui::ShowPersonalizationMenu()
 {
 	width = w_max (40, 10);
 	
-	CMenuWidget* pMenu = new CMenuWidget(g_settings.easymenu ? LOCALE_PARENTALLOCK_MENU : LOCALE_PERSONALIZE_HEAD, NEUTRINO_ICON_PERSONALIZE, width, MN_WIDGET_ID_PERSONALIZE);
+	CMenuWidget* pMenu = new CMenuWidget(LOCALE_PERSONALIZE_HEAD, NEUTRINO_ICON_PERSONALIZE, width, MN_WIDGET_ID_PERSONALIZE);
 	pMenu->addIntroItems(NONEXISTANT_LOCALE, LOCALE_PERSONALIZE_ACCESS);
 	
 	//pin
 	CPINChangeWidget *pinChangeWidget = NULL;
-	if (!g_settings.easymenu && show_pin_setup)
+	if (show_pin_setup)
 		ShowPinSetup(pMenu, pinChangeWidget);
-
-	int res;
-	if (g_settings.easymenu) {
-		int count = 0;
-		for (uint j = 0; j<v_item.size(); j++) {
-			printf("v_item[i].widget [%s]\n", v_item[j].widget->getName().c_str());
-			//pin protected items only
-			if (v_item[j].item_mode == PERSONALIZE_SHOW_AS_ACCESS_OPTION)
-			{
-				const char* icon = (count == 0) ? NEUTRINO_ICON_BUTTON_RED :
-					(count == 1) ? NEUTRINO_ICON_BUTTON_GREEN :
-					(count == 2) ? NEUTRINO_ICON_BUTTON_YELLOW :
-					(count == 3) ? NEUTRINO_ICON_BUTTON_BLUE : NULL;
-				const neutrino_msg_t key = (count == 0) ? CRCInput::RC_red :
-					(count == 1) ? CRCInput::RC_green :
-					(count == 2) ? CRCInput::RC_yellow :
-					(count == 3) ? CRCInput::RC_blue : CRCInput::RC_nokey;
-				count++;
-				string 	itm_name = g_Locale->getText(v_item[j].locale_name);
-				itm_name += " ";
-				itm_name += g_Locale->getText(LOCALE_PERSONALIZE_PINSTATUS);
-
-				if (v_item[j].personalize_mode != NULL)
-					pMenu->addItem(new CMenuOptionChooser(itm_name.c_str(), v_item[j].personalize_mode, PERSONALIZE_PROTECT_MODE_OPTIONS, PERSONALIZE_PROTECT_MODE_MAX, v_item[j].menuItem->active, NULL, key, icon));
-			}
-		}
-		res = pMenu->exec(NULL, "");
-		delete pMenu;
-		delete pinChangeWidget;
-		return res;
-	}
 
 	//personalized menues
 	CMenuForwarderNonLocalized *p_mn[widget_count];
@@ -353,7 +322,7 @@ int CPersonalizeGui::ShowPersonalizationMenu()
 	pMenu->addItem(GenericMenuSeparatorLine);
 	pMenu->addItem(new CMenuForwarder(LOCALE_PERSONALIZE_HELP, true, NULL, this, "personalize_help", CRCInput::RC_help, NEUTRINO_ICON_BUTTON_HELP));
 	
-	res = pMenu->exec(NULL, "");
+	int res = pMenu->exec(NULL, "");
 	delete pMenu;
 	delete uMenu;
 	delete pinChangeWidget;
@@ -644,10 +613,6 @@ void CPersonalizeGui::SaveAndExit()
 	// Save the settings and left menu, if user wants to!
 	if (haveChangedSettings())
 	{
-		if (g_settings.easymenu) {
-			ApplySettings();
-			return;
-		}
 		if (ShowMsgUTF(LOCALE_PERSONALIZE_HEAD, g_Locale->getText(LOCALE_PERSONALIZE_APPLY_SETTINGS), CMessageBox::mbrYes, CMessageBox::mbYes | CMessageBox::mbNo, NEUTRINO_ICON_QUESTION) == CMessageBox::mbrYes)
 		{
 			CHintBox hintBox(LOCALE_MESSAGEBOX_INFO, g_Locale->getText(LOCALE_MAINSETTINGS_SAVESETTINGSNOW_HINT)); // UTF-8
@@ -845,7 +810,7 @@ void CPersonalizeGui::addPersonalizedItems()
 					use_pin = true;
 				
 				//set pinmode for personalize menu or for settings manager menu and if any item is pin protected 
-				if (!g_settings.easymenu && (in_pinmode && !use_pin))
+				if (in_pinmode && !use_pin)		
 					if (v_item[i].personalize_mode == &g_settings.personalize[SNeutrinoSettings::P_MAIN_PINSTATUS] || v_item[i].personalize_mode == &g_settings.personalize[SNeutrinoSettings::P_MSET_SETTINGS_MANAGER])
 					{
 						use_pin = true;
@@ -854,7 +819,7 @@ void CPersonalizeGui::addPersonalizedItems()
 											
 				//convert item to locked forwarder and use generated pin mode for usage as ask parameter 
 				v_item[i].menuItem = new CLockedMenuForwarder(fw->getTextLocale(), 
-						g_settings.easymenu ? g_settings.parentallock_pincode : g_settings.personalize_pincode,
+						g_settings.personalize_pincode,
 						use_pin, fw->active, NULL, fw->getTarget(), fw->getActionKey().c_str(), d_key, fw->iconName.c_str(), lock_icon);
 				v_item[i].menuItem->hintIcon = fw->hintIcon;
 				v_item[i].menuItem->hint = fw->hint;

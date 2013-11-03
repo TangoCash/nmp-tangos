@@ -785,7 +785,6 @@ ledcontroler.on.all Led1 & Led2 on
 ledcontroler.on.led1 Led1 on
 ledcontroler.on.led2 Led2 on
 mainmenu.audioplayer Audioplayer
-mainmenu.channels Channels
 mainmenu.clearsectionsd Clear EPG Cache
 mainmenu.games Games
 mainmenu.head Main Menu
@@ -799,13 +798,12 @@ mainmenu.recording Recording
 mainmenu.recording_start start
 mainmenu.recording_stop stop
 mainmenu.scripts Scripts
-mainmenu.service Instalation (service)
-mainmenu.settings System settings
+mainmenu.service Service
+mainmenu.settings Settings
 mainmenu.shairport ShairPort
 mainmenu.shutdown Shutdown (deep standby)
 mainmenu.shutdown_menu Shutdown
 mainmenu.sleeptimer SleepTimer
-mainmenu.standby Standby
 mainmenu.tvmode TV-Mode
 mainmenu.tvradio_switch TV-Radio Switch
 mainsettings.audio Audio
@@ -1196,7 +1194,6 @@ menu.hint_softupdate_expert Separate partitions from the flash read / write to t
 menu.hint_softupdate_expert_read Separate partitions (U-Boot, Splash, Kernel, SystemFS) from the flash read
 menu.hint_softupdate_expert_write Separate partitions (Splash, Kernel, SystemFS) write to the flash
 menu.hint_softupdate_settings The local update directory and the configuration file to set
-menu.hint_standby Put receiver to sleep mode
 menu.hint_start_tostandby Enter standby mode after boot
 menu.hint_streaminfo Current channel info: pids, signal and noise ratio\nBitrate graphs
 menu.hint_subchannel_pos Select subchannels menu position

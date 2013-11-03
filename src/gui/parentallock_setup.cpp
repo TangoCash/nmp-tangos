@@ -114,24 +114,15 @@ int CParentalSetup::showParentalSetup()
 	plock->addItem(mf);
 
 	CMenuOptionChooser * mc;
-	if (g_settings.easymenu)
-		mc = new CMenuOptionChooser(LOCALE_PARENTALLOCK_PROMPT , &g_settings.parentallock_prompt , PARENTALLOCK_PROMPT_OPTIONS, PARENTALLOCK_PROMPT_OPTION_COUNT , !parentallocked, NULL, CRCInput::RC_green, NEUTRINO_ICON_BUTTON_GREEN);
-	else
-		mc = new CMenuOptionChooser(LOCALE_PARENTALLOCK_PROMPT , &g_settings.parentallock_prompt , PARENTALLOCK_PROMPT_OPTIONS, PARENTALLOCK_PROMPT_OPTION_COUNT , !parentallocked);
+	mc = new CMenuOptionChooser(LOCALE_PARENTALLOCK_PROMPT , &g_settings.parentallock_prompt , PARENTALLOCK_PROMPT_OPTIONS, PARENTALLOCK_PROMPT_OPTION_COUNT , !parentallocked);
 	mc->setHint("", LOCALE_MENU_HINT_PARENTALLOCK_PROMPT);
 	plock->addItem(mc);
 
-	if (g_settings.easymenu)
-		mc = new CMenuOptionChooser(LOCALE_PARENTALLOCK_LOCKAGE, &g_settings.parentallock_lockage, PARENTALLOCK_LOCKAGE_OPTIONS, PARENTALLOCK_LOCKAGE_OPTION_COUNT, !parentallocked, NULL, CRCInput::RC_yellow, NEUTRINO_ICON_BUTTON_YELLOW);
-	else
-		mc = new CMenuOptionChooser(LOCALE_PARENTALLOCK_LOCKAGE, &g_settings.parentallock_lockage, PARENTALLOCK_LOCKAGE_OPTIONS, PARENTALLOCK_LOCKAGE_OPTION_COUNT, !parentallocked);
+	mc = new CMenuOptionChooser(LOCALE_PARENTALLOCK_LOCKAGE, &g_settings.parentallock_lockage, PARENTALLOCK_LOCKAGE_OPTIONS, PARENTALLOCK_LOCKAGE_OPTION_COUNT, !parentallocked);
 	mc->setHint("", LOCALE_MENU_HINT_PARENTALLOCK_LOCKAGE);
 	plock->addItem(mc);
 
-	if (g_settings.easymenu)
-		mc = new CMenuOptionChooser(LOCALE_PARENTALLOCK_BOUQUETMODE, &g_settings.parentallock_defaultlocked, PARENTALLOCK_DEFAULTLOCKED_OPTIONS, PARENTALLOCK_DEFAULTLOCKED_OPTION_COUNT, !parentallocked, NULL, CRCInput::RC_blue, NEUTRINO_ICON_BUTTON_BLUE);
-	else
-		mc = new CMenuOptionChooser(LOCALE_PARENTALLOCK_BOUQUETMODE, &g_settings.parentallock_defaultlocked, PARENTALLOCK_DEFAULTLOCKED_OPTIONS, PARENTALLOCK_DEFAULTLOCKED_OPTION_COUNT, !parentallocked);
+	mc = new CMenuOptionChooser(LOCALE_PARENTALLOCK_BOUQUETMODE, &g_settings.parentallock_defaultlocked, PARENTALLOCK_DEFAULTLOCKED_OPTIONS, PARENTALLOCK_DEFAULTLOCKED_OPTION_COUNT, !parentallocked);
 	plock->addItem(mc);
 
 	CPINChangeWidget pinChangeWidget(LOCALE_PARENTALLOCK_CHANGEPIN, g_settings.parentallock_pincode, 4, LOCALE_PARENTALLOCK_CHANGEPIN_HINT1);

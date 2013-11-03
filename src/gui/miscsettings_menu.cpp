@@ -352,7 +352,7 @@ int CMiscMenue::showMiscSettingsMenuEnergy()
 	CStringInput * miscSettings_shutdown_count = new CStringInput(LOCALE_MISCSETTINGS_SHUTDOWN_COUNT, g_settings.shutdown_count, 3, LOCALE_MISCSETTINGS_SHUTDOWN_COUNT_HINT1, LOCALE_MISCSETTINGS_SHUTDOWN_COUNT_HINT2, "0123456789 ");
 	CMenuForwarder *m2 = new CMenuDForwarder(LOCALE_MISCSETTINGS_SHUTDOWN_COUNT, !g_settings.shutdown_real, g_settings.shutdown_count, miscSettings_shutdown_count);
 	m2->setHint("", LOCALE_MENU_HINT_SHUTDOWN_COUNT);
-
+	
 	COnOffNotifier * miscNotifier = new COnOffNotifier(1);
 	miscNotifier->addItem(m1);
 	miscNotifier->addItem(m2);
@@ -372,11 +372,9 @@ int CMiscMenue::showMiscSettingsMenuEnergy()
 	m4->setHint("", LOCALE_MENU_HINT_SLEEPTIMER_MIN);
 	ms_energy->addItem(m4);
 
-	if (g_settings.easymenu) {
-		CMenuOptionChooser *cec_ch = new CMenuOptionChooser(LOCALE_VIDEOMENU_HDMI_CEC, &g_settings.hdmi_cec_mode, VIDEOMENU_HDMI_CEC_MODE_OPTIONS, VIDEOMENU_HDMI_CEC_MODE_OPTION_COUNT, true, this);
-		cec_ch->setHint("", LOCALE_MENU_HINT_CEC_MODE);
-		ms_energy->addItem(cec_ch);
-	}
+	CMenuOptionChooser *cec_ch = new CMenuOptionChooser(LOCALE_VIDEOMENU_HDMI_CEC, &g_settings.hdmi_cec_mode, VIDEOMENU_HDMI_CEC_MODE_OPTIONS, VIDEOMENU_HDMI_CEC_MODE_OPTION_COUNT, true, this);
+	cec_ch->setHint("", LOCALE_MENU_HINT_CEC_MODE);
+	ms_energy->addItem(cec_ch);
 
 	int res = ms_energy->exec(NULL, "");
 	delete ms_energy;
