@@ -573,6 +573,8 @@ void CStreamInfo2::paint_techinfo(int xpos, int ypos)
 		sprintf (buf, "%s:",g_Locale->getText (LOCALE_SATSETUP_SATELLITE));//swiped locale
 	else if(t.deltype == FE_QAM)
 		sprintf (buf, "%s:",g_Locale->getText (LOCALE_CHANNELLIST_PROVS));
+	else
+		snprintf (buf, sizeof(buf), "%s:",g_Locale->getText (LOCALE_TERRESTRIALSETUP_AREA));
 
 	g_Font[font_info]->RenderString(xpos, ypos, box_width, buf, COL_INFOBAR_TEXT, 0, true); // UTF-8
 
@@ -698,6 +700,18 @@ void CStreamInfo2::paintCASystem(int xpos, int ypos)
 		caids[i] = false;
 	}
 
+	int acaid = 0;
+	FILE *f = fopen("/tmp/ecm.info", "rt");
+	if (f) {
+		char buf[80];
+		if (fgets(buf, sizeof(buf), f) != NULL) {
+			while (buf[i] != '0')
+				i++;
+			sscanf(&buf[i], "%X", &acaid);
+		}
+		fclose(f);
+	}
+
 	int spaceoffset = 0;
 
 	for(casys_map_iterator_t it = channel->camap.begin(); it != channel->camap.end(); ++it) {
@@ -755,7 +769,7 @@ void CStreamInfo2::paintCASystem(int xpos, int ypos)
 		if(caids[ca_id] == true){
 			if(cryptsysteme){
 				ypos += iheight;
-				g_Font[font_info]->RenderString(xpos , ypos, box_width, "Conditional access:" , COL_INFOBAR_TEXT, 0, false);
+				g_Font[font_info]->RenderString(xpos , ypos, box_width, g_Locale->getText(LOCALE_STREAMINFO_CASYSTEMS), COL_INFOBAR_TEXT, 0, false);
 				cryptsysteme = false;
 			}
 			ypos += sheight;
@@ -764,7 +778,13 @@ void CStreamInfo2::paintCASystem(int xpos, int ypos)
 			std::string::size_type last_pos = casys[ca_id].find_first_not_of(tok, 0);
 			std::string::size_type pos = casys[ca_id].find_first_of(tok, last_pos);
 			while (std::string::npos != pos || std::string::npos != last_pos){
-				g_Font[font_small]->RenderString(xpos + width_txt, ypos, box_width, casys[ca_id].substr(last_pos, pos - last_pos).c_str() , COL_INFOBAR_TEXT, 0, false);
+				int col = COL_INFOBAR_TEXT;
+				if (index > 0) {
+					int id;
+					if (1 == sscanf(casys[ca_id].substr(last_pos, pos - last_pos).c_str(), "%X", &id) && acaid == id)
+						col = COL_MENUHEAD_TEXT;
+				}
+				g_Font[font_small]->RenderString(xpos + width_txt, ypos, box_width, casys[ca_id].substr(last_pos, pos - last_pos).c_str() , col, 0, false);
 				if(index == 0)
 					width_txt = spaceoffset;
 				else

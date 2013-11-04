@@ -1895,6 +1895,7 @@ streaminfo.aratio_unknown unknown
 streaminfo.audiotype Audiotype
 streaminfo.average_bitrate Average
 streaminfo.bitrate Bitrate
+streaminfo.casystems Conditional access systems
 streaminfo.framerate Framerate
 streaminfo.framerate_unknown unknown
 streaminfo.head Stream-Information
@@ -1910,6 +1911,7 @@ stringinput.caps caps / no caps
 stringinput.clear clear all
 subtitles.head Subtitles
 subtitles.stop Stop subtitles
+terrestrialsetup.area Area
 terrestrialsetup.provider Terrestrial Provider
 three.d.off Inactive
 three.d.save Remember for this channel

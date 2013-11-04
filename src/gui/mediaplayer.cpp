@@ -92,11 +92,9 @@ int CMediaPlayerMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 	CAudioMute *audiomute = CAudioMute::getInstance();
 	if (actionKey == "audioplayer")
 	{
-		audiomute->enableMuteIcon(false);
 		if (audioPlayer == NULL)
 			audioPlayer = new CAudioPlayerGui();
 		int res = audioPlayer->exec(NULL, "init");
-		audiomute->enableMuteIcon(true);
 		return res /*menu_return::RETURN_REPAINT*/;
 	}
 	else if (actionKey == "shairport")
@@ -110,11 +108,9 @@ int CMediaPlayerMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 	}
 	else if	(actionKey == "inetplayer")
 	{
-		audiomute->enableMuteIcon(false);
 		if (inetPlayer == NULL)
 			inetPlayer = new CAudioPlayerGui(true);
 		int res = inetPlayer->exec(NULL, "init");
-		audiomute->enableMuteIcon(true);
 		return res; //menu_return::RETURN_REPAINT;
 	}
 	else if (actionKey == "movieplayer")

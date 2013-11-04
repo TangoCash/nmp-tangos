@@ -416,7 +416,8 @@ bool CUserMenu::showUserMenu(int button)
 			menu_items++;
 			menu_prev = SNeutrinoSettings::ITEM_THREE_D_MODE;
 			keyhelper.get(&key,&icon);
-			menu->addItem(new CMenuForwarder(LOCALE_THREE_D_SETTINGS, true, NULL, CNeutrinoApp::getInstance()->threeDSetup, NULL, key, icon));
+			menu_item = new CMenuForwarder(LOCALE_THREE_D_SETTINGS, true, NULL, CNeutrinoApp::getInstance()->threeDSetup, "3dmode", key, icon);
+			menu->addItem(menu_item, 0);
 			break;
 		case SNeutrinoSettings::ITEM_RASS:
 			if (CNeutrinoApp::getInstance()->getMode() == CNeutrinoApp::mode_radio && g_Radiotext && g_Radiotext->haveRASS()) {

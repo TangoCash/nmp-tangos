@@ -162,14 +162,9 @@ void CNeutrinoApp::InitMenuMain()
 	//multimedia menu
 	CMenuForwarder *media = new CMenuForwarder(LOCALE_MAINMENU_MEDIA, true, NULL, CMediaPlayerMenu::getInstance(), NULL, CRCInput::RC_blue, NEUTRINO_ICON_BUTTON_BLUE);
 	media->setHint(NEUTRINO_ICON_HINT_MEDIA, LOCALE_MENU_HINT_MEDIA);
- 	personalize.addItem(MENU_MAIN, media, &g_settings.personalize[SNeutrinoSettings::P_MAIN_MEDIA]);
+	personalize.addItem(MENU_MAIN, media, &g_settings.personalize[SNeutrinoSettings::P_MAIN_MEDIA]);
 
 	CMenuForwarder * mf;
-	//separator
- 	personalize.addSeparator(MENU_MAIN);
-
-	//2nd section***************************************************************************************************
-
 	//games
 	bool show_games = g_PluginList->hasPlugin(CPlugins::P_TYPE_GAME);
 	mf = new CMenuForwarder(LOCALE_MAINMENU_GAMES, show_games, NULL, new CPluginList(LOCALE_MAINMENU_GAMES,CPlugins::P_TYPE_GAME));
@@ -181,6 +176,11 @@ void CNeutrinoApp::InitMenuMain()
 	mf = new CMenuForwarder(LOCALE_MAINMENU_SCRIPTS, show_scripts, NULL, new CPluginList(LOCALE_MAINMENU_SCRIPTS,CPlugins::P_TYPE_SCRIPT));
 	mf->setHint(NEUTRINO_ICON_HINT_SCRIPTS, LOCALE_MENU_HINT_SCRIPTS);
 	personalize.addItem(MENU_MAIN, mf, &g_settings.personalize[SNeutrinoSettings::P_MAIN_SCRIPTS]);
+
+	//separator
+	personalize.addSeparator(MENU_MAIN);
+
+	//2nd section***************************************************************************************************
 
 	// settings, also as pin protected option in personalize menu, as a result of parameter value CPersonalizeGui::PERSONALIZE_SHOW_AS_ACCESS_OPTION
 	mf = new CMenuForwarder(LOCALE_MAINMENU_SETTINGS, true, NULL, &personalize.getWidget(MENU_SETTINGS)/**settings**/);
@@ -273,8 +273,8 @@ void CNeutrinoApp::InitMenuSettings()
 	mf->setHint(NEUTRINO_ICON_HINT_EXTENDED, LOCALE_MENU_HINT_EXTENDED);
 	personalize.addItem(MENU_SETTINGS, mf, &g_settings.personalize[SNeutrinoSettings::P_MSET_MISC]);
 
- 	//separator
- 	personalize.addSeparator(MENU_SETTINGS);
+	//separator
+	personalize.addSeparator(MENU_SETTINGS);
 
 	//1st section***************************************************************************************************
 
@@ -410,7 +410,7 @@ void CNeutrinoApp::InitMenuService()
 	mf->setHint(NEUTRINO_ICON_HINT_RELOAD_CHANNELS, LOCALE_MENU_HINT_RELOAD_PLUGINS);
 	personalize.addItem(MENU_SERVICE, mf, &g_settings.personalize[SNeutrinoSettings::P_MSER_RELOAD_PLUGINS]);
 
- 	//separator
+	//separator
 	personalize.addSeparator(MENU_SERVICE);
 
 	//2nd section***************************************************************************************************
