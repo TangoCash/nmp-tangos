@@ -398,11 +398,11 @@ printf("C: %d S: %d T: %d\n", CFEManager::getInstance()->haveCable(),CFEManager:
 	allow_start = !CRecordManager::getInstance()->RecordingStatus() || CRecordManager::getInstance()->TimeshiftOnly();
 
 	//main
-	CMenuWidget * settings = new CMenuWidget(is_wizard ? LOCALE_SERVICEMENU_SCANTS : LOCALE_SERVICEMENU_HEAD, NEUTRINO_ICON_SETTINGS, width, MN_WIDGET_ID_SCAN_MAIN);
+	CMenuWidget * settings = new CMenuWidget(/*is_wizard ? LOCALE_SERVICEMENU_SCANTS :*/ LOCALE_SERVICEMENU_HEAD, NEUTRINO_ICON_SETTINGS, width, MN_WIDGET_ID_SCAN_MAIN);
 	settings->setWizardMode(is_wizard);
 
 	//back
-	settings->addIntroItems(is_wizard ? NONEXISTANT_LOCALE : LOCALE_SERVICEMENU_SCANTS);
+	settings->addIntroItems(/*is_wizard ? NONEXISTANT_LOCALE : */ LOCALE_SERVICEMENU_SCANTS);
 	//----------------------------------------------------------------------
 #if 0
 	//save scan settings
@@ -587,6 +587,7 @@ int CScanSetup::showScanMenuFrontendSetup()
 	CZapit::getInstance()->GetConfig(zapitCfg);
 	CMenuWidget * setupMenu = new CMenuWidget(LOCALE_SATSETUP_FE_SETUP, NEUTRINO_ICON_SETTINGS, width, MN_WIDGET_ID_SCAN_FE_SETUP);
 	setupMenu->addIntroItems();
+	setupMenu->setWizardMode(is_wizard);
 
 	int count = CFEManager::getInstance()->getFrontendCount();
 
@@ -931,7 +932,7 @@ void CScanSetup::fillSatSelect(CMenuOptionStringChooser * select)
 	for(int i = 0; i < count; i++) {
 		CFrontend * fe = CFEManager::getInstance()->getFE(i);
 
-		if (fe->getInfo()->type != FE_QPSK)
+		if ((fe->getInfo()->type != FE_QPSK) || (fe->getMode() == CFrontend::FE_MODE_UNUSED))
 			continue;
 
 		satellite_map_t & satmap = fe->getSatellites();

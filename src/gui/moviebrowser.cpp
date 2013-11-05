@@ -1307,7 +1307,9 @@ printf("CMovieBrowser::refreshMovieInfo\n");
 //printf("refreshMovieInfo: EpgId %llx id %llx y %d\n", m_movieSelectionHandler->epgEpgId, m_movieSelectionHandler->epgId, m_cBoxFrameTitleRel.iY);
 		int lx = m_cBoxFrame.iX+m_cBoxFrameTitleRel.iX+m_cBoxFrameTitleRel.iWidth-logo_w-10;
 		int ly = m_cBoxFrameTitleRel.iY+m_cBoxFrame.iY+ (m_cBoxFrameTitleRel.iHeight-logo_h)/2;
-		const short pb_hdd_offset = 104;
+		short pb_hdd_offset = 104;
+		if (show_mode == MB_SHOW_YT)
+			pb_hdd_offset = 0;
 		m_pcWindow->paintBoxRel(lx - pb_hdd_offset , ly, logo_w, logo_h, TITLE_BACKGROUND_COLOR);
         	std::string lname;
 		if(g_PicViewer->GetLogoName(m_movieSelectionHandler->epgEpgId >>16, m_movieSelectionHandler->epgChannel, lname, &logo_w, &logo_h)){
@@ -1332,6 +1334,9 @@ printf("CMovieBrowser::refreshMovieInfo\n");
 
 void CMovieBrowser::info_hdd_level(bool paint_hdd)
 {
+	if (show_mode == MB_SHOW_YT)
+		return;
+
 	struct statfs s;
 	long	blocks_percent_used =0;
 	static long tmp_blocks_percent_used = 0;
@@ -1636,7 +1641,6 @@ void CMovieBrowser::refreshBookmarkList(void) // P3
 
 void CMovieBrowser::refreshTitle(void)
 {
-	//Paint Text Background
 	std::string title = m_textTitle.c_str();
 	if (show_mode == MB_SHOW_YT) {
 		title = g_Locale->getText(LOCALE_MOVIEPLAYER_YTPLAYBACK);
@@ -1649,17 +1653,14 @@ void CMovieBrowser::refreshTitle(void)
 	
 	TRACE("[mb]->refreshTitle : %s\r\n", title.c_str());
 
-	const short text_border_width = 8;
-	int start_y = m_cBoxFrame.iY+	m_cBoxFrameTitleRel.iY;
+	int x = m_cBoxFrameTitleRel.iX + m_cBoxFrame.iX;
+	int y = m_cBoxFrameTitleRel.iY + m_cBoxFrame.iY;
+	int w = m_cBoxFrameTitleRel.iWidth;
+	int h = m_cBoxFrameTitleRel.iHeight;
 	
-	m_pcWindow->paintBoxRel(m_cBoxFrame.iX+m_cBoxFrameTitleRel.iX, start_y,
-				m_cBoxFrameTitleRel.iWidth, m_cBoxFrameTitleRel.iHeight, TITLE_BACKGROUND_COLOR, RADIUS_LARGE, CORNER_TOP);
-	
-	int iconw = 0, iconh = 0;
-	CFrameBuffer::getInstance()->getIconSize(NEUTRINO_ICON_MOVIEPLAYER, &iconw, &iconh);
-	m_pcWindow->paintIcon(NEUTRINO_ICON_MOVIEPLAYER, m_cBoxFrame.iX+m_cBoxFrameTitleRel.iX+6, start_y+ m_cBoxFrameTitleRel.iHeight/2 - iconh/2);
+	CComponentsHeader header(x, y, w, h, title.c_str(), NEUTRINO_ICON_MOVIEPLAYER);
+	header.paint(CC_SAVE_SCREEN_NO);
 
-	m_pcFontTitle->RenderString(m_cBoxFrame.iX+m_cBoxFrameTitleRel.iX + iconw + text_border_width, start_y + m_cBoxFrameTitleRel.iHeight, m_cBoxFrameTitleRel.iWidth - (text_border_width << 1), title.c_str(), TITLE_FONT_COLOR, 0, true); // UTF-8
 	info_hdd_level(true);
 }
 

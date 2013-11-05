@@ -943,5 +943,6 @@ bool CPinSetupNotifier::changeNotify(const neutrino_locale_t, void *)
 {
 	toDisable->setActive(g_settings.personalize[SNeutrinoSettings::P_MAIN_PINSTATUS]);
    
-   return g_settings.personalize[SNeutrinoSettings::P_MAIN_PINSTATUS];
+//   return g_settings.personalize[SNeutrinoSettings::P_MAIN_PINSTATUS];
+	return false;
 }
