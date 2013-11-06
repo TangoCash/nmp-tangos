@@ -258,6 +258,7 @@ int CPersonalizeGui::exec(CMenuTarget* parent, const string & actionKey)
 	
 	if ( is_pin_protected || hasPinItems()){
 		setHint(LOCALE_PERSONALIZE_PINHINT); //from CPINProtection
+		is_pin_protected = true;
 		if (check())
 			is_pin_protected = false;
 	}
@@ -346,7 +347,7 @@ void CPersonalizeGui::ShowPinSetup(CMenuWidget* p_widget, CPINChangeWidget * &pi
  	pin_setup_notifier = new CPinSetupNotifier(fw_pin_setup);
  	p_widget->addItem(new CMenuOptionChooser(LOCALE_PERSONALIZE_PIN_IN_USE, &g_settings.personalize[SNeutrinoSettings::P_MAIN_PINSTATUS], OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true, pin_setup_notifier));
 	
-	fw_pin_setup->setActive(pin_setup_notifier->changeNotify());
+	pin_setup_notifier->changeNotify();
 	p_widget->addItem(fw_pin_setup);
 	
 	p_widget->addItem(new CMenuSeparator(CMenuSeparator::LINE | CMenuSeparator::STRING, LOCALE_PERSONALIZE_MENUCONFIGURATION));
