@@ -22,8 +22,12 @@
 	Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 */
 
+#include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
 #include <stdint.h>
 #include <string>
+#include <sstream>
 
 int my_system(const char * cmd);
 int my_system(int argc, const char *arg, ...); /* argc is number of arguments including command */
@@ -64,4 +68,18 @@ class CFileHelpers
 
 };
 
+template<class C> std::string to_string(C i)
+{
+	std::stringstream s;
+	s << i;
+	return s.str();
+}
+
+inline int atoi(std::string &s) { return atoi(s.c_str()); }
+inline int atoi(const std::string &s) { return atoi(s.c_str()); }
+inline int access(std::string &s, int mode) { return access(s.c_str(), mode); }
+inline int access(const std::string &s, int mode) { return access(s.c_str(), mode); }
+
+inline void cstrncpy(char *dest, const char * const src, size_t n) { n--; strncpy(dest, src, n); dest[n] = 0; }
+inline void cstrncpy(char *dest, const std::string &src, size_t n) { n--; strncpy(dest, src.c_str(), n); dest[n] = 0; }
 #endif

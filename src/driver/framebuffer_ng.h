@@ -60,7 +60,8 @@ typedef struct fb_var_screeninfo t_fb_var_screeninfo;
 #define FADE_RESET 0xFFFF
 
 #define WINDOW_SIZE_MAX		100 // %
-#define WINDOW_SIZE_MIN		80 // %
+#define WINDOW_SIZE_MIN		50 // %
+#define WINDOW_SIZE_MIN_FORCED	80 // %
 #define ConnectLineBox_Width	16 // px
 
 #if HAVE_GENERIC_HARDWARE
@@ -347,7 +348,6 @@ class CFrameBuffer
 		};
 
 		inline bool checkFbArea(int _x, int _y, int _dx, int _dy, bool prev) { return (fbAreaActiv && !fb_no_check) ? _checkFbArea(_x, _y, _dx, _dy, prev) : true; }
-
 		void setFbArea(int element, int _x=0, int _y=0, int _dx=0, int _dy=0);
 		void fbNoCheck(bool noCheck) { fb_no_check = noCheck; }
 		void doPaintMuteIcon(bool mode) { do_paint_mute_icon = mode; }

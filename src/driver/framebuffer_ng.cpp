@@ -342,14 +342,14 @@ unsigned int CFrameBuffer::getScreenHeight(bool real)
 
 unsigned int CFrameBuffer::getScreenWidthRel(bool force_small)
 {
-	int percent = force_small ? WINDOW_SIZE_MIN : g_settings.window_size;
+	int percent = force_small ? WINDOW_SIZE_MIN_FORCED : g_settings.window_width;
 	// always reduce a possible detailline
 	return (g_settings.screen_EndX - g_settings.screen_StartX - 2*ConnectLineBox_Width) * percent / 100;
 }
 
 unsigned int CFrameBuffer::getScreenHeightRel(bool force_small)
 {
-	int percent = force_small ? WINDOW_SIZE_MIN : g_settings.window_size;
+	int percent = force_small ? WINDOW_SIZE_MIN_FORCED : g_settings.window_height;
 	return (g_settings.screen_EndY - g_settings.screen_StartY) * percent / 100;
 }
 
@@ -467,6 +467,7 @@ fprintf(stderr, "CFrameBuffer::setMode avail: %d active: %d\n", available, activ
 		perror("FBIOGET_FSCREENINFO");
 		return -1;
 	}
+
 	stride = _fix.line_length;
 #endif
 #endif
@@ -519,7 +520,7 @@ void CFrameBuffer::setBlendLevel(int level)
 
 	if (ioctl(fd, FBIO_SETOPACITY, value))
 		printf("FBIO_SETOPACITY failed.\n");
-#if 1
+#ifndef BOXMODEL_APOLLO
        if(level == 100) // TODO: sucks.
                usleep(20000);
 #endif
@@ -634,6 +635,7 @@ inline fb_pixel_t mergeColor(fb_pixel_t oc, int ol, fb_pixel_t ic, int il)
 void CFrameBuffer::paintBoxRel(const int x, const int y, const int dx, const int dy, const fb_pixel_t col, int radius, int type)
 {
 	/* draw a filled rectangle (with additional round corners) */
+
 	if (!getActive())
 		return;
 
@@ -817,11 +819,9 @@ bool CFrameBuffer::paintIcon(const std::string & filename, const int x, const in
 {
 	struct rawHeader header;
 	int         width, height;
-	int              lfd;
 	fb_pixel_t * data;
 	struct rawIcon tmpIcon;
 	std::map<std::string, rawIcon>::iterator it;
-	int dsize;
 
 	if (!getActive())
 		return false;
@@ -838,7 +838,7 @@ bool CFrameBuffer::paintIcon(const std::string & filename, const int x, const in
 		data = g_PicViewer->getIcon(newname, &width, &height);
 
 		if(data) {
-			dsize = width*height*sizeof(fb_pixel_t);
+			int dsize = width*height*sizeof(fb_pixel_t);
 			//printf("CFrameBuffer::paintIcon: %s found, data %x size %d x %d\n", newname.c_str(), data, width, height);fflush(stdout);
 			if(cache_size+dsize < ICON_CACHE_SIZE) {
 				cache_size += dsize;
@@ -853,7 +853,7 @@ bool CFrameBuffer::paintIcon(const std::string & filename, const int x, const in
 
 		newname = iconBasePath + filename.c_str() + ".raw";
 
-		lfd = open(newname.c_str(), O_RDONLY);
+		int lfd = open(newname.c_str(), O_RDONLY);
 
 		if (lfd == -1) {
 			//printf("paintIcon: error while loading icon: %s\n", newname.c_str());
@@ -864,7 +864,7 @@ bool CFrameBuffer::paintIcon(const std::string & filename, const int x, const in
 		tmpIcon.width = width  = (header.width_hi  << 8) | header.width_lo;
 		tmpIcon.height = height = (header.height_hi << 8) | header.height_lo;
 
-		dsize = width*height*sizeof(fb_pixel_t);
+		int dsize = width*height*sizeof(fb_pixel_t);
 
 		tmpIcon.data = (fb_pixel_t*) cs_malloc_uncached(dsize);
 		data = tmpIcon.data;

@@ -199,21 +199,6 @@ CScanSetup::CScanSetup(bool wizard_mode)
 	width = w_max (40, 10);
 	is_wizard = wizard_mode;
 
-	//define caption of some forwarders and widgets depends of current receiver type
-	switch (r_system)
-	{
-		case DVB_S:
-			satprov_locale = LOCALE_SATSETUP_SATELLITE;
-			break;
-		case DVB_T:
-			satprov_locale = LOCALE_TERRESTRIALSETUP_PROVIDER;
-			break;
-		case DVB_C:
-		default:
-			satprov_locale = LOCALE_CABLESETUP_PROVIDER;
-			break;
-	}
-
 	satSelect 	= NULL;
 	cableSelect 	= NULL;
 	terrSelect	= NULL;
@@ -600,7 +585,8 @@ int CScanSetup::showScanMenuFrontendSetup()
 		char name[255];
 		snprintf(name, sizeof(name), "%s %d: %s %s", g_Locale->getText(LOCALE_SATSETUP_FE_SETUP), i+1,
 				fe->getInfo()->type == FE_QPSK ? g_Locale->getText(LOCALE_SCANTS_ACTSATELLITE)
-				: g_Locale->getText(LOCALE_SCANTS_ACTCABLE),
+				: fe->getInfo()->type == FE_QAM ? g_Locale->getText(LOCALE_SCANTS_ACTCABLE)
+				: g_Locale->getText(LOCALE_SCANTS_ACTTERRESTRIAL),
 				fe->getInfo()->name);
 
 		const char * icon = NULL;
@@ -1309,8 +1295,6 @@ int CScanSetup::addScanOptionsItems(CMenuWidget *options_menu, const int &shortc
 {
 	printf("[neutrino] CScanSetup call %s...\n", __FUNCTION__);
 	int shortCut = shortcut;
-	fec_count = (r_system == DVB_S) ? SATSETUP_SCANTP_FEC_COUNT : CABLESETUP_SCANTP_FEC_COUNT;
-	freq_length = (r_system == DVB_S) ? 8 : 6;
 
 	CMenuOptionChooser	*fec = NULL;
 	CMenuOptionChooser	*mod_pol = NULL;
@@ -1339,7 +1323,7 @@ int CScanSetup::addScanOptionsItems(CMenuWidget *options_menu, const int &shortc
 		mod_pol = new CMenuOptionChooser(LOCALE_EXTRA_TP_MOD, (int *)&scansettings.cable_TP_mod, SATSETUP_SCANTP_MOD, SATSETUP_SCANTP_MOD_COUNT, true, NULL, CRCInput::convertDigitToKey(shortCut++));
 		mod_pol->setHint("", LOCALE_MENU_HINT_SCAN_MOD);
 	} else if (r_system == DVB_T) {
-		CStringInput *freq = new CStringInput(LOCALE_EXTRA_TP_FREQ, (char *)scansettings.terr_TP_freq, freq_length, NONEXISTANT_LOCALE, NONEXISTANT_LOCALE, "0123456789");
+		CStringInput *freq = new CStringInput(LOCALE_EXTRA_TP_FREQ, (char *)scansettings.terr_TP_freq, 6, NONEXISTANT_LOCALE, NONEXISTANT_LOCALE, "0123456789");
 		Freq = new CMenuDForwarder(LOCALE_EXTRA_TP_FREQ, true, scansettings.terr_TP_freq, freq, "", CRCInput::convertDigitToKey(shortCut++));
 		Freq->setHint("", LOCALE_MENU_HINT_SCAN_FREQ);
 	}
