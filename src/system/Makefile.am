@@ -1,7 +1,5 @@
-if !BOXTYPE_SPARK
-if !BOXTYPE_DUCKBOX
+if BOXMODEL_APOLLO
 SUBDIRS = mtdutils
-endif
 endif
 
 AM_CXXFLAGS = -fno-rtti -fno-exceptions
