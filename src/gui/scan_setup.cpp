@@ -568,6 +568,7 @@ int CScanSetup::showScanMenuFrontendSetup()
 	int shortcut = 1;
 
 	fe_restart = false;
+	allow_start = !CRecordManager::getInstance()->RecordingStatus() || CRecordManager::getInstance()->TimeshiftOnly();
 
 	CZapit::getInstance()->GetConfig(zapitCfg);
 	CMenuWidget * setupMenu = new CMenuWidget(LOCALE_SATSETUP_FE_SETUP, NEUTRINO_ICON_SETTINGS, width, MN_WIDGET_ID_SCAN_FE_SETUP);
@@ -606,7 +607,8 @@ int CScanSetup::showScanMenuFrontendSetup()
 		}
 
 		modestr[i] = g_Locale->getText(getModeLocale(fe->getMode()));
-		mf = new CMenuForwarderNonLocalized(name, true, modestr[i], this, tmp, key, icon);
+
+		mf = new CMenuForwarderNonLocalized(name, allow_start, modestr[i], this, tmp, key, icon);
 		mf->setHint("", LOCALE_MENU_HINT_SCAN_SETUP_FE);
 		setupMenu->addItem(mf);
 		if(i != 0)
@@ -1452,6 +1454,7 @@ bool CScanSetup::changeNotify(const neutrino_locale_t OptionName, void * /*data*
 	}
 	else if(ARE_LOCALES_EQUAL(OptionName, LOCALE_SATSETUP_FE_MODE_MASTER)) {
 		printf("[neutrino] CScanSetup::%s: fe%d link %d \n", __FUNCTION__, fenumber, femaster);
+		fe_restart = true;
 		CFrontend * fe = CFEManager::getInstance()->getFE(fenumber);
 		if (fe)
 			fe->setMaster(femaster);
