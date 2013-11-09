@@ -226,9 +226,7 @@ int CHDDMenuHandler::doMenu ()
 	std::string tmp_str[n];
 	CMenuWidget * tempMenu[n];
 	for(int i = 0; i < n;i++) {
-#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
 		tempMenu[i] = NULL;
-#endif
 		char str[256];
 		char sstr[256];
 		char vendor[128], model[128];

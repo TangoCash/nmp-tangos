@@ -19,8 +19,10 @@
 	Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 */
 
+
 #ifndef __hdd_menu__
 #define __hdd_menu__
+
 
 #include "widget/menue.h"
 #if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
@@ -70,3 +72,4 @@ class CHDDMenuHandler : public CMenuTarget
 };
 
 #endif
+
