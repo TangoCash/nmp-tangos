@@ -55,6 +55,7 @@
 #include <neutrino.h>
 #include <neutrinoMessages.h>
 #include <timerd/timermanager.h>
+#include <timerdclient/timerdclient.h>
 #include <cs_api.h>
 
 #include <gui/cec_setup.h>

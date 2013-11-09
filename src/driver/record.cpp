@@ -54,6 +54,7 @@
 #ifdef ENABLE_GRAPHLCD
 #include <driver/nglcd.h>
 #endif
+#include <driver/radiotext.h>
 #include <driver/streamts.h>
 #include <zapit/capmt.h>
 #include <zapit/channel.h>

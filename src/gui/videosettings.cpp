@@ -46,6 +46,7 @@
 #include <gui/widget/hintbox.h>
 #include <gui/widget/messagebox.h>
 #include <gui/osd_setup.h>
+#include <gui/psisetup.h>
 
 #include <driver/screen_max.h>
 #include <driver/display.h>

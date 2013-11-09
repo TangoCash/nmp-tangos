@@ -46,10 +46,10 @@
 #include "gui/rc_lock.h"
 #include "gui/user_menue.h"
 #include "gui/timerlist.h"
-#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
-#include <gui/psisetup.h>
-#include <gui/3dsetup.h>
-#endif
+
+// Forward declarations instead of includes:
+class CPSISetup;
+class C3DSetup;
 
 #include <string>
 
