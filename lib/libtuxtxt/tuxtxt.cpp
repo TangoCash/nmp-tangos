@@ -1631,7 +1631,7 @@ int tuxtx_subtitle_running(int *pid, int *page, int *running)
 	return ret;
 }
 
-int tuxtx_main(int _rc, int pid, int page, int source)
+int tuxtx_main(int /*_rc*/, int pid, int page, int source)
 {
 	char cvs_revision[] = "$Revision: 1.95 $";
 
@@ -1664,7 +1664,6 @@ int tuxtx_main(int _rc, int pid, int page, int source)
         }
 #endif
 
-	rc = _rc;
 	CFrameBuffer *fbp = CFrameBuffer::getInstance();
 	lfb = (unsigned char *)fbp->getFrameBufferPointer();
 	lbb = (unsigned char *)fbp->getBackBufferPointer();
@@ -1675,8 +1674,6 @@ int tuxtx_main(int _rc, int pid, int page, int source)
 		printf("[tuxtxt] No PID given, so scanning for PIDs ...\n\n");
 	else
 		printf("[tuxtxt] using PID %x page %d\n", tuxtxt_cache.vtxtpid, tuxtxt_cache.page);
-
-	fcntl(rc, F_SETFL, fcntl(rc, F_GETFL) | O_EXCL | O_NONBLOCK);
 
 #if 0 /* just get it from the framebuffer class */
 	/* get fixed screeninfo */
@@ -2247,7 +2244,6 @@ int Init(int source)
 #else
 	tuxtxt_start(tuxtxt_cache.vtxtpid, source);
 #endif
-	fcntl(rc, F_SETFL, O_NONBLOCK);
 	gethotlist();
 
 	if(use_gui)
@@ -2842,7 +2838,7 @@ void Menu_Init(char *menu, int current_pid, int menuitem, int hotindex)
 
 void ConfigMenu(int Init)
 {
-	int val, menuitem = M_Start;
+	int menuitem = M_Start;
 	int current_pid = 0;
 	int hotindex;
 	int oldscreenmode, oldtrans = 0;
@@ -2895,10 +2891,6 @@ void ConfigMenu(int Init)
 
 	clearbbcolor = black;
 	Menu_Init(menu, current_pid, menuitem, hotindex);
-
-	/* set blocking mode */
-	val = fcntl(rc, F_GETFL);
-	fcntl(rc, F_SETFL, val &~ O_NONBLOCK);
 
 	/* loop */
 	do {
@@ -3371,7 +3363,6 @@ void ConfigMenu(int Init)
 						current_service = current_pid;
 //						RenderMessage(ShowServiceName);
 
-						fcntl(rc, F_SETFL, O_NONBLOCK);
 						RCCode = -1;
 						if (oldscreenmode)
 							SwitchScreenMode(oldscreenmode); /* restore divided screen */
@@ -3433,8 +3424,6 @@ void ConfigMenu(int Init)
 
 	ClearBB(transp);
 	CopyBB2FB();
-	/* reset to nonblocking mode */
-	fcntl(rc, F_SETFL, O_NONBLOCK);
 	tuxtxt_cache.pageupdate = 1;
 	RCCode = -1;
 	if (oldscreenmode)
@@ -3649,7 +3638,7 @@ void ColorKey(int target)
 
 void PageCatching()
 {
-	int val, byte;
+	int byte;
 	int oldzoommode = zoommode;
 
 	pagecatching = 1;
@@ -3678,10 +3667,6 @@ void PageCatching()
 		tuxtxt_cache.pageupdate = 1;
 		return;
 	}
-
-	/* set blocking mode */
-	val = fcntl(rc, F_GETFL);
-	fcntl(rc, F_SETFL, val &~ O_NONBLOCK);
 
 	/* loop */
 	do {
@@ -3721,7 +3706,6 @@ void PageCatching()
 		case RC_HOME:
 		case RC_HELP:
 		case RC_MUTE:
-			fcntl(rc, F_SETFL, O_NONBLOCK);
 			tuxtxt_cache.pageupdate = 1;
 			pagecatching = 0;
 			RCCode = -1;
@@ -3746,9 +3730,6 @@ void PageCatching()
 		tuxtxt_cache.subpage = subp;
 	else
 		tuxtxt_cache.subpage = 0;
-
-	/* reset to nonblocking mode */
-	fcntl(rc, F_SETFL, O_NONBLOCK);
 }
 
 /******************************************************************************
