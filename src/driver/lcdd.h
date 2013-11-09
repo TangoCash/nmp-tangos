@@ -1,12 +1,10 @@
 /*
-	$Id$
-
 	LCD-Daemon  -   DBoxII-Project
 
 	Copyright (C) 2001 Steffen Hehn 'McClean'
 	Homepage: http://dbox.cyberphoria.org/
 
-	Copyright (C) 2008-2012 Stefan Seyfried
+	Copyright (C) 2008-2013 Stefan Seyfried
 
 	License: GPL
 
@@ -120,8 +118,8 @@ typedef enum
 #include "driver/file.h"
 #endif // LCD_UPDATE
 
-#include <configfile.h>
 #include <pthread.h>
+#include <string>
 
 #ifdef HAVE_TRIPLEDRAGON
 #include <lcddisplay/fontrenderer.h>
@@ -192,7 +190,6 @@ class CLCD
 		bool				showclock;
 		bool				movie_centered;
 		bool				movie_is_ac3;
-		CConfigFile			configfile;
 		pthread_t			thrTime;
 		bool				thread_started;
 		int                             last_toggle_state_power;
