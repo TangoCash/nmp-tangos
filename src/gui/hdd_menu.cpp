@@ -47,6 +47,7 @@
 #include <neutrino_menue.h>
 #include "hdd_menu.h"
 
+#include <driver/display.h>
 #include <gui/filebrowser.h>
 #include <gui/widget/icons.h>
 #include <gui/widget/stringinput.h>
@@ -61,9 +62,6 @@
 #include <mymenu.h>
 #include <driver/screen_max.h>
 
-#if HAVE_DUCKBOX_HARDWARE
-#include <driver/vfd.h>
-#endif
 #define HDD_NOISE_OPTION_COUNT 4
 const CMenuOptionChooser::keyval HDD_NOISE_OPTIONS[HDD_NOISE_OPTION_COUNT] =
 {
