@@ -89,7 +89,9 @@ bool CScreenShot::GetData()
 #endif
 	if (videoDecoder->getBlank()) 
 		get_video = false;
+#if !HAVE_GENERIC_HARDWARE
 	res = videoDecoder->GetScreenImage(pixel_data, xres, yres, get_video, get_osd, scale_to_video);
+#endif
 
 #ifdef USE_NEVIS_GXA
 	/* sort of hack. GXA used to transfer/convert live image to RGB,

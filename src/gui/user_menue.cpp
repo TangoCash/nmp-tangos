@@ -45,7 +45,6 @@
 #include "user_menue_setup.h"
 #include "subchannel_select.h"
 #include "favorites.h"
-#include "3dsetup.h"
 #include "audio_select.h"
 #include "streaminfo2.h"
 #include "epgplus.h"
@@ -59,6 +58,10 @@
 #include "cam_menu.h"
 #include "pluginlist.h"
 #include "mediaplayer.h"
+
+#if !HAVE_GENERIC_HARDWARE
+#include "3dsetup.h"
+#endif
 
 #include <global.h>
 #include <neutrino.h>
@@ -200,14 +203,6 @@ bool CUserMenu::showUserMenu(int button)
 			menu_prev = SNeutrinoSettings::ITEM_MOVIEPLAYER_MB;
 			keyhelper.get(&key,&icon,CRCInput::RC_green);
 			menu_item = new CMenuForwarder(LOCALE_MOVIEBROWSER_HEAD, true, NULL, &CMoviePlayerGui::getInstance(), "tsmoviebrowser", key, icon);
-			menu->addItem(menu_item, false);
-			break;
-
-		case SNeutrinoSettings::ITEM_WEBTV:
-			menu_items++;
-			menu_prev = SNeutrinoSettings::ITEM_WEBTV;
-			keyhelper.get(&key,&icon,CRCInput::RC_yellow);
-			menu_item = new CMenuForwarder(LOCALE_WEBTV_HEAD, true, NULL, CMediaPlayerMenu::getInstance(), "webtv", key, icon);
 			menu->addItem(menu_item, false);
 			break;
 

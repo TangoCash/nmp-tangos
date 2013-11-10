@@ -64,8 +64,11 @@
 #include <driver/radiotext.h>
 #include <driver/scanepg.h>
 
+#if !HAVE_GENERIC_HARDWARE
 #include "gui/3dsetup.h"
 #include "gui/psisetup.h"
+#endif
+
 #include "gui/audiomute.h"
 #include "gui/audioplayer.h"
 #include "gui/bouquetlist.h"
