@@ -730,11 +730,7 @@ struct SNeutrinoSettings
 #endif
 #if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
 		ITEM_THREE_D_MODE = 22,
-		ITEM_WEBTV = 23,
-		ITEM_RASS = 24,
-#endif
-#if HAVE_GENERIC_HARDWARE
-		ITEM_WEBTV = 23,
+		ITEM_RASS = 23,
 #endif
 		ITEM_MAX   // MUST be always the last in the list
 	} USER_ITEM;
