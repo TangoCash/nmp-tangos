@@ -59,7 +59,6 @@ public:
 	void rev(unsigned int seconds=0);
 	CAudioMetaData getMetaData();
 	bool hasMetaDataChanged();
-	bool readCoverData(CAudiofile* const, const bool);
 	bool readMetaData(CAudiofile* const, const bool);
 	time_t getTimePlayed(){return m_played_time;}
 	time_t getTimeTotal(){return m_Audiofile.MetaData.total_time;}

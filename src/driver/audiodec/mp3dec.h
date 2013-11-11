@@ -73,7 +73,7 @@ public:
 							State* const state, CAudioMetaData* m,
 							time_t* const t, unsigned int* const secondsToSkip);
 	bool GetMetaData(FILE *in, const bool nice, CAudioMetaData* const m);
-	void SaveCover(FILE*);
+	bool SaveCover(FILE*, CAudioMetaData * const m);
 	CMP3Dec(){};
 
 };

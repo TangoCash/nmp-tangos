@@ -1859,12 +1859,6 @@ void CAudioPlayerGui::paintInfo()
 			tmp += " / ";
 			tmp += m_curr_audiofile.MetaData.title;
 		}
-		if (SaveCover(m_curr_audiofile))
-			if (!g_PicViewer->DisplayImage("/tmp/cover.jpg",m_x+2,m_y+2,m_title_height-14,m_title_height-14))
-			{
-				std::string FolderCover = m_curr_audiofile.Filename.substr(0, m_curr_audiofile.Filename.rfind('/')) + "/folder.jpg";
-				g_PicViewer->DisplayImage(FolderCover,m_x+2,m_y+2,m_title_height-14,m_title_height-14);
-			}
 		w = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(tmp, true); // UTF-8
 		xstart=(m_width-w)/2;
 		if (xstart < 10)
@@ -2204,6 +2198,25 @@ void CAudioPlayerGui::updateMetaData(bool screen_saver)
 			m_curr_audiofile.MetaData.album = meta.sc_station;
 			updateLcd = true;
 		}
+
+		std::string cover = m_curr_audiofile.Filename.substr(0, m_curr_audiofile.Filename.rfind('/')) + "/folder.jpg";
+
+		if (!meta.cover.empty())
+			cover = "/tmp/cover.jpg";
+
+		if ((access(cover.c_str(), F_OK) == 0) && !screen_saver)
+		{
+			g_PicViewer->DisplayImage(cover, m_x + 2, m_y + 2, m_title_height - 14, m_title_height - 14, m_frameBuffer->TM_NONE);
+
+			if(g_settings.rounded_corners)
+			{
+				//repaint frame to cover up the corners of the cover; FIXME
+				if (!m_show_playlist)
+					m_frameBuffer->paintBoxFrame(m_x, m_y, m_width, m_title_height - 10 - m_fheight, 2, COL_MENUCONTENT_PLUS_6, RADIUS_MID);
+				else
+					m_frameBuffer->paintBoxFrame(m_x, m_y, m_width, m_title_height - 10, 2, COL_MENUCONTENT_PLUS_6, RADIUS_MID);
+			}
+		}
 	}
 	//if (CAudioPlayer::getInstance()->getScBuffered() != 0)
 	if (CAudioPlayer::getInstance()->hasMetaDataChanged() != 0)
@@ -2220,8 +2233,7 @@ void CAudioPlayerGui::updateMetaData(bool screen_saver)
 	
 	if (updateMeta || updateScreen)
 	{
-		m_frameBuffer->paintBoxRel(m_x + 10 + m_title_height, m_y + 4 + 2*m_fheight, m_width - 20 - m_title_height,
-					   m_sheight, COL_MENUCONTENTSELECTED_PLUS_0);
+		m_frameBuffer->paintBoxRel(m_x + 10 + m_title_height, m_y + 4 + 2*m_fheight, m_width - 20 - m_title_height, m_sheight, COL_MENUCONTENTSELECTED_PLUS_0);
 		int xstart = ((m_width - 20 - g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->getRenderWidth(m_metainfo))/2)+10;
 		g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]
 		->RenderString(m_x + xstart, m_y + 4 + 2*m_fheight + m_sheight,
@@ -2910,9 +2922,4 @@ std::string CAudioPlayerGui::absPath2Rel(const std::string& fromDir,
 
 	res = res + relFilepath;
 	return res;
-}
-
-bool CAudioPlayerGui::SaveCover(CAudiofileExt &File)
-{
-	return CAudioPlayer::getInstance()->readCoverData(&File, m_state != CAudioPlayerGui::STOP && !g_settings.audioplayer_highprio);
 }

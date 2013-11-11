@@ -250,7 +250,6 @@ class CAudioPlayerGui : public CMenuTarget
 
 	bool pictureviewer;
 	CScreensaver * screenSaver;
-	bool SaveCover(CAudiofileExt &File);
 
  public:
 	CAudioPlayerGui(bool inetmode = false);
