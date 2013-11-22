@@ -735,6 +735,13 @@ void CFlashExpert::readmtd(int preadmtd)
 #endif
 		filename = (std::string)g_settings.update_dir + "/" + mtdInfo->getMTDName(preadmtd) + timeStr + tankStr + ".img";
 
+	char invalidChars[10] = "\\:/\"<>?*|";
+	for (int ivi = filename.length(); ivi >= 0; ivi--) {
+		for (int ivj = 0; ivj <= 9; ivj++) {
+			if (filename[ivi] == invalidChars[ivj]) filename.erase(ivi,1);
+		}
+	}
+
 #ifdef BOXMODEL_APOLLO
 	if (preadmtd == 0) {
 		readmtdJFFS2(filename);
