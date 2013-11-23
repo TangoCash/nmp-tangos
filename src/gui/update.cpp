@@ -715,6 +715,15 @@ void CFlashExpert::readmtd(int preadmtd)
 	std::string hostName = netGetHostname();
 	std::string timeStr  = getNowTimeStr("_%Y%m%d_%H%M");
 	std::string tankStr  = "";
+
+	std::string mtd_name  = mtdInfo->getMTDName(preadmtd);
+	char invalidChars[10] = "\\:/\"<>?*|";
+	for (int ivi = mtd_name.length(); ivi >= 0; ivi--) {
+		for (int ivj = 0; ivj <= 9; ivj++) {
+			if (mtd_name[ivi] == invalidChars[ivj]) mtd_name.erase(ivi,1);
+		}
+	}
+
 #if ENABLE_EXTUPDATE
 #ifdef BOXMODEL_APOLLO
 	int eSize = CMTDInfo::getInstance()->getMTDEraseSize(CMTDInfo::getInstance()->findMTDsystem());
@@ -730,17 +739,10 @@ void CFlashExpert::readmtd(int preadmtd)
 	}
 #endif
 	if (g_settings.softupdate_name_mode_backup == CExtUpdate::SOFTUPDATE_NAME_HOSTNAME_TIME)
-		filename = (std::string)g_settings.update_dir + "/" + mtdInfo->getMTDName(preadmtd) + timeStr + "_" + hostName + tankStr + ".img";
+		filename = (std::string)g_settings.update_dir + "/" + mtd_name + timeStr + "_" + hostName + tankStr + ".img";
 	else
 #endif
-		filename = (std::string)g_settings.update_dir + "/" + mtdInfo->getMTDName(preadmtd) + timeStr + tankStr + ".img";
-
-	char invalidChars[10] = "\\:/\"<>?*|";
-	for (int ivi = filename.length(); ivi >= 0; ivi--) {
-		for (int ivj = 0; ivj <= 9; ivj++) {
-			if (filename[ivi] == invalidChars[ivj]) filename.erase(ivi,1);
-		}
-	}
+		filename = (std::string)g_settings.update_dir + "/" + mtd_name + timeStr + tankStr + ".img";
 
 #ifdef BOXMODEL_APOLLO
 	if (preadmtd == 0) {
