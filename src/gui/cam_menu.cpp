@@ -70,18 +70,18 @@ int CCAMMenuHandler::exec(CMenuTarget* parent, const std::string &actionkey)
 
 	if ((loc = actionkey.find("ca_ci_reset", 0)) != std::string::npos) {
 		slot = actionkey.at(11) - '0';
-
 		if(ca && ca->ModulePresent(CA_SLOT_TYPE_CI, slot))
 			ca->ModuleReset(CA_SLOT_TYPE_CI, slot);
+		return menu_return::RETURN_EXIT;
 	} else if ((loc = actionkey.find("ca_ci", 0)) != std::string::npos) {
 		slot = actionkey.at(5) - '0';
 		printf("CCAMMenuHandler::exec: actionkey %s for slot %d\n", actionkey.c_str(), slot);
 		return doMenu(slot, CA_SLOT_TYPE_CI);
 	} else if ((loc = actionkey.find("ca_sc_reset", 0)) != std::string::npos) {
 		slot = actionkey.at(11) - '0';
-
 		if(ca && ca->ModulePresent(CA_SLOT_TYPE_SMARTCARD, slot))
 			ca->ModuleReset(CA_SLOT_TYPE_SMARTCARD, slot);
+		return menu_return::RETURN_EXIT;
 	} else if ((loc = actionkey.find("ca_sc", 0)) != std::string::npos) {
 		slot = actionkey.at(5) - '0';
 		printf("CCAMMenuHandler::exec: actionkey %s for slot %d\n", actionkey.c_str(), slot);
