@@ -109,7 +109,9 @@ int CCAMMenuHandler::doMainMenu()
 
 	if(CiSlots) {
 		cammenu->addItem( new CMenuOptionChooser(LOCALE_CI_RESET_STANDBY, &g_settings.ci_standby_reset, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true));
+#if !HAVE_SPARK_HARDWARE && !HAVE_DUCKBOX_HARDWARE
 		cammenu->addItem( new CMenuOptionNumberChooser(LOCALE_CI_CLOCK, &g_settings.ci_clock, true, 6, 12, this));
+#endif
 	}
 	cammenu->addItem( new CMenuOptionChooser(LOCALE_CI_IGNORE_MSG, &g_settings.ci_ignore_messages, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true));
 	cammenu->addItem( GenericMenuSeparatorLine );
