@@ -239,7 +239,7 @@ int CRemoteControl::handleMsg(const neutrino_msg_t msg, neutrino_msg_data_t data
 			current_programm_timer = g_RCInput->addTimer( &end_program );
 #endif
 		}
-#if 0 // FIXME, needs investigation. Has side effect on capmt handling when active.
+#if 1 // FIXME, needs investigation. Has side effect on capmt handling when active.
 		// is_video_started is only false if channel is locked
 		if ((!is_video_started) &&
 			(info_CN->current_fsk == 0 || g_settings.parentallock_prompt == PARENTALLOCK_PROMPT_CHANGETOLOCKED))
