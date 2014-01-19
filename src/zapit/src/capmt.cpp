@@ -270,7 +270,7 @@ bool CCamManager::SetMode(t_channel_id channel_id, enum runmode mode, bool start
 #if HAVE_SPARK_HARDWARE
 		source != cDemux::GetSource(0)
 #else
-		source != CFEManager::getInstance()->allocateFE(channel)->getNumber(true)
+		source != CFEManager::getInstance()->getFrontend(channel)->getNumber(true)
 #endif
 	) {
 		cam->sendMessage(NULL, 0, false);
