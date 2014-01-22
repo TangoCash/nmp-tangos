@@ -203,9 +203,14 @@ int CHDDMenuHandler::doMenu ()
 	mc->setHint("", LOCALE_MENU_HINT_HDD_SLEEP);
 	hddmenu->addItem(mc);
 
+	const char hdparm[] = "/sbin/hdparm";
+	struct stat stat_buf;
+	bool have_nonbb_hdparm = !::lstat(hdparm, &stat_buf) && !S_ISLNK(stat_buf.st_mode);
+	if (have_nonbb_hdparm) {
 	mc = new CMenuOptionChooser(LOCALE_HDD_NOISE, &g_settings.hdd_noise, HDD_NOISE_OPTIONS, HDD_NOISE_OPTION_COUNT, true);
 	mc->setHint("", LOCALE_MENU_HINT_HDD_NOISE);
 	hddmenu->addItem(mc);
+	}
 
 	//if(n > 0)
 	hddmenu->addItem(new CMenuSeparator(CMenuSeparator::LINE | CMenuSeparator::STRING, LOCALE_HDD_MANAGE));
@@ -262,16 +267,15 @@ int CHDDMenuHandler::doMenu ()
 			oldkernel = true;
 			strcpy(vendor, "");
 		} else {
-			fscanf(f, "%s", vendor);
-			fclose(f);
+		fscanf(f, "%s", vendor);
+		fclose(f);
 			strcat(vendor, "-");
 		}
 
-		/* the Tripledragon only has kernel 2.6.12 available.... :-( */
 		if (oldkernel)
 			snprintf(str, sizeof(str), "/proc/ide/%s/model", namelist[i]->d_name);
 		else
-			snprintf(str, sizeof(str), "/sys/block/%s/device/model", namelist[i]->d_name);
+		snprintf(str, sizeof(str), "/sys/block/%s/device/model", namelist[i]->d_name);
 		f = fopen(str, "r");
 		if(!f) {
 			printf("Cant open %s\n", str);
@@ -297,6 +301,7 @@ int CHDDMenuHandler::doMenu ()
 		tmp_str[i]=str;
 		tempMenu[i] = new CMenuWidget(str, NEUTRINO_ICON_SETTINGS);
 		tempMenu[i]->addIntroItems();
+		//tempMenu->addItem( new CMenuOptionChooser(LOCALE_HDD_FS, &g_settings.hdd_fs, HDD_FILESYS_OPTIONS, HDD_FILESYS_OPTION_COUNT, true));
 		tempMenu[i]->addItem( new CMenuOptionChooser(LOCALE_HDD_FS, &g_settings.hdd_fs, HDD_FILESYS_OPTIONS, HDD_FILESYS_OPTION_COUNT, true));
 
 		mf = new CMenuForwarder(LOCALE_HDD_FORMAT, true, "", &fmtexec, namelist[i]->d_name);
@@ -420,8 +425,6 @@ int CHDDMenuHandler::doMenu ()
 
 int CHDDDestExec::exec(CMenuTarget* /*parent*/, const std::string&)
 {
-	char M_opt[50],S_opt[50];
-	char opt[100];
 	char str[256];
 	FILE * f;
 	int removable = 0;
@@ -429,14 +432,34 @@ int CHDDDestExec::exec(CMenuTarget* /*parent*/, const std::string&)
 	int n = scandir("/sys/block", &namelist, my_filter, alphasort);
 
 	if (n < 0)
-		return 0;
+		return menu_return::RETURN_NONE;
+
+	const char hdidle[] = "/sbin/hd-idle";
+	bool have_hdidle = !access(hdidle, X_OK);
+
+	if (have_hdidle) {
+		system("kill $(pidof hd-idle)");
+		int sleep_seconds = g_settings.hdd_sleep;
+		switch (sleep_seconds) {
+			case 241:
+					sleep_seconds = 30 * 60;
+					break;
+			case 242:
+					sleep_seconds = 60 * 60;
+					break;
+			default:
+					sleep_seconds *= 5;
+		}
+		if (sleep_seconds)
+			my_system(3, hdidle, "-i", to_string(sleep_seconds).c_str());
+	}
 
 	const char hdparm[] = "/sbin/hdparm";
-	bool hdparm_link = false;
+	bool have_hdparm = !access(hdparm, X_OK);
+	if (!have_hdparm)
+		return menu_return::RETURN_NONE;
 	struct stat stat_buf;
-	if(::lstat(hdparm, &stat_buf) == 0)
-		if( S_ISLNK(stat_buf.st_mode) )
-			hdparm_link = true;
+	bool have_nonbb_hdparm = !::lstat(hdparm, &stat_buf) && !S_ISLNK(stat_buf.st_mode);
 
 	for (int i = 0; i < n; i++) {
 		removable = 0;
@@ -463,21 +486,23 @@ int CHDDDestExec::exec(CMenuTarget* /*parent*/, const std::string&)
 			CVFD::getInstance()->ShowIcon(FP_ICON_HDD, true);
 #endif
 			printf("CHDDDestExec: noise %d sleep %d /dev/%s\n", g_settings.hdd_noise, g_settings.hdd_sleep, namelist[i]->d_name);
-			snprintf(S_opt, sizeof(S_opt),"-S%d", g_settings.hdd_sleep);
-			snprintf(opt, sizeof(opt),"/dev/%s",namelist[i]->d_name);
+		char M_opt[50],S_opt[50], opt[100];
+		snprintf(S_opt, sizeof(S_opt),"-S%d", g_settings.hdd_sleep);
+		snprintf(M_opt, sizeof(M_opt), "-M%d", g_settings.hdd_noise);
+		snprintf(opt, sizeof(opt),"/dev/%s",namelist[i]->d_name);
 
-			if(hdparm_link) {
-				//hdparm -M is not included in busybox hdparm!
-				my_system(3, hdparm, S_opt, opt);
-			} else {
-				snprintf(M_opt, sizeof(M_opt),"-M%d", g_settings.hdd_noise);
-				my_system(4, hdparm, M_opt, S_opt, opt);
-			}
+		if (have_hdidle)
+			my_system(3, hdparm, M_opt, opt);
+		else if (have_nonbb_hdparm)
+			my_system(4, hdparm, M_opt, S_opt, opt);
+		else // busybox hdparm doesn't support "-M"
+			//hdparm -M is not included in busybox hdparm!
+			my_system(3, hdparm, S_opt, opt);
 		}
 		free(namelist[i]);
 	}
 	free(namelist);
-	return 1;
+	return menu_return::RETURN_NONE;
 }
 
 static int dev_umount(char *dev)
@@ -651,7 +676,6 @@ int CHDDFmtExec::exec(CMenuTarget* /*parent*/, const std::string& key)
 	bool srun = my_system(3, "killall", "-9", "smbd");
 
 	//res = check_and_umount(dst);
-	//res = check_and_umount(src, dst);
 	res = umount_all(key.c_str());
 	printf("CHDDFmtExec: umount res %d\n", res);
 
@@ -727,7 +751,6 @@ int CHDDFmtExec::exec(CMenuTarget* /*parent*/, const std::string& key)
 	}
 
 	waitfordev(src, 30);
-
 	printf("CHDDFmtExec: executing %s\n", cmd);
 
 	f=popen(cmd, "r");
@@ -807,8 +830,8 @@ int CHDDFmtExec::exec(CMenuTarget* /*parent*/, const std::string& key)
 	waitfordev(src, 30); /* mdev can somtimes takes long to create devices, especially after mkfs? */
 
 	if (g_settings.hdd_fs != 3) {
-		printf("CHDDFmtExec: executing %s %s\n","/sbin/tune2fs -r 0 -c 0 -i 0", src);
-		my_system(8, "/sbin/tune2fs", "-r", "0", "-c", "0", "-i", "0", src);
+	printf("CHDDFmtExec: executing %s %s\n","/sbin/tune2fs -r 0 -c 0 -i 0", src);
+	my_system(8, "/sbin/tune2fs", "-r", "0", "-c", "0", "-i", "0", src);
 	}
 
 _remount:
@@ -820,7 +843,7 @@ _remount:
 	if ((res = mount_all(key.c_str())))
 #endif
 	{
-		switch(g_settings.hdd_fs) {
+        switch(g_settings.hdd_fs) {
                 case 0:
 			safe_mkdir(dst);
 			res = mount(src, dst, "ext3", 0, NULL);
@@ -837,7 +860,7 @@ _remount:
 			break;
 		default:
                         break;
-		}
+        }
 	}
 #ifndef ASSUME_MDEV
 	f = fopen("/proc/sys/kernel/hotplug", "w");
@@ -869,18 +892,18 @@ _remount:
 		safe_mkdir((char *) cmd);
 #else
 		snprintf(cmd, sizeof(cmd), "%s/movies", dst);
-		safe_mkdir((char *) cmd);
+		safe_mkdir(cmd);
 #endif
 		snprintf(cmd, sizeof(cmd), "%s/pictures", dst);
-		safe_mkdir((char *) cmd);
+		safe_mkdir(cmd);
 		snprintf(cmd, sizeof(cmd), "%s/epg", dst);
-		safe_mkdir((char *) cmd);
+		safe_mkdir(cmd);
 		snprintf(cmd, sizeof(cmd), "%s/music", dst);
-		safe_mkdir((char *) cmd);
+		safe_mkdir(cmd);
 		snprintf(cmd, sizeof(cmd), "%s/logos", dst);
-		safe_mkdir((char *) cmd);
+		safe_mkdir(cmd);
 		snprintf(cmd, sizeof(cmd), "%s/plugins", dst);
-		safe_mkdir((char *) cmd);
+		safe_mkdir(cmd);
 		sync();
 #if HAVE_TRIPLEDRAGON
 		/* on the tripledragon, we mount via fstab, so we need to add an
@@ -944,7 +967,6 @@ printf("CHDDChkExec: key %s\n", key.c_str());
 	bool srun = my_system(3, "killall", "-9", "smbd");
 
 	//res = check_and_umount(dst);
-	//res = check_and_umount(src, dst);
 	res = umount_all(key.c_str());
 	printf("CHDDChkExec: umount res %d\n", res);
 	if(res) {
@@ -1020,16 +1042,17 @@ printf("CHDDChkExec: key %s\n", key.c_str());
 	delete progress;
 
 ret1:
-
 #if !HAVE_SPARK_HARDWARE && !HAVE_DUCKBOX_HARDWARE
 	if ((res = mount_all(key.c_str())))
 #endif
 	{
-		switch(g_settings.hdd_fs) {
+        switch(g_settings.hdd_fs) {
                 case 0:
+			safe_mkdir(dst);
 			res = mount(src, dst, "ext3", 0, NULL);
                         break;
                 case 1:
+			safe_mkdir(dst);
 			res = mount(src, dst, "reiserfs", 0, NULL);
                         break;
 		case 2:
@@ -1041,7 +1064,7 @@ ret1:
 		default:
                         break;
 		}
-	}
+        }
 	printf("CHDDChkExec: mount res %d\n", res);
 
 	if (!srun) my_system(1, "smbd");

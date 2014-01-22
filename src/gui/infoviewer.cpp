@@ -6,7 +6,6 @@
 
 	Bugfixes/cleanups (C) 2007-2013 Stefan Seyfried
 	(C) 2008 Novell, Inc. Author: Stefan Seyfried
-
 	Kommentar:
 
 	Diese GUI wurde von Grund auf neu programmiert und sollte nun vom
@@ -58,7 +57,7 @@
 #include <gui/customcolor.h>
 #include <gui/pictureviewer.h>
 #include <gui/movieplayer.h>
-#include <gui/components/cc.h>
+#include <gui/infoclock.h>
 
 #include <system/helpers.h>
 
@@ -78,6 +77,7 @@ extern CRemoteControl *g_RemoteControl;	/* neutrino.cpp */
 extern CBouquetList * bouquetList;       /* neutrino.cpp */
 extern CPictureViewer * g_PicViewer;
 extern cVideo * videoDecoder;
+extern CInfoClock *InfoClock;
 
 #define LEFT_OFFSET 5
 
@@ -97,9 +97,7 @@ CInfoViewer::CInfoViewer ()
 	sigscale = NULL;
 	snrscale = NULL;
 	timescale = NULL;
-	info_CurrentNext.current_zeit.startzeit = 0;
-	info_CurrentNext.current_zeit.dauer = 0;
-	info_CurrentNext.flags = 0;
+	clock = NULL;
 	frameBuffer = CFrameBuffer::getInstance();
 	infoViewerBB = CInfoViewerBB::getInstance();
 	InfoHeightY = 0;
@@ -135,6 +133,7 @@ CInfoViewer::~CInfoViewer()
 	delete timescale;
 	delete infoViewerBB;
 	delete infobar_txt;
+	delete clock;
 }
 
 void CInfoViewer::Init()
@@ -200,7 +199,7 @@ void CInfoViewer::start ()
 
 	if ( g_settings.infobar_show_channellogo != 3 && g_settings.infobar_show_channellogo != 5  && g_settings.infobar_show_channellogo != 6) /* 3 & 5 & 6 is "default" with sigscales etc. */
 	{
-		ChanWidth = 4 * g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_NUMBER]->getRenderWidth(widest_number) + 10;
+		ChanWidth = 4 * g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_NUMBER]->getMaxDigitWidth() + 10;
 		ChanHeight = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_NUMBER]->getHeight() * 9 / 8;
 	}
 	else
@@ -250,35 +249,30 @@ void CInfoViewer::changePB()
 	timescale->setRgb(0, 100, 70);
 }
 
-void CInfoViewer::paintTime (bool show_dot, bool firstPaint)
+void CInfoViewer::paintTime (bool show_dot)
 {
 	if (! gotTime)
 		return;
 
-	char timestr[10];
-	time_t rawtime = time(NULL);
-	strftime ((char *) &timestr, sizeof(timestr), "%H:%M", localtime(&rawtime));
+	int clock_x = BoxEndX - time_width - LEFT_OFFSET;
+	int clock_y = ChanNameY;
+	int clock_w = time_width + LEFT_OFFSET;
+	int clock_h = time_height;
 
-	if ((!firstPaint) && (strcmp (timestr, old_timestr) == 0)) {
-		if (show_dot)
-			frameBuffer->paintBoxRel (BoxEndX - time_width + time_left_width - LEFT_OFFSET, ChanNameY, time_dot_width, time_height / 2 + 2, COL_INFOBAR_PLUS_0);
-		else
-			g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_CHANNAME]->RenderString (BoxEndX - time_width + time_left_width - LEFT_OFFSET, ChanNameY + time_height, time_dot_width, ":", COL_INFOBAR_TEXT);
-		strcpy (old_timestr, timestr);
-	} else {
-		strcpy (old_timestr, timestr);
-
-		if (!firstPaint) {
-			frameBuffer->paintBoxRel(BoxEndX - time_width - LEFT_OFFSET, ChanNameY, time_width + LEFT_OFFSET, time_height, COL_INFOBAR_PLUS_0, RADIUS_SMALL, CORNER_TOP);
+	if (clock == NULL){
+		clock = new CComponentsFrmClock();
+		clock->doPaintBg(false);
+		clock->setClockActiv(false);
 		}
 
-		timestr[2] = 0;
-		g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_CHANNAME]->RenderString (BoxEndX - time_width - LEFT_OFFSET, ChanNameY + time_height, time_left_width, timestr, COL_INFOBAR_TEXT);
-		g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_CHANNAME]->RenderString (BoxEndX - time_left_width - LEFT_OFFSET, ChanNameY + time_height, time_left_width, &timestr[3], COL_INFOBAR_TEXT);
-		g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_CHANNAME]->RenderString (BoxEndX - time_width + time_left_width - LEFT_OFFSET, ChanNameY + time_height, time_dot_width, ":", COL_INFOBAR_TEXT);
-		if (show_dot)
-			frameBuffer->paintBoxRel (BoxEndX - time_left_width - time_dot_width - LEFT_OFFSET, ChanNameY, time_dot_width, time_height / 2 + 2, COL_INFOBAR_PLUS_0);
-	}
+	clock->setColorBody(COL_INFOBAR_PLUS_0);
+	clock->setCorner(RADIUS_LARGE, CORNER_TOP_RIGHT);
+	clock->setDimensionsAll(clock_x, clock_y, clock_w, clock_h);
+	clock->setClockFont(SNeutrinoSettings::FONT_TYPE_INFOBAR_CHANNAME);
+	clock->setClockFormat(show_dot ? "%H:%M" : "%H %M");
+	clock->setTextColor(COL_INFOBAR_TEXT);
+
+	clock->paint(CC_SAVE_SCREEN_NO);
 }
 
 void CInfoViewer::showRecordIcon (const bool show)
@@ -481,10 +475,9 @@ void CInfoViewer::show_current_next(bool new_chan, int  epgpos)
 	}
 }
 
-void CInfoViewer::showMovieTitle(const int playState, const std::string &Channel,
+void CInfoViewer::showMovieTitle(const int playState, const t_channel_id &Channel_Id, const std::string &Channel,
 				 const std::string &g_file_epg, const std::string &g_file_epg1,
-				 const int duration, const int curr_pos,
-				 const int repeat_mode)
+				 const int duration, const int curr_pos)
 {
 	if (g_settings.volume_pos == CVolumeBar::VOLUMEBAR_POS_BOTTOM_LEFT || 
 	    g_settings.volume_pos == CVolumeBar::VOLUMEBAR_POS_BOTTOM_RIGHT || 
@@ -516,7 +509,7 @@ void CInfoViewer::showMovieTitle(const int playState, const std::string &Channel
 	infoViewerBB->is_visible = true;
 
 	ChannelName = Channel;
-	channel_id = 0;
+	channel_id = Channel_Id;
 
 	/* showChannelLogo() changes this, so better reset it every time... */
 	ChanNameX = BoxStartX + ChanWidth + SHADOW_OFFSET;
@@ -524,12 +517,16 @@ void CInfoViewer::showMovieTitle(const int playState, const std::string &Channel
 	paintBackground(COL_INFOBAR_PLUS_0);
 
 	bool show_dot = true;
-	paintTime (show_dot, true);
+	paintTime (show_dot);
 	showRecordIcon (show_dot);
 	show_dot = !show_dot;
 
 	infoViewerBB->paintshowButtonBar();
 
+	int ChannelLogoMode = 0;
+	if (g_settings.infobar_show_channellogo > 1)
+		ChannelLogoMode = showChannelLogo(channel_id, 0);
+	if (ChannelLogoMode == 0 || ChannelLogoMode == 3 || ChannelLogoMode == 4)
 	g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_CHANNAME]->RenderString(ChanNameX + 10 , ChanNameY + time_height,BoxEndX - (ChanNameX + 20) - time_width - LEFT_OFFSET - 5 ,ChannelName, COL_INFOBAR_TEXT, 0, true);	// UTF-8
 
 	// show_Data
@@ -544,7 +541,7 @@ void CInfoViewer::showMovieTitle(const int playState, const std::string &Channel
 	const char *playicon = NULL;
 	switch (playState) {
 	case CMoviePlayerGui::PLAY:
-		switch (repeat_mode) {
+		/*switch (repeat_mode) {
 		case CMoviePlayerGui::REPEAT_ALL:
 			playicon = NEUTRINO_ICON_PLAY_REPEAT_ALL;
 			break;
@@ -552,8 +549,9 @@ void CInfoViewer::showMovieTitle(const int playState, const std::string &Channel
 			playicon = NEUTRINO_ICON_PLAY_REPEAT_TRACK;
 			break;
 		default:
-			playicon = NEUTRINO_ICON_PLAY;
-		}
+		playicon = NEUTRINO_ICON_PLAY;
+		}*/
+		playicon = NEUTRINO_ICON_PLAY;
 		speed = 0;
 		break;
 	case CMoviePlayerGui::PAUSE:
@@ -699,7 +697,7 @@ void CInfoViewer::showTitle (const int ChanNum, const std::string & Channel, con
 	paintBackground(col_NumBox);
 
 	bool show_dot = true;
-	paintTime (show_dot, true);
+	paintTime (show_dot);
 	showRecordIcon (show_dot);
 	show_dot = !show_dot;
 
@@ -899,7 +897,7 @@ void CInfoViewer::loop(bool show_dot)
 				infoViewerBB->showIcon_CA_Status(0);
 #endif
 			showSNR ();
-			paintTime (show_dot, false);
+			paintTime (show_dot);
 			showRecordIcon (show_dot);
 			show_dot = !show_dot;
 			showInfoFile();
@@ -1124,6 +1122,7 @@ void CInfoViewer::killRadiotext()
 	if (g_Radiotext->S_RtOsd)
 		frameBuffer->paintBackgroundBox(rt_x, rt_y, rt_w, rt_h);
 	rt_x = rt_y = rt_h = rt_w = 0;
+	InfoClock->enableInfoClock(true);
 }
 
 void CInfoViewer::showRadiotext()
@@ -1135,6 +1134,7 @@ void CInfoViewer::showRadiotext()
 	infoViewerBB->showIcon_RadioText(g_Radiotext->haveRadiotext());
 
 	if (g_Radiotext->S_RtOsd) {
+		InfoClock->enableInfoClock(false);
 		// dimensions of radiotext window
 		int /*yoff = 8,*/ ii = 0;
 		rt_dx = BoxEndX - BoxStartX;
@@ -1151,6 +1151,7 @@ void CInfoViewer::showRadiotext()
 		if (lines == 0)
 		{
 			frameBuffer->paintBackgroundBox(rt_x, rt_y, rt_w, rt_h);
+
 			frameBuffer->blit();
 		}
 		if (g_Radiotext->RT_MsgShow) {
@@ -1410,38 +1411,36 @@ void CInfoViewer::sendNoEpg(const t_channel_id for_channel_id)
 	}
 }
 
-void CInfoViewer::getEPG(const t_channel_id for_channel_id, CSectionsdClient::CurrentNextInfo &info)
+CSectionsdClient::CurrentNextInfo CInfoViewer::getEPG (const t_channel_id for_channel_id, CSectionsdClient::CurrentNextInfo &info)
 {
-	/* to clear the oldinfo for channels without epg, call getEPG() with for_channel_id = 0 */
-	if (for_channel_id == 0)
-	{
-		oldinfo.current_uniqueKey = 0;
-		return;
-	}
 	CEitManager::getInstance()->getCurrentNextServiceKey(for_channel_id, info);
+
+//printf("CInfoViewer::getEPG: old uniqueKey %llx new %llx\n", oldinfo.current_uniqueKey, info.current_uniqueKey);
 
 	/* of there is no EPG, send an event so that parental lock can work */
 	if (info.current_uniqueKey == 0 && info.next_uniqueKey == 0) {
 		sendNoEpg(for_channel_id);
 		oldinfo = info;
-		return;
+		return info;
 	}
 
 	if (info.current_uniqueKey != oldinfo.current_uniqueKey || info.next_uniqueKey != oldinfo.next_uniqueKey) {
 		if (info.flags & (CSectionsdClient::epgflags::has_current | CSectionsdClient::epgflags::has_next)) {
-			CSectionsdClient::CurrentNextInfo *_info = new CSectionsdClient::CurrentNextInfo;
-			*_info = info;
+			char *_info = new char[sizeof(CSectionsdClient::CurrentNextInfo)];
+			memcpy(_info, &info, sizeof(CSectionsdClient::CurrentNextInfo));
 			neutrino_msg_t msg;
 			if (info.flags & CSectionsdClient::epgflags::has_current)
 				msg = NeutrinoMessages::EVT_CURRENTEPG;
 			else
 				msg = NeutrinoMessages::EVT_NEXTEPG;
-			g_RCInput->postMsg(msg, (const neutrino_msg_data_t) _info, false);
+			g_RCInput->postMsg(msg, (unsigned) _info, false );
 		} else {
 			sendNoEpg(for_channel_id);
 		}
 		oldinfo = info;
 	}
+
+	return info;
 }
 
 void CInfoViewer::showSNR ()
@@ -1689,12 +1688,10 @@ void CInfoViewer::show_Data (bool calledFromEvent)
 	if (info_CurrentNext.flags & CSectionsdClient::epgflags::has_current) {
 		int seit = (abs(jetzt - info_CurrentNext.current_zeit.startzeit) + 30) / 60;
 		int rest = (info_CurrentNext.current_zeit.dauer / 60) - seit;
-		runningPercent = 0;
-		if (!gotTime)
-			snprintf(runningRest, sizeof(runningRest), "%d min", info_CurrentNext.current_zeit.dauer / 60);
-		else if (jetzt < info_CurrentNext.current_zeit.startzeit)
+		if (jetzt < info_CurrentNext.current_zeit.startzeit) {
+			runningPercent = 0;
 			snprintf (runningRest, sizeof(runningRest), "in %d min", seit);
-		else {
+		} else {
 			runningPercent = (jetzt - info_CurrentNext.current_zeit.startzeit) * 100 / info_CurrentNext.current_zeit.dauer;
 			if (runningPercent > 100)
 				runningPercent = 100;

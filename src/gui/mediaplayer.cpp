@@ -40,6 +40,7 @@
 #include <neutrinoMessages.h>
 
 #include <gui/audiomute.h>
+#include <gui/infoclock.h>
 #include <gui/movieplayer.h>
 #include <gui/pictureviewer.h>
 #if ENABLE_UPNP
@@ -53,6 +54,7 @@
 #include <system/debug.h>
 #include <video.h>
 extern cVideo * videoDecoder;
+extern CInfoClock *InfoClock;
 
 CMediaPlayerMenu::CMediaPlayerMenu()
 {
@@ -116,6 +118,7 @@ int CMediaPlayerMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 	else if (actionKey == "movieplayer")
 	{
 		audiomute->enableMuteIcon(false);
+		InfoClock->enableInfoClock(false);
 		int mode = CNeutrinoApp::getInstance()->getMode();
 		if( mode == NeutrinoMessages::mode_radio )
 			videoDecoder->StopPicture();
@@ -123,6 +126,7 @@ int CMediaPlayerMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 		if( mode == NeutrinoMessages::mode_radio )
 			videoDecoder->ShowPicture(DATADIR "/neutrino/icons/radiomode.jpg");
 		audiomute->enableMuteIcon(true);
+		InfoClock->enableInfoClock(true);
 		return res;
 	}
 	

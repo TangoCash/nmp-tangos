@@ -28,14 +28,19 @@ if ENABLE_FLAC
 FLACdec= flacdec.cpp
 endif
 
-libneutrino_driver_audiodec_a_SOURCES = \
-	basedec.cpp \
-	cdrdec.cpp \
+if ENABLE_FFMPEGDEC
+ASOURCES = ffmpegdec.cpp
+else
+ASOURCES = cdrdec.cpp \
 	crc.c \
-	ffmpegdec.cpp \
 	$(FLACdec) \
 	mp3dec.cpp \
 	oggdec.cpp \
 	tag.c \
+	vis.cpp \
 	wavdec.cpp
-#	vis.cpp
+endif
+
+libneutrino_driver_audiodec_a_SOURCES = \
+	basedec.cpp \
+	$(ASOURCES)

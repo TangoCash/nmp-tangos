@@ -44,6 +44,7 @@
 #include <gui/infoviewer_bb.h>
 #include <string>
 #include <zapit/channel.h>
+#include <gui/components/cc.h>
 
 class CInfoViewer
 {
@@ -51,6 +52,7 @@ class CInfoViewer
 
 	CFrameBuffer * frameBuffer;
 	CInfoViewerBB* infoViewerBB;
+	CComponentsFrmClock *clock;
 
 	bool           gotTime;
 	bool           recordModeActive;
@@ -116,7 +118,7 @@ class CInfoViewer
 			  const char *runningStart = NULL, const char *runningRest = NULL,
 			  const char *nextStart = NULL, const char *nextDuration = NULL,
 			  bool update_current = true, bool update_next = true);
-	void paintTime( bool show_dot, bool firstPaint );
+	void paintTime( bool show_dot );
 	
 	void showRecordIcon(const bool show);
 	void showIcon_Tuner() const;
@@ -157,9 +159,9 @@ class CInfoViewer
 	CInfoViewer();
 	~CInfoViewer();
 
-	void	showMovieTitle(const int playState, const std::string &title,
+	void	showMovieTitle(const int playState, const t_channel_id &channel_id, const std::string &title,
 				const std::string &g_file_epg, const std::string &g_file_epg1,
-				const int duration, const int curr_pos, const int repeat_mode);
+				const int duration, const int curr_pos);
 
 	void	start();
 	void	showEpgInfo();
@@ -168,7 +170,7 @@ class CInfoViewer
 	void	showTitle(t_channel_id channel_id, const bool calledFromNumZap = false, int epgpos = 0);
 	void lookAheadEPG(const int ChanNum, const std::string & Channel, const t_channel_id new_channel_id = 0, const bool calledFromNumZap = false); //alpha: fix for nvod subchannel update
 	void	killTitle();
-	void	getEPG(const t_channel_id for_channel_id, CSectionsdClient::CurrentNextInfo &info);
+	CSectionsdClient::CurrentNextInfo	getEPG(const t_channel_id for_channel_id, CSectionsdClient::CurrentNextInfo &info);
 	
 	void	showSubchan();
 	//void	Set_CA_Status(int Status);

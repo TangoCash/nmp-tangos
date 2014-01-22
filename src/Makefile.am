@@ -44,11 +44,6 @@ else
 VORBISLIBS = -lvorbisfile -lvorbis -logg
 endif
 
-bin_PROGRAMS = neutrino
-
-neutrino_SOURCES = neutrino_menue.cpp neutrino.cpp
-
-AM_CPPFLAGS += -D_FILE_OFFSET_BITS=64
 
 if ENABLE_FLAC
 FLACLIBS = -lFLAC
@@ -56,6 +51,21 @@ AM_CPPFLAGS += -DENABLE_FLAC
 else
 FLACLIBS =
 endif
+
+if ENABLE_FFMPEGDEC
+ADEC_LIBS = @SWRESAMPLE_LIBS@
+else
+ADEC_LIBS = @MAD_LIBS@ \
+	@ID3TAG_LIBS@ \
+	$(FLACLIBS) \
+	$(VORBISLIBS)
+endif
+
+bin_PROGRAMS = neutrino rcsim
+
+neutrino_SOURCES = neutrino_menue.cpp neutrino.cpp
+
+AM_CPPFLAGS += -D_FILE_OFFSET_BITS=64
 
 if BOXMODEL_APOLLO
 MTDUTILSLIBS = \
@@ -101,11 +111,8 @@ neutrino_LDADD = \
 	@CURL_LIBS@ \
 	@FREETYPE_LIBS@ \
 	@PNG_LIBS@ \
-	@MAD_LIBS@ \
-	@ID3TAG_LIBS@ \
 	@LIBCS_LIBS@ \
-	$(FLACLIBS) \
-	$(VORBISLIBS) \
+	$(ADEC_LIBS) \
 	-ldvbsi++ \
 	-ljpeg \
 	-lOpenThreads \
@@ -133,7 +140,7 @@ neutrino_LDADD += -lcoolstream-mt -lca-sc
 if ENABLE_TMSDK 
 else
 if BOXMODEL_APOLLO
-neutrino_LDADD += -llnxtmvssUsr -llnxUKAL -llnxplatUsr -llnxtmasUsr -llnxdvbciUsr -llnxpvrUsr -llnxcssUsr -llnxnotifyqUsr -ltmpvrDataManager -ltmpvrIndexStorage -llnxscsUsr
+neutrino_LDADD += -lca-ci -llnxtmvssUsr -llnxUKAL -llnxplatUsr -llnxtmasUsr -llnxdvbciUsr -llnxpvrUsr -llnxcssUsr -llnxnotifyqUsr -ltmpvrDataManager-cst -ltmpvrIndexStorage -llnxscsUsr
 else
 neutrino_LDADD += -lnxp
 endif
@@ -147,7 +154,6 @@ bin_PROGRAMS += rcsim
 rcsim_SOURCES = rcsim.c rcsim.h
 
 endif
-
 if USE_STB_HAL
 bin_PROGRAMS += rcsim
 rcsim_SOURCES = rcsim.c rcsim.h
@@ -157,7 +163,6 @@ neutrino_LDADD += \
 neutrino_LDFLAGS = \
 	$(STB_HAL_LIB)
 endif
-
 if BOXTYPE_TRIPLE
 neutrino_LDADD += \
 	$(top_builddir)/src/lcddisplay/liblcddisplay.a

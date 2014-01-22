@@ -2,6 +2,7 @@
 	Neutrino-GUI  -   DBoxII-Project
 
 	Timerliste by Zwen
+	(C) 2009, 2011-2014 Stefan Seyfried
 
 	Homepage: http://dbox.cyberphoria.org/
 
@@ -72,6 +73,8 @@
 #include <zapit/bouquets.h>
 #include <zapit/femanager.h>
 
+#include <timerdclient/timerdclient.h>
+
 #include <eitd/sectionsd.h>
 
 extern CBouquetManager *g_bouquetManager;
@@ -125,8 +128,8 @@ public:
 			m6->setActive(false);
 		}
 		if (type == CTimerd::TIMER_RECORD ||
-				type == CTimerd::TIMER_ZAPTO ||
-				type == CTimerd::TIMER_NEXTPROGRAM)
+		    type == CTimerd::TIMER_ZAPTO)
+				/*|| type == CTimerd::TIMER_NEXTPROGRAM)*/
 		{
 			m2->setActive(true);
 		}
@@ -312,9 +315,9 @@ int CTimerList::exec(CMenuTarget* parent, const std::string & actionKey)
 		void *data=NULL;
 		if (timerNew.eventType == CTimerd::TIMER_STANDBY)
 			data=&(timerNew.standby_on);
-		else if (timerNew.eventType==CTimerd::TIMER_NEXTPROGRAM ||
-				timerNew.eventType==CTimerd::TIMER_ZAPTO ||
-				timerNew.eventType==CTimerd::TIMER_RECORD)
+		/* else if (timerNew.eventType==CTimerd::TIMER_NEXTPROGRAM || */
+		else if (timerNew.eventType == CTimerd::TIMER_ZAPTO ||
+			 timerNew.eventType == CTimerd::TIMER_RECORD)
 		{
 			if (strcmp(timerNew_channel_name, "---")==0)
 				return menu_return::RETURN_REPAINT;
@@ -766,7 +769,7 @@ void CTimerList::paintItem(int pos)
 		std::string zAddData("");
 		switch (timer.eventType)
 		{
-		case CTimerd::TIMER_NEXTPROGRAM :
+		//case CTimerd::TIMER_NEXTPROGRAM :
 		case CTimerd::TIMER_ZAPTO :
 		case CTimerd::TIMER_RECORD :
 		{
@@ -844,7 +847,7 @@ void CTimerList::paintItem(int pos)
 			case CTimerd::TIMER_RECORD :
 			//	line2+= " -";
 			//	line2+= zStopTime+6;
-			case CTimerd::TIMER_NEXTPROGRAM :
+			//case CTimerd::TIMER_NEXTPROGRAM :
 			case CTimerd::TIMER_ZAPTO :
 			{
 				line1 += ' ';
@@ -931,8 +934,8 @@ const char * CTimerList::convertTimerType2String(const CTimerd::CTimerEventTypes
 	{
 	case CTimerd::TIMER_SHUTDOWN    :
 		return g_Locale->getText(LOCALE_TIMERLIST_TYPE_SHUTDOWN   );
-	case CTimerd::TIMER_NEXTPROGRAM :
-		return g_Locale->getText(LOCALE_TIMERLIST_TYPE_NEXTPROGRAM);
+//	case CTimerd::TIMER_NEXTPROGRAM :
+//		return g_Locale->getText(LOCALE_TIMERLIST_TYPE_NEXTPROGRAM);
 	case CTimerd::TIMER_ZAPTO       :
 		return g_Locale->getText(LOCALE_TIMERLIST_TYPE_ZAPTO      );
 	case CTimerd::TIMER_STANDBY     :
@@ -1094,7 +1097,7 @@ int CTimerList::modifyTimer()
 //printf("TIMER: rec dir %s len %s\n", timer->recordingDir, strlen(timer->recordingDir));
 
 	if (!strlen(timer->recordingDir))
-		strncpy(timer->recordingDir,g_settings.network_nfs_recordingdir,sizeof(timer->recordingDir)-1);
+		strncpy(timer->recordingDir,g_settings.network_nfs_recordingdir.c_str(),sizeof(timer->recordingDir)-1);
 
 	bool recDirEnabled = (timer->eventType == CTimerd::TIMER_RECORD) && (g_settings.recording_type == RECORDING_FILE);
 	CMenuForwarder* m6 = new CMenuForwarder(LOCALE_TIMERLIST_RECORDING_DIR, recDirEnabled, timer->recordingDir, this, "rec_dir1", CRCInput::RC_green, NEUTRINO_ICON_BUTTON_GREEN);
@@ -1147,7 +1150,7 @@ int CTimerList::newTimer()
 	timerNew.channel_id = 0;
 	strcpy(timerNew.message, "");
 	timerNew_standby_on =false;
-	strncpy(timerNew.recordingDir,g_settings.network_nfs_recordingdir,sizeof(timerNew.recordingDir)-1);
+	strncpy(timerNew.recordingDir,g_settings.network_nfs_recordingdir.c_str(),sizeof(timerNew.recordingDir)-1);
 
 
 	CMenuWidget timerSettings(LOCALE_TIMERLIST_MENUNEW, NEUTRINO_ICON_SETTINGS);

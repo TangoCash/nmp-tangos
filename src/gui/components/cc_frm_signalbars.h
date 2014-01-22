@@ -31,8 +31,7 @@
 #include <config.h>
 #endif
 
-// #include <global.h>
-// #include <neutrino.h>
+
 #include <gui/components/cc_frm.h>
 #include <gui/components/cc_item_progressbar.h>
 #include <gui/components/cc_item_text.h>
@@ -82,6 +81,8 @@ class CSignalBar : public CComponentsForm
 		int sb_vlbl_width;
 		///property: width of caption
 		int sb_lbl_width;
+		///property: text mode of value, predefined type = CTextBox::NO_AUTO_LINEBREAK | CTextBox::CENTER
+		int sb_val_mode;
 
 		///cache last assingned signal value
 		int sb_lastsig;
@@ -114,7 +115,7 @@ class CSignalBar : public CComponentsForm
 	public:
 		CSignalBar();
 		///basic component class constructor for signal.
-		CSignalBar(const int& xpos, const int& ypos, const int& w, const int& h, CFrontend *frontend_ref);
+		CSignalBar(const int& xpos, const int& ypos, const int& w, const int& h, CFrontend *frontend_ref, const std::string& sb_name = "SIG");
 
 		///assigns the current used frontend, simplified a tuner object, see frontend_c.h
 		virtual void setFrontEnd(CFrontend *frontend_ref){sb_frontend = frontend_ref;};
@@ -131,11 +132,16 @@ class CSignalBar : public CComponentsForm
 
 		///returns the scale object, type = CProgressBar*
 		virtual CProgressBar* getScaleObject(){return sb_scale;};
-		///returns the caption object, type = CComponentsLabel*
-		virtual CComponentsLabel* getLabelObject(){return sb_lbl;};
+		///returns the value label object, type = CComponentsLabel*
+		virtual CComponentsLabel* getLabelValObject(){return sb_vlbl;};
+		///returns the name label object, type = CComponentsLabel*
+		virtual CComponentsLabel* getLabelNameObject(){return sb_lbl;};
 
 		///paint this items
 		virtual void paint(bool do_save_bg);
+
+		//returns the current signal value
+		uint16_t getValue(void) { return sb_signal; }
 };
 
 /// Sub class of CSignalBar()
@@ -151,14 +157,11 @@ class CSignalNoiseRatioBar : public CSignalBar
 		///refresh current item properties, use this before paintScale().
 		void Refresh();
 
-	protected:
-		///initialize all needed basic attributes and objects
-		void initVarSnrBar();
-
 	public:
-		CSignalNoiseRatioBar();
+		CSignalNoiseRatioBar(){};
 		///basic component class constructor for signal noise ratio.
-		CSignalNoiseRatioBar(const int& xpos, const int& ypos, const int& w, const int& h, CFrontend *frontend_ref);
+		CSignalNoiseRatioBar(const int& xpos, const int& ypos, const int& w, const int& h, CFrontend *frontend_ref)
+					: CSignalBar(xpos, ypos, w, h, frontend_ref, "SNR"){};
 };
 
 /// Class CSignalBox() provides CSignalBar(), CSignalNoiseRatioBar() scales at once.
@@ -168,7 +171,7 @@ additional of CSignalBar()- and CSignalNoiseRatioBar()-objects.
 
 
 To add a signalbox object to your code add this to a header file:
-#include <gui/widget/signalbars.h>
+#include <gui/components/cc_frm_signalbars.h>
 
 class CSampleClass
 {
@@ -256,6 +259,9 @@ class CSignalBox : public CComponentsForm
 		///allowed width of scale bar from full width in %, rest used by caption, default value = 60% of width, use setScaleWidth() to set this value
 		short sbx_scale_w_percent;
 
+		// true if vertical arrangement, false if horizontal
+		bool vertical;
+
 		///initialize all needed basic attributes and objects
 		void initVarSigBox();
 		///initialize general properties of signal items
@@ -266,7 +272,7 @@ class CSignalBox : public CComponentsForm
 
 	public:
 		///class constructor for signal noise ratio.
-		CSignalBox(const int& xpos, const int& ypos, const int& w, const int& h, CFrontend *frontend_ref);
+		CSignalBox(const int& xpos, const int& ypos, const int& w, const int& h, CFrontend *frontend_ref, const bool vertical = true);
 
 		///returns the signal object, type = CSignalBar*
 		CSignalBar* getScaleObject(){return sbar;};
@@ -278,11 +284,19 @@ class CSignalBox : public CComponentsForm
 		///get caption color of signalbars, see also property 'sbx_caption_color'
 		fb_pixel_t getTextColor(){return sbx_caption_color;};
 
-		///assigns the width of scale
+		///assigns the width of scale in percent related of full width of signal box, the rest is reserved for text
 		void setScaleWidth(const short & scale_width_percent){sbx_scale_w_percent = scale_width_percent;};
 		
 		///paint items
 		void paint(bool do_save_bg);
+
+		///return current signal value
+		uint16_t getSignalValue(void) { return sbar->getValue();}
+
+		///return current snr value
+		uint16_t getSNRValue(void) { return snrbar->getValue();}
+		
+		///return current snr value
 };
 
 #endif

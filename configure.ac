@@ -27,6 +27,16 @@ if COMPILER=`$CC --version | head -n 1`; then
     AC_DEFINE_UNQUOTED(USED_COMPILER, ["$COMPILER"])
 fi
 
+AC_ARG_ENABLE(ffmpegdec,
+	AS_HELP_STRING(--enable-ffmpegdec,include ffmpeg decoder support),
+	,[enable_ffmpegdec=no])
+
+AM_CONDITIONAL(ENABLE_FFMPEGDEC,test "$enable_ffmpegdec" = "yes")
+if test "$enable_ffmpegdec" = "yes"; then
+	AC_DEFINE(ENABLE_FFMPEGDEC,1,[include ffmpeg decoder support])
+fi
+
+if test x"$enable_ffmpegdec" != xyes; then
 AC_ARG_WITH([tremor], [AS_HELP_STRING([--with-tremor],
 	[use libvorbisidec instead of libogg/libvorbis])],
 	[TREMOR="$withval"],
@@ -37,9 +47,6 @@ AC_ARG_WITH([tremor-static], [AS_HELP_STRING([--with-tremor-static],
 	[TREMOR_STATIC="$withval"],
 	[TREMOR_STATIC=no])
 
-if test "$BOXTYPE" = "tripledragon"; then
-	TUXBOX_APPS_LIB_PKGCONFIG(DIRECTFB, directfb)
-fi
 
 if test "$TREMOR_STATIC" = "yes"; then
 	TREMOR=yes
@@ -55,11 +62,6 @@ if test "$TREMOR_STATIC" = "yes"; then
 	VORBISIDEC_LIBS="$(echo $VORBISIDEC_LIBS | sed 's@-L@@; s@ -l.*@/libvorbisidec.a@;')"
 fi
 
-AM_CONDITIONAL(USE_TREMOR, test "$TREMOR" = "yes")
-
-TUXBOX_APPS_LIB_CONFIG(CURL,curl-config)
-TUXBOX_APPS_LIB_CONFIG(FREETYPE,freetype-config)
-# TUXBOX_APPS_LIB_PKGCONFIG(OPENSSL,openssl)
 TUXBOX_APPS_LIB_PKGCONFIG_CHECK(ID3TAG,libid3tag)
 if test x"$ID3TAG_EXISTS" != xyes; then
 	TUXBOX_APPS_LIB_PKGCONFIG(ID3TAG,id3tag)
@@ -72,6 +74,19 @@ TUXBOX_APPS_LIB_PKGCONFIG_CHECK(OGG,ogg)
 if test -z "$OGG_CFLAGS" ; then
 	TUXBOX_APPS_LIB_PKGCONFIG(OGG,ogg)
 fi
+else
+TUXBOX_APPS_LIB_PKGCONFIG(SWRESAMPLE,libswresample)
+fi
+
+if test "$BOXTYPE" = "tripledragon"; then
+	TUXBOX_APPS_LIB_PKGCONFIG(DIRECTFB, directfb)
+fi
+
+AM_CONDITIONAL(USE_TREMOR, test "$TREMOR" = "yes")
+
+# TUXBOX_APPS_LIB_PKGCONFIG(OPENSSL,openssl)
+TUXBOX_APPS_LIB_CONFIG(CURL,curl-config)
+TUXBOX_APPS_LIB_CONFIG(FREETYPE,freetype-config)
 TUXBOX_APPS_LIB_PKGCONFIG(PNG,libpng)
 TUXBOX_APPS_LIB_PKGCONFIG(AVFORMAT,libavformat)
 TUXBOX_APPS_LIB_PKGCONFIG(AVCODEC,libavcodec)
@@ -87,7 +102,6 @@ PKG_CHECK_MODULES([LUA], [lua >= 5.2], echo "lua >= 5.2 found", [
 		LUA_LIBS="-llua -ldl"
 	])
 ])
-
 #TUXBOX_APPS_LIB_PKGCONFIG(CONFIGFILE,tuxbox-configfile)
 #TUXBOX_APPS_LIB_PKGCONFIG(CONNECTION,tuxbox-connection)
 #TUXBOX_APPS_LIB_PKGCONFIG(EVENTSERVER,tuxbox-eventserver)
@@ -129,7 +143,6 @@ AM_CONDITIONAL(ENABLE_GRAPHLCD,test "$enable_graphlcd" = "yes")
 if test "$enable_graphlcd" = "yes"; then
 	AC_DEFINE(ENABLE_GRAPHLCD,1,[include GraphLCD support])
 fi
-
 AC_ARG_ENABLE(giflib,
 	AS_HELP_STRING(--enable-giflib,use giflib instead of libungif),
 	,[enable_giflib=no])
@@ -182,7 +195,6 @@ if test "$BOXTYPE" != coolstream; then
 		AC_MSG_ERROR([need libstb-hal includes path with --with-stb-hal-includes=...])
 	fi
 fi
-
 AC_ARG_ENABLE(cleanup,
 	[  --enable-cleanup                  enable cleanup on exit],
 	[AC_DEFINE(EXIT_CLEANUP,1,[enable cleanup on exit])])

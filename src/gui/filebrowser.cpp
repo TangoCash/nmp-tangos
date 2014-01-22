@@ -73,7 +73,7 @@ typedef struct dirent dirent_struct;
 typedef struct stat stat_struct;
 #define my_stat stat
 #define my_lstat lstat
-//#error not using 64 bit file offsets
+#error not using 64 bit file offsets
 #endif
 
 #define SMSKEY_TIMEOUT 2000
@@ -109,110 +109,23 @@ unsigned char SMSKeyInput::handleMsg(const neutrino_msg_t msg)
 // 	       m_oldKeyTime.tv_sec*1000+m_oldKeyTime.tv_usec/1000,
 // 	       m_timeout,!timeoutNotReached);
 
-	unsigned char key = 0;
-	if(msg == CRCInput::RC_1)
-	{
-			key = '1';
+	const char *key = "";
+	if (CRCInput::isNumeric(msg)) {
+		int n = CRCInput::getNumericValue(msg);
+		const char *Chars[10] = { "0", "1", "abc2", "def3", "ghi4", "jkl5", "mno6", "pqrs7", "tuv8", "wxyz9" };
+		if (timeoutNotReached) {
+			key = Chars[n];
+			while (*key && *key != m_oldKey)
+				key++;
+			if (*key)
+				key++;
 	}
-	if(msg == CRCInput::RC_2)
-	{
-		if(m_oldKey == 'a' && timeoutNotReached)
-			key = 'b';
-		else if(m_oldKey == 'b' && timeoutNotReached)
-			key = 'c';
-		else if(m_oldKey == 'c' && timeoutNotReached)
-			key = '2';
-		else
-			key = 'a';
-	}
-	else if(msg == CRCInput::RC_3)
-	{
-		if(m_oldKey == 'd' && timeoutNotReached)
-			key = 'e';
-		else if(m_oldKey == 'e' && timeoutNotReached)
-			key = 'f';
-		else if(m_oldKey == 'f' && timeoutNotReached)
-			key = '3';
-		else
-			key = 'd';
-	}
-	else if(msg == CRCInput::RC_4)
-	{
-		if(m_oldKey == 'g' && timeoutNotReached)
-			key = 'h';
-		else if(m_oldKey == 'h' && timeoutNotReached)
-			key = 'i';
-		else if(m_oldKey == 'i' && timeoutNotReached)
-			key = '4';
-		else
-			key = 'g';
-	}
-	else if(msg == CRCInput::RC_5)
-	{
-		if(m_oldKey == 'j' && timeoutNotReached)
-			key = 'k';
-		else if(m_oldKey == 'k' && timeoutNotReached)
-			key = 'l';
-		else if(m_oldKey == 'l' && timeoutNotReached)
-			key = '5';
-		else
-			key = 'j';
-	}
-	else if(msg == CRCInput::RC_6)
-	{
-		if(m_oldKey == 'm' && timeoutNotReached)
-			key = 'n';
-		else if(m_oldKey == 'n' && timeoutNotReached)
-			key = 'o';
-		else if(m_oldKey == 'o' && timeoutNotReached)
-			key = '6';
-		else
-			key = 'm';
-	}
-	else if(msg == CRCInput::RC_7)
-	{
-		if(m_oldKey == 'p' && timeoutNotReached)
-			key = 'q';
-		else if(m_oldKey == 'q' && timeoutNotReached)
-			key = 'r';
-		else if(m_oldKey == 'r' && timeoutNotReached)
-			key = 's';
-		else if(m_oldKey == 's' && timeoutNotReached)
-			key = 's';
-		else
-			key = 'p';
-	}
-	else if(msg == CRCInput::RC_8)
-	{
-		if(m_oldKey == 't' && timeoutNotReached)
-			key = 'u';
-		else if(m_oldKey == 'u' && timeoutNotReached)
-			key = 'v';
-		else if(m_oldKey == 'v' && timeoutNotReached)
-			key = '8';
-		else
-			key = 't';
-	}
-	else if(msg == CRCInput::RC_9)
-	{
-		if(m_oldKey == 'w' && timeoutNotReached)
-			key = 'x';
-		else if(m_oldKey == 'x' &&timeoutNotReached)
-			key = 'y';
-		else if(m_oldKey == 'y' &&timeoutNotReached)
-			key = 'z';
-		else if(m_oldKey == 'z' && timeoutNotReached)
-			key = '9';
-		else
-			key = 'w';
-	}
-	else if(msg == CRCInput::RC_0)
-	{
-		key = '0';
+		if (!*key)
+			key = Chars[n];
 	}
 	m_oldKeyTime=keyTime;
-	m_oldKey=key;
-	return key;
+	m_oldKey=*key;
+	return *key;
 }
 //------------------------------------------------------------------------
 
@@ -369,7 +282,6 @@ void CFileBrowser::commonInit()
 	sc_init_dir = "/legacy/genrelist?k="  + g_settings.shoutcast_dev_id;
 
 	Filter = NULL;
-
 	Multi_Select = false;
 	Dirs_Selectable = false;
 	Dir_Mode = false;
@@ -845,8 +757,7 @@ bool CFileBrowser::exec(const char * const dirname)
 	if (!*dirname)
 		name = "/";
 	else
-		name = dirname;
-
+	name = dirname;
 	std::replace(name.begin(), name.end(), '\\', '/');
 
 	paintHead();
@@ -1027,11 +938,10 @@ bool CFileBrowser::exec(const char * const dirname)
 				_msg << " " << g_Locale->getText(LOCALE_FILEBROWSER_DODELETE2);
 				if (ShowMsgUTF(LOCALE_FILEBROWSER_DELETE, _msg.str(), CMessageBox::mbrNo, CMessageBox::mbYes|CMessageBox::mbNo)==CMessageBox::mbrYes)
 				{
-					recursiveDelete(filelist[selected].Name.c_str());
-					if(".ts" ==(filelist[selected].getFileName().substr(filelist[selected].getFileName().length()-3,filelist[selected].getFileName().length())))//if bla.ts
-					{
-						recursiveDelete((filelist[selected].Name.substr(0,filelist[selected].Name.length()-7)+".xml").c_str());//remove bla.xml von bla.ts
-					}
+					std::string n = filelist[selected].Name;
+					recursiveDelete(n.c_str());
+					if(n.length() > 3 && ".ts" == n.substr(n.length() - 3))
+						recursiveDelete((n.substr(0, n.length() - 2) + "xml").c_str());
 					ChangeDir(Path);
 
 				}
@@ -1086,12 +996,16 @@ bool CFileBrowser::exec(const char * const dirname)
 								ChangeDir(filelist[selected].Name);
 							}
 						}
-						else if (!Multi_Select
-							|| (!S_ISDIR(filelist[selected].Mode) ||
-							    (!g_settings.filebrowser_multi_select_confirm_dir ||
-							     ShowMsgUTF(LOCALE_MESSAGEBOX_INFO, g_Locale->getText(LOCALE_FILEBROWSER_MULTI_SELECT_ADD_DIR), CMessageBox::mbrYes,
-								     CMessageBox::mbYes | CMessageBox::mbNo, NEUTRINO_ICON_FOLDER) == CMessageBox::mbrYes)))
+						else
 						{
+							bool has_selected = false;
+							for(unsigned int i = 0; i < filelist.size();i++) {
+								if(filelist[i].Marked) {
+									has_selected = true;
+									break;
+								}
+							}
+							if (!has_selected)
 							filelist[selected].Marked = true;
 							loop = false;
 							res = true;
@@ -1250,44 +1164,39 @@ void CFileBrowser::hide()
 void CFileBrowser::paintItem(unsigned int pos)
 {
 	int colwidth1, colwidth2, colwidth3;
-	int c_rad_small;
+	int c_rad_small = 0;
 	fb_pixel_t color;
 	fb_pixel_t bgcolor;
 	int ypos = y+ theight+0 + pos*fheight;
 	CFile * actual_file = NULL;
 	std::string fileicon;
+	unsigned int curr = liststart + pos;
 
-	if (liststart + pos == selected)
+	frameBuffer->paintBoxRel(x,ypos, width- 15, fheight, COL_MENUCONTENT_PLUS_0/*DARK*/);
+
+	if (curr >= filelist.size())
+		return;
+
+	actual_file = &filelist[curr];
+	if (curr == selected)
 	{
-		color   = COL_MENUCONTENTSELECTED_TEXT;
-		bgcolor = COL_MENUCONTENTSELECTED_PLUS_0;
+		color   = actual_file->Marked ? COL_MENUCONTENTINACTIVE_TEXT : COL_MENUCONTENTSELECTED_TEXT;
+		bgcolor = actual_file->Marked ? COL_MENUCONTENTSELECTED_PLUS_2 : COL_MENUCONTENTSELECTED_PLUS_0;
 		c_rad_small = RADIUS_SMALL;
 // 		paintFoot();
+	}
+	else if (actual_file->Marked)
+	{
+		color   = COL_MENUCONTENT_TEXT;
+		bgcolor = COL_MENUCONTENT_PLUS_2;
 	}
 	else
 	{
 		color   = COL_MENUCONTENT_TEXT;//DARK;
 		bgcolor = COL_MENUCONTENT_PLUS_0;//DARK;
-		c_rad_small = 0;
 	}
 	
-	if( (liststart + pos) < filelist.size() )
-	{
-		actual_file = &filelist[liststart+pos];
-		if (actual_file->Marked)
-		{
-			if (liststart + pos == selected) {
-				color   = COL_MENUCONTENTINACTIVE_TEXT;
-				bgcolor = COL_MENUCONTENTSELECTED_PLUS_2;
-			}
-			else {
-				color   = COL_MENUCONTENT_TEXT;
-				bgcolor = COL_MENUCONTENT_PLUS_1;
-			}
-		}
-
-		frameBuffer->paintBoxRel(x,ypos, width- 15, fheight, COL_MENUCONTENT_PLUS_0);
-		frameBuffer->paintBoxRel(x,ypos, width- 15, fheight, bgcolor, c_rad_small);
+	frameBuffer->paintBoxRel(x,ypos, width- 15, fheight, bgcolor, c_rad_small);
 
 		if (g_settings.filebrowser_showrights == 0 && S_ISREG(actual_file->Mode))
 			colwidth2 = 0;
@@ -1298,7 +1207,7 @@ void CFileBrowser::paintItem(unsigned int pos)
 
 		if ( actual_file->Name.length() > 0 )
 		{
-			if (liststart+pos==selected)
+		if (curr == selected)
 				CVFD::getInstance()->showMenuText(0, FILESYSTEM_ENCODING_TO_UTF8_STRING(actual_file->getFileName()).c_str(), -1, true); // UTF-8
 
 			switch(actual_file->getType())
@@ -1310,6 +1219,7 @@ void CFileBrowser::paintItem(unsigned int pos)
 #ifdef ENABLE_FLAC
 			case CFile::FILE_FLAC:
 #endif
+			case CFile::FILE_AAC:
 				fileicon = NEUTRINO_ICON_MP3;
 //				color = COL_MENUCONTENT_TEXT;
 				break;
@@ -1330,16 +1240,11 @@ void CFileBrowser::paintItem(unsigned int pos)
 			case CFile::FILE_TS:
 				fileicon = NEUTRINO_ICON_MOVIE;
 				break;
-
 			case CFile::FILE_TEXT:
 			default:
 				fileicon = NEUTRINO_ICON_FILE;
 			}
-			//frameBuffer->paintIcon(fileicon, x+5 , ypos + (fheight-16) / 2 );
-			int w, h;
-			frameBuffer->getIconSize(fileicon.c_str(), &w, &h);
-			if (w && h)
-				frameBuffer->paintIcon(fileicon, x+5 , ypos + (fheight - h)/2);
+		frameBuffer->paintIcon(fileicon, x+5 , ypos + (fheight-16) / 2 );
 
 			fnt_item->RenderString(x + 35, ypos + fheight, colwidth1 - 10 , FILESYSTEM_ENCODING_TO_UTF8_STRING(actual_file->getFileName()), color, 0, true); // UTF-8
 
@@ -1404,9 +1309,6 @@ void CFileBrowser::paintItem(unsigned int pos)
 				fnt_item->RenderString(x + width - time_w - 25, ypos+ fheight, time_w, timestring, color);
 			}
 		}
-	}
-	else
-		frameBuffer->paintBoxRel(x,ypos, width- 15, fheight, COL_MENUCONTENT_PLUS_0/*DARK*/);
 }
 
 //------------------------------------------------------------------------
@@ -1455,7 +1357,6 @@ bool chooserDir(char *setting_dir, bool test_dir, const char *action_str, size_t
 	}
 	return false;
 }
-
 bool chooserDir(std::string &setting_dir, bool test_dir, const char *action_str, bool allow_tmp)
 {
 	const char *wrong_str = "Wrong/unsupported";

@@ -43,6 +43,13 @@
 #include <system/helpers.h>
 #include <gui/update_ext.h>
 
+void mySleep(int sec) {
+	struct timeval timeout;
+
+	timeout.tv_sec = sec;
+	timeout.tv_usec = 0;
+	select(0,0,0,0, &timeout);
+}
 off_t file_size(const char *filename)
 {
 	struct stat stat_buf;
@@ -224,19 +231,19 @@ int check_dir(const char * dir, bool allow_tmp)
 			case 0x58465342L:	/*xfs*/
 			case 0x4d44L:		/*msdos*/
 			case 0x0187:		/* AUTOFS_SUPER_MAGIC */
-			case 0x3153464AL:	/*jfs*/
 #if 0
 			case 0x72b6L:		/*jffs2*/
 #endif
 				ret = 0;//ok
 				break; 
 			case 0x858458f6L: 	/*ramfs*/
-			case 0x1021994: 	/*TMPFS_MAGIC*/
+			case 0x1021994L: 	// tmpfs
 				if(allow_tmp)
 					ret = 0;//ok
+			case 0x72b6L:		// jffs2
 				break;
 			default:
-				fprintf(stderr, "%s: Unknown File system type 0x%x\n", dir, (int)s.f_type);
+				fprintf(stderr, "%s Unknown filesystem type: 0x%x\n", dir, (int)s.f_type);
 				break; // error
 		}
 	}
@@ -344,6 +351,17 @@ std::string trim(std::string &str, const std::string &trimChars /*= " \n\r\t"*/)
 	return result.erase(0, result.find_first_not_of(trimChars));
 }
 
+time_t toEpoch(std::string &date)
+{
+	struct tm t;
+	memset(&t, 0, sizeof(t));
+	char *p = strptime(date.c_str(), "%Y-%m-%d", &t);
+	if(p)
+		return mktime(&t);
+
+	return 0;
+
+}
 CFileHelpers::CFileHelpers()
 {
 	FileBufSize	= 0xFFFF;
@@ -538,14 +556,8 @@ bool CFileHelpers::createDir(const char *Dir, mode_t mode)
 				createDir(dirPath, mode);
 			}
 		}
-		else {
-			if (ret == 0)
-				return true;
-			if (errno == EEXIST)
-				return true;
 			else
-				return false;
-		}
+			return !ret || (errno == EEXIST);
 	}
 	errno = 0;
 	return true;

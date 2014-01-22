@@ -57,7 +57,7 @@
 //#define DEBUG_SDT_THREAD
 //#define DEBUG_TIME_THREAD
 
-//#define DEBUG_SECTION_THREADS
+#define DEBUG_SECTION_THREADS
 //#define DEBUG_CN_THREAD
 
 /*static*/ bool reader_ready = true;
@@ -68,7 +68,8 @@ static bool notify_complete = false;
 #define HOUSEKEEPING_SLEEP (5 * 60) // sleep 5 minutes
 //#define HOUSEKEEPING_SLEEP (30) // FIXME 1 min for testing
 /* period to clean cached sections and force restart sections read */
-#define META_HOUSEKEEPING (24 * 60 * 60) / HOUSEKEEPING_SLEEP // meta housekeeping after XX housekeepings - every 24h -
+#define META_HOUSEKEEPING_COUNT (24 * 60 * 60) / HOUSEKEEPING_SLEEP // meta housekeeping after XX housekeepings - every 24h -
+#define STANDBY_HOUSEKEEPING_COUNT (60 * 60) / HOUSEKEEPING_SLEEP
 
 // Timeout bei tcp/ip connections in ms
 #define READ_TIMEOUT_IN_SECONDS  2
@@ -140,7 +141,6 @@ CSdtThread threadSDT;
 #ifdef DEBUG_EVENT_LOCK
 static time_t lockstart = 0;
 #endif
-
 static int sectionsd_stop = 0;
 
 static bool slow_addevent = true;
@@ -218,11 +218,10 @@ static MySIeventUniqueKeysMetaOrderServiceUniqueKey mySIeventUniqueKeysMetaOrder
 static MySIservicesOrderUniqueKey mySIservicesOrderUniqueKey;
 static MySIservicesNVODorderUniqueKey mySIservicesNVODorderUniqueKey;
 
-/* needs write lock held! */
 static bool deleteEvent(const event_id_t uniqueKey)
 {
 	bool ret = false;
-	// writeLockEvents();
+	writeLockEvents();
 	MySIeventsOrderUniqueKey::iterator e = mySIeventsOrderUniqueKey.find(uniqueKey);
 
 	if (e != mySIeventsOrderUniqueKey.end()) {
@@ -238,7 +237,7 @@ static bool deleteEvent(const event_id_t uniqueKey)
 		mySIeventsNVODorderUniqueKey.erase(uniqueKey);
 		ret = true;
 	}
-	// unlockEvents();
+	unlockEvents();
 	return ret;
 }
 
@@ -323,7 +322,7 @@ xprintf("addEvent: ch %012" PRIx64 " running %d (%s) got_CN %d\n", evt.get_chann
 			unlockMessaging();
 	}
 
-	writeLockEvents();
+	readLockEvents();
 	MySIeventsOrderUniqueKey::iterator si = mySIeventsOrderUniqueKey.find(evt.uniqueKey());
 	bool already_exists = (si != mySIeventsOrderUniqueKey.end());
 	if (already_exists && (evt.table_id < si->second->table_id))
@@ -460,16 +459,20 @@ xprintf("addEvent: ch %012" PRIx64 " running %d (%s) got_CN %d\n", evt.get_chann
 					to_delete.push_back(x_key);
 				}
 			}
+			unlockEvents();
 
 			while (! to_delete.empty())
 			{
 				deleteEvent(to_delete.back());
 				to_delete.pop_back();
 			}
+		} else {
+			// Damit in den nicht nach Event-ID sortierten Mengen
+			// Mehrere Events mit gleicher ID sind, diese vorher loeschen
+			unlockEvents();
 		}
-		// Damit in den nicht nach Event-ID sortierten Mengen
-		// Mehrere Events mit gleicher ID sind, diese vorher loeschen
 		deleteEvent(e->uniqueKey());
+		readLockEvents();
 		if ( !mySIeventsOrderUniqueKey.empty() && mySIeventsOrderUniqueKey.size() >= max_events && max_events != 0 ) {
 			MySIeventsOrderFirstEndTimeServiceIDEventUniqueKey::iterator lastEvent =
 				mySIeventsOrderFirstEndTimeServiceIDEventUniqueKey.begin();
@@ -503,9 +506,13 @@ xprintf("addEvent: ch %012" PRIx64 " running %d (%s) got_CN %d\n", evt.get_chann
 				unlockMessaging();
 			}
 			// else fprintf(stderr, ">");
+			unlockEvents();
 			if(*lastEvent!=NULL)
 				deleteEvent((*lastEvent)->uniqueKey());
 		}
+		else
+			unlockEvents();
+		readLockEvents();
 		// Pruefen ob es ein Meta-Event ist
 		MySIeventUniqueKeysMetaOrderServiceUniqueKey::iterator i = mySIeventUniqueKeysMetaOrderServiceUniqueKey.find(e->get_channel_id());
 
@@ -525,6 +532,9 @@ xprintf("addEvent: ch %012" PRIx64 " running %d (%s) got_CN %d\n", evt.get_chann
 					// Falls das Event in den beiden Mengen mit Zeiten nicht vorhanden
 					// ist, dieses dort einfuegen
 					MySIeventsOrderServiceUniqueKeyFirstStartTimeEventUniqueKey::iterator i2 = mySIeventsOrderServiceUniqueKeyFirstStartTimeEventUniqueKey.find(ie->second);
+					unlockEvents();
+					writeLockEvents();
+
 					if (i2 == mySIeventsOrderServiceUniqueKeyFirstStartTimeEventUniqueKey.end())
 					{
 						// nicht vorhanden -> einfuegen
@@ -537,6 +547,8 @@ xprintf("addEvent: ch %012" PRIx64 " running %d (%s) got_CN %d\n", evt.get_chann
 				}
 			}
 		}
+		unlockEvents();
+		writeLockEvents();
 //		printf("Adding: %04x\n", (int) e->uniqueKey());
 
 		// normales Event
@@ -564,18 +576,22 @@ static void addNVODevent(const SIevent &evt)
 
 	SIeventPtr e(eptr);
 
-	writeLockEvents();
+	readLockEvents();
 	MySIeventsOrderUniqueKey::iterator e2 = mySIeventsOrderUniqueKey.find(e->uniqueKey());
 
 	if (e2 != mySIeventsOrderUniqueKey.end())
 	{
 		// bisher gespeicherte Zeiten retten
+		unlockEvents();
+		writeLockEvents();
 		e->times.insert(e2->second->times.begin(), e2->second->times.end());
 	}
+	unlockEvents();
 
 	// Damit in den nicht nach Event-ID sortierten Mengen
 	// mehrere Events mit gleicher ID sind, diese vorher loeschen
 	deleteEvent(e->uniqueKey());
+	readLockEvents();
 	if ( !mySIeventsOrderUniqueKey.empty() && mySIeventsOrderUniqueKey.size() >= max_events  && max_events != 0 ) {
 		//TODO: Set Old Events to 0 if limit is reached...
 		MySIeventsOrderFirstEndTimeServiceIDEventUniqueKey::iterator lastEvent =
@@ -589,18 +605,24 @@ static void addNVODevent(const SIevent &evt)
 			--lastEvent;
 		}
 		unlockMessaging();
+		unlockEvents();
 		deleteEvent((*lastEvent)->uniqueKey());
 	}
+	else
+		unlockEvents();
+	writeLockEvents();
 	mySIeventsOrderUniqueKey.insert(std::make_pair(e->uniqueKey(), e));
 
 	mySIeventsNVODorderUniqueKey.insert(std::make_pair(e->uniqueKey(), e));
+	unlockEvents();
 	if (!e->times.empty())
 	{
 		// diese beiden Mengen enthalten nur Events mit Zeiten
+		writeLockEvents();
 		mySIeventsOrderServiceUniqueKeyFirstStartTimeEventUniqueKey.insert(e);
 		mySIeventsOrderFirstEndTimeServiceIDEventUniqueKey.insert(e);
+		unlockEvents();
 	}
-	unlockEvents();
 }
 
 static void removeOldEvents(const long seconds)
@@ -610,7 +632,8 @@ static void removeOldEvents(const long seconds)
 	// Alte events loeschen
 	time_t zeit = time(NULL);
 
-	writeLockEvents();
+	readLockEvents();
+	unsigned total_events = mySIeventsOrderUniqueKey.size();
 
 	MySIeventsOrderFirstEndTimeServiceIDEventUniqueKey::iterator e = mySIeventsOrderFirstEndTimeServiceIDEventUniqueKey.begin();
 
@@ -628,10 +651,14 @@ static void removeOldEvents(const long seconds)
 			to_delete.push_back((*e)->uniqueKey());
 		++e;
 	}
-	for (std::vector<event_id_t>::iterator i = to_delete.begin(); i != to_delete.end(); ++i)
-		deleteEvent(*i);
 	unlockEvents();
 
+	for (std::vector<event_id_t>::iterator i = to_delete.begin(); i != to_delete.end(); ++i)
+		deleteEvent(*i);
+
+	readLockEvents();
+	xprintf("[sectionsd] Removed %d old events (%d left), zap detected %d.\n", (int)(total_events - mySIeventsOrderUniqueKey.size()), (int)mySIeventsOrderUniqueKey.size(), messaging_zap_detected);
+	unlockEvents();
 	return;
 }
 
@@ -853,6 +880,9 @@ static void commandPauseScanning(int connfd, char *data, const unsigned dataLeng
 #endif
 #endif
 		scanning = 0;
+		writeLockMessaging();
+		messaging_zap_detected = false;
+		unlockMessaging();
 	}
 	else if (!pause && !scanning)
 	{
@@ -876,6 +906,7 @@ static void commandPauseScanning(int connfd, char *data, const unsigned dataLeng
 		writeLockMessaging();
 		messaging_have_CN = 0x00;
 		messaging_got_CN = 0x00;
+		messaging_zap_detected = true;
 		unlockMessaging();
 
 		scanning = 1;
@@ -903,6 +934,9 @@ static void commandserviceChanged(int connfd, char *data, const unsigned dataLen
 	if (cmd->dnum) {
 		/* dont wakeup EIT, if we have max events allready */
 		if (max_events == 0  || (mySIeventsOrderUniqueKey.size() < max_events)) {
+			writeLockMessaging();
+			messaging_zap_detected = true;
+			unlockMessaging();
 			threadEIT.setDemux(cmd->dnum);
 			threadEIT.setCurrentService(uniqueServiceKey);
 		}
@@ -1355,7 +1389,7 @@ void CTimeThread::setSystemTime(time_t tim)
 #endif
 	if (timediff == 0) /* very unlikely... :-) */
 		return;
-	if (abs(tim - tv.tv_sec) < 120) { /* abs() is int */
+	if (timeset && abs(tim - tv.tv_sec) < 120) { /* abs() is int */
 		struct timeval oldd;
 		tv.tv_sec = timediff / 1000000LL;
 		tv.tv_usec = timediff % 1000000LL;
@@ -2018,62 +2052,39 @@ static void print_meminfo(void)
 //---------------------------------------------------------------------
 static void *houseKeepingThread(void *)
 {
-	int count = 0;
+	int count = 0, scount = 0;
 
 	dprintf("housekeeping-thread started.\n");
 	pthread_setcanceltype (PTHREAD_CANCEL_ASYNCHRONOUS, 0);
 
 	while (!sectionsd_stop)
 	{
-		if (count == META_HOUSEKEEPING) {
+		if (count == META_HOUSEKEEPING_COUNT) {
 			dprintf("meta housekeeping - deleting all transponders, services, bouquets.\n");
 			deleteSIexceptEPG();
 			count = 0;
 		}
 
-		int i = HOUSEKEEPING_SLEEP;
+		int rc = HOUSEKEEPING_SLEEP;
 
-		while (i > 0 && !sectionsd_stop) {
-			sleep(1);
-			i--;
-		}
-		if (sectionsd_stop)
-			break;
+		while (rc)
+			rc = sleep(rc);
 
-		while (!scanning) {
-			sleep(1);	// wait for streaming to end...
-			if (sectionsd_stop)
-				break;
+		if (!scanning) {
+			scount++;
+			if (scount < STANDBY_HOUSEKEEPING_COUNT)
+				continue;
 		}
+		scount = 0;
 
 		dprintf("housekeeping.\n");
 
 		// TODO: maybe we need to stop scanning here?...
 
-		readLockEvents();
-
-		unsigned anzEventsAlt = mySIeventsOrderUniqueKey.size();
-		dprintf("before removeoldevents\n");
-		unlockEvents();
 
 		removeOldEvents(oldEventsAre); // alte Events
-		dprintf("after removeoldevents\n");
-		readLockEvents();
-		printf("[sectionsd] Removed %d old events (%d left).\n", (int)(anzEventsAlt - mySIeventsOrderUniqueKey.size()), (int)mySIeventsOrderUniqueKey.size());
-		if (mySIeventsOrderUniqueKey.size() != anzEventsAlt)
-		{
-			print_meminfo();
-			dprintf("Removed %d old events.\n", (int)(anzEventsAlt - mySIeventsOrderUniqueKey.size()));
-		}
-		anzEventsAlt = mySIeventsOrderUniqueKey.size();
-		unlockEvents();
 
 		readLockEvents();
-		if (mySIeventsOrderUniqueKey.size() != anzEventsAlt)
-		{
-			print_meminfo();
-			dprintf("Removed %d waste events.\n", (int)(anzEventsAlt - mySIeventsOrderUniqueKey.size()));
-		}
 
 		dprintf("Number of sptr events (event-ID): %u\n", (unsigned)mySIeventsOrderUniqueKey.size());
 		dprintf("Number of sptr events (service-id, start time, event-id): %u\n", (unsigned)mySIeventsOrderServiceUniqueKeyFirstStartTimeEventUniqueKey.size());

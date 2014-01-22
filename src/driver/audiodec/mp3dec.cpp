@@ -42,6 +42,7 @@
 #endif
 
 #include <string.h>
+#include <sstream>
 #include <errno.h>
 #include <string>
 #include <linux/soundcard.h>
@@ -395,6 +396,7 @@ CBaseDec::RetCode CMP3Dec::Decoder(FILE *InputFp, const int /*OutputFd*/,
 #endif
         signed short ll, rr;
 
+	SaveCover(InputFp, meta_data);
 	/* First the structures used by libmad must be initialized. */
 	mad_stream_init(&Stream);
 	mad_frame_init(&Frame);
@@ -924,6 +926,8 @@ q		 * next mad_frame_decode() invocation. (See the comments marked
 //		      fprintf(stderr,"%s: %lu frames decoded (%s).\n",
 //				ProgName,FrameCount,Buffer);
 	}
+	if (!meta_data->cover.empty())
+		unlink(meta_data->cover.c_str());
 
 	/* That's the end of the world (in the H. G. Wells way). */
 	return Status;
@@ -946,7 +950,7 @@ bool CMP3Dec::GetMetaData(FILE* in, const bool nice, CAudioMetaData* const m)
 	{
 		res = GetMP3Info(in, nice, m);
 		GetID3(in, m);
-		SaveCover(in, m);
+		//SaveCover(in, m);
 	}
 	else
 	{
@@ -1346,10 +1350,11 @@ void CMP3Dec::GetID3(FILE* in, CAudioMetaData* const m)
 	}
 }
 
+static int cover_count = 0;
+
 bool CMP3Dec::SaveCover(FILE * in, CAudioMetaData * const m)
 {
 	struct id3_frame const *frame;
-	const char * coverfile = "/tmp/cover.jpg";
 
 	/* text information */
 	struct id3_file *id3file = id3_file_fdopen(fileno(in), ID3_FILE_MODE_READONLY);
@@ -1384,11 +1389,18 @@ bool CMP3Dec::SaveCover(FILE * in, CAudioMetaData * const m)
 							data = id3_field_getbinarydata(field, &size);
 							if ( data )
 							{
-								m->cover = coverfile;
+								std::ostringstream cover;
+								cover.str("");
+								cover << "/tmp/cover_" << cover_count++ << ".jpg";
 								FILE * pFile;
-								pFile = fopen ( coverfile , "wb" );
-								fwrite (data , 1 , size , pFile );
-								fclose (pFile);
+								pFile = fopen ( cover.str().c_str() , "wb" );
+								if (pFile)
+								{
+									fwrite (data , 1 , size , pFile );
+									fclose (pFile);
+									m->cover = cover.str().c_str();
+									m->changed = true;
+								}
 							}
 							break;
 

@@ -44,7 +44,7 @@ CComponents::~CComponents()
 {
  	hide();
 	clearSavedScreen();
-	clear();
+	clearFbData();
 }
 
 void CComponents::clearSavedScreen()
@@ -91,7 +91,7 @@ void CComponents::paintFbItems(bool do_save_bg)
 		for(size_t i=0; i<v_fbdata.size(); i++){
 			if (v_fbdata[i].fbdata_type == CC_FBDATA_TYPE_BGSCREEN){
 #ifdef DEBUG_CC
-	printf("    [CComponents]\n    [%s - %d] firstPaint->save screen: %d, fbdata_type: %d\n", __FUNCTION__, __LINE__, firstPaint, v_fbdata[i].fbdata_type);
+	printf("    [CComponents]\n    [%s - %d] firstPaint->save screen: %d, fbdata_type: %d\n", __func__, __LINE__, firstPaint, v_fbdata[i].fbdata_type);
 #endif
 				saved_screen.x = v_fbdata[i].x;
 				saved_screen.y = v_fbdata[i].y;
@@ -108,16 +108,19 @@ void CComponents::paintFbItems(bool do_save_bg)
 	for(size_t i=0; i< v_fbdata.size() ;i++){
 		// Don't paint if dx or dy are 0
 		if ((v_fbdata[i].dx == 0) || (v_fbdata[i].dy == 0)){
-			printf("    [CComponents] WARNING:\n    [%s - %d], dx = %d\n    dy = %d\n", __FUNCTION__, __LINE__, v_fbdata[i].dx, v_fbdata[i].dy);
+#ifdef DEBUG_CC
+			printf("    [CComponents] WARNING: [%s - %d], dx = %d  dy = %d\n", __func__, __LINE__, v_fbdata[i].dx, v_fbdata[i].dy);
+#endif
 			continue;
 		}
 		if ((v_fbdata[i].x == 0) || (v_fbdata[i].y == 0)){
-			printf("    [CComponents] WARNING:\n    [%s - %d], x = %d\n    y = %d\n", __FUNCTION__, __LINE__, v_fbdata[i].x, v_fbdata[i].y);
+			printf("    [CComponents] WARNING: [%s - %d], x = %d  y = %d\n", __func__, __LINE__, v_fbdata[i].x, v_fbdata[i].y);
 		}
+
 
 		int fbtype = v_fbdata[i].fbdata_type;
 #ifdef DEBUG_CC
-	printf("    [CComponents]\n    [%s - %d], fbdata_[%d] \n    x = %d\n    y = %d\n    dx = %d\n    dy = %d\n", __FUNCTION__, __LINE__, i, v_fbdata[i].x, v_fbdata[i].y, v_fbdata[i].dx, v_fbdata[i].dy);
+	printf("    [CComponents]\n    [%s - %d], fbdata_[%d] \n    x = %d\n    y = %d\n    dx = %d\n    dy = %d\n", __func__, __LINE__, (int)i, v_fbdata[i].x, v_fbdata[i].y, v_fbdata[i].dx, v_fbdata[i].dy);
 #endif
 		//some elements can be assembled from lines and must be handled as one unit (see details line),
 		//so all individual backgrounds of boxes must be saved and painted in "firstpaint mode"
@@ -174,6 +177,9 @@ void CComponents::paintFbItems(bool do_save_bg)
 //screen area save
 inline fb_pixel_t* CComponents::getScreen(int ax, int ay, int dx, int dy)
 {
+	if (dx * dy == 0)
+		return NULL;
+
 	fb_pixel_t* pixbuf = new fb_pixel_t[dx * dy];
 	frameBuffer->waitForIdle("CComponents::getScreen()");
 	frameBuffer->SaveScreen(ax, ay, dx, dy, pixbuf);
@@ -184,14 +190,13 @@ inline fb_pixel_t* CComponents::getScreen(int ax, int ay, int dx, int dy)
 inline void CComponents::hide()
 {
 	for(size_t i =0; i< v_fbdata.size() ;i++) {
-		if (v_fbdata[i].pixbuf != NULL){
+		if (v_fbdata[i].pixbuf){
 			frameBuffer->waitForIdle("CComponents::hide()");
 			frameBuffer->RestoreScreen(v_fbdata[i].x, v_fbdata[i].y, v_fbdata[i].dx, v_fbdata[i].dy, v_fbdata[i].pixbuf);
-			delete[] v_fbdata[i].pixbuf;
-			v_fbdata[i].pixbuf = NULL;
 		}
 	}
-	v_fbdata.clear();
+
+	clearFbData();
 	is_painted = false;
 }
 
@@ -200,16 +205,16 @@ void CComponents::kill()
 {
 	for(size_t i =0; i< v_fbdata.size() ;i++) 
 		frameBuffer->paintBackgroundBoxRel(v_fbdata[i].x, v_fbdata[i].y, v_fbdata[i].dx, v_fbdata[i].dy);	
-	clear();
+	clearFbData();
 	firstPaint = true;
 	is_painted = false;
 }
 
 //clean old screen buffer
-inline void CComponents::clear()
+inline void CComponents::clearFbData()
 {
 	for(size_t i =0; i< v_fbdata.size() ;i++)
-		if (v_fbdata[i].pixbuf != NULL)
+		if (v_fbdata[i].pixbuf)
 			delete[] v_fbdata[i].pixbuf;
 	v_fbdata.clear();
 }

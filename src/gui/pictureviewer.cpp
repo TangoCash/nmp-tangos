@@ -53,6 +53,7 @@
 #include <gui/components/cc.h>
 #include <gui/widget/buttons.h>
 #include <gui/widget/icons.h>
+#include <gui/infoclock.h>
 #include <gui/widget/menue.h>
 #include <gui/widget/messagebox.h>
 
@@ -73,6 +74,7 @@
 
 #include <video.h>
 extern cVideo * videoDecoder;
+extern CInfoClock *InfoClock;
 
 //------------------------------------------------------------------------
 bool comparePictureByDate (const CPicture& a, const CPicture& b)
@@ -96,10 +98,10 @@ CPictureViewerGui::CPictureViewerGui()
 	selected = 0;
 	m_sort = FILENAME;
 	m_viewer = new CPictureViewer();
-	if (strlen(g_settings.network_nfs_picturedir)!=0)
-		Path = g_settings.network_nfs_picturedir;
-	else
+	if (g_settings.network_nfs_picturedir.empty())
 		Path = "/";
+	else
+		Path = g_settings.network_nfs_picturedir;
 
 	picture_filter.addFilter("png");
 	picture_filter.addFilter("bmp");
@@ -261,6 +263,7 @@ int CPictureViewerGui::show()
 		m_currentTitle = m_audioPlayer->getAudioPlayerM_current();
 
 	CAudioMute::getInstance()->enableMuteIcon(false);
+	InfoClock->enableInfoClock(false);
 
 	while (loop)
 	{
@@ -279,7 +282,7 @@ int CPictureViewerGui::show()
 			timeout=50; // egal
 		else
 		{
-			timeout=(m_time+atoi(g_settings.picviewer_slide_time)-(long)time(NULL))*10;
+			timeout=(m_time+g_settings.picviewer_slide_time-(long)time(NULL))*10;
 			if (timeout <0 )
 				timeout=1;
 		}
@@ -431,7 +434,7 @@ int CPictureViewerGui::show()
 		{
 			if (m_state == MENU)
 			{
-				CFileBrowser filebrowser((g_settings.filebrowser_denydirectoryleave) ? g_settings.network_nfs_picturedir : "");
+				CFileBrowser filebrowser((g_settings.filebrowser_denydirectoryleave) ? g_settings.network_nfs_picturedir.c_str() : "");
 
 				filebrowser.Multi_Select    = true;
 				filebrowser.Dirs_Selectable = true;
@@ -653,6 +656,7 @@ int CPictureViewerGui::show()
 	hide();
 
 	CAudioMute::getInstance()->enableMuteIcon(true);
+	InfoClock->enableInfoClock(true);
 
 	return(res);
 }

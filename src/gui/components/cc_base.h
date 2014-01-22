@@ -33,7 +33,7 @@
 #include <driver/pictureviewer/pictureviewer.h>
 #include <gui/widget/icons.h>
 
-//#define DEBUG_CC
+
 
 /// Basic component class.
 /*!
@@ -45,6 +45,8 @@ class CComponents
 	private:
 		///pixel buffer handling, returns pixel buffer depends of given parameters
 		fb_pixel_t* getScreen(int ax, int ay, int dx, int dy);
+		///initialize of basic attributes, no parameters required
+		void initVarBasic();
 		
 	protected:
 		///object: framebuffer object, usable in all sub classes
@@ -97,15 +99,13 @@ class CComponents
 		///mode:  true=allows painting of item, see also allowPaint()
 		bool cc_allow_paint;
 
-		///initialize of basic attributes, no parameters required
-		void initVarBasic();
 		///rendering of framebuffer elements at once,
 		///elements are contained in v_fbdata, presumes added frambuffer elements with paintInit(),
 		///parameter do_save_bg=true, saves background of element to pixel buffer, this can be restore with hide()
 		void paintFbItems(bool do_save_bg = true);
 
 		///clean up old screen buffer saved in v_fbdata
-		virtual void clear();
+		virtual void clearFbData();
 
 		///container: contains saved pixel buffer with position and dimensions
 		comp_screen_data_t saved_screen; 	
@@ -166,6 +166,8 @@ class CComponents
 
 		///set frame color
 		inline virtual void setColorFrame(fb_pixel_t color){col_frame = color;};
+		///set selected frame color
+		inline virtual void setColorFrameSel(fb_pixel_t color){col_frame_sel = color;};
 		///set body color
 		inline virtual void setColorBody(fb_pixel_t color){col_body = color;};
 		///set shadow color
@@ -216,6 +218,9 @@ class CComponents
 
 class CComponentsItem : public CComponents
 {
+	private:
+		///initialize all required attributes
+		void initVarItem();
 	protected:
 		///property: define of item type, see cc_types.h for possible types
 		int cc_item_type;
@@ -242,8 +247,6 @@ class CComponentsItem : public CComponents
 		///an item will be hide or overpainted with other methods, or it's embedded  (bound)  in a parent form.
 		void paintInit(bool do_save_bg);
 
-		///initialize all required attributes
-		void initVarItem();
 
 	public:
 		CComponentsItem();

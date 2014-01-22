@@ -29,6 +29,7 @@
 #include <gui/sleeptimer.h>
 #include <gui/infoviewer.h>
 
+#include <system/helpers.h>
 #include <gui/widget/stringinput.h>
 
 #include <timerdclient/timerdclient.h>
@@ -53,7 +54,7 @@ int CSleepTimerWidget::exec(CMenuTarget* parent, const std::string &actionKey)
 	}
 	is_running = true;
 
-	int    shutdown_min = 0;
+	shutdown_min = 0;
 	char   value[16];
 	CStringInput  *inbox;
 	bool   permanent = (actionKey == "permanent");
@@ -62,7 +63,7 @@ int CSleepTimerWidget::exec(CMenuTarget* parent, const std::string &actionKey)
 		parent->hide();
 
 	if(permanent) {
-		strcpy(value,g_settings.shutdown_min);
+		sprintf(value,"%03d", g_settings.shutdown_min);
 	} else {
 		shutdown_min = g_Timerd->getSleepTimerRemaining();  // remaining shutdown time?
 		sprintf(value,"%03d", shutdown_min);
@@ -101,23 +102,39 @@ int CSleepTimerWidget::exec(CMenuTarget* parent, const std::string &actionKey)
 
 	int new_val = atoi(value);
 	if(permanent) {
-		sprintf(g_settings.shutdown_min,"%03d", new_val);
-		printf("permanent sleeptimer min: %s\n", g_settings.shutdown_min);
+		g_settings.shutdown_min = new_val;
+		printf("permanent sleeptimer min: %d\n", g_settings.shutdown_min);
 	}
 	else if(shutdown_min != new_val) {
 		shutdown_min = new_val;
 		printf("sleeptimer min: %d\n", shutdown_min);
 		if (shutdown_min == 0)	// if set to zero remove existing sleeptimer 
 		{
-			if(g_Timerd->getSleeptimerID() > 0) {
-				g_Timerd->removeTimerEvent(g_Timerd->getSleeptimerID());
-			}
+			int timer_id = g_Timerd->getSleeptimerID();
+			if (timer_id > 0)
+				g_Timerd->removeTimerEvent(timer_id);
 		}
 		else	// set the sleeptimer to actual time + shutdown mins and announce 1 min before
-			g_Timerd->setSleeptimer(time(NULL) + ((shutdown_min -1) * 60),time(NULL) + shutdown_min * 60,0);
+		{
+			time_t now = time(NULL);
+			g_Timerd->setSleeptimer(now + (shutdown_min - 1) * 60, now + shutdown_min * 60, 0);
+		}
 	}
 
 	is_running = false;
 
 	return res;
+}
+
+const char * CSleepTimerWidget::getTargetValue()
+{
+	shutdown_min = g_Timerd->getSleepTimerRemaining();
+	if (shutdown_min > 0)
+	{
+		shutdown_min_string = to_string(shutdown_min);
+		shutdown_min_string += " ";
+		shutdown_min_string += g_Locale->getText(LOCALE_UNIT_SHORT_MINUTE);
+		return shutdown_min_string.c_str();
+	}
+	return NULL;
 }

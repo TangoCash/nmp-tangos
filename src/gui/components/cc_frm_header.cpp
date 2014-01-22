@@ -1,9 +1,9 @@
 /*
-	Based up Neutrino-GUI - Tuxbox-Project 
+	Based up Neutrino-GUI - Tuxbox-Project
 	Copyright (C) 2001 by Steffen Hehn 'McClean'
 
 	Classes for generic GUI-related components.
-	Copyright (C) 2012, 2013, Thilo Graf 'dbt'
+	Copyright (C) 2012, 2013, 2014 Thilo Graf 'dbt'
 	Copyright (C) 2012, Michael Liebmann 'micha-bbg'
 
 	License: GPL
@@ -18,10 +18,8 @@
 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 	General Public License for more details.
 
-	You should have received a copy of the GNU General Public
-	License along with this program; if not, write to the
-	Free Software Foundation, Inc., 51 Franklin St, Fifth Floor,
-	Boston, MA  02110-1301, USA.
+	You should have received a copy of the GNU General Public License
+	along with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
 #ifdef HAVE_CONFIG_H
@@ -30,7 +28,7 @@
 
 #include <global.h>
 #include <neutrino.h>
-#include "cc_frm.h"
+#include "cc_frm_header.h"
 
 using namespace std;
 
@@ -51,7 +49,10 @@ CComponentsHeader::CComponentsHeader(	const int x_pos, const int y_pos, const in
 	x 		= x_pos;
 	y 		= y_pos;
 	width 		= w;
-	height 		= h > 0 ? h : height;
+	if (h > 0) {
+		userHeight = true;
+		height = h;
+	}
 	shadow		= has_shadow;
 	col_frame	= color_frame;
 	col_body	= color_body;
@@ -74,7 +75,10 @@ CComponentsHeader::CComponentsHeader(	const int x_pos, const int y_pos, const in
 	x 		= x_pos;
 	y 		= y_pos;
 	width 		= w;
-	height 		= h > 0 ? h : height;
+	if (h > 0) {
+		userHeight = true;
+		height = h;
+	}
 	shadow		= has_shadow;
 	col_frame	= color_frame;
 	col_body	= color_body;
@@ -90,8 +94,6 @@ CComponentsHeader::CComponentsHeader(	const int x_pos, const int y_pos, const in
 
 void CComponentsHeader::initVarHeader()
 {
-	//CComponentsForm
-	initVarForm();
 	cc_item_type 		= CC_ITEMTYPE_FRM_HEADER;
 	col_body 		= COL_MENUHEAD_PLUS_0;
 	corner_rad		= RADIUS_LARGE,
@@ -101,6 +103,7 @@ void CComponentsHeader::initVarHeader()
 	cch_size_mode		= CC_HEADER_SIZE_LARGE;
 	cch_font 		= g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE];
 	height 			= cch_font->getHeight();
+	userHeight		= false;
 	
 	//CComponentsHeader
 	cch_icon_obj		= NULL;
@@ -125,10 +128,9 @@ void CComponentsHeader::initVarHeader()
 CComponentsHeader::~CComponentsHeader()
 {
 #ifdef DEBUG_CC
-	printf("[~CComponentsHeader]   [%s - %d] delete...\n", __FUNCTION__, __LINE__);
+	printf("[~CComponentsHeader]   [%s - %d] delete...\n", __func__, __LINE__);
 #endif
 	v_cch_btn.clear();
-	cleanCCForm();	
 }
 
 void CComponentsHeader::setCaption(const std::string& caption, const int& align_mode)
@@ -168,7 +170,7 @@ void CComponentsHeader::initIcon()
 	//create instance for cch_icon_obj
 	if (cch_icon_obj == NULL){
 #ifdef DEBUG_CC
-	printf("    [CComponentsHeader]\n    [%s - %d] init header icon: %s\n", __FUNCTION__, __LINE__, cch_icon_name);
+	printf("    [CComponentsHeader]\n    [%s - %d] init header icon: %s\n", __func__, __LINE__, cch_icon_name);
 #endif
 		cch_icon_obj = new CComponentsPicture(cch_icon_x, cch_items_y, 0, 0, cch_icon_name);
 	}
@@ -231,7 +233,7 @@ void CComponentsHeader::initDefaultButtons()
 	if (cch_buttons & CC_BTN_MENU)
 		v_cch_btn.push_back(NEUTRINO_ICON_BUTTON_MENU);
 #ifdef DEBUG_CC
-	printf("[CComponentsHeader]  %s added %d default buttons...\n", __FUNCTION__, v_cch_btn.size());
+	printf("[CComponentsHeader]  %s added %d default buttons...\n", __func__, (int)v_cch_btn.size());
 #endif
 }
 
@@ -275,7 +277,7 @@ void CComponentsHeader::initButtons()
 	if (cch_btn_obj == NULL){
 		cch_btn_obj = new CComponentsIconForm();
 #ifdef DEBUG_CC
-	printf("    [CComponentsHeader]\n    [%s - %d] init header buttons...\n", __FUNCTION__, __LINE__);
+	printf("    [CComponentsHeader]\n    [%s - %d] init header buttons...\n", __func__, __LINE__);
 #endif
 	}
 
@@ -328,7 +330,7 @@ void CComponentsHeader::initCaption()
 	//create cch_text_obj and add to collection
 	if (cch_text_obj == NULL){
 #ifdef DEBUG_CC
-	printf("    [CComponentsHeader]\n    [%s - %d] init header text: %s [ x %d w %d ]\n", __FUNCTION__, __LINE__, cch_text.c_str(), cch_text_x, cc_text_w);
+	printf("    [CComponentsHeader]\n    [%s - %d] init header text: %s [ x %d w %d ]\n", __func__, __LINE__, cch_text.c_str(), cch_text_x, cc_text_w);
 #endif
 		cch_text_obj = new CComponentsText();
 	}
@@ -363,7 +365,10 @@ void CComponentsHeader::initCaption()
 void CComponentsHeader::initCCItems()
 {
 	//set size
-	cch_font = (cch_size_mode == CC_HEADER_SIZE_LARGE? g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE] : g_Font[SNeutrinoSettings::FONT_TYPE_MENU]);
+	if (!userHeight) {
+		cch_font = (cch_size_mode == CC_HEADER_SIZE_LARGE? g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE] : g_Font[SNeutrinoSettings::FONT_TYPE_MENU]);
+		height = cch_font->getHeight();
+	}
 	
 	//init icon
 	initIcon();

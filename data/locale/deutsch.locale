@@ -176,7 +176,7 @@ audioplayer.repeat_on Repeatmodus aktivieren
 audioplayer.rewind schneller Rückl.
 audioplayer.save_playlist Playlist speichern
 audioplayer.screensaver_dir Bildschirmschoner-Verzeichnis
-audioplayer.screensaver_timeout Bildschirmschoner (min, 0=aus)
+audioplayer.screensaver_timeout Bildschirmschoner
 audioplayer.select_title_by_name Titelsuche nach Name (SMS)
 audioplayer.show_playlist Playlist anzeigen
 audioplayer.shuffle Zufällig
@@ -252,6 +252,7 @@ channellist.recording_not_possible Aufnahme nicht möglich!
 channellist.reset_all Entferne Markierung "Neu" für alle Kanäle
 channellist.reset_flags Entferne Kanal-Markierung "Neu"
 channellist.sats Satelliten
+channellist.show_channellogo Senderlogos zeigen
 channellist.since seit
 channellist.start Start
 ci.clock CI Takt (Mhz)
@@ -266,6 +267,9 @@ ci.reset_standby Reset nach Standby
 ci.settings CI-Module
 ci.timeout CAM antwortet nicht
 ci.waiting Warte auf CAM-Antwort
+clock_background Hintergrund anzeigen
+clock_seconds Sekunden anzeigen
+clock_size_height Höhe der Anzeige
 clock_switch_off Uhr ausblenden
 clock_switch_on Uhr einblenden
 colorchooser.alpha alpha
@@ -273,6 +277,7 @@ colorchooser.blue blau
 colorchooser.green grün
 colorchooser.red rot
 colormenu.background Hintergrundfarbe
+colormenu.clock_textcolor Ziffernfarbe
 colormenu.contrast_fonts Schriftkontrast
 colormenu.fade Ein-/Ausblenden
 colormenu.font Neutrino Schriftart
@@ -337,7 +342,9 @@ epgviewer.length Spieldauer (Min.)
 epgviewer.nodetailed Keine ausführlichen Informationen verfügbar
 epgviewer.notfound Keine Programminformationen (EPG) gefunden
 eventfinder.head EPG-Suche
+eventfinder.history Frühere Suchen
 eventfinder.keyword Suche nach Textpassage
+eventfinder.max_history Max. Anzahl früherer Suchen
 eventfinder.search Suche
 eventfinder.search_all_epg Ganze 
 eventfinder.search_within_epg Suche innerhalb EPG-Daten
@@ -408,7 +415,7 @@ extra.menu_left_exit "links" = Menü zurück
 extra.north Norden
 extra.record_bufsize Schreib-Puffer in MB
 extra.record_bufsize_dmx DMX-Puffer in MB
-extra.record_time Max. Aufnahmezeit in Stunden
+extra.record_time Maximale Aufnahmezeit
 extra.rotor_swap Rotor dreht Ost/West
 extra.rounded_corners Eckendarstellung
 extra.rounded_corners_off eckig
@@ -443,10 +450,10 @@ extra.volume_pos Lautstärkeanzeige
 extra.volume_size Höhe der Anzeige
 extra.west Westen
 extra.zap_cycle Zap nur in Bouquet
-extra.zapit_fe_timeout Tuning Timeout (1=10ms)
+extra.zapit_fe_timeout Tuning Timeout
 extra.zapit_hvoltage High (13.5/ 18.5) Voltage
 extra.zapit_make_bouquet Kanalliste auffüllen
-extra.zapit_motor_speed Rotor Drehzeit (10 = 1°/ sec)
+extra.zapit_motor_speed Rotor Drehzeit
 extra.zapit_scanpids PIDs scannen/nutzen
 extra.zapit_sdt_changed Kanalliste wird neu geladen.
 fan_speed CPU-Lüftergeschwindigkeit
@@ -873,8 +880,14 @@ menu.hint_channellist_fonts Ändern Sie die Schriftgrößen in der Kanalliste
 menu.hint_channellist_foot Definiert, welche Informationen im unteren Sendungsfenster angezeigt werden sollen
 menu.hint_channellist_hdicon Zeigt HD Symbol in der Kanalliste
 menu.hint_channellist_setup Wählen Sie die Anzeigeoptionen für die Kanalliste
+menu.hint_channellist_show_channellogo Zeigt Senderlogos in der Kanalliste.
 menu.hint_channels Kanalliste öffnen
 menu.hint_ci Conditional-Access-Menü zum Einrichten Ihres CI-Moduls oder der eingebetteten Conax-Karte
+menu.hint_clock_background Lassen Sie die Uhr mit Hintergrund anzeigen
+menu.hint_clock_mode Schalten Sie die Uhr ein oder aus
+menu.hint_clock_seconds Legen Sie fest, ob die Sekunden angezeigt werden sollen
+menu.hint_clock_size Stellen Sie die Größe der Uhr ein
+menu.hint_clock_textcolor Konfigurieren Sie die Farbe der Ziffern
 menu.hint_colors Konfigurieren Sie die Menü-Farben
 menu.hint_content_back Ändern Sie die Hintergrundfarbe für den Fensterinhalt
 menu.hint_content_textcolor Ändern Sie die Textfarbe für den Fensterinhalt
@@ -940,6 +953,7 @@ menu.hint_infobar_sat Zeigt die aktuellen Satelliten- oder Kabel-Provider
 menu.hint_infobar_setup Wählen Sie die Anzeigeoptionen für die Infobar aus
 menu.hint_infobar_textcolor Ändern Sie die Textfarbe für die Infobar
 menu.hint_infobar_tuner Zeigt den aktiven Tuner als Nummernicon
+menu.hint_infoclock_setup Wählen Sie die Anzeigeoptionen für die Info Uhr
 menu.hint_keep_numbers Mit der Aktivierung werden den Sendern feste/dauerhafte Kanalnummern zugewiesen
 menu.hint_key_addrecord Weisen Sie eine Taste für das Starten und Markieren von Aufnahmen im EPG zu
 menu.hint_key_addremind Weisen Sie eine Taste für das Umschalten im EPG über den Timer zu
@@ -1061,6 +1075,7 @@ menu.hint_numeric_adjust Adjust channel list mode on numeric zap
 menu.hint_osd Farben, Schriftarten, Anzeigegröße, Ansichtsoptionen der Menüs und mehr
 menu.hint_osd_language Wählen Sie ihre Menü-Sprache
 menu.hint_osd_preset Wählen Sie zwischen Röhren-TV (CRT) oder Flachbildschirm (LCD)
+menu.hint_osd_timing Einblendzeit, die das OSD auf dem TV angezeigt wird
 menu.hint_parentallock_changepin Geben Sie den 4-stelligen PIN-Code ein, der dann ggf. abgefragt wird
 menu.hint_parentallock_lockage Legen Sie fest, bei welcher Altersklasse die Abfrage der PIN erfolgt
 menu.hint_parentallock_menu Menüs mit PIN Code sichern
@@ -1091,8 +1106,9 @@ menu.hint_record_data Daten-Spuren (Teletext, Untertitel) für die Aufnahme
 menu.hint_record_data_dvbsub Untertitel-Spur zu Aufnahme hinzufügen
 menu.hint_record_data_vtxt Teletext-Spur zu Aufnahme hinzufügen
 menu.hint_record_dir Wählen Sie das Aufnahmeverzeichnis
-menu.hint_record_end Wählen Sie zwischen max. Aufnahmezeit oder einem Aufnahmeende anhand der EPG-Daten
+menu.hint_record_end Wählen Sie zwischen maximaler Aufnahmezeit oder einem Aufnahmeende anhand der EPG-Daten
 menu.hint_record_slow_warn Zeige Warnung, wenn der Aufnahmepuffer zu überlaufen droht
+menu.hint_record_startstop_msg Schaltet die Meldung bei Aufnahmestart/ende ein oder aus.
 menu.hint_record_tdir Wählen Sie ein Verzeichnis für Ihre Timeshift-Aufnahmen im temporären Timeshift-Modus
 menu.hint_record_time Geben Sie eine maximale Aufnahmezeit in Stunden ein, wenn Sie die Aufnahme nicht vorzeitig stoppen
 menu.hint_record_timeafter Stellen Sie die Nachlaufzeit für Timer-Aufnahmen ein\nEin Wert von 2 beendet die Aufnahme 2 Minuten nach dem Sendungsende
@@ -1308,6 +1324,7 @@ miscsettings.infobar_show_res Auflösung anzeigen
 miscsettings.infobar_show_res_simple einfach
 miscsettings.infobar_show_sysfs_hdd Füllstandanzeige (sysFS & hdd)
 miscsettings.infobar_show_tuner Aktiven Tuner anzeigen
+miscsettings.infoclock Uhr
 miscsettings.progressbar Fortschrittsbalken
 miscsettings.progressbar_color Farbe
 miscsettings.progressbar_design Design
@@ -1329,7 +1346,7 @@ miscsettings.shutdown_real_rcdelay Verzögertes Ausschalten
 miscsettings.sleeptimer Ausschalten nach Inaktivität
 miscsettings.sleeptimer_min Sleeptimer Vorgabe
 miscsettings.volume Lautstärke
-miscsettings.zapto_pre_time Umschaltstart-Vorlaufzeit (Minuten)
+miscsettings.zapto_pre_time Umschaltstart-Vorlaufzeit
 motorcontrol.calc_positions Positionen (Neu)-Berechne(n))
 motorcontrol.disable_limit Deaktiviere (soft) Limit
 motorcontrol.drive_mode Fahr-Modus
@@ -1490,25 +1507,27 @@ moviebrowser.use_dir Verzeichnis verwenden
 moviebrowser.use_movie_dir Wiedergabeverzeichnis verwenden
 moviebrowser.use_rec_dir Aufnahmeverzeichnis verwenden
 moviebrowser.yt_concurrent_connections Gleichzeitige Verbindungen
+moviebrowser.yt_error Fehler beim laden des Youtube Feed
 moviebrowser.yt_history Frühere Suchen
 moviebrowser.yt_max_history Max. Anzahl früherer Suchen
-moviebrowser.yt_error Fehler beim laden des Youtube Feed
 moviebrowser.yt_max_results Max. Anzahl der zu holenden Feeds
 moviebrowser.yt_most_discussed Am meisten diskutiert
 moviebrowser.yt_most_popular Beliebteste Videos
 moviebrowser.yt_most_resent Unbeliebteste Videos
 moviebrowser.yt_most_responded Feeds mit den meisten Reaktionen
-moviebrowser.yt_most_shared Am häufigsten wiedergegebene Videos
+moviebrowser.yt_most_shared Am häufigsten wiedergegebe Videos
 moviebrowser.yt_next_results Nächste Ergebnisse
-moviebrowser.yt_on_the_web Trendvideos
+moviebrowser.yt_orderby Sortierung nach
+moviebrowser.yt_orderby.published Veröffentlichungszeitpunkt
+moviebrowser.yt_orderby.rating Bewertung
+moviebrowser.yt_orderby.relevance Relevanz
+moviebrowser.yt_orderby.viewcount Zahl der Views
 moviebrowser.yt_pref_quality Bevorzugte Qualität
 moviebrowser.yt_prev_results Vorherige Ergebnisse
 moviebrowser.yt_recently_featured Vor kurzem empfohlen
 moviebrowser.yt_region Region
 moviebrowser.yt_related Passende Videos
 moviebrowser.yt_search Suche nach Stichwort
-moviebrowser.yt_top_favorites Top Favoriten
-moviebrowser.yt_top_rated Am besten bewertet
 movieplayer.bookmark Bookmarks
 movieplayer.bookmarkname Bookmark Name
 movieplayer.bookmarkname_hint1 Geben Sie den Namen für das neue Lesezeichen ein
@@ -1716,12 +1735,13 @@ rclock.unlockmsg Fernbedienung reaktiviert...
 recording.failed Aufzeichnung ist fehlgeschlagen!
 recording.is_running Folgende Aufnahme läuft bereits! Neue Aufnahme starten?
 recording.start Starte Aufnahme, bitte warten...!
+recording.startstop_msg Meldung bei Aufnahme Start/Ende
 recording.stop Beende Aufnahme, bitte warten...!
 recording.time_hour Stunde
 recording.time_hours Stunden
 recording.time_min Min
 recordingmenu.apids Tonspuren
-recordingmenu.apids_ac3 AC-3 Tonspuren aufnehmen
+recordingmenu.apids_ac3 AC3 Tonspuren aufnehmen
 recordingmenu.apids_alt Alternative Tonspuren aufn.
 recordingmenu.apids_std Standard Tonspur aufnehmen
 recordingmenu.data_pids Daten-Spuren
@@ -1751,8 +1771,6 @@ recordingmenu.vcr Videorekorder
 recordingmenu.vtxt_pid Teletext aufnehmen
 recordingmenu.zap_on_announce Umschalten bei Ankündigung
 recordtimer.announce Die Aufnahme beginnt in wenigen Minuten.
-repeatblocker.hint_1 Mindestzeit (in ms) zwischen 2 Tastendrücken
-repeatblocker.hint_2 0 schaltet den Blocker aus (Rot ist " ")
 reset_all Werkseinstellungen und Reboot
 reset_channels Lösche Kanäle
 reset_confirm Sind Sie sich sicher?
@@ -1868,7 +1886,7 @@ screenshot.please_wait_cover Erzeuge Video-Cover, bitte warten ...
 screenshot.png_compression PNG-Komprimierungsstärke
 screenshot.res Auflösung
 screenshot.scale Skalierung
-screenshot.tv Video
+screenshot.tv TV-Auflösung
 screenshot.video Video im Hintergrund
 servicemenu.getplugins Plugins neu laden
 servicemenu.getplugins_hint Plugins werden neu geladen,\nbitte warten...
@@ -2024,6 +2042,11 @@ timing.volumebar Lautstärkeanzeige
 unicable.lnb Unicable Eingang
 unicable.qrg Unicable Frequenz
 unicable.scr Unicable SCR
+unit.decimal ,
+unit.short.hour h
+unit.short.millisecond ms
+unit.short.minute min
+unit.short.second s
 upnpbrowser.head UPnP Browser
 upnpbrowser.noservers Kein UPnP-Server gefunden
 upnpbrowser.rescan Neue Suche

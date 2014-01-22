@@ -73,11 +73,10 @@ int CAudioPlayerSetup::exec(CMenuTarget* parent, const std::string &actionKey)
 
 	if(actionKey == "audioplayerdir")
 	{
-		parent->hide();
 		CFileBrowser b;
 		b.Dir_Mode=true;
-		if (b.exec(g_settings.network_nfs_audioplayerdir))
-			strncpy(g_settings.network_nfs_audioplayerdir, b.getSelectedFile()->Name.c_str(), sizeof(g_settings.network_nfs_audioplayerdir)-1);
+		if (b.exec(g_settings.network_nfs_audioplayerdir.c_str()))
+			g_settings.network_nfs_audioplayerdir = b.getSelectedFile()->Name;
 		return res;
 	}
 
@@ -136,10 +135,10 @@ int CAudioPlayerSetup::showAudioPlayerSetup()
 	mc->setHint("", LOCALE_MENU_HINT_AUDIOPLAYER_PLAYLIST);
 	audioplayerSetup->addItem(mc);
 
-	CStringInput audio_screensaver(LOCALE_AUDIOPLAYER_SCREENSAVER_TIMEOUT, g_settings.audioplayer_screensaver, 2, NONEXISTANT_LOCALE, NONEXISTANT_LOCALE, "0123456789 ");
-	mf = new CMenuForwarder(LOCALE_AUDIOPLAYER_SCREENSAVER_TIMEOUT, true, g_settings.audioplayer_screensaver, &audio_screensaver);
-	mf->setHint("", LOCALE_MENU_HINT_AUDIOPLAYER_SCREENSAVER);
-	audioplayerSetup->addItem(mf);
+	CMenuOptionNumberChooser *cc = new CMenuOptionNumberChooser(LOCALE_AUDIOPLAYER_SCREENSAVER_TIMEOUT, &g_settings.audioplayer_screensaver, true, 0, 999, NULL, 0, 0, LOCALE_OPTIONS_OFF);
+	cc->setNumberFormat(std::string("%d ") + g_Locale->getText(LOCALE_UNIT_SHORT_MINUTE));
+	cc->setHint("", LOCALE_MENU_HINT_AUDIOPLAYER_SCREENSAVER);
+	audioplayerSetup->addItem(cc);
 
 	mf = new CMenuForwarder(LOCALE_AUDIOPLAYER_SCREENSAVER_DIR, true, g_settings.audioplayer_screensaver_dir, this, "screensaverdir");
 	mf->setHint("", LOCALE_MENU_HINT_AUDIOPLAYER_SCREENSAVER_DIR);

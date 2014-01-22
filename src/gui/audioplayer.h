@@ -153,6 +153,7 @@ class CAudioPlayerGui : public CMenuTarget
 	void paintHead();
 	void paintFoot();
 	void paintInfo();
+	void paintCover();
 	void paintLCD();
 	void hide();
 

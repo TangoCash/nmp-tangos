@@ -52,7 +52,6 @@ CComponentsItem::CComponentsItem()
 void CComponentsItem::initVarItem()
 {
 	//CComponents
-	initVarBasic();
 	cc_item_index 		= CC_NO_INDEX;
 	cc_item_enabled 	= true;
 	cc_item_selected 	= false;
@@ -64,7 +63,7 @@ void CComponentsItem::initVarItem()
 // If backround is not required, it's possible to override this with variable paint_bg=false, use doPaintBg(true/false) to set this!
 void CComponentsItem::paintInit(bool do_save_bg)
 {
-	clear();
+	clearFbData();
 
 	int th = fr_thickness;
 	fb_pixel_t col_frame_cur = col_frame;
@@ -101,7 +100,7 @@ void CComponentsItem::paintInit(bool do_save_bg)
 		v_fbdata.push_back(fbdata[i]);
 	}
 #ifdef DEBUG_CC
-	printf("[CComponentsItem] %s:\ncc_item_type: %d\ncc_item_index = %d\nheight = %d\nwidth = %d\n", __FUNCTION__, cc_item_type,  cc_item_index, height, width);
+	printf("[CComponentsItem] %s:\ncc_item_type: %d\ncc_item_index = %d\nheight = %d\nwidth = %d\n", __func__, cc_item_type,  cc_item_index, height, width);
 #endif
 	paintFbItems(do_save_bg);
 }
@@ -151,7 +150,7 @@ int CComponentsItem::getItemType()
 			return i;
 	}
 #ifdef DEBUG_CC
-	printf("[CComponentsItem] %s: unknown item type requested...\n", __FUNCTION__);
+	printf("[CComponentsItem] %s: unknown item type requested...\n", __func__);
 #endif
 	return -1;
 }

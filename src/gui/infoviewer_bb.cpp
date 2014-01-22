@@ -62,7 +62,6 @@
 extern CRemoteControl *g_RemoteControl;	/* neutrino.cpp */
 extern cVideo * videoDecoder;
 
-//#define SHOW_RADIOTEXT_ICON
 #define COL_INFOBAR_BUTTONS_BACKGROUND (COL_INFOBAR_SHADOW_PLUS_1)
 
 CInfoViewerBB::CInfoViewerBB()
@@ -90,6 +89,8 @@ CInfoViewerBB::CInfoViewerBB()
 	bbIconInfo[0].h = 0;
 	BBarY = 0;
 	BBarFontY = 0;
+	hddscale 		= NULL;
+	sysscale 		= NULL;
 
 	Init();
 }
@@ -162,7 +163,7 @@ void CInfoViewerBB::getBBIconInfo()
 	bbIconMaxH 		= 0;
 	BBarY 			= g_InfoViewer->BoxEndY + bottom_bar_offset;
 	BBarFontY 		= BBarY + InfoHeightY_Info - (InfoHeightY_Info - g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->getHeight()) / 2; /* center in buttonbar */
-	bbIconMinX 		= g_InfoViewer->BoxEndX;
+	bbIconMinX 		= g_InfoViewer->BoxEndX - 8; //should be 10px, but 2px will be reduced for each icon
 	CNeutrinoApp* neutrino	= CNeutrinoApp::getInstance();
 
 	for (int i = 0; i < CInfoViewerBB::ICON_MAX; i++) {
@@ -177,12 +178,10 @@ void CInfoViewerBB::getBBIconInfo()
 			if (neutrino->getMode() != NeutrinoMessages::mode_radio)
 				iconView = checkBBIcon(NEUTRINO_ICON_VTXT, &w, &h);
 			break;
-#ifdef SHOW_RADIOTEXT_ICON
 		case CInfoViewerBB::ICON_RT:
-			if (neutrino->getMode() == NeutrinoMessages::mode_radio)
-				iconView = checkBBIcon(NEUTRINO_ICON_RT, &w, &h);
+			if ((neutrino->getMode() == NeutrinoMessages::mode_radio) && g_settings.radiotext_enable)
+				iconView = checkBBIcon(NEUTRINO_ICON_RADIOTEXTGET, &w, &h);
 			break;
-#endif
 		case CInfoViewerBB::ICON_DD:
 			if( g_settings.infobar_show_dd_available )
 				iconView = checkBBIcon(NEUTRINO_ICON_DD, &w, &h);
@@ -485,13 +484,17 @@ void CInfoViewerBB::showIcon_DD()
 #ifdef SHOW_RADIOTEXT_ICON
 void CInfoViewerBB::showIcon_RadioText(bool rt_available)
 {
-	// TODO: display radiotext icon
-	if ((showButtonBar) && (is_visible))
-	{
-		int mode = CNeutrinoApp::getInstance()->getMode();
+	if (!is_visible || !g_settings.radiotext_enable)
+		return;
 
-		showBBIcons(CInfoViewerBB::ICON_RT, rt_icon);
-	}
+	std::string rt_icon;
+	if (rt_available)
+		rt_icon = (g_Radiotext->S_RtOsd) ? NEUTRINO_ICON_RADIOTEXTGET : NEUTRINO_ICON_RADIOTEXTWAIT;
+	else
+		rt_icon = NEUTRINO_ICON_RADIOTEXTOFF;
+
+	showBBIcons(CInfoViewerBB::ICON_RT, rt_icon);
+}
 }
 #else
 void CInfoViewerBB::showIcon_RadioText(bool /*rt_available*/)
@@ -653,7 +656,7 @@ void CInfoViewerBB::showSysfsHdd()
 			percent = (int)((u * 100ULL) / t);
 		showBarSys(percent);
 
-		if (check_dir(g_settings.network_nfs_recordingdir) == 0)
+		if (check_dir(g_settings.network_nfs_recordingdir.c_str()) == 0)
 			showBarHdd(hddpercent);
 		else
 			showBarHdd(-1);
@@ -664,7 +667,7 @@ void* CInfoViewerBB::hddperThread(void *arg)
 {
 	CInfoViewerBB *infoViewerBB = (CInfoViewerBB*) arg;
 	uint64_t t, u;
-	if (get_fs_usage(g_settings.network_nfs_recordingdir, t, u))
+	if (get_fs_usage(g_settings.network_nfs_recordingdir.c_str(), t, u))
 		infoViewerBB->hddpercent = (int)((u * 100ULL) / t);
 	else
 		infoViewerBB->hddpercent = 0;
@@ -698,7 +701,7 @@ void CInfoViewerBB::showBarHdd(int percent)
 void CInfoViewerBB::paint_ca_icons(int caid, char * icon, int &icon_space_offset)
 {
 	char buf[20];
-	int endx = g_InfoViewer->BoxEndX -3;
+	int endx = g_InfoViewer->BoxEndX - 10;
 	int py = g_InfoViewer->BoxEndY + 2; /* hand-crafted, should be automatic */
 	int px = 0;
 	static map<int, std::pair<int,const char*> > icon_map;

@@ -422,9 +422,9 @@ int request_file(URL *url)
 
 				if(meta_int)
 				{
-					if (slot < 0) {
+					if (slot < 0){
 						dprintf(stderr, "error: meta_int != 0 && slot < 0");
-					} else {
+					}else{
 						/* hook in the filter function if there is meta */
 						/* data present in the stream */
 						cache[slot].filter_arg = ShoutCAST_InitFilter(meta_int);
@@ -570,14 +570,13 @@ void readln(int fd, char *buf)
 		*buf = 0;
 }
 
-int parse_response(URL *url, void *opt, CSTATE *state)
+int parse_response(URL *url, void * /*opt*/, CSTATE *state)
 {
 	char header[2049], /*str[255]*/ str[2048]; // combined with 2nd local str from id3 part
 	char *ptr, chr=0, lastchr=0;
 	int hlen = 0, response;
 	int meta_interval = 0, rval;
 	int fd = url->fd;
-	ID3 *id3 = (ID3*)opt;
 
 	memset(header, 0, 2048);
 	ptr = header;

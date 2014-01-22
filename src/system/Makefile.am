@@ -42,6 +42,7 @@ libneutrino_system_a_SOURCES = \
 	helpers.cpp \
 	ping.c \
 	settings.cpp \
+	sysload.cpp \
 	ytparser.cpp \
 	setting_helpers.cpp
 #	safe_system.c

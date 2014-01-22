@@ -57,7 +57,7 @@
 #include "dboxinfo.h"
 #include "cam_menu.h"
 #include "pluginlist.h"
-#include "mediaplayer.h"
+#include "infoclock.h"
 
 #if !HAVE_GENERIC_HARDWARE
 #include "3dsetup.h"
@@ -77,6 +77,7 @@
 extern CRemoteControl * g_RemoteControl; /* neutrino.cpp */
 // extern CPlugins * g_PluginList;
 extern CCAMMenuHandler * g_CamHandler;
+extern CInfoClock * InfoClock;
 // 
 #include <system/debug.h>
 
@@ -90,18 +91,11 @@ CUserMenu::~CUserMenu()
 	
 }
 
-#if 0
-#define MAINMENU_RECORDING_OPTION_COUNT 2
-const CMenuOptionChooser::keyval MAINMENU_RECORDING_OPTIONS[MAINMENU_RECORDING_OPTION_COUNT] =
-{
-	{ 0, LOCALE_MAINMENU_RECORDING_START },
-	{ 1, LOCALE_MAINMENU_RECORDING_STOP  }
-};
-#endif
 
 // USERMENU
 bool CUserMenu::showUserMenu(int button)
 {
+	InfoClock->enableInfoClock(false);
 	// set width
 	width = w_max (40, 10);
 	
@@ -321,9 +315,7 @@ bool CUserMenu::showUserMenu(int button)
 			int cnt = 0;
 			for (unsigned int count = 0; count < (unsigned int) g_PluginList->getNumberOfPlugins(); count++)
 			{
-				bool show = g_PluginList->getType(count) == CPlugins::P_TYPE_TOOL ||
-					    g_PluginList->getType(count) == CPlugins::P_TYPE_LUA;
-				if (show && !g_PluginList->isHidden(count))
+				if (g_PluginList->getType(count)== CPlugins::P_TYPE_TOOL && !g_PluginList->isHidden(count))
 				{
 					sprintf(id, "%d", count);
 					menu_items++;
@@ -383,48 +375,48 @@ bool CUserMenu::showUserMenu(int button)
 			}
 			break;
 
-#if 0 // FIXME not supported yet
-		case SNeutrinoSettings::ITEM_MOVIEPLAYER_TS:
+		case SNeutrinoSettings::ITEM_YOUTUBE:
+			{
 			menu_items++;
-			menu_prev = SNeutrinoSettings::ITEM_MOVIEPLAYER_TS;
-			keyhelper.get(&key,&icon,CRCInput::RC_green);
-			menu_item = new CMenuForwarder(LOCALE_MOVIEPLAYER_TSPLAYBACK, true, NULL, moviePlayerGui, "tsplayback", key, icon);
-			menu->addItem(menu_item, false);
+				menu_prev = SNeutrinoSettings::ITEM_YOUTUBE;
+				keyhelper.get(&key,&icon);
+				menu_item = new CMenuForwarder(LOCALE_MOVIEPLAYER_YTPLAYBACK, true, NULL, &CMoviePlayerGui::getInstance(), "ytplayback", key, icon);
+				menu_item->setHint(NEUTRINO_ICON_HINT_YTPLAY, LOCALE_MENU_HINT_YTPLAY);
+				menu->addItem(menu_item, 0);
+			}
 			break;
 
-		case SNeutrinoSettings::ITEM_VTXT:
-			for (unsigned int count = 0; count < (unsigned int) g_PluginList->getNumberOfPlugins(); count++)
+		case SNeutrinoSettings::ITEM_FILEPLAY:
 			{
-				std::string tmp = g_PluginList->getName(count);
-				if (g_PluginList->getType(count)== CPlugins::P_TYPE_TOOL && !g_PluginList->isHidden(count) && tmp.find("Teletext") != std::string::npos)
-				{
-					sprintf(id, "%d", count);
 					menu_items++;
-					menu_prev = SNeutrinoSettings::ITEM_VTXT;
+				menu_prev = SNeutrinoSettings::ITEM_FILEPLAY;
 
 					//keyhelper.get(&key,&icon,CRCInput::RC_blue);
 					keyhelper.get(&key,&icon);
-					menu_item = new CMenuForwarderNonLocalized(g_PluginList->getName(count), true, NULL, StreamFeaturesChanger, id, key, icon);
+				menu_item = new CMenuForwarder(LOCALE_MOVIEPLAYER_FILEPLAYBACK, true, NULL, &CMoviePlayerGui::getInstance(), "fileplayback", key, icon);
+				menu_item->setHint(NEUTRINO_ICON_HINT_FILEPLAY, LOCALE_MENU_HINT_FILEPLAY);
 					menu->addItem(menu_item, 0);
 				}
-			}
 			break;
-#endif
 #if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
 		case SNeutrinoSettings::ITEM_THREE_D_MODE:
+			{
 			menu_items++;
 			menu_prev = SNeutrinoSettings::ITEM_THREE_D_MODE;
 			keyhelper.get(&key,&icon);
 			menu_item = new CMenuForwarder(LOCALE_THREE_D_SETTINGS, true, NULL, CNeutrinoApp::getInstance()->threeDSetup, "3dmode", key, icon);
 			menu->addItem(menu_item, 0);
+			}
 			break;
 		case SNeutrinoSettings::ITEM_RASS:
+			{
 			if (CNeutrinoApp::getInstance()->getMode() == CNeutrinoApp::mode_radio && g_Radiotext && g_Radiotext->haveRASS()) {
 				menu_items++;
 				menu_prev = SNeutrinoSettings::ITEM_RASS;
 				keyhelper.get(&key,&icon);
 				menu_item = new CMenuForwarder(LOCALE_RASS_HEAD, true, NULL, CNeutrinoApp::getInstance(), "rass", key, icon);
 				menu->addItem(menu_item, 0);
+				}
 			}
 			break;
 #endif
@@ -434,6 +426,7 @@ bool CUserMenu::showUserMenu(int button)
 		}
 	}
 
+#if 0
 	// Allow some tailoring for privat image bakers ;)
 	if (button == SNeutrinoSettings::BUTTON_RED) {
 	}
@@ -442,17 +435,8 @@ bool CUserMenu::showUserMenu(int button)
 	else if ( button == SNeutrinoSettings::BUTTON_YELLOW) {
 	}
 	else if ( button == SNeutrinoSettings::BUTTON_BLUE) {
-#ifdef _EXPERIMENTAL_SETTINGS_
-		//Experimental Settings
-		if (menu_prev != -1)
-			menu->addItem(GenericMenuSeparatorLine);
-		menu_items ++;
-		menu_key++;
-		// FYI: there is a memory leak with 'new CExperimentalSettingsMenuHandler()
-		menu_item = new CMenuForwarder(LOCALE_EXPERIMENTALSETTINGS, true, NULL, new CExperimentalSettingsMenuHandler(), "-1", CRCInput::convertDigitToKey(menu_key));
-		menu->addItem(menu_item, false);
-#endif
 	}
+#endif
 
 	// show menu if there are more than 2 items only
 	// otherwise, we start the item directly (must be the last one)
@@ -483,6 +467,7 @@ bool CUserMenu::showUserMenu(int button)
 	if (games)                       delete games;
 	if (scripts)                     delete scripts;
 	if (menu)                        delete menu;
+	InfoClock->enableInfoClock(true);
  	return 0;
 }
 
@@ -491,19 +476,6 @@ bool CUserMenu::showUserMenu(int button)
 **************************************************************************************/
 bool CUserMenu::changeNotify(const neutrino_locale_t OptionName, void * Data)
 {
-#if 0
-	bool res = !CRecordManager::getInstance()->RecordingStatus() ? false:true;
-		
-	if ((ARE_LOCALES_EQUAL(OptionName, LOCALE_MAINMENU_RECORDING_START)) || (ARE_LOCALES_EQUAL(OptionName, LOCALE_MAINMENU_RECORDING)))
-	{
-		CNeutrinoApp::getInstance()->exec(NULL, "handle_record");
-		
-		if (CRecordManager::getInstance()->RecordingStatus())
-			res = false;
-		else
-			res = true;
-	} else 
-#endif
 	if (ARE_LOCALES_EQUAL(OptionName, LOCALE_MAINMENU_PAUSESECTIONSD)) {
 		g_Sectionsd->setPauseScanning((*((int *)Data)) == 0);
 	}

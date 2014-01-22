@@ -41,7 +41,9 @@ class SHTDCNT
 		SHTDCNT();
 
 		static void* TimeThread(void*);
+
 	public:
+
 		~SHTDCNT();
 		void setlcdparameter(void);
 
