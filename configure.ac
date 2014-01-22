@@ -37,6 +37,7 @@ if test "$enable_ffmpegdec" = "yes"; then
 fi
 
 if test x"$enable_ffmpegdec" != xyes; then
+
 AC_ARG_WITH([tremor], [AS_HELP_STRING([--with-tremor],
 	[use libvorbisidec instead of libogg/libvorbis])],
 	[TREMOR="$withval"],
@@ -46,7 +47,6 @@ AC_ARG_WITH([tremor-static], [AS_HELP_STRING([--with-tremor-static],
 	[use statically linked libvorbisidec instead of libogg/libvorbis])],
 	[TREMOR_STATIC="$withval"],
 	[TREMOR_STATIC=no])
-
 
 if test "$TREMOR_STATIC" = "yes"; then
 	TREMOR=yes
@@ -66,10 +66,12 @@ TUXBOX_APPS_LIB_PKGCONFIG_CHECK(ID3TAG,libid3tag)
 if test x"$ID3TAG_EXISTS" != xyes; then
 	TUXBOX_APPS_LIB_PKGCONFIG(ID3TAG,id3tag)
 fi
+
 TUXBOX_APPS_LIB_PKGCONFIG_CHECK(MAD,libmad)
 if test x"$MAD_EXISTS" != xyes; then
 	TUXBOX_APPS_LIB_PKGCONFIG(MAD,mad)
 fi
+
 TUXBOX_APPS_LIB_PKGCONFIG_CHECK(OGG,ogg)
 if test -z "$OGG_CFLAGS" ; then
 	TUXBOX_APPS_LIB_PKGCONFIG(OGG,ogg)
@@ -87,6 +89,7 @@ AM_CONDITIONAL(USE_TREMOR, test "$TREMOR" = "yes")
 # TUXBOX_APPS_LIB_PKGCONFIG(OPENSSL,openssl)
 TUXBOX_APPS_LIB_CONFIG(CURL,curl-config)
 TUXBOX_APPS_LIB_CONFIG(FREETYPE,freetype-config)
+
 TUXBOX_APPS_LIB_PKGCONFIG(PNG,libpng)
 TUXBOX_APPS_LIB_PKGCONFIG(AVFORMAT,libavformat)
 TUXBOX_APPS_LIB_PKGCONFIG(AVCODEC,libavcodec)
@@ -204,12 +207,21 @@ AC_ARG_ENABLE(pip,
 	[AC_DEFINE(ENABLE_PIP,1,[enable picture in picture support])])
 
 
+AC_ARG_ENABLE(testmenu,
+       AS_HELP_STRING(--enable-testmenu,include test menu in neutrino main menu))
 AM_CONDITIONAL(ENABLE_TEST_MENU,test "$enable_testmenu" = "yes")
 if test "$enable_testmenu" = "yes"; then
 	AC_DEFINE(ENABLE_TEST_MENU,1,[include test menu in neutrino main menu - not recommended for general users!])
 fi
 
 
+AC_ARG_ENABLE(lua,
+       AS_HELP_STRING(--enable-lua,enable LUA support))
+
+AM_CONDITIONAL(ENABLE_LUA,test "$enable_lua" = "yes")
+if test "$enable_lua" = "yes"; then
+       AC_DEFINE(ENABLE_LUA,1,[include LUA support])
+fi
 if test "$BOXTYPE" = "coolstream"; then
 if test -e ${srcdir}/lib/libcoolstream/nevis_ir.h; then
 	AC_DEFINE(HAVE_COOLSTREAM_NEVIS_IR_H,1,[Define to 1 if you have the <nevis_ir.h> header file.])
@@ -311,4 +323,3 @@ src/zapit/lib/Makefile
 src/zapit/src/Makefile
 src/zapit/data/Makefile
 ])
-

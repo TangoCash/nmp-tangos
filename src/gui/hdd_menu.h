@@ -59,7 +59,7 @@ class CHDDMenuHandler : public CMenuTarget
 			const char *label;
 			const char *type;
 			std::string mountpoint;
-			CMenuForwarderNonLocalized *cmf;
+			CMenuForwarder *cmf;
 			bool mounted;
 		};
 		std::vector<hdd_s> hdd_list;

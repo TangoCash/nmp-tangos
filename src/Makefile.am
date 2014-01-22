@@ -44,7 +44,6 @@ else
 VORBISLIBS = -lvorbisfile -lvorbis -logg
 endif
 
-
 if ENABLE_FLAC
 FLACLIBS = -lFLAC
 AM_CPPFLAGS += -DENABLE_FLAC
@@ -126,7 +125,9 @@ neutrino_LDADD += -lgif
 else
 neutrino_LDADD += -lungif
 endif
+if ENABLE_LUA
 neutrino_LDADD += @LUA_LIBS@
+endif
 
 if ENABLE_UPNP
 neutrino_LDADD += \

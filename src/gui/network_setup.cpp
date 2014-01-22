@@ -228,14 +228,14 @@ int CNetworkSetup::showNetworkSetup()
 	m0->setHint("", LOCALE_MENU_HINT_NET_SETUPNOW);
 
 	//eth id
-	CMenuForwarder *mac = new CMenuForwarderNonLocalized("MAC", false, mac_addr);
+	CMenuForwarder *mac = new CMenuForwarder("MAC", false, mac_addr);
 
 	//prepare input entries
-	CIPInput networkSettings_NetworkIP(LOCALE_NETWORKMENU_IPADDRESS , network_address   , LOCALE_IPSETUP_HINT_1, LOCALE_IPSETUP_HINT_2, this);
-	CIPInput networkSettings_NetMask  (LOCALE_NETWORKMENU_NETMASK   , network_netmask   , LOCALE_IPSETUP_HINT_1, LOCALE_IPSETUP_HINT_2);
-	CIPInput networkSettings_Broadcast(LOCALE_NETWORKMENU_BROADCAST , network_broadcast , LOCALE_IPSETUP_HINT_1, LOCALE_IPSETUP_HINT_2);
-	CIPInput networkSettings_Gateway  (LOCALE_NETWORKMENU_GATEWAY   , network_gateway   , LOCALE_IPSETUP_HINT_1, LOCALE_IPSETUP_HINT_2);
-	CIPInput networkSettings_NameServer(LOCALE_NETWORKMENU_NAMESERVER, network_nameserver, LOCALE_IPSETUP_HINT_1, LOCALE_IPSETUP_HINT_2);
+	CIPInput networkSettings_NetworkIP(LOCALE_NETWORKMENU_IPADDRESS  , &network_address   , LOCALE_IPSETUP_HINT_1, LOCALE_IPSETUP_HINT_2, this);
+	CIPInput networkSettings_NetMask  (LOCALE_NETWORKMENU_NETMASK    , &network_netmask   , LOCALE_IPSETUP_HINT_1, LOCALE_IPSETUP_HINT_2);
+	CIPInput networkSettings_Broadcast(LOCALE_NETWORKMENU_BROADCAST  , &network_broadcast , LOCALE_IPSETUP_HINT_1, LOCALE_IPSETUP_HINT_2);
+	CIPInput networkSettings_Gateway  (LOCALE_NETWORKMENU_GATEWAY    , &network_gateway   , LOCALE_IPSETUP_HINT_1, LOCALE_IPSETUP_HINT_2);
+	CIPInput networkSettings_NameServer(LOCALE_NETWORKMENU_NAMESERVER, &network_nameserver, LOCALE_IPSETUP_HINT_1, LOCALE_IPSETUP_HINT_2);
 
 	//hostname
 	CStringInputSMS networkSettings_Hostname(LOCALE_NETWORKMENU_HOSTNAME, &network_hostname, 30, LOCALE_NETWORKMENU_HOSTNAME_HINT1, LOCALE_NETWORKMENU_HOSTNAME_HINT2, "abcdefghijklmnopqrstuvwxyz0123456789-. ");
@@ -292,7 +292,6 @@ int CNetworkSetup::showNetworkSetup()
 	networkSettings->addItem(o1);	//set on start
 	networkSettings->addItem(GenericMenuSeparatorLine);
 	//------------------------------------------------
-	//------------------------------------------------
 	if(ifcount > 1) // if there is only one, its probably wired
 	{
 		//ssid
@@ -310,7 +309,7 @@ int CNetworkSetup::showNetworkSetup()
 
 		networkSettings->addItem( m9);	//ssid
 		networkSettings->addItem( m10);	//key
-			networkSettings->addItem(GenericMenuSeparatorLine);
+		networkSettings->addItem(GenericMenuSeparatorLine);
 	}
 	//------------------------------------------------
 	networkSettings->addItem(mac);	//eth id
@@ -327,7 +326,7 @@ int CNetworkSetup::showNetworkSetup()
 	//------------------------------------------------
 	networkSettings->addItem( m4);	//gateway
 	networkSettings->addItem( m5);	//nameserver
-		//ntp submenu
+	//------------------------------------------------
 		sectionsdConfigNotifier = new CSectionsdConfigNotifier;
 	CMenuWidget ntp(LOCALE_MAINSETTINGS_NETWORK, NEUTRINO_ICON_SETTINGS, width, MN_WIDGET_ID_NETWORKSETUP_NTP);
 		mf = new CMenuForwarder(LOCALE_NETWORKMENU_NTPTITLE, true, NULL, &ntp, NULL, CRCInput::RC_yellow, NEUTRINO_ICON_BUTTON_YELLOW);
@@ -661,7 +660,6 @@ void CNetworkSetup::setWizardMode(bool mode)
 void CNetworkSetup::showCurrentNetworkSettings()
 {
 	std::string ip, mask, broadcast, router, nameserver, text;
-
 	netGetIP(g_settings.ifname, ip, mask, broadcast);
 	if (ip[0] == 0) {
 		text = g_Locale->getText(LOCALE_NETWORKMENU_INACTIVE_NETWORK);

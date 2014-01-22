@@ -69,8 +69,9 @@
 #endif
 
 #include <daemonc/remotecontrol.h>
+#if ENABLE_LUA
 #include <gui/luainstance.h>
-
+#endif
 extern CPlugins       * g_PluginList;    /* neutrino.cpp */
 extern CRemoteControl * g_RemoteControl; /* neutrino.cpp */
 
@@ -105,14 +106,14 @@ void CPlugins::scanDir(const char *dir)
 
 	int number_of_files = scandir(dir, &namelist, 0, alphasort);
 
-	if (number_of_files < 0)
+	if(number_of_files < 0)
 		return;
 
 	for (int i = 0; i < number_of_files; i++)
 	{
-		std::string filename(namelist[i]->d_name);
-		free(namelist[i]);
+		std::string filename;
 
+		filename = namelist[i]->d_name;
 		int pos = filename.find(".cfg");
 		if (pos > -1)
 		{
@@ -123,13 +124,14 @@ void CPlugins::scanDir(const char *dir)
 			new_plugin.cfgfile = fname.append(new_plugin.filename);
 			new_plugin.cfgfile.append(".cfg");
 			bool plugin_ok = parseCfg(&new_plugin);
-			if (plugin_ok)
-			{
+			if (plugin_ok) {
 				new_plugin.pluginfile = fname;
 				if (new_plugin.type == CPlugins::P_TYPE_SCRIPT)
 					new_plugin.pluginfile.append(".sh");
+#if ENABLE_LUA
 				else if (new_plugin.type == CPlugins::P_TYPE_LUA)
 					new_plugin.pluginfile.append(".lua");
+#endif
 				else
 					new_plugin.pluginfile.append(".so");
 				// We do not check if new_plugin.pluginfile exists since .cfg in
@@ -147,6 +149,7 @@ void CPlugins::scanDir(const char *dir)
 				}
 			}
 		}
+		free(namelist[i]);
 	}
 	free(namelist);
 }
@@ -328,6 +331,7 @@ void CPlugins::startScriptPlugin(int number)
 		g_RCInput->clearRCMsg();
 		g_RCInput->stopInput();
 		while (( getline(&output, &len, f)) != -1)
+
 		{
 			scriptOutput += output;
 		}
@@ -346,6 +350,7 @@ void CPlugins::startScriptPlugin(int number)
 	}
 }
 
+#if ENABLE_LUA
 void CPlugins::startLuaPlugin(int number)
 {
 	const char *script = plugin_list[number].pluginfile.c_str();
@@ -360,7 +365,7 @@ void CPlugins::startLuaPlugin(int number)
 	lua->runScript(script);
 	delete lua;
 }
-
+#endif
 void CPlugins::startPlugin(int number,int /*param*/)
 {
 	// always delete old output
@@ -386,11 +391,13 @@ void CPlugins::startPlugin(int number,int /*param*/)
 		startScriptPlugin(number);
 		return;
 	}
+#if ENABLE_LUA
 	if (plugin_list[number].type == CPlugins::P_TYPE_LUA)
 	{
 		startLuaPlugin(number);
 		return;
 	}
+#endif
 	if (!file_exists(plugin_list[number].pluginfile.c_str()))
 	{
 		printf("[CPlugins] could not find %s,\nperhaps wrong plugin type in %s\n",
@@ -610,9 +617,8 @@ void CPlugins::startPlugin(int number,int /*param*/)
 #else
 	g_RCInput->clearRCMsg();
 	g_RCInput->stopInput();
-	/* stop automatic updates etc. */
-	frameBuffer->Lock();
 	//frameBuffer->setMode(720, 576, 8 * sizeof(fb_pixel_t));
+	frameBuffer->Lock();
 	printf("Starting %s\n", plugin_list[number].pluginfile.c_str());
 	my_system(2, plugin_list[number].pluginfile.c_str(), NULL);
 	//frameBuffer->setMode(720, 576, 8 * sizeof(fb_pixel_t));
@@ -660,8 +666,10 @@ CPlugins::p_type_t CPlugins::getPluginType(int type)
 	case PLUGIN_TYPE_SCRIPT:
 		return P_TYPE_SCRIPT;
 		break;
+#if ENABLE_LUA
 	case PLUGIN_TYPE_LUA:
 		return P_TYPE_LUA;
+#endif
 	default:
 		return P_TYPE_DISABLED;
 	}

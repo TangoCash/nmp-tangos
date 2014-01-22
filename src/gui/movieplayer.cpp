@@ -1019,13 +1019,11 @@ void CMoviePlayerGui::PlayFile(void)
 			ss -= hh * 3600;
 			int mm = ss/60;
 			ss -= mm * 60;
-			char Value[10];
-			snprintf(Value, sizeof(Value), "%.2d:%.2d", hh, mm);
-			ss = 0;
-			CTimeInput jumpTime (LOCALE_MPKEY_GOTO, Value, NONEXISTANT_LOCALE, NONEXISTANT_LOCALE, NULL, &cancel);
+			std::string Value = to_string(hh/10) + to_string(hh%10) + ":" + to_string(mm/10) + to_string(mm%10) + ":" + to_string(ss/10) + to_string(ss%10);			ss = 0;
+			CTimeInput jumpTime (LOCALE_MPKEY_GOTO, &Value, NONEXISTANT_LOCALE, NONEXISTANT_LOCALE, NULL, &cancel);
 			jumpTime.exec(NULL, "");
 			jumpTime.hide();
-			if (!cancel && ((3 == sscanf(Value, "%d:%d:%d", &hh, &mm, &ss)) || (2 == sscanf(Value, "%d:%d", &hh, &mm))) && (1000 * (hh * 3600 + mm * 60 + ss) < duration))
+			if (!cancel && ((3 == sscanf(Value.c_str(), "%d:%d:%d", &hh, &mm, &ss)) || (2 == sscanf(Value.c_str(), "%d:%d", &hh, &mm))) && (1000 * (hh * 3600 + mm * 60 + ss) < duration))
 				playback->SetPosition(1000 * (hh * 3600 + mm * 60 + ss), true);
 #endif
 		} else if (msg == CRCInput::RC_help || msg == CRCInput::RC_info) {
@@ -1319,7 +1317,7 @@ void CMoviePlayerGui::selectAudioPid(bool file_player)
 
 		char cnt[5];
 		sprintf(cnt, "%d", count);
-		CMenuForwarderNonLocalized * item = new CMenuForwarderNonLocalized(apidtitle.c_str(), enabled, NULL, selector, cnt, CRCInput::convertDigitToKey(count + 1));
+		CMenuForwarder * item = new CMenuForwarder(apidtitle.c_str(), enabled, NULL, selector, cnt, CRCInput::convertDigitToKey(count + 1));
 		APIDSelector.addItem(item, defpid);
 	}
 
@@ -1331,10 +1329,9 @@ void CMoviePlayerGui::selectAudioPid(bool file_player)
 		int percent[numpida];
 		for (uint i=0; i < numpida; i++) {
 			percent[i] = CZapit::getInstance()->GetPidVolume(p_movie_info->epgId, apids[i], ac3flags[i]);
-			APIDSelector.addItem(new CMenuOptionNumberChooser(NONEXISTANT_LOCALE, &percent[i],
-						currentapid == apids[i],
-						0, 999, CVolume::getInstance(), 0, 0, NONEXISTANT_LOCALE,
-						p_movie_info->audioPids[i].epgAudioPidName.c_str()));
+			APIDSelector.addItem(new CMenuOptionNumberChooser(p_movie_info->audioPids[i].epgAudioPidName,
+						&percent[i], currentapid == apids[i],
+						0, 999, CVolume::getInstance()));
 		}
 	}
 
@@ -1655,7 +1652,7 @@ void CMoviePlayerGui::selectChapter()
 	char cnt[5];
 	for (unsigned i = 0; i < positions.size(); i++) {
 		sprintf(cnt, "%d", i);
-		CMenuForwarderNonLocalized * item = new CMenuForwarderNonLocalized(titles[i].c_str(), true, NULL, selector, cnt, CRCInput::convertDigitToKey(i + 1));
+		CMenuForwarder * item = new CMenuForwarder(titles[i].c_str(), true, NULL, selector, cnt, CRCInput::convertDigitToKey(i + 1));
 		ChSelector.addItem(item, position > positions[i]);
 	}
 	ChSelector.exec(NULL, "");
@@ -1690,7 +1687,7 @@ void CMoviePlayerGui::selectSubtitle()
 			title = pidnumber;
 		}
 		sprintf(cnt, "%d", count);
-		CMenuForwarderNonLocalized * item = new CMenuForwarderNonLocalized(title.c_str(), enabled, NULL, selector, cnt, CRCInput::convertDigitToKey(count + 1));
+		CMenuForwarder * item = new CMenuForwarder(title.c_str(), enabled, NULL, selector, cnt, CRCInput::convertDigitToKey(count + 1));
 		item->setItemButton(NEUTRINO_ICON_BUTTON_STOP, false);
 		APIDSelector.addItem(item, defpid);
 	}

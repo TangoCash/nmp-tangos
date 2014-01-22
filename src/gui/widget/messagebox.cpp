@@ -50,6 +50,15 @@ CMessageBox::CMessageBox(const neutrino_locale_t Caption, ContentLines& Lines, c
 	Init(Default, ShowButtons);
 }
 
+CMessageBox::CMessageBox(const std::string &Caption, const char * const Text, const int Width, const char * const Icon, const CMessageBox::result_ &Default, const uint32_t ShowButtons) : CHintBoxExt(Caption, Text, Width, Icon)
+{
+	Init(Default, ShowButtons);
+}
+
+CMessageBox::CMessageBox(const std::string &Caption, ContentLines& Lines, const int Width, const char * const Icon, const CMessageBox::result_ &Default, const uint32_t ShowButtons) : CHintBoxExt(Caption, Lines, Width, Icon)
+{
+	Init(Default, ShowButtons);
+}
 void CMessageBox::Init(const CMessageBox::result_ &Default, const uint32_t ShowButtons)
 {
 #define BtnCount 3
@@ -100,13 +109,11 @@ void CMessageBox::Init(const CMessageBox::result_ &Default, const uint32_t ShowB
 	ButtonDistance = ButtonSpacing;
 	bb_width = b_width * ButtonCount + ButtonDistance * (ButtonCount - 1);
 	if(bb_width > m_width)
-		m_width = bb_width; /* FIXME: what if bigger than screen area? */
+		m_width = bb_width;
 	else
 		if (mbBtnAlign == CMessageBox::mbBtnAlignCenter1)
 			ButtonDistance = (m_width - b_width * ButtonCount) / (ButtonCount + 1);
-
-	/* this is ugly: re-init (CHintBoxExt) to recalculate the number of lines and pages */
-	init(m_caption, m_width, m_iconfile == "" ? NULL : m_iconfile.c_str());
+	init(m_caption, m_captionString, m_width, m_iconfile == "" ? NULL : m_iconfile.c_str());
 	m_height += m_bbheight;
 }
 
@@ -296,6 +303,17 @@ int ShowLocalizedMessage(const neutrino_locale_t Caption, const neutrino_locale_
 int ShowMsgUTF(const neutrino_locale_t Caption, const std::string & Text, const CMessageBox::result_ &Default, const uint32_t ShowButtons, const char * const Icon, const int Width, const int timeout, bool returnDefaultOnTimeout)
 {
 	return ShowMsgUTF(Caption, Text.c_str(), Default, ShowButtons, Icon, Width, timeout,returnDefaultOnTimeout);
+}
+
+int ShowMsgUTF(const std::string & Caption, const std::string & Text, const CMessageBox::result_ &Default, const uint32_t ShowButtons, const char * const Icon, const int Width, const int timeout, bool returnDefaultOnTimeout)
+{
+	CMessageBox* messageBox = new CMessageBox(Caption, Text.c_str(), Width, Icon, Default, ShowButtons);
+	messageBox->returnDefaultValueOnTimeout(returnDefaultOnTimeout);
+	messageBox->exec(timeout);
+	int res = messageBox->result;
+	delete messageBox;
+
+	return res;
 }
 
 void DisplayErrorMessage(const char * const ErrorMsg)
