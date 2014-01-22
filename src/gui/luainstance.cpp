@@ -122,7 +122,7 @@ static void set_lua_variables(lua_State *L)
 		{ "mute_off",		CRCInput::RC_mute_off },
 		{ "analog_on",		CRCInput::RC_analog_on },
 		{ "analog_off",		CRCInput::RC_analog_off },
-#if !HAVE_COOL_HARDWARE
+#if !HAVE_COOL_HARDWARE && !HAVE_DUCKBOX_HARDWARE
 		{ "find",		CRCInput::RC_find },
 		{ "pip",		CRCInput::RC_pip },
 		{ "folder",		CRCInput::RC_archive },
