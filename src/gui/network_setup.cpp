@@ -56,7 +56,6 @@
 #include <system/debug.h>
 
 #include <libnet.h>
-#include <libiw/iwscan.h>
 
 extern "C" int pinghost( const char *hostname );
 
@@ -293,30 +292,6 @@ int CNetworkSetup::showNetworkSetup()
 	networkSettings->addItem(o1);	//set on start
 	networkSettings->addItem(GenericMenuSeparatorLine);
 	//------------------------------------------------
-	if(ifcount > 1) // if there is only one, its probably wired
-	{
-		//ssid
-		CStringInputSMS * networkSettings_ssid = new CStringInputSMS(LOCALE_NETWORKMENU_SSID, &network_ssid, 30, NONEXISTANT_LOCALE, NONEXISTANT_LOCALE, "abcdefghijklmnopqrstuvwxyz0123456789 -_/()<>=+.,:!?\\'");
-		//key
-		CStringInputSMS * networkSettings_key = new CStringInputSMS(LOCALE_NETWORKMENU_PASSWORD, &network_key, 30, NONEXISTANT_LOCALE, NONEXISTANT_LOCALE, "abcdefghijklmnopqrstuvwxyz0123456789-.! ");
-		CMenuForwarder *m9 = new CMenuDForwarder(LOCALE_NETWORKMENU_SSID      , networkConfig->wireless, network_ssid , networkSettings_ssid );
-		CMenuForwarder *m10 = new CMenuDForwarder(LOCALE_NETWORKMENU_PASSWORD , networkConfig->wireless, network_key , networkSettings_key );
-		CMenuForwarder *m11 = new CMenuForwarder(LOCALE_NETWORKMENU_SSID_SCAN , networkConfig->wireless, NULL, this, "scanssid");
-
-		m9->setHint("", LOCALE_MENU_HINT_NET_SSID);
-		m10->setHint("", LOCALE_MENU_HINT_NET_PASS);
-		m11->setHint("", LOCALE_MENU_HINT_NET_SSID_SCAN);
-
-		wlanEnable[0] = m9;
-		wlanEnable[1] = m10;
-		wlanEnable[2] = m11;
-
-		networkSettings->addItem( m11);	//ssid scan
-		networkSettings->addItem( m9);	//ssid
-		networkSettings->addItem( m10);	//key
-		networkSettings->addItem(GenericMenuSeparatorLine);
-	}
-	//------------------------------------------------
 	networkSettings->addItem(mac);	//eth id
 	networkSettings->addItem(GenericMenuSeparatorLine);
 	//-------------------------------------------------
@@ -340,7 +315,6 @@ int CNetworkSetup::showNetworkSetup()
 	CProxySetup proxy(LOCALE_MAINSETTINGS_NETWORK);
 	CNetworkServiceSetup services;
 
-	if (!g_settings.easymenu) {
 		//ntp submenu
 		sectionsdConfigNotifier = new CSectionsdConfigNotifier;
 		mf = new CMenuForwarder(LOCALE_NETWORKMENU_NTPTITLE, true, NULL, &ntp, NULL, CRCInput::RC_yellow, NEUTRINO_ICON_BUTTON_YELLOW);
@@ -366,7 +340,6 @@ int CNetworkSetup::showNetworkSetup()
 		mf = new CMenuForwarder(LOCALE_NETWORKMENU_SERVICES, true, NULL, &services, NULL, CRCInput::RC_1, NEUTRINO_ICON_BUTTON_1);
 		mf->setHint("", LOCALE_MENU_HINT_NET_SERVICES);
 		networkSettings->addItem(mf);
-	}
 
 	int ret = 0;
 	while(true) {
