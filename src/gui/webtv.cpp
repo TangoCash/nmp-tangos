@@ -67,7 +67,7 @@ int CWebTV::exec(CMenuTarget* parent, const std::string & actionKey)
 		int selected = m->getSelected() - menu_offset;
 		if (selected < 0)
 			return menu_return::RETURN_NONE;
-		ShowHintUTF(channels[selected].name.c_str(), channels[selected].url);
+		ShowHint(channels[selected].name.c_str(), channels[selected].url);
 		return res;
 	}
 

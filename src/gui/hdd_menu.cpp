@@ -147,7 +147,7 @@ int CHDDMenuHandler::exec(CMenuTarget* parent, const std::string &/*actionkey*/)
 					b.exec("/mnt");
 				it->mountpoint = b.getSelectedFile()->Name.c_str();
 				if (mount(it->devname.c_str(), it->mountpoint.c_str(), it->type, MS_MGC_VAL | MS_NOATIME | MS_NODIRATIME,"") == -1)
-					ShowMsgUTF ( LOCALE_NFS_MOUNTERROR , g_Locale->getText(LOCALE_NFS_MOUNTERROR_NOTSUP) , CMessageBox::mbrOk, CMessageBox::mbrOk);
+					ShowMsg ( LOCALE_NFS_MOUNTERROR , g_Locale->getText(LOCALE_NFS_MOUNTERROR_NOTSUP) , CMessageBox::mbrOk, CMessageBox::mbrOk);
 			}
 			else
 				umount2(it->mountpoint.c_str(), MNT_FORCE);
@@ -669,7 +669,7 @@ int CHDDFmtExec::exec(CMenuTarget* /*parent*/, const std::string& key)
 
 	printf("CHDDFmtExec: key %s\n", key.c_str());
 
-	res = ShowMsgUTF ( LOCALE_HDD_FORMAT, g_Locale->getText(LOCALE_HDD_FORMAT_WARN), CMessageBox::mbrNo, CMessageBox::mbYes | CMessageBox::mbNo );
+	res = ShowMsg ( LOCALE_HDD_FORMAT, g_Locale->getText(LOCALE_HDD_FORMAT_WARN), CMessageBox::mbrNo, CMessageBox::mbYes | CMessageBox::mbNo );
 	if(res != CMessageBox::mbrYes)
 		return 0;
 

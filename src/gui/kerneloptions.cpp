@@ -108,7 +108,7 @@ int KernelOptions_Menu::exec(CMenuTarget* parent, const std::string & actionKey)
 			text += "\n";
 		}
 
-		ShowMsgUTF(LOCALE_KERNELOPTIONS_LSMOD, text, CMessageBox::mbrBack, CMessageBox::mbBack, NEUTRINO_ICON_INFO);
+		ShowMsg(LOCALE_KERNELOPTIONS_LSMOD, text, CMessageBox::mbrBack, CMessageBox::mbBack, NEUTRINO_ICON_INFO);
 
 		return res;
 	}

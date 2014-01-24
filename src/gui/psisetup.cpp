@@ -209,7 +209,7 @@ int CPSISetup::exec (CMenuTarget * parent, const std::string &)
 	case CRCInput::RC_home:	// exit -> revert changes
 		for (i = 0; (i < PSI_RESET) && (psi_list[i].value == psi_list[i].value_old); i++);
 		if (i < PSI_RESET)
-			if (ShowLocalizedMessage (name, LOCALE_MESSAGEBOX_ACCEPT, CMessageBox::mbrYes, CMessageBox::mbYes | CMessageBox::mbCancel) == CMessageBox::mbrCancel)
+			if (ShowMsg(name, LOCALE_MESSAGEBOX_ACCEPT, CMessageBox::mbrYes, CMessageBox::mbYes | CMessageBox::mbCancel) == CMessageBox::mbrCancel)
 				for (i = 0; i < PSI_RESET; i++)
 				{
 					psi_list[i].value = psi_list[i].value_old;

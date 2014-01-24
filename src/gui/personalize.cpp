@@ -292,6 +292,7 @@ int CPersonalizeGui::ShowPersonalizationMenu()
 	if (show_pin_setup)
 		ShowPinSetup(pMenu, pinChangeWidget);
 
+
 	//personalized menues
 	CMenuForwarder *p_mn[widget_count];
 	for (int i = 0; i<(widget_count); i++)
@@ -614,7 +615,7 @@ void CPersonalizeGui::SaveAndExit()
 	// Save the settings and left menu, if user wants to!
 	if (haveChangedSettings())
 	{
-		if (ShowMsgUTF(LOCALE_PERSONALIZE_HEAD, g_Locale->getText(LOCALE_PERSONALIZE_APPLY_SETTINGS), CMessageBox::mbrYes, CMessageBox::mbYes | CMessageBox::mbNo, NEUTRINO_ICON_QUESTION) == CMessageBox::mbrYes)
+		if (ShowMsg(LOCALE_PERSONALIZE_HEAD, g_Locale->getText(LOCALE_PERSONALIZE_APPLY_SETTINGS), CMessageBox::mbrYes, CMessageBox::mbYes | CMessageBox::mbNo, NEUTRINO_ICON_QUESTION) == CMessageBox::mbrYes)
 		{
 			CHintBox hintBox(LOCALE_MESSAGEBOX_INFO, g_Locale->getText(LOCALE_MAINSETTINGS_SAVESETTINGSNOW_HINT)); // UTF-8
 			hintBox.paint();
@@ -623,7 +624,7 @@ void CPersonalizeGui::SaveAndExit()
 		}
 		else
 		{
-			if (ShowMsgUTF(LOCALE_PERSONALIZE_HEAD, g_Locale->getText(LOCALE_MESSAGEBOX_DISCARD), CMessageBox::mbrNo, CMessageBox::mbYes | CMessageBox::mbNo, NEUTRINO_ICON_QUESTION) == CMessageBox::mbrYes)
+			if (ShowMsg(LOCALE_PERSONALIZE_HEAD, g_Locale->getText(LOCALE_MESSAGEBOX_DISCARD), CMessageBox::mbrNo, CMessageBox::mbYes | CMessageBox::mbNo, NEUTRINO_ICON_QUESTION) == CMessageBox::mbrYes)
 				exec(NULL, "restore");
 		}
 	}

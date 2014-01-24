@@ -56,6 +56,7 @@
 #include <system/debug.h>
 
 #include <libnet.h>
+#include <libiw/iwscan.h>
 
 extern "C" int pinghost( const char *hostname );
 
@@ -122,7 +123,7 @@ int CNetworkSetup::exec(CMenuTarget* parent, const std::string &actionKey)
 	}
 	else if(actionKey=="restore")
 	{
-		int result =  	ShowMsgUTF(LOCALE_MAINSETTINGS_NETWORK, g_Locale->getText(LOCALE_NETWORKMENU_RESET_SETTINGS_NOW), CMessageBox::mbrNo,
+		int result =  	ShowMsg(LOCALE_MAINSETTINGS_NETWORK, g_Locale->getText(LOCALE_NETWORKMENU_RESET_SETTINGS_NOW), CMessageBox::mbrNo,
 				CMessageBox::mbYes |
 				CMessageBox::mbNo ,
 				NEUTRINO_ICON_QUESTION,
@@ -300,13 +301,17 @@ int CNetworkSetup::showNetworkSetup()
 		CStringInputSMS * networkSettings_key = new CStringInputSMS(LOCALE_NETWORKMENU_PASSWORD, &network_key, 30, NONEXISTANT_LOCALE, NONEXISTANT_LOCALE, "abcdefghijklmnopqrstuvwxyz0123456789-.! ");
 		CMenuForwarder *m9 = new CMenuDForwarder(LOCALE_NETWORKMENU_SSID      , networkConfig->wireless, network_ssid , networkSettings_ssid );
 		CMenuForwarder *m10 = new CMenuDForwarder(LOCALE_NETWORKMENU_PASSWORD , networkConfig->wireless, network_key , networkSettings_key );
+		CMenuForwarder *m11 = new CMenuForwarder(LOCALE_NETWORKMENU_SSID_SCAN , networkConfig->wireless, NULL, this, "scanssid");
 
 		m9->setHint("", LOCALE_MENU_HINT_NET_SSID);
 		m10->setHint("", LOCALE_MENU_HINT_NET_PASS);
+		m11->setHint("", LOCALE_MENU_HINT_NET_SSID_SCAN);
 
 		wlanEnable[0] = m9;
 		wlanEnable[1] = m10;
+		wlanEnable[2] = m11;
 
+		networkSettings->addItem( m11);	//ssid scan
 		networkSettings->addItem( m9);	//ssid
 		networkSettings->addItem( m10);	//key
 		networkSettings->addItem(GenericMenuSeparatorLine);
@@ -327,8 +332,17 @@ int CNetworkSetup::showNetworkSetup()
 	networkSettings->addItem( m4);	//gateway
 	networkSettings->addItem( m5);	//nameserver
 	//------------------------------------------------
-		sectionsdConfigNotifier = new CSectionsdConfigNotifier;
+	sectionsdConfigNotifier = NULL;
 	CMenuWidget ntp(LOCALE_MAINSETTINGS_NETWORK, NEUTRINO_ICON_SETTINGS, width, MN_WIDGET_ID_NETWORKSETUP_NTP);
+#ifdef ENABLE_GUI_MOUNT
+	CMenuWidget networkmounts(LOCALE_MAINSETTINGS_NETWORK, NEUTRINO_ICON_SETTINGS, width, MN_WIDGET_ID_NETWORKSETUP_MOUNTS);
+#endif
+	CProxySetup proxy(LOCALE_MAINSETTINGS_NETWORK);
+	CNetworkServiceSetup services;
+
+	if (!g_settings.easymenu) {
+		//ntp submenu
+		sectionsdConfigNotifier = new CSectionsdConfigNotifier;
 		mf = new CMenuForwarder(LOCALE_NETWORKMENU_NTPTITLE, true, NULL, &ntp, NULL, CRCInput::RC_yellow, NEUTRINO_ICON_BUTTON_YELLOW);
 		mf->setHint("", LOCALE_MENU_HINT_NET_NTP);
 		networkSettings->addItem(mf);
@@ -337,7 +351,6 @@ int CNetworkSetup::showNetworkSetup()
 
 #ifdef ENABLE_GUI_MOUNT
 		//nfs mount submenu
-	CMenuWidget networkmounts(LOCALE_MAINSETTINGS_NETWORK, NEUTRINO_ICON_SETTINGS, width, MN_WIDGET_ID_NETWORKSETUP_MOUNTS);
 		mf = new CMenuForwarder(LOCALE_NETWORKMENU_MOUNT, true, NULL, &networkmounts, NULL, CRCInput::RC_blue, NEUTRINO_ICON_BUTTON_BLUE);
 		mf->setHint("", LOCALE_MENU_HINT_NET_MOUNT);
 		networkSettings->addItem(mf);
@@ -345,16 +358,15 @@ int CNetworkSetup::showNetworkSetup()
 #endif
 
 		//proxyserver submenu
-	CProxySetup proxy(LOCALE_MAINSETTINGS_NETWORK);
 		mf = new CMenuForwarder(LOCALE_FLASHUPDATE_PROXYSERVER_SEP, true, NULL, &proxy, NULL, CRCInput::RC_0, NEUTRINO_ICON_BUTTON_0);
 		mf->setHint("", LOCALE_MENU_HINT_NET_PROXY);
 		networkSettings->addItem(mf);
 
 		//services
-	CNetworkServiceSetup services;
 		mf = new CMenuForwarder(LOCALE_NETWORKMENU_SERVICES, true, NULL, &services, NULL, CRCInput::RC_1, NEUTRINO_ICON_BUTTON_1);
 		mf->setHint("", LOCALE_MENU_HINT_NET_SERVICES);
 		networkSettings->addItem(mf);
+	}
 
 	int ret = 0;
 	while(true) {
@@ -519,7 +531,7 @@ bool CNetworkSetup::checkForIP()
 				printf("[network setup] empty address %s\n", g_Locale->getText(n_settings[i].addr_name));
 				char msg[64];
 				snprintf(msg, 64, g_Locale->getText(LOCALE_NETWORKMENU_ERROR_NO_ADDRESS), g_Locale->getText(n_settings[i].addr_name));
-				ShowMsgUTF(LOCALE_MAINSETTINGS_NETWORK, msg, CMessageBox::mbrOk, CMessageBox::mbOk, NEUTRINO_ICON_ERROR, width);
+				ShowMsg(LOCALE_MAINSETTINGS_NETWORK, msg, CMessageBox::mbrOk, CMessageBox::mbOk, NEUTRINO_ICON_ERROR, width);
 				return false;
 			}
 		}
@@ -562,7 +574,7 @@ void CNetworkSetup::applyNetworkSettings()
 int  CNetworkSetup::saveChangesDialog()
 {
 	// Save the settings after changes, if user wants to!
-	int result = 	ShowMsgUTF(LOCALE_MAINSETTINGS_NETWORK, g_Locale->getText(LOCALE_NETWORKMENU_APPLY_SETTINGS_NOW), CMessageBox::mbrYes,
+	int result = 	ShowMsg(LOCALE_MAINSETTINGS_NETWORK, g_Locale->getText(LOCALE_NETWORKMENU_APPLY_SETTINGS_NOW), CMessageBox::mbrYes,
 			CMessageBox::mbYes |
 			CMessageBox::mbNo ,
 			NEUTRINO_ICON_QUESTION,
@@ -680,7 +692,7 @@ void CNetworkSetup::showCurrentNetworkSettings()
 			+ g_Locale->getText(LOCALE_NETWORKMENU_NAMESERVER) + ": " + nameserver + '\n'
 			+ g_Locale->getText(LOCALE_NETWORKMENU_GATEWAY   ) + ": " + router;
 	}
-	ShowMsgUTF(LOCALE_NETWORKMENU_SHOW, text, CMessageBox::mbrBack, CMessageBox::mbBack); // UTF-8
+	ShowMsg(LOCALE_NETWORKMENU_SHOW, text, CMessageBox::mbrBack, CMessageBox::mbBack); // UTF-8
 }
 
 const char * CNetworkSetup::mypinghost(std::string &host)
@@ -775,6 +787,5 @@ void CNetworkSetup::testNetworkSettings()
 			text += offset + "via DNS: " + mypinghost(testsite) + "\n";
 		}
 	}
-
-	ShowMsgUTF(LOCALE_NETWORKMENU_TEST, text, CMessageBox::mbrBack, CMessageBox::mbBack); // UTF-8
+	ShowMsg(LOCALE_NETWORKMENU_TEST, text, CMessageBox::mbrBack, CMessageBox::mbBack); // UTF-8
 }
