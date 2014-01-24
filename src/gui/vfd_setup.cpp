@@ -137,9 +137,6 @@ int CVfdSetup::showSetup()
 	mf->setHint("", LOCALE_MENU_HINT_VFD_BRIGHTNESS_SETUP);
 	vfds->addItem(mf);
 
-#if HAVE_DUCKBOX_HARDWARE || BOXMODEL_SPARK7162
-	vfds->addItem(new CMenuOptionNumberChooser(LOCALE_LCDMENU_VFD_SCROLL, &g_settings.lcd_vfd_scroll, true, 0, 999, this, 0, 0, NONEXISTANT_LOCALE, true));
-#endif
 #ifndef HAVE_DUCKBOX_HARDWARE
 	//led menu
 	if(cs_get_revision() > 7)
@@ -170,9 +167,13 @@ int CVfdSetup::showSetup()
 	vfds->addItem(oj);
 	vfds->addItem(lcd_clock_channelname_menu);
 
+#if HAVE_DUCKBOX_HARDWARE || BOXMODEL_SPARK7162
+	vfds->addItem(new CMenuOptionNumberChooser(LOCALE_LCDMENU_VFD_SCROLL, &g_settings.lcd_vfd_scroll, true, 0, 999, this, 0, 0, NONEXISTANT_LOCALE, true));
+#else
 	oj = new CMenuOptionChooser(LOCALE_LCDMENU_SCROLL, &g_settings.lcd_scroll, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, vfd_enabled);
 	oj->setHint("", LOCALE_MENU_HINT_VFD_SCROLL);
 	vfds->addItem(oj);
+#endif
 
 	int res = vfds->exec(NULL, "");
 
