@@ -996,16 +996,12 @@ bool CFileBrowser::exec(const char * const dirname)
 								ChangeDir(filelist[selected].Name);
 							}
 						}
-						else
+						else if (!Multi_Select
+							|| (!S_ISDIR(filelist[selected].Mode) ||
+							    (!g_settings.filebrowser_multi_select_confirm_dir ||
+							     ShowMsg(LOCALE_MESSAGEBOX_INFO, g_Locale->getText(LOCALE_FILEBROWSER_MULTI_SELECT_ADD_DIR), CMessageBox::mbrYes,
+								     CMessageBox::mbYes | CMessageBox::mbNo, NEUTRINO_ICON_FOLDER) == CMessageBox::mbrYes)))
 						{
-							bool has_selected = false;
-							for(unsigned int i = 0; i < filelist.size();i++) {
-								if(filelist[i].Marked) {
-									has_selected = true;
-									break;
-								}
-							}
-							if (!has_selected)
 							filelist[selected].Marked = true;
 							loop = false;
 							res = true;

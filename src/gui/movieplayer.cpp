@@ -171,6 +171,9 @@ void CMoviePlayerGui::Init(void)
 	timeshift = 0;
 	numpida = 0;
 	showStartingHint = false;
+
+	filelist_it = filelist.end();
+
 	min_x = 0;
 	max_x = 0;
 	min_y = 0;
@@ -534,13 +537,22 @@ bool CMoviePlayerGui::SelectFile()
 	}
 	else { // filebrowser
 		CAudioMute::getInstance()->enableMuteIcon(false);
+		filebrowser->Multi_Select = g_settings.filebrowser_multi_select;
 		InfoClock->enableInfoClock(false);
 		if (filebrowser->exec(Path_local.c_str()) == true) {
 			Path_local = filebrowser->getCurrentDir();
-			CFile *file;
-			if ((file = filebrowser->getSelectedFile()) != NULL) {
+			CFile *file = filebrowser->getSelectedFile();
+			filelist = filebrowser->getSelectedFiles();
+			filelist_it = filelist.end();
+			if (filelist.size() > 1) {
+				filelist_it = filelist.begin();
 				is_file_player = true;
-				full_name = file->Name.c_str();
+				full_name = (*filelist_it).Name;
+				++filelist_it;
+				ret = true;
+			} else if (file) {
+				is_file_player = true;
+				full_name = file->Name;
 				ret = true;
 				if(file->getType() == CFile::FILE_PLAYLIST) {
 					std::ifstream infile;
@@ -1183,12 +1195,12 @@ void CMoviePlayerGui::callInfoViewer(/*const int duration, const int curr_pos*/)
 
 	if (isMovieBrowser && p_movie_info) {
 		g_InfoViewer->showMovieTitle(playstate, p_movie_info->epgEpgId >>16, p_movie_info->epgChannel, p_movie_info->epgTitle, p_movie_info->epgInfo1,
-					     duration, position /*, repeat_mode*/);
+					     duration, position , repeat_mode);
 		return;
 	}
 
 	/* not moviebrowser => use the filename as title */
-	g_InfoViewer->showMovieTitle(playstate, 0, file_name, "", "", duration, position);
+	g_InfoViewer->showMovieTitle(playstate, 0, file_name, "", "", duration, position, repeat_mode);
 }
 
 bool CMoviePlayerGui::getAudioName(int apid, std::string &apidtitle)
