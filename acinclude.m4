@@ -480,7 +480,7 @@ AC_ARG_WITH(boxmodel,
 	[  --with-boxmodel         valid for coolstream: nevis, apollo
                           valid for dreambox: dm500, dm500plus, dm600pvr, dm56x0, dm7000, dm7020, dm7025
                           valid for ipbox: ip200, ip250, ip350, ip400
-                          valid for duckbox: ufs910, ufs912, ufs913, ufs922, atevio7500, fortis_hdbox, octagon1008, cuberevo_mini2, cuberevo_2000hd, tf7700],
+                          valid for duckbox: ufs910, ufs912, ufs913, ufs922, atevio7500, fortis_hdbox, octagon1008, cuberevo, cuberevo_mini2, cuberevo_2000hd, tf7700],
 	[case "${withval}" in
 		nevis|apollo)
 			if test "$BOXTYPE" = "coolstream"; then
@@ -553,6 +553,7 @@ AM_CONDITIONAL(BOXMODEL_SPARK7162,test "$BOXMODEL" = "spark7162")
 AM_CONDITIONAL(BOXMODEL_ATEVIO7500,test "$BOXMODEL" = "atevio7500")
 AM_CONDITIONAL(BOXMODEL_FORTIS_HDBOX,test "$BOXMODEL" = "fortis_hdbox")
 AM_CONDITIONAL(BOXMODEL_OCTAGON1008,test "$BOXMODEL" = "octagon1008")
+AM_CONDITIONAL(BOXMODEL_CUBEREVO,test "$BOXMODEL" = "cuberevo")
 AM_CONDITIONAL(BOXMODEL_CUBEREVO_MINI2,test "$BOXMODEL" = "cuberevo_mini2")
 AM_CONDITIONAL(BOXMODEL_CUBEREVO_2000HD,test "$BOXMODEL" = "cuberevo_2000hd")
 AM_CONDITIONAL(BOXMODEL_TF7700,test "$BOXMODEL" = "tf7700")
@@ -608,6 +609,8 @@ elif test "$BOXMODEL" = "fortis_hdbox"; then
 	AC_DEFINE(BOXMODEL_FORTIS_HDBOX, 1, [fortis_hdbox])
 elif test "$BOXMODEL" = "octagon1008"; then
 	AC_DEFINE(BOXMODEL_OCTAGON1008, 1, [octagon1008])
+elif test "$BOXMODEL" = "cuberevo"; then
+	AC_DEFINE(BOXMODEL_CUBEREVO, 1, [cuberevo])
 elif test "$BOXMODEL" = "cuberevo_mini2"; then
 	AC_DEFINE(BOXMODEL_CUBEREVO_MINI2, 1, [cuberevo_mini2])
 elif test "$BOXMODEL" = "cuberevo_2000hd"; then
