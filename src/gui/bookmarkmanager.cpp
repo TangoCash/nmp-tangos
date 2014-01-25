@@ -461,8 +461,9 @@ void CBookmarkManager::paint()
 		int sbc= ((bookmarks.size()- 1)/ listmaxshow)+ 1;
 		if (sbc < 1)
 			sbc = 1;
+		int sbh = ((sb - 4) * 1024) / sbc;
 
-		frameBuffer->paintBoxRel(x+ width- 13, ypos+ 2+ page_nr * (sb-4)/sbc, 11, (sb-4)/sbc,  COL_MENUCONTENT_PLUS_3);
+		frameBuffer->paintBoxRel(x+width-13, ypos+2+(page_nr*sbh)/1024, 11, sbh/1024, COL_MENUCONTENT_PLUS_3);
 	}
 
 	paintFoot();

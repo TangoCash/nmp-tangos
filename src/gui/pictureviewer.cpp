@@ -775,12 +775,10 @@ void CPictureViewerGui::paint()
 	if (sbc < 1)
 		sbc = 1;
 
-	float sbh= (sb- 4)/ sbc;
+	int sbh = ((sb - 4) * 1024) / sbc;
 	int sbs= (selected/listmaxshow);
-	if (sbc < 1)
-		sbc = 1;
 
-	frameBuffer->paintBoxRel(x+ width- 13, ypos+ 2+ sbs * sbh, 11, sbh,  COL_MENUCONTENT_PLUS_3);
+	frameBuffer->paintBoxRel(x+width-13, ypos+2+(sbs*sbh)/1024, 11, sbh/1024, COL_MENUCONTENT_PLUS_3);
 
 	paintFoot();
 	paintInfo();
