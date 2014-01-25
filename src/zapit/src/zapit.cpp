@@ -575,6 +575,10 @@ bool CZapit::ZapIt(const t_channel_id channel_id, bool forupdate, bool startplay
 
 	/* retry tuning twice when using unicable, TODO: EN50494 sect.8 specifies 4 retries... */
 	int retry = (live_fe->getDiseqcType() == DISEQC_UNICABLE) * 2;
+	/* hier 3 Versuche : durch gesteckte CI Module kommen die Daten beim Zappen wohl etwas später	*/
+	/* behebt das bekannte "Kanal nicht...."							*/
+	/* ohne Modul hat es ja keine Auswirkung, da das Zappen beim ersten Mal klappt 			*/
+	retry = 3;
  again:
 	if(!TuneChannel(live_fe, newchannel, transponder_change)) {
 		if (retry < 1) {
@@ -740,7 +744,8 @@ bool CZapit::ZapForRecord(const t_channel_id channel_id)
 	bool transponder_change;
 	/* retry tuning twice when using unicable */
 	int retry = (live_fe->getDiseqcType() == DISEQC_UNICABLE) * 2;
-
+	/* 3 x für CI Module				*/
+	retry = 3;
 	if((newchannel = CServiceManager::getInstance()->FindChannel(channel_id)) == NULL) {
 		INFO("channel_id " PRINTF_CHANNEL_ID_TYPE " not found", channel_id);
 		return false;
