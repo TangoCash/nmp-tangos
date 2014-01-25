@@ -51,7 +51,7 @@ extern CRemoteControl * g_RemoteControl; /* neutrino.cpp */
 #include <stropts.h>
 #define VFD_DEVICE "/dev/vfd"
 
-#if defined (BOXMODEL_OCTAGON1008)
+#if defined (BOXMODEL_OCTAGON1008) || defined (BOXMODEL_TF7700)
 	#define VFDLENGTH 8
 #elif defined (BOXMODEL_FORTIS_HDBOX)
 	#define VFDLENGTH 12
@@ -654,7 +654,7 @@ void CVFD::showVolume(const char vol, const bool /*perform_update*/)
 					strncat(VolumeBar, c0, 1);
 			}
 			ShowText(VolumeBar);
-#elif defined (BOXMODEL_OCTAGON1008)
+#elif defined (BOXMODEL_OCTAGON1008) || defined (BOXMODEL_TF7700)
 			char vol_chr[64] = "";
 			snprintf(vol_chr, sizeof(vol_chr)-1, "VOL: %d%%", (int)vol);
 			ShowText(vol_chr);
@@ -1022,7 +1022,7 @@ void CVFD::Clear()
 	else
 		text[0] = 0;
 #else
-#if defined (BOXMODEL_OCTAGON1008)
+#if defined (BOXMODEL_OCTAGON1008) || defined (BOXMODEL_TF7700)
 	ShowText("        ");
 #elif defined (BOXMODEL_FORTIS_HDBOX) || defined (BOXMODEL_ATEVIO7500)
 	ShowText("            ");
@@ -1062,7 +1062,7 @@ void CVFD::ClearIcons()
 	return;
 #endif
 	for (int id = 0x10; id < FP_ICON_MAX; id++) {
-#if defined (BOXMODEL_OCTAGON1008) || defined(BOXMODEL_FORTIS_HDBOX)
+#if defined (BOXMODEL_OCTAGON1008) || defined(BOXMODEL_FORTIS_HDBOX) || defined (BOXMODEL_TF7700)
 		if (id != 0x16)
 #else
 		if (id != 0x10 && id != 0x12)
