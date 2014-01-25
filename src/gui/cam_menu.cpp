@@ -407,7 +407,7 @@ int CCAMMenuHandler::handleCamMsg (const neutrino_msg_t msg, neutrino_msg_data_t
 
 		memmove(pMmiEnquiry, (MMI_ENQUIRY_INFO *)Msg.Msg.Data[0], sizeof(MMI_ENQUIRY_INFO));
 		free((void *)Msg.Msg.Data[0]);
-		printf("CCAMMenuHandler::handleCamMsg: slot %d input request, text %s\n", curslot, convertDVBUTF8(pMmiEnquiry->enguiryText, strlen(pMmiEnquiry->enquiryText), 0).c_str());
+		printf("CCAMMenuHandler::handleCamMsg: slot %d input request, text %s\n", curslot, convertDVBUTF8(pMmiEnquiry->enquiryText, strlen(pMmiEnquiry->enquiryText), 0).c_str());
 		hideHintBox();
 
 		std::string ENQAnswer;
