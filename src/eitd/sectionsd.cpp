@@ -45,6 +45,7 @@
 #include <sectionsdclient/sectionsdclient.h>
 #include <eventserver.h>
 #include <driver/abstime.h>
+#include <system/helpers.h>
 
 #include "eitd.h"
 #include "sectionsd.h"
@@ -2079,25 +2080,19 @@ static void *houseKeepingThread(void *)
 
 		dprintf("housekeeping.\n");
 
-		// TODO: maybe we need to stop scanning here?...
-
-
 		removeOldEvents(oldEventsAre); // alte Events
 
 		readLockEvents();
-
 		dprintf("Number of sptr events (event-ID): %u\n", (unsigned)mySIeventsOrderUniqueKey.size());
 		dprintf("Number of sptr events (service-id, start time, event-id): %u\n", (unsigned)mySIeventsOrderServiceUniqueKeyFirstStartTimeEventUniqueKey.size());
 		dprintf("Number of sptr events (end time, service-id, event-id): %u\n", (unsigned)mySIeventsOrderFirstEndTimeServiceIDEventUniqueKey.size());
 		dprintf("Number of sptr nvod events (event-ID): %u\n", (unsigned)mySIeventsNVODorderUniqueKey.size());
 		dprintf("Number of cached meta-services: %u\n", (unsigned)mySIeventUniqueKeysMetaOrderServiceUniqueKey.size());
-
 		unlockEvents();
 
 		print_meminfo();
 
 		count++;
-
 	} // for endlos
 	dprintf("housekeeping-thread ended.\n");
 
@@ -2141,8 +2136,8 @@ bool CEitManager::Start()
 	oldEventsAre = config.epg_old_events*60L*60L; //hours
 	max_events = config.epg_max_events;
 
-	if (access("/usr/sbin/rdate", F_OK))
-		ntp_system_cmd_prefix = "/usr/sbin/ntpd -n -q -p ";
+	if (find_executable("ntpdate").empty())
+		ntp_system_cmd_prefix = "ntpd -n -q -p ";
 
 	printf("[sectionsd] Caching: %d days, %d hours Extended Text, max %d events, Events are old %d hours after end time\n",
 		config.epg_cache, config.epg_extendedcache, config.epg_max_events, config.epg_old_events);
