@@ -81,7 +81,7 @@ void CComponentsWindow::initVarWindow(	const int& x_pos, const int& y_pos, const
 	cc_item_type 	= CC_ITEMTYPE_FRM_WINDOW;
 
 	//using current screen settings for default dimensions, do use full screen if default values for width/height = 0
-#if HAVE_DUCKBOX_HARDWARE || HAVE_SPARKHARDWARE
+#if HAVE_DUCKBOX_HARDWARE || HAVE_SPARK_HARDWARE
 	int w_tmp = frameBuffer->getScreenWidth(/*w == 0 ? true : false*/);
 	int h_tmp = frameBuffer->getScreenHeight(/*h == 0 ? true : false*/);
 #else
@@ -90,7 +90,7 @@ void CComponentsWindow::initVarWindow(	const int& x_pos, const int& y_pos, const
 #endif
 	width 		= w == 0 ? w_tmp : w;
 	height 		= h == 0 ? h_tmp : h;
-#if HAVE_DUCKBOX_HARDWARE || HAVE_SPARKHARDWARE
+#if HAVE_DUCKBOX_HARDWARE || HAVE_SPARK_HARDWARE
 	x 		= x_pos == 0 ? frameBuffer->getScreenX() : x_pos;
 	y 		= y_pos == 0 ? frameBuffer->getScreenY() : y_pos;
 #else
@@ -121,7 +121,7 @@ void CComponentsWindow::initVarWindow(	const int& x_pos, const int& y_pos, const
 }
 
 void CComponentsWindow::doCenter(){
-#if HAVE_DUCKBOX_HARDWARE || HAVE_SPARKHARDWARE
+#if HAVE_DUCKBOX_HARDWARE || HAVE_SPARK_HARDWARE
 	x = cc_parent ? cc_parent->getWidth() - width/2 : frameBuffer->getScreenWidth(/*true*/)/2 - width/2;
 	y = cc_parent ? cc_parent->getHeight() - height/2 : frameBuffer->getScreenHeight(/*true*/)/2 -height/2;
 #else
