@@ -47,10 +47,8 @@
 #include "gui/user_menue.h"
 #include "gui/timerlist.h"
 
-// Forward declarations instead of includes:
 class CPSISetup;
 class C3DSetup;
-
 #include <string>
 
 #define ANNOUNCETIME (1 * 60)
@@ -101,10 +99,13 @@ private:
 	bool 				skipSleepTimer;
 	bool                            lockStandbyCall;
 	bool 				pbBlinkChange;
+	bool				g_channel_list_changed;
+	bool                            timer_wakeup;
 	int tvsort[LIST_MODE_LAST];
 	int radiosort[LIST_MODE_LAST];
 
 	CMoviePluginChangeExec 		*MoviePluginChanger;
+	bool				channellist_visible;
 
 	void SDT_ReloadChannels();
 	void setupNetwork( bool force= false );
@@ -221,6 +222,8 @@ public:
 	void stopDaemonsForFlash();
 	int showChannelList(const neutrino_msg_t msg, bool from_menu = false);
 	CPersonalizeGui & getPersonalizeGui() { return personalize; }
+	bool getChannellistIsVisible() { return channellist_visible; }
+	void zapTo(t_channel_id channel_id);
 #if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
 	enum {
 		SHUTDOWN,
