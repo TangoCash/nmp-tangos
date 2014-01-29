@@ -408,7 +408,7 @@ int CNeutrinoApp::loadSetup(const char * fname)
 #endif
 
 	g_settings.cpufreq = configfile.getInt32("cpufreq", 0);
-	g_settings.standby_cpufreq = configfile.getInt32("standby_cpufreq", 100);
+	g_settings.standby_cpufreq = configfile.getInt32("standby_cpufreq", 0);
 	g_settings.rounded_corners = configfile.getInt32("rounded_corners", 1);
 	g_settings.ci_standby_reset = configfile.getInt32("ci_standby_reset", 0);
 	g_settings.ci_clock = configfile.getInt32("ci_clock", 7);
@@ -4474,7 +4474,7 @@ void CNeutrinoApp::loadKeys(const char * fname)
 	g_settings.menu_left_exit = tconfig.getInt32( "menu_left_exit", 0 );
 	g_settings.audio_run_player = tconfig.getInt32( "audio_run_player", 1 );
 	g_settings.key_click = tconfig.getInt32( "key_click", 1 );
-	g_settings.repeat_blocker = tconfig.getInt32("repeat_blocker", 150);
+	g_settings.repeat_blocker = tconfig.getInt32("repeat_blocker", 450);
 	g_settings.repeat_genericblocker = tconfig.getInt32("repeat_genericblocker", 100);
 
 	g_settings.bouquetlist_mode = tconfig.getInt32( "bouquetlist_mode", 0 );
