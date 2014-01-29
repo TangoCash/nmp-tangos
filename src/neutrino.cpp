@@ -805,10 +805,10 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	g_settings.screen_width = configfile.getInt32("screen_width", 0);
 	g_settings.screen_height = configfile.getInt32("screen_height", 0);
 
-#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
-	g_settings.bigFonts = configfile.getInt32("bigFonts", 1);
-#else
+#if 0
 	g_settings.bigFonts = configfile.getInt32("bigFonts", 0);
+#else
+	g_settings.bigFonts = 1;
 #endif
 	g_settings.window_size = configfile.getInt32("window_size", 100);
 	g_settings.window_width = configfile.getInt32("window_width", g_settings.window_size);
@@ -1474,7 +1474,9 @@ void CNeutrinoApp::saveSetup(const char * fname)
 		configfile.setString(txt1,txt2);
 	}
 
+#if 0
 	configfile.setInt32("bigFonts", g_settings.bigFonts);
+#endif
 	configfile.setInt32("window_size", g_settings.window_size);
 	configfile.setInt32("window_width", g_settings.window_width);
 	configfile.setInt32("window_height", g_settings.window_height);
@@ -2724,10 +2726,9 @@ void CNeutrinoApp::RealRun(CMenuWidget &mainMenu)
 					showInfo();
 				}
 #ifdef ENABLE_GRAPHLCD
-				if (msg == NeutrinoMessages::EVT_CURRENTNEXT_EPG)
+				if (msg == NeutrinoMessages::EVT_CURRENTNEXT_EPG) {
 					nGLCD::Update();
-			} else if (msg == NeutrinoMessages::EVT_CURRENTNEXT_EPG) {
-				nGLCD::Update();
+				}
 #endif
 			}
 			else if (msg == CRCInput::RC_timer)

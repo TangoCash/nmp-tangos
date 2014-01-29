@@ -87,7 +87,7 @@ void CProgressWindow::showGlobalStatus(const unsigned int prog)
 		if (global_progress > 100)
 			global_progress = 100;
 
-		pos += (width - 20) * global_progress / 100;
+		pos += int( float(width-20)/100.0 * global_progress);
 		//vordergrund
 		frameBuffer->paintBox(x+10, globalstatusY,pos, globalstatusY+10, COL_MENUCONTENT_PLUS_7);
 	}
@@ -113,7 +113,7 @@ void CProgressWindow::showLocalStatus(const unsigned int prog)
 		if (local_progress > 100)
 			local_progress = 100;
 
-		pos += (width - 20) * local_progress / 100;
+		pos += int( float(width-20)/100.0 * local_progress);
 		//vordergrund
 		frameBuffer->paintBox(x+10, localstatusY,pos, localstatusY+10, COL_MENUCONTENT_PLUS_7);
 	}

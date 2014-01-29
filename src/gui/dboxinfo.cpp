@@ -326,11 +326,7 @@ void CDBoxInfoWidget::paint()
 	}
 	if (!cpuinfo["Hardware"].empty()) {
 		title += ": ";
-		title += cpuinfo["Hardware"];
-	} else if (!cpuinfo["machine"].empty()) {
-		title += ": ";
-		title + cpuinfo["machine"];
-	}
+	title += g_info.hw_caps->boxname;
 
 	CComponentsHeader header(x, ypos, width, hheight, title, NEUTRINO_ICON_SHELL);
 	header.paint(CC_SAVE_SCREEN_NO);

@@ -216,8 +216,13 @@ int CRecordSetup::showRecordSetup()
 	//CStringInput recordingSettings_filenameTemplate(LOCALE_RECORDINGMENU_FILENAME_TEMPLATE, &g_settings.recording_filename_template[0], 21, LOCALE_RECORDINGMENU_FILENAME_TEMPLATE_HINT, LOCALE_IPSETUP_HINT_2, "%/-_abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789 ");
 	//CMenuForwarder* mf11 = new CMenuForwarder(LOCALE_RECORDINGMENU_FILENAME_TEMPLATE, true, g_settings.recording_filename_template[0], &recordingSettings_filenameTemplate);
 #if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
-	recordingSettings->addItem(new CMenuOptionNumberChooser(LOCALE_EXTRA_RECORD_BUFSIZE, &g_settings.recording_bufsize, true, 1, 25, NULL) );
-	recordingSettings->addItem(new CMenuOptionNumberChooser(LOCALE_EXTRA_RECORD_BUFSIZE_DMX, &g_settings.recording_bufsize_dmx, true, 1, 25, NULL) );
+	CMenuOptionNumberChooser *ch;
+	ch = new CMenuOptionNumberChooser(LOCALE_EXTRA_RECORD_BUFSIZE, &g_settings.recording_bufsize, true, 1, 25, NULL);
+	ch->setNumberFormat("%d MB");
+	recordingSettings->addItem(ch);
+	ch = new CMenuOptionNumberChooser(LOCALE_EXTRA_RECORD_BUFSIZE_DMX, &g_settings.recording_bufsize_dmx, true, 1, 25, NULL);
+	ch->setNumberFormat("%d MB");
+	recordingSettings->addItem(ch);
 #endif
 	recordingSettings->addItem(GenericMenuSeparatorLine);
 
@@ -235,8 +240,8 @@ int CRecordSetup::showRecordSetup()
 		mf->setHint("", LOCALE_MENU_HINT_RECORD_TIMER);
 		recordingSettings->addItem(mf);
 
-	CMenuWidget recordingaAudioSettings(LOCALE_MAINSETTINGS_RECORDING, NEUTRINO_ICON_SETTINGS, width, MN_WIDGET_ID_RECORDSETUP_AUDIOSETTINGS);
 		//audiosettings
+	CMenuWidget recordingaAudioSettings(LOCALE_MAINSETTINGS_RECORDING, NEUTRINO_ICON_SETTINGS, width, MN_WIDGET_ID_RECORDSETUP_AUDIOSETTINGS);
 		showRecordAudioSetup(&recordingaAudioSettings);
 		mf = new CMenuForwarder(LOCALE_RECORDINGMENU_APIDS, true, NULL, &recordingaAudioSettings, NULL, CRCInput::RC_blue, NEUTRINO_ICON_BUTTON_BLUE);
 		mf->setHint("", LOCALE_MENU_HINT_RECORD_APIDS);

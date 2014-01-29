@@ -575,10 +575,12 @@ bool CZapit::ZapIt(const t_channel_id channel_id, bool forupdate, bool startplay
 
 	/* retry tuning twice when using unicable, TODO: EN50494 sect.8 specifies 4 retries... */
 	int retry = (live_fe->getDiseqcType() == DISEQC_UNICABLE) * 2;
+#if HAVE_DUCKBOX_HARDWARE
 	/* hier 3 Versuche : durch gesteckte CI Module kommen die Daten beim Zappen wohl etwas später	*/
 	/* behebt das bekannte "Kanal nicht...."							*/
 	/* ohne Modul hat es ja keine Auswirkung, da das Zappen beim ersten Mal klappt 			*/
 	retry = 3;
+#endif
  again:
 	if(!TuneChannel(live_fe, newchannel, transponder_change)) {
 		if (retry < 1) {
@@ -744,8 +746,10 @@ bool CZapit::ZapForRecord(const t_channel_id channel_id)
 	bool transponder_change;
 	/* retry tuning twice when using unicable */
 	int retry = (live_fe->getDiseqcType() == DISEQC_UNICABLE) * 2;
+#if HAVE_DUCKBOX_HARDWARE
 	/* 3 x für CI Module				*/
 	retry = 3;
+#endif
 	if((newchannel = CServiceManager::getInstance()->FindChannel(channel_id)) == NULL) {
 		INFO("channel_id " PRINTF_CHANNEL_ID_TYPE " not found", channel_id);
 		return false;
@@ -844,7 +848,7 @@ void CZapit::SetPidVolume(t_channel_id channel_id, int pid, int percent)
 	if (!channel_id)
 		channel_id = live_channel_id;
 
-	if (!pid && (channel_id == live_channel_id) && current_channel)
+	if ((pid < 0) && (channel_id == live_channel_id) && current_channel)
 		pid = current_channel->getAudioPid();
 #if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
 	OpenThreads::ScopedLock<OpenThreads::Mutex> m_lock(vol_map_mutex);
@@ -868,7 +872,7 @@ int CZapit::GetPidVolume(t_channel_id channel_id, int pid, bool ac3)
 	if (!channel_id)
 		channel_id = live_channel_id;
 
-	if (!pid && (channel_id == live_channel_id) && current_channel)
+	if ((pid < 0) && (channel_id == live_channel_id) && current_channel)
 		pid = current_channel->getAudioPid();
 
 #if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
@@ -925,6 +929,7 @@ int CZapit::SetVolumePercent(int percent)
 
 	if (volume_percent != percent) {
 		volume_percent = percent;
+		if (!audioDecoder->getMuteStatus())
 		SetVolume(current_volume);
 	}
 	return ret;
@@ -972,7 +977,7 @@ void CZapit::SetAudioStreamType(CZapitAudioChannel::ZapitAudioChannelType audioC
 	}
 
 	/* FIXME: bigger percent for AC3 only, what about AAC etc ? */
-	int newpercent = GetPidVolume(0, 0, audioChannelType == CZapitAudioChannel::AC3);
+	int newpercent = GetPidVolume(0, -1, audioChannelType == CZapitAudioChannel::AC3 );
 	SetVolumePercent(newpercent);
 
 	DBG("starting %s audio\n", audioStr);

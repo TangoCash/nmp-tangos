@@ -34,6 +34,7 @@
 #include <pthread.h>
 #include <unistd.h>
 #include <errno.h>
+#include <driver/framebuffer.h>
 #include <ctype.h>
 #include <system/helpers.h>
 
@@ -351,6 +352,7 @@ void CComponentsFrmClock::paint(bool do_save_bg)
 
 	//paint form contents
 	paintForm(do_save_bg);
+	frameBuffer->blit();
 }
 
 void CComponentsFrmClock::setClockFontSize(int font_size)

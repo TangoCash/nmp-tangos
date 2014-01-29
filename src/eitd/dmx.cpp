@@ -65,7 +65,7 @@ DMX::DMX()
 	pID = 0;
 	cache = true;
 	dmx_num = 0;
-	dmxBufferSizeInKB = 512;
+	dmxBufferSizeInKB = 1024;
 	init();
 	eit_version = 0;
 	dmx = 0;

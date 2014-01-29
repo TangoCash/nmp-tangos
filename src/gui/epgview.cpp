@@ -900,6 +900,7 @@ int CEpgData::show(const t_channel_id channel_id, uint64_t a_id, time_t* a_start
 				}
 				break;
 			}
+#if 0
 			case CRCInput::RC_info:
 			case CRCInput::RC_help:
 				bigFonts = bigFonts ? false : true;
@@ -921,6 +922,10 @@ int CEpgData::show(const t_channel_id channel_id, uint64_t a_id, time_t* a_start
 				show(channel_id, id, &startzeit, false, call_fromfollowlist);
 				showPos=0;
 				break;
+#else
+			case CRCInput::RC_info:
+			case CRCInput::RC_help:
+#endif
 
 			case CRCInput::RC_ok:
 			case CRCInput::RC_timeout:
