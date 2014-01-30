@@ -63,6 +63,7 @@ void CZapitChannel::Init()
 	ttx_language_code = "";
 	last_unlocked_EPGid = 0;
 	last_unlocked_time = 0;
+	last_fsk = 0x100;
 	has_bouquet = false;
 	record_demux = 2;
 	pip_demux = 2;

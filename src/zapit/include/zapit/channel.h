@@ -157,6 +157,7 @@ class CZapitChannel
 		/* from neutrino CChannel class */
 		uint64_t			last_unlocked_EPGid;
 		time_t				last_unlocked_time;
+		unsigned int			last_fsk;
 
 		std::string			ttx_language_code;
 

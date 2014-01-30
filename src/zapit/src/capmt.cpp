@@ -214,32 +214,26 @@ bool CCamManager::SetMode(t_channel_id channel_id, enum runmode mode, bool start
 	}
 
 	/* FIXME until proper demux management */
+	CFrontend *frontend = NULL;
 	switch(mode) {
 		case PLAY:
 #if HAVE_COOL_HARDWARE
 			source = DEMUX_SOURCE_0;
 			demux = LIVE_DEMUX;
 #else
-		/* see the comment in src/driver/streamts.cpp:CStreamInstance::run() */
-		/* TODO: FIXME */
-		case STREAM:
-#if HAVE_SPARK_HARDWARE
-			/* this might be SPARK-specific, not tested elsewhere */
-			source = cDemux::GetSource(0); /* demux0 is always the live demux */
-			demux = source;
-#else
-			source = CFEManager::getInstance()->allocateFE(channel)->getNumber(true);
-			demux = LIVE_DEMUX + source;
-#endif
+			source = cDemux::GetSource(0);
+			demux = cDemux::GetSource(0);
+			frontend = CFEManager::getInstance()->getFrontend(channel);
+			INFO("PLAY: fe_num %d dmx_src %d", frontend ? frontend->getNumber(true) : -1, cDemux::GetSource(0));
 #endif
 			break;
-#if HAVE_COOL_HARDWARE
 		case STREAM:
-#endif
 		case RECORD:
-#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+#if HAVE_DUCKBOX_HARDWARE || HAVE_SPARK_HARDWARE
 			channel->setRecordDemux(CFEManager::getInstance()->allocateFE(channel)->getNumber(true));
 #endif
+			frontend = CFEManager::getInstance()->getFrontend(channel);
+			INFO("RECORD/STREAM(%d): fe_num %d rec_dmx %d", mode, frontend ? frontend->getNumber(true) : -1, channel->getRecordDemux());
 			source = channel->getRecordDemux();
 			demux = channel->getRecordDemux();
 			break;

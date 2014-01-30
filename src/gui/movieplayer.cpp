@@ -223,7 +223,16 @@ void CMoviePlayerGui::restoreNeutrino()
 	g_Zapit->unlockPlayBack();
 	g_Sectionsd->setPauseScanning(false);
 
+	if (m_LastMode == NeutrinoMessages::mode_tv)
+		g_RCInput->postMsg(NeutrinoMessages::EVT_PROGRAMLOCKSTATUS, 0x200, false);
+
+	if (m_LastMode != NeutrinoMessages::mode_unknown)
 	CNeutrinoApp::getInstance()->handleMsg(NeutrinoMessages::CHANGEMODE, m_LastMode);
+	if (m_LastMode == NeutrinoMessages::mode_tv) {
+		CZapitChannel *channel = CZapit::getInstance()->GetCurrentChannel();
+		if (channel && channel->scrambled)
+			 CZapit::getInstance()->Rezap();
+	}
 }
 
 #if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE

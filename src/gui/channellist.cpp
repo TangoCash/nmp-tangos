@@ -1058,10 +1058,12 @@ bool CChannelList::showInfo(int number, int epgpos)
 
 int CChannelList::handleMsg(const neutrino_msg_t msg, neutrino_msg_data_t data)
 {
-	bool startvideo = true;
+	if (zapProtection)
+		return messages_return::handled;
 
 	if (msg != NeutrinoMessages::EVT_PROGRAMLOCKSTATUS) // right now the only message handled here.
 		return messages_return::unhandled;
+	bool startvideo = (data == 0x200);
 
 	//printf("===> program-lock-status: %d zp: %d\n", data, zapProtection != NULL);
 
@@ -1072,11 +1074,10 @@ int CChannelList::handleMsg(const neutrino_msg_t msg, neutrino_msg_data_t data)
 	// werden sollte (vorgesperrt) da ist
 	// oder das bouquet des Kanals ist vorgesperrt
 
-	if (zapProtection != NULL) {
-		zapProtection->fsk = data;
-		startvideo = false;
-		goto out;
-	}
+	if (data == 0x200) // use the previous fsk value (-> movieplayer, audioplayer et al.) --martii
+		data = chanlist[selected]->last_fsk;
+	else
+		chanlist[selected]->last_fsk = data;
 
 	// require password if either
 	// CHANGETOLOCK mode and channel/bouquet is pre locked (0x100)
@@ -1094,7 +1095,11 @@ int CChannelList::handleMsg(const neutrino_msg_t msg, neutrino_msg_data_t data)
 		goto out;
 
 	/* if a pre-locked channel is inside the zap time, open it. Hardcoded to one hour for now. */
-	if (data >= 0x100 && chanlist[selected]->last_unlocked_time + 3600 > time_monotonic())
+	if (data >= 0x100 && chanlist[selected]->last_unlocked_time + g_settings.parentallock_zaptime * 60 > time_monotonic())
+		goto out;
+
+	/* if a non-pre-locked channel was just unlocked, open it. */
+	if (data < 0x100 && chanlist[selected]->last_unlocked_time +  10 > time_monotonic())
 		goto out;
 
 	/* OK, let's ask for a PIN */
@@ -1106,8 +1111,10 @@ int CChannelList::handleMsg(const neutrino_msg_t msg, neutrino_msg_data_t data)
 	{
 		// remember it for the next time
 		/* data < 0x100: lock age -> remember EPG ID */
-		if (data < 0x100)
+		if (data < 0x100) {
 			chanlist[selected]->last_unlocked_EPGid = g_RemoteControl->current_EPGid;
+			chanlist[selected]->last_unlocked_time = time_monotonic();
+		}
 		else
 		{
 			/* data >= 0x100: pre locked bouquet -> remember unlock time */
@@ -1117,24 +1124,28 @@ int CChannelList::handleMsg(const neutrino_msg_t msg, neutrino_msg_data_t data)
 			{
 				/* unlock the whole bouquet */
 				int i;
-				for (i = 0; i < bouquetList->Bouquets[bnum]->channelList->getSize(); i++)
+				for (i = 0; i < bouquetList->Bouquets[bnum]->channelList->getSize(); i++) {
 					bouquetList->Bouquets[bnum]->channelList->getChannelFromIndex(i)->last_unlocked_time = chanlist[selected]->last_unlocked_time;
+					bouquetList->Bouquets[bnum]->channelList->getChannelFromIndex(i)->last_fsk = chanlist[selected]->last_fsk;
+				}
 			}
 		}
+		startvideo = true;
 	}
 	else
 	{
 		/* last_unlocked_time == 0 is the magic to tell zapTo() to not record the time.
 		   Without that, zapping to a locked channel twice would open it without the PIN */
 		chanlist[selected]->last_unlocked_time = 0;
-		startvideo = false;
 	}
 	delete zapProtection;
 	zapProtection = NULL;
 
 out:
-	if (startvideo)
+	if (startvideo) {
+		g_RemoteControl->is_video_started = false;
 		g_RemoteControl->startvideo();
+	}
 
 	return messages_return::handled;
 }

@@ -194,7 +194,7 @@ int CPictureViewerGui::exec(CMenuTarget* parent, const std::string & actionKey)
 
 	if (!audioplayer) { // !!! why? !!!
 		//g_Zapit->setStandby(true);
-#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+#if 0 //HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
 		g_Zapit->stopPlayBack();
 #endif
 		g_Zapit->lockPlayBack();
@@ -219,11 +219,11 @@ int CPictureViewerGui::exec(CMenuTarget* parent, const std::string & actionKey)
 	m_viewer->Cleanup();
 
 	if (!audioplayer) { // !!! why? !!!
-#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+#if 0 // HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
 		g_Zapit->startPlayBack();
 #endif
 		//g_Zapit->setStandby(false);
-		g_Zapit->unlockPlayBack();
+		CNeutrinoApp::getInstance()->handleMsg(NeutrinoMessages::EVT_PROGRAMLOCKSTATUS, (neutrino_msg_data_t) 0x200);
 
 		// Start Sectionsd
 		g_Sectionsd->setPauseScanning(false);
