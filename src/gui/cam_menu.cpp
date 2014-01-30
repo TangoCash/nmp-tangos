@@ -440,7 +440,7 @@ int CCAMMenuHandler::handleCamMsg (const neutrino_msg_t msg, neutrino_msg_data_t
 		if (!(Msg.Flags & CA_MESSAGE_HAS_PARAM1_LONG))
 			return -1;
 
-		t_channel_id chid = Msg.Msg.ParamLong[4];
+		t_channel_id chid = Msg.Msg.ParamLong[0];
 		printf("CCAMMenuHandler::handleCamMsg: CA_MESSAGE_MSG_CHANNEL_CHANGE: %" PRIx64 "\n", chid);
 		CZapitChannel * channel = CServiceManager::getInstance()->FindChannel48(chid);
 		if (!channel) {
