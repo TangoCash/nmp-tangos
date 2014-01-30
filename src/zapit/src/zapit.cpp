@@ -2820,3 +2820,13 @@ void CZapitSdtMonitor::run()
 	}
 	return;
 }
+
+void CZapit::Rezap(void)
+{
+	if (currentMode & RECORD_MODE)
+		return;
+	if(config.rezapTimeout > 0)
+		sleep(config.rezapTimeout);
+	if(current_channel)
+		ZapIt(current_channel->getChannelID());
+}

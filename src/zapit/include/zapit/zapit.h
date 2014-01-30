@@ -275,5 +275,6 @@ class CZapit : public OpenThreads::Thread
 		void Lock() { mutex.lock(); }
 		void Unlock() { mutex.unlock(); }
 		void EnablePlayback(bool enable) { playbackStopForced = !enable; }
+		void Rezap(void);
 };
 #endif /* __zapit_h__ */
