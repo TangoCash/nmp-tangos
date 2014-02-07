@@ -34,6 +34,7 @@
 #define VALGRIND_PARANOIA(x) {}
 #endif
 
+int CTimerdClient::adzap_eventID = 0;
 unsigned char   CTimerdClient::getVersion   () const
 {
 	return CTimerdMsg::ACTVERSION;
@@ -263,6 +264,11 @@ int CTimerdClient::addTimerEvent( CTimerd::CTimerEventTypes evType, void* data, 
 		}
 	}
 
+	bool adzaptimer = false;
+	if(evType == CTimerd::TIMER_ADZAP){
+		evType = CTimerd::TIMER_ZAPTO;
+		adzaptimer = true;
+	}
 	CTimerd::TransferEventInfo tei; 
 	CTimerd::TransferRecordingInfo tri;
 	CTimerdMsg::commandAddTimer msgAddTimer;
@@ -282,7 +288,8 @@ int CTimerdClient::addTimerEvent( CTimerd::CTimerEventTypes evType, void* data, 
 	}
 	/* else if(evType == CTimerd::TIMER_NEXTPROGRAM || evType == CTimerd::TIMER_ZAPTO || */
 	else if (evType == CTimerd::TIMER_ZAPTO ||
-		evType == CTimerd::TIMER_IMMEDIATE_RECORD )
+		evType == CTimerd::TIMER_IMMEDIATE_RECORD || 
+		evType == CTimerd::TIMER_ADZAP)
 	{
 		CTimerd::EventInfo *ei=static_cast<CTimerd::EventInfo*>(data); 
 		tei.apids = ei->apids;
@@ -331,12 +338,17 @@ int CTimerdClient::addTimerEvent( CTimerd::CTimerEventTypes evType, void* data, 
 	receive_data((char*)&response, sizeof(response));
 	close_connection();
 
+	if(adzaptimer){
+		adzap_eventID = response.eventID;//set adzap flag
+	}
 	return( response.eventID);
 }
 //-------------------------------------------------------------------------
 
 void CTimerdClient::removeTimerEvent( int evId)
 {
+	if(evId == adzap_eventID)
+		adzap_eventID = 0;//reset adzap flag
 	CTimerdMsg::commandRemoveTimer msgRemoveTimer;
 	VALGRIND_PARANOIA(msgRemoveTimer);
 
