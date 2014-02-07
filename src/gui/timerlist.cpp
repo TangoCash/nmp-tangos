@@ -46,10 +46,12 @@
 #include <driver/screen_max.h>
 #include <driver/fade.h>
 #include <driver/record.h>
+
 #include <driver/display.h>
 
 #include <gui/channellist.h>
 #include <gui/color.h>
+
 #include <gui/epgview.h>
 #include <gui/eventlist.h>
 #include <gui/filebrowser.h>
@@ -1226,11 +1228,11 @@ int CTimerList::newTimer()
 	CMenuForwarder *m9 = new CMenuForwarder(LOCALE_TIMERLIST_MESSAGE, false, timerNew.message, &timerSettings_msg );
 
 	strcpy(timerNew.pluginName,"---");
+	CPluginChooser plugin_chooser(LOCALE_TIMERLIST_PLUGIN, CPlugins::P_TYPE_SCRIPT | CPlugins::P_TYPE_TOOL
 #if ENABLE_LUA
-	CPluginChooser plugin_chooser(LOCALE_TIMERLIST_PLUGIN, CPlugins::P_TYPE_SCRIPT | CPlugins::P_TYPE_TOOL | CPlugins::P_TYPE_LUA, timerNew.pluginName);
-#else
-	CPluginChooser plugin_chooser(LOCALE_TIMERLIST_PLUGIN, CPlugins::P_TYPE_SCRIPT | CPlugins::P_TYPE_TOOL, timerNew.pluginName);
+										       | CPlugins::P_TYPE_LUA
 #endif
+										       , timerNew.pluginName);
 	CMenuForwarder *m10 = new CMenuForwarder(LOCALE_TIMERLIST_PLUGIN, false, timerNew.pluginName, &plugin_chooser);
 
 

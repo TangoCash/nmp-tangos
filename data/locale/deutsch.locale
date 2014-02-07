@@ -96,6 +96,7 @@ GENRE.TRAVEL_HOBBIES.5 Kochen
 GENRE.TRAVEL_HOBBIES.6 Einkauf
 GENRE.TRAVEL_HOBBIES.7 Garten
 GENRE.UNKNOWN Unbekannt
+adzap Werbezapper
 apidselector.head Sprachauswahl
 audio.srs_algo Art
 audio.srs_algo_heavy stark
@@ -804,6 +805,7 @@ mainmenu.channels Kanalliste
 mainmenu.clearsectionsd Lösche EPG Cache
 mainmenu.games Spiele
 mainmenu.head Hauptmenü
+mainmenu.lua Lua-Erweiterungen
 mainmenu.media Multimedia
 mainmenu.movieplayer Movieplayer
 mainmenu.pausesectionsd EPG auslesen
@@ -821,6 +823,7 @@ mainmenu.shutdown Ausschalten
 mainmenu.shutdown_menu Ausschalt Optionen
 mainmenu.sleeptimer SleepTimer
 mainmenu.standby Standby
+mainmenu.tools Werkzeuge
 mainmenu.tvmode TV-Modus
 mainmenu.tvradio_switch TV-Radio Umschaltung
 mainsettings.audio Audio
@@ -1021,6 +1024,7 @@ menu.hint_leds_record Definiert, ob die Power-LEDs blinken sollen, wenn eine Auf
 menu.hint_leds_standby Definiert den Status der Power-LEDs im Standby
 menu.hint_leds_tv Definiert den Status der Power-LEDs im TV-Modus
 menu.hint_load Laden der Neutrino-Einstellungen aus einer Datei
+menu.hint_lua Lua-Erweiterungen ausführen
 menu.hint_make_hdlist Bei aktiver Option wird ein Bouquet namens 'HD' erzeugt, in dem alle HD-Sender zusammengefasst sind
 menu.hint_make_newlist Nach einer Kanalsuche wird ein Bouquet namens 'neue Kanäle' erzeugt
 menu.hint_make_removedlist Nach einer Kanalsuche wird ein Bouquet namens 'gelöschte Kanäle' erzeugt
@@ -1233,6 +1237,7 @@ menu.hint_theme Wählen Sie ein vordefiniertes Farbschema, speichern oder laden 
 menu.hint_timeouts Gibt an, nach welcher Zeit in Sekunden die Menüs oder Infofenster sich automatisch schließen (0 deaktiviert)
 menu.hint_timers Hinzufügen, entfernen und bearbeiten geplanter Aufnahmen oder anderer Timer
 menu.hint_timezone Wählen Sie ihre Zeitzone aus
+menu.hint_tools Werkzeuge ausführen
 menu.hint_tvmode Schaltet zum TV-Modus
 menu.hint_tvradio_switch Schaltet zwischen TV- und Radio-Modus um
 menu.hint_vfd Frontdisplay und Power-LEDs
@@ -1683,6 +1688,7 @@ personalize.pinhint Personalisierungs PIN Code eingeben
 personalize.pinprotect ja
 personalize.pinstatus mit PIN
 personalize.plugins Plugins
+personalize.usermenu_plugin_types Anzuzeigende Plugin-Typen wählen
 personalize.usermenu_preferred_buttons Bevorzugte Tasten zuweisen
 personalize.usermenu_show_cancel Zeige Schalter "Abbrechen"
 personalize.visible sichtbar
@@ -2062,6 +2068,7 @@ usermenu.head Benutzermenü
 usermenu.item_bar ---- Trennung ----
 usermenu.item_epg_misc EPG Funktionen
 usermenu.item_none (frei)
+usermenu.item_plugin_types Plugin-Typen
 usermenu.item_vtxt Teletext
 usermenu.msg_info_is_empty Es wurde kein Name für dieses Menü vergeben.\nVerwende Standardname:\n
 usermenu.msg_warning_name Sie haben mehrere Menüpunkte für dieses Menü angelegt,\naber keinen neuen Namen festgelegt.\nEs ist daher empfohlen, einen neuen Namen zu vergeben!

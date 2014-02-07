@@ -96,6 +96,7 @@ GENRE.TRAVEL_HOBBIES.5 cooking
 GENRE.TRAVEL_HOBBIES.6 advertisement/shopping
 GENRE.TRAVEL_HOBBIES.7 gardening
 GENRE.UNKNOWN unknown
+adzap AdZap
 apidselector.head Select language
 audio.srs_algo Type
 audio.srs_algo_heavy Heavy
@@ -803,6 +804,7 @@ mainmenu.channels Channels
 mainmenu.clearsectionsd Clear EPG Cache
 mainmenu.games Games
 mainmenu.head Main Menu
+mainmenu.lua Lua extensions
 mainmenu.media Media
 mainmenu.movieplayer Movieplayer
 mainmenu.pausesectionsd Read EPG
@@ -820,6 +822,7 @@ mainmenu.shutdown Shutdown (deep standby)
 mainmenu.shutdown_menu Shutdown
 mainmenu.sleeptimer SleepTimer
 mainmenu.standby Standby
+mainmenu.tools Tools
 mainmenu.tvmode TV-Mode
 mainmenu.tvradio_switch TV-Radio Switch
 mainsettings.audio Audio
@@ -1017,6 +1020,7 @@ menu.hint_leds_record LEDs state when box recording
 menu.hint_leds_standby LEDs state in soft-standby mode
 menu.hint_leds_tv Working LEDs state
 menu.hint_load Load Neutrino-HD GUI settings from file
+menu.hint_lua Run Lua extensions
 menu.hint_make_hdlist Auto-create HD channel list based on\nchannel type and name
 menu.hint_make_newlist Create list of recently added channels
 menu.hint_make_removedlist Create list of recently removed channels
@@ -1229,6 +1233,7 @@ menu.hint_theme Select pre-defined color theme\nSave or load theme from files
 menu.hint_timeouts Configure time to hide GUI windows\nin seconds
 menu.hint_timers Add/Remove/Edit scheduled\nrecording, reminders etc.
 menu.hint_timezone Select your timezone
+menu.hint_tools Run tools
 menu.hint_tvmode Switch box to TV mode
 menu.hint_tvradio_switch Switches between TV and Radio mode
 menu.hint_vfd Frontpanel LEDS, VFD options
@@ -1674,6 +1679,7 @@ personalize.pinhint Enter the Personalization PIN Code
 personalize.pinprotect Yes
 personalize.pinstatus Require PIN
 personalize.plugins Plugins
+personalize.usermenu_plugin_types Choose Plugin types to show
 personalize.usermenu_preferred_buttons Assigning of preferred keys
 personalize.usermenu_show_cancel Show "Cancel"-Button
 personalize.visible Visible
@@ -2053,6 +2059,7 @@ usermenu.head User menu
 usermenu.item_bar ---- Boarder ----
 usermenu.item_epg_misc EPG functions
 usermenu.item_none (empty)
+usermenu.item_plugin_types Plugin types
 usermenu.item_vtxt Videotext
 usermenu.msg_info_is_empty You don't have definied a name for this menu!\nUsing default name:\n
 usermenu.msg_warning_name You have more than one items created for this menu,\nbut none new name for this menue defined.\nIt is recommended to enter a new name!

@@ -107,6 +107,7 @@ struct SNeutrinoSettings
 	int infobar_show_res;
 	int infobar_show_tuner;
 	int infobar_show_dd_available;
+	int wzap_time;
 	//audio
 	int audio_AnalogMode;
 	int audio_DolbyDigital;
@@ -174,12 +175,10 @@ struct SNeutrinoSettings
 	int epg_search_history_max;
 	std::list<std::string> epg_search_history;
 
-	// WebTV
+	//network
 	std::string streaming_server_url;
 	std::string streaming_server_name;
 	std::string webtv_xml;
-
-	//network
 	std::string network_ntpserver;
 	std::string network_ntprefresh;
 	int network_ntpenable;
@@ -223,7 +222,9 @@ struct SNeutrinoSettings
 		P_MAIN_MEDIA,
 		
 		P_MAIN_GAMES,
+		P_MAIN_TOOLS,
 		P_MAIN_SCRIPTS,
+		P_MAIN_LUA,
 		P_MAIN_SETTINGS,
 		P_MAIN_SERVICE,
 		P_MAIN_SLEEPTIMER,
@@ -283,6 +284,10 @@ struct SNeutrinoSettings
 		//user menu
 		P_UMENU_SHOW_CANCEL,
 
+		P_UMENU_PLUGIN_TYPE_GAMES,
+		P_UMENU_PLUGIN_TYPE_TOOLS,
+		P_UMENU_PLUGIN_TYPE_SCRIPTS,
+		P_UMENU_PLUGIN_TYPE_LUA,
  		P_SETTINGS_MAX
 	};
 
@@ -305,7 +310,7 @@ struct SNeutrinoSettings
 		TIMING_SETTING_COUNT
 	};
 
-	int  timing       [TIMING_SETTING_COUNT]   ;
+	int timing [TIMING_SETTING_COUNT];
 	char timing_string[TIMING_SETTING_COUNT][4];
 
 	//widget settings
@@ -316,6 +321,7 @@ struct SNeutrinoSettings
 	unsigned char clock_Digit_red;
 	unsigned char clock_Digit_green;
 	unsigned char clock_Digit_blue;
+
 	unsigned char menu_Head_alpha;
 	unsigned char menu_Head_red;
 	unsigned char menu_Head_green;
@@ -624,6 +630,7 @@ struct SNeutrinoSettings
 	int infoClockFontSize;
 	int infoClockSeconds;
 	int infoClockBackground;
+
 	// lcdd
 	enum LCD_SETTINGS {
 		LCD_BRIGHTNESS         = 0,
@@ -667,7 +674,7 @@ struct SNeutrinoSettings
 
 	// pictureviewer
 	int picviewer_slide_time;
-	int    picviewer_scaling;
+	int picviewer_scaling;
 	std::string picviewer_decode_server_ip;
 	char    picviewer_decode_server_port[6];
 
@@ -736,7 +743,7 @@ struct SNeutrinoSettings
 		ITEM_VTXT = 11,
 		ITEM_TECHINFO = 13,
 		ITEM_REMOTE = 14,
-		ITEM_PLUGIN = 15,
+		ITEM_PLUGIN_TYPES = 15,
 		ITEM_IMAGEINFO = 16,
 		ITEM_BOXINFO = 17,
 		ITEM_CAM = 18,
@@ -745,9 +752,11 @@ struct SNeutrinoSettings
 		ITEM_SCRIPTS = 21,
 		ITEM_YOUTUBE = 22,
 		ITEM_FILEPLAY = 23,
+		ITEM_TOOLS = 24,
+		ITEM_LUA = 25,
 #if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
-		ITEM_THREE_D_MODE = 24,
-		ITEM_RASS = 25,
+		ITEM_THREE_D_MODE = 26,
+		ITEM_RASS = 27,
 #endif
 		ITEM_MAX   // MUST be always the last in the list
 	} USER_ITEM;
