@@ -55,6 +55,9 @@ class CPlugins
 #if ENABLE_LUA
 		,
 		P_TYPE_LUA      = 0x10
+		P_TYPE_NO_GAME  = P_TYPE_TOOL|P_TYPE_SCRIPT|P_TYPE_LUA
+#else
+		P_TYPE_NO_GAME  = P_TYPE_TOOL|P_TYPE_SCRIPT
 #endif
 	}
 	p_type_t;
@@ -126,10 +129,8 @@ class CPlugins
 		void startPlugin(int number,int param);
 		void start_plugin_by_name(const std::string & filename,int param);// start plugins by "name=" in .cfg
 		void startScriptPlugin(int number);
-
-#if ENABLE_LUA
 		void startLuaPlugin(int number);
-#endif
+
 		void startPlugin(const char * const filename); // start plugins also by name
 		bool hasPlugin(CPlugins::p_type_t type);
 
