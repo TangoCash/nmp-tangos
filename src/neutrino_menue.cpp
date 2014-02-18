@@ -195,7 +195,6 @@ void CNeutrinoApp::InitMenuMain()
 		mf->setHint(NEUTRINO_ICON_HINT_SCRIPTS, LOCALE_MENU_HINT_LUA);
 		personalize.addItem(MENU_MAIN, mf, &g_settings.personalize[SNeutrinoSettings::P_MAIN_LUA]);
 #endif
-	}
 
 	//separator
 	personalize.addSeparator(MENU_MAIN);
