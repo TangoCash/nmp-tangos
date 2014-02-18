@@ -54,9 +54,10 @@ class CPlugins
 		P_TYPE_SCRIPT   = 0x8
 #if ENABLE_LUA
 		,
-		P_TYPE_LUA      = 0x10
+		P_TYPE_LUA      = 0x10,
 		P_TYPE_NO_GAME  = P_TYPE_TOOL|P_TYPE_SCRIPT|P_TYPE_LUA
 #else
+		,
 		P_TYPE_NO_GAME  = P_TYPE_TOOL|P_TYPE_SCRIPT
 #endif
 	}
