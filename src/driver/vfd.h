@@ -79,6 +79,7 @@ class CVFD
 		MODES				mode;
 
 		std::string			servicename;
+		char				*scrollstr;
 		char				volume;
 		unsigned char			percentOver;
 		bool				muted;
