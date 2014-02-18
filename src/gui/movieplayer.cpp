@@ -79,7 +79,6 @@ bool glcd_play = false;
 extern cVideo * videoDecoder;
 extern CRemoteControl *g_RemoteControl;	/* neutrino.cpp */
 extern CInfoClock *InfoClock;
-extern bool has_hdd;
 #if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
 extern cAudio * audioDecoder;
 #endif
@@ -173,7 +172,6 @@ void CMoviePlayerGui::Init(void)
 	showStartingHint = false;
 
 	filelist_it = filelist.end();
-
 	min_x = 0;
 	max_x = 0;
 	min_y = 0;
@@ -472,7 +470,6 @@ bool CMoviePlayerGui::SelectFile()
 	full_name = "";
 
 	printf("CMoviePlayerGui::SelectFile: isBookmark %d timeshift %d isMovieBrowser %d\n", isBookmark, timeshift, isMovieBrowser);
-	if (has_hdd)
 		wakeup_hdd(g_settings.network_nfs_recordingdir.c_str());
 
 	if (timeshift) {
@@ -1002,7 +999,6 @@ void CMoviePlayerGui::PlayFile(void)
 			}
 			if (!timeshift)
 				callInfoViewer(/*duration, position*/);
-
 		} else if (msg == CRCInput::RC_1) {	// Jump Backwards 1 minute
 			clearSubtitle();
 			playback->SetPosition(-60 * 1000);
@@ -1193,7 +1189,6 @@ void CMoviePlayerGui::PlayFile(void)
 	restoreNeutrino();
 
 	CAudioMute::getInstance()->enableMuteIcon(false);
-
 	InfoClock->enableInfoClock(false);
 }
 
