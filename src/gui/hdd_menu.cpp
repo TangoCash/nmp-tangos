@@ -68,6 +68,7 @@
 #define ext3MkfsBinary "/sbin/mkfs.ext3"
 #define ext4MkfsBinary "/sbin/mkfs.ext4"
 #define blkidBinary    "/sbin/blkid"
+
 #define HDD_NOISE_OPTION_COUNT 4
 const CMenuOptionChooser::keyval HDD_NOISE_OPTIONS[HDD_NOISE_OPTION_COUNT] =
 {
@@ -78,12 +79,13 @@ const CMenuOptionChooser::keyval HDD_NOISE_OPTIONS[HDD_NOISE_OPTION_COUNT] =
 };
 
 #define HDD_FILESYS_OPTION_COUNT 3
-const CMenuOptionChooser::keyval HDD_FILESYS_OPTIONS[HDD_FILESYS_OPTION_COUNT] =
+const CMenuOptionChooser::keyval_ext HDD_FILESYS_OPTIONS[HDD_FILESYS_OPTION_COUNT] =
 {
 	{ fs_ext3, NONEXISTANT_LOCALE, "ext3" },
 	{ fs_ext4, NONEXISTANT_LOCALE, "ext4" },
 	{ fs_jfs, NONEXISTANT_LOCALE, "jfs" }
 };
+
 #define HDD_SLEEP_OPTION_COUNT 6
 const CMenuOptionChooser::keyval HDD_SLEEP_OPTIONS[HDD_SLEEP_OPTION_COUNT] =
 {

@@ -1238,8 +1238,6 @@ void CRCInput::getMsg_us(neutrino_msg_t * msg, neutrino_msg_data_t * data, uint6
 				int ret = read(fd_rc[i], &ev, sizeof(t_input_event));
 				if (ret != sizeof(t_input_event)) {
 					if (errno == ENODEV) {
-				if (ret != sizeof(t_input_event)) {
-					if (errno == ENODEV) {
 
 						::close(fd_rc[i]);
 						fd_rc[i] = -1;
@@ -1360,9 +1358,6 @@ void CRCInput::getMsg_us(neutrino_msg_t * msg, neutrino_msg_data_t * data, uint6
 				}
 			}/* if FDSET */
 		} /* for NUMBER_OF_EVENT_DEVICES */
-		if (ev.type == EV_SYN)
-			continue; /* ignore... */
-
 		if(FD_ISSET(fd_pipe_low_priority[0], &rfds))
 		{
 			struct event buf;
@@ -1606,11 +1601,6 @@ const char * CRCInput::getSpecialKeyName(const unsigned int key)
 
 std::string CRCInput::getKeyName(const unsigned int key)
 {
-	return (std::string)getKeyNameC(key);
-}
-
-const char *CRCInput::getKeyNameC(const unsigned int key)
-{
 	std::string res(getKeyNameC(key & ~RC_Repeat));
 	if ((key & RC_Repeat) && res != "unknown")
 		res += " (long)";
@@ -1622,14 +1612,7 @@ const char *CRCInput::getKeyNameC(const unsigned int key)
 	const char *lunicode_value = getUnicodeValue(key);
 	if (*lunicode_value)
 		return lunicode_value;
-		return getSpecialKeyName(key);
-	else
-	{
-		char tmp[2];
-		tmp[0] = lunicode_value;
-		tmp[1] = 0;
-		return std::string(tmp);
-	}
+	return getSpecialKeyName(key);
 }
 
 /**************************************************************************
