@@ -151,11 +151,6 @@ void CComponentsWindow::initWindowPos()
 		y = frameBuffer->getScreenY();
 }
 
-void CComponentsWindow::doCenter(){
-	x = cc_parent ? cc_parent->getWidth() - width/2 : getScreenStartX(width);
-	y = cc_parent ? cc_parent->getHeight() - height/2 : getScreenStartY(height);
-}
-
 void CComponentsWindow::setWindowCaption(neutrino_locale_t locale_text, const int& align_mode)
 {
 	ccw_caption = g_Locale->getText(locale_text);
