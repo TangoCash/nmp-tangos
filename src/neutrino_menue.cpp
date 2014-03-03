@@ -5,7 +5,12 @@
 							 and some other guys
 	Homepage: http://dbox.cyberphoria.org/
 
-	Copyright (C) 2009-2014 Stefan Seyfried
+	Kommentar:
+
+	Diese GUI wurde von Grund auf neu programmiert und sollte nun vom
+	Aufbau und auch den Ausbaumoeglichkeiten gut aussehen. Neutrino basiert
+	auf der Client-Server Idee, diese GUI ist also von der direkten DBox-
+	Steuerung getrennt. Diese wird dann von Daemons uebernommen.
 
 
 	License: GPL
@@ -169,7 +174,6 @@ void CNeutrinoApp::InitMenuMain()
 		mf->setHint(NEUTRINO_ICON_HINT_GAMES, LOCALE_MENU_HINT_GAMES);
 		personalize.addItem(MENU_MAIN, mf, &g_settings.personalize[SNeutrinoSettings::P_MAIN_GAMES]);
 
-#if 0
 		//tools
 		bool show_tools = g_PluginList->hasPlugin(CPlugins::P_TYPE_TOOL);
 		mf = new CMenuForwarder(LOCALE_MAINMENU_TOOLS, show_tools, NULL, new CPluginList(LOCALE_MAINMENU_TOOLS,CPlugins::P_TYPE_TOOL));
@@ -186,12 +190,6 @@ void CNeutrinoApp::InitMenuMain()
 		//lua
 		bool show_lua = g_PluginList->hasPlugin(CPlugins::P_TYPE_LUA);
 		mf = new CMenuForwarder(LOCALE_MAINMENU_LUA, show_lua, NULL, new CPluginList(LOCALE_MAINMENU_LUA,CPlugins::P_TYPE_LUA));
-		mf->setHint(NEUTRINO_ICON_HINT_SCRIPTS, LOCALE_MENU_HINT_LUA);
-		personalize.addItem(MENU_MAIN, mf, &g_settings.personalize[SNeutrinoSettings::P_MAIN_LUA]);
-#endif
-#else
-		bool show_plugins = g_PluginList->hasPlugin(CPlugins::P_TYPE_NO_GAME);
-		mf = new CMenuForwarder(LOCALE_MAINMENU_LUA, show_plugins, NULL, new CPluginList(LOCALE_MAINMENU_LUA, CPlugins::P_TYPE_NO_GAME));
 		mf->setHint(NEUTRINO_ICON_HINT_SCRIPTS, LOCALE_MENU_HINT_LUA);
 		personalize.addItem(MENU_MAIN, mf, &g_settings.personalize[SNeutrinoSettings::P_MAIN_LUA]);
 #endif
