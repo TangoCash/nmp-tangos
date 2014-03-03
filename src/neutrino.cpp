@@ -382,6 +382,13 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	g_settings.channel_mode = configfile.getInt32("channel_mode", LIST_MODE_PROV);
 	g_settings.channel_mode_radio = configfile.getInt32("channel_mode_radio", LIST_MODE_PROV);
 #endif
+	g_settings.channel_mode_initial = configfile.getInt32("channel_mode_initial", -1);
+	g_settings.channel_mode_initial_radio = configfile.getInt32("channel_mode_initial_radio", -1);
+	if (g_settings.channel_mode_initial > -1)
+		g_settings.channel_mode = g_settings.channel_mode_initial;
+	if (g_settings.channel_mode_initial_radio > -1)
+		g_settings.channel_mode_radio = g_settings.channel_mode_initial_radio;
+
 
 	g_settings.fan_speed = configfile.getInt32( "fan_speed", 1);
 	if(g_settings.fan_speed < 1) g_settings.fan_speed = 1;
@@ -410,7 +417,7 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	g_settings.standby_cpufreq = configfile.getInt32("standby_cpufreq", 0);
 	g_settings.rounded_corners = configfile.getInt32("rounded_corners", 1);
 	g_settings.ci_standby_reset = configfile.getInt32("ci_standby_reset", 0);
-	g_settings.ci_clock = configfile.getInt32("ci_clock", 7);
+	g_settings.ci_clock = configfile.getInt32("ci_clock", 9);
 	g_settings.ci_ignore_messages = configfile.getInt32("ci_ignore_messages", 0);
 
 #ifndef CPU_FREQ
@@ -501,6 +508,7 @@ int CNeutrinoApp::loadSetup(const char * fname)
 		sprintf(cfg_key, "pref_subs_%d", i);
 		g_settings.pref_subs[i] = configfile.getString(cfg_key, "none");
 	}
+	g_settings.subs_charset = configfile.getString("subs_charset", "CP1252");
 	g_settings.zap_cycle = configfile.getInt32( "zap_cycle", 0 );
 
 	//vcr
@@ -718,7 +726,7 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	g_settings.recording_startstop_msg	   = configfile.getBool("recording_startstop_msg"     , true);
 
 	// default plugin for movieplayer
-	g_settings.movieplayer_plugin = configfile.getString( "movieplayer_plugin", "Teletext" );
+	g_settings.movieplayer_plugin = configfile.getString( "movieplayer_plugin", "noplugin" );
 	g_settings.onekey_plugin = configfile.getString( "onekey_plugin", "noplugin" );
 #if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
 	g_settings.plugin_hdd_dir = configfile.getString( "plugin_hdd_dir", "/var/plugins" );
@@ -1041,6 +1049,8 @@ void CNeutrinoApp::saveSetup(const char * fname)
 #endif
 	configfile.setInt32( "channel_mode", g_settings.channel_mode );
 	configfile.setInt32( "channel_mode_radio", g_settings.channel_mode_radio );
+	configfile.setInt32( "channel_mode_initial", g_settings.channel_mode_initial );
+	configfile.setInt32( "channel_mode_initial_radio", g_settings.channel_mode_initial_radio );
 
 	configfile.setInt32( "fan_speed", g_settings.fan_speed);
 
@@ -1131,6 +1141,7 @@ void CNeutrinoApp::saveSetup(const char * fname)
 		sprintf(cfg_key, "pref_subs_%d", i);
 		configfile.setString(cfg_key, g_settings.pref_subs[i]);
 	}
+	configfile.setString("subs_charset", g_settings.subs_charset);
 
 	//vcr
 	configfile.setBool("vcr_AutoSwitch"       , g_settings.vcr_AutoSwitch       );
@@ -2256,7 +2267,6 @@ fprintf(stderr, "[neutrino start] %d  -> %5ld ms\n", __LINE__, time_monotonic_ms
 	//load Pluginlist before main menu (only show script menu if at least one script is available
 	g_PluginList->loadPlugins();
 
-	MoviePluginChanger        = new CMoviePluginChangeExec;
 #if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
 	threeDSetup               = new C3DSetup;
 #endif
@@ -2568,7 +2578,7 @@ void CNeutrinoApp::RealRun(CMenuWidget &mainMenu)
 				numericZap( msg );
 			}
 			else if( msg == (neutrino_msg_t) g_settings.key_plugin ) {
-				g_PluginList->start_plugin_by_name(g_settings.onekey_plugin.c_str(), 0);
+				g_PluginList->startPlugin_by_name(g_settings.onekey_plugin.c_str());
 			}
 			else if(msg == (neutrino_msg_t) g_settings.key_timeshift) {
 				CRecordManager::getInstance()->StartTimeshift();
@@ -2623,7 +2633,7 @@ void CNeutrinoApp::RealRun(CMenuWidget &mainMenu)
 					usermenu.showUserMenu(SNeutrinoSettings::BUTTON_RED);
 					StartSubtitles();
 				}
-					else
+				else
 					ShowHint(LOCALE_MESSAGEBOX_INFO, g_Locale->getText(LOCALE_PERSONALIZE_MENUDISABLEDHINT),450, 10);
 			}
 			else if ((msg == CRCInput::RC_audio) && !g_settings.audio_run_player)
@@ -2674,7 +2684,7 @@ void CNeutrinoApp::RealRun(CMenuWidget &mainMenu)
 					usermenu.showUserMenu(SNeutrinoSettings::BUTTON_BLUE);
 					StartSubtitles();
 				}
-					else
+				else
 					ShowHint(LOCALE_MESSAGEBOX_INFO, g_Locale->getText(LOCALE_PERSONALIZE_MENUDISABLEDHINT), 450, 10);
 			}
 			else if( (msg == CRCInput::RC_audio) && g_settings.audio_run_player) {
@@ -3498,7 +3508,7 @@ int CNeutrinoApp::handleMsg(const neutrino_msg_t _msg, neutrino_msg_data_t data)
 			g_RCInput->postMsg(NeutrinoMessages::SHOW_INFOBAR , 0);
 		}
 		return messages_return::handled;
-//		ShowHintUTF(LOCALE_MESSAGEBOX_INFO, g_Locale->getText(LOCALE_EXTRA_ZAPIT_SDT_CHANGED),
+//		ShowHint(LOCALE_MESSAGEBOX_INFO, g_Locale->getText(LOCALE_EXTRA_ZAPIT_SDT_CHANGED),
 //				CMessageBox::mbrBack,CMessageBox::mbBack, NEUTRINO_ICON_INFO);
 	}
 	else if (msg == NeutrinoMessages::EVT_HDMI_CEC_VIEW_ON) {
@@ -4221,27 +4231,6 @@ int CNeutrinoApp::exec(CMenuTarget* parent, const std::string & actionKey)
 
 		return menu_return::RETURN_REPAINT;
 	}
-	else if(actionKey == "movieplugin") {
-		parent->hide();
-		CMenuWidget MoviePluginSelector(LOCALE_MOVIEPLAYER_DEFPLUGIN, NEUTRINO_ICON_FEATURES);
-		MoviePluginSelector.addItem(GenericMenuSeparator);
-
-		char id[5];
-		int cnt = 0;
-		int enabled_count = 0;
-		for(unsigned int count=0;count < (unsigned int) g_PluginList->getNumberOfPlugins();count++) {
-			if (g_PluginList->getType(count)== CPlugins::P_TYPE_TOOL && !g_PluginList->isHidden(count)) {
-				// zB vtxt-plugins
-				sprintf(id, "%d", count);
-				enabled_count++;
-				MoviePluginSelector.addItem(new CMenuForwarder(g_PluginList->getName(count), true, NULL, MoviePluginChanger, id, CRCInput::convertDigitToKey(count)), (cnt == 0));
-				cnt++;
-			}
-		}
-
-		MoviePluginSelector.exec(NULL, "");
-		return menu_return::RETURN_REPAINT;
-	}
 	else if(actionKey == "clearSectionsd")
 	{
 		g_Sectionsd->freeMemory();
@@ -4471,7 +4460,7 @@ void CNeutrinoApp::loadKeys(const char * fname)
 	g_settings.mpkey_audio = tconfig.getInt32( "mpkey.audio", CRCInput::RC_green );
 	g_settings.mpkey_time = tconfig.getInt32( "mpkey.time", CRCInput::RC_setup );
 	g_settings.mpkey_bookmark = tconfig.getInt32( "mpkey.bookmark", CRCInput::RC_blue );
-	g_settings.mpkey_plugin = tconfig.getInt32( "mpkey.plugin", CRCInput::RC_red );
+	g_settings.mpkey_plugin = tconfig.getInt32( "mpkey.plugin", (unsigned int)CRCInput::RC_nokey );
 #if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
 	g_settings.mpkey_next3dmode = tconfig.getInt32( "mpkey.next3dmode", CRCInput::RC_nokey );
 	g_settings.mpkey_next_repeat_mode = tconfig.getInt32( "mpkey.next_repeat_mode", CRCInput::RC_play );
@@ -4489,6 +4478,7 @@ void CNeutrinoApp::loadKeys(const char * fname)
 	g_settings.key_click = tconfig.getInt32( "key_click", 1 );
 	g_settings.repeat_blocker = tconfig.getInt32("repeat_blocker", 450);
 	g_settings.repeat_genericblocker = tconfig.getInt32("repeat_genericblocker", 100);
+	g_settings.longkeypress_duration = tconfig.getInt32("longkeypress_duration", LONGKEYPRESS_OFF);
 
 	g_settings.bouquetlist_mode = tconfig.getInt32( "bouquetlist_mode", 0 );
 	g_settings.sms_channel = tconfig.getInt32( "sms_channel", 0 );
@@ -4565,6 +4555,7 @@ void CNeutrinoApp::saveKeys(const char * fname)
 	tconfig.setInt32( "key_click", g_settings.key_click );
 	tconfig.setInt32( "repeat_blocker", g_settings.repeat_blocker );
 	tconfig.setInt32( "repeat_genericblocker", g_settings.repeat_genericblocker );
+	tconfig.setInt32( "longkeypress_duration", g_settings.longkeypress_duration );
 
 	tconfig.setInt32( "bouquetlist_mode", g_settings.bouquetlist_mode );
 	tconfig.setInt32( "sms_channel", g_settings.sms_channel );
@@ -4749,7 +4740,6 @@ void CNeutrinoApp::Cleanup()
 
 	printf("cleanup 13\n");fflush(stdout);
 	delete audioSetupNotifier; audioSetupNotifier = NULL;
-	delete MoviePluginChanger; MoviePluginChanger = NULL;
 	printf("cleanup 14\n");fflush(stdout);
 
 	delete TVbouquetList; TVbouquetList = NULL;

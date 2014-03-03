@@ -54,6 +54,7 @@ void mySleep(int sec) {
 	timeout.tv_usec = 0;
 	select(0,0,0,0, &timeout);
 }
+
 off_t file_size(const char *filename)
 {
 	struct stat stat_buf;
@@ -246,7 +247,7 @@ int check_dir(const char * dir, bool allow_tmp)
 	struct statfs s;
 	if (::statfs(dir, &s) == 0) {
 		switch (s.f_type) {
-			case 0x858458f6L: 	/*ramfs*/
+			case 0x858458f6L: 	// ramfs
 			case 0x1021994L: 	// tmpfs
 				if(allow_tmp)
 					ret = 0;//ok
@@ -402,6 +403,43 @@ time_t toEpoch(std::string &date)
 	return 0;
 
 }
+
+std::string& str_replace(const std::string &search, const std::string &replace, std::string &text)
+{
+	if (search.empty() || text.empty())
+		return text;
+
+	size_t searchLen = search.length();
+	while (1) {
+		size_t pos = text.find(search);
+		if (pos == std::string::npos)
+			break;
+		text.replace(pos, searchLen, replace);
+	}
+	return text;
+}
+
+std::string& htmlEntityDecode(std::string& text)
+{
+	struct decode_table {
+		const char* code;
+		const char* htmlCode;
+	};
+	decode_table dt[] =
+	{
+		{" ",  "&nbsp;"},
+		{"&",  "&amp;"},
+		{"<",  "&lt;"},
+		{">",  "&gt;"},
+		{"\"", "&quot;"},
+		{"'",  "&apos;"},
+		{NULL,  NULL}
+	};
+	for (int i = 0; dt[i].code != NULL; i++)
+		text = str_replace(dt[i].htmlCode, dt[i].code, text);
+
+	return text;
+}	
 CFileHelpers::CFileHelpers()
 {
 	FileBufSize	= 0xFFFF;
@@ -596,7 +634,7 @@ bool CFileHelpers::createDir(const char *Dir, mode_t mode)
 				createDir(dirPath, mode);
 			}
 		}
-			else
+		else
 			return !ret || (errno == EEXIST);
 	}
 	errno = 0;

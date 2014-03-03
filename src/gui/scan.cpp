@@ -73,7 +73,6 @@ CScanTs::CScanTs(int dtype)
 	radar = 0;
 	total = done = 0;
 	freqready = 0;
-
 	deltype = dtype;
 	signalbox = NULL;
 	memset(&TP, 0, sizeof(TP)); // valgrind
@@ -209,7 +208,6 @@ int CScanTs::exec(CMenuTarget* /*parent*/, const std::string & actionKey)
 	ypos_radar = y + hheight + (mheight >> 1);
 	xpos1 = x + 10;
 
-
 	if (!frameBuffer->getActive())
 		return menu_return::RETURN_EXIT_ALL;
 
@@ -239,7 +237,7 @@ int CScanTs::exec(CMenuTarget* /*parent*/, const std::string & actionKey)
 			TP.polarization = scansettings.sat_TP_pol;
 		} else if (deltype == FE_OFDM) {
 			/* DVB-T. TODO: proper menu and parameter setup, not all "AUTO" */
-			TP.feparams.dvb_feparams.frequency = atoi(scansettings.terr_TP_freq);
+			TP.feparams.dvb_feparams.frequency = atoi(scansettings.terr_TP_freq.c_str());
 			if (TP.feparams.dvb_feparams.frequency < 300000)
 				TP.feparams.dvb_feparams.u.ofdm.bandwidth	= BANDWIDTH_7_MHZ;
 			else
@@ -483,7 +481,7 @@ neutrino_msg_t CScanTs::handleMsg(neutrino_msg_t msg, neutrino_msg_data_t data)
 			break;
 	}
 	if ((msg >= CRCInput::RC_WithData) && (msg < CRCInput::RC_WithData + 0x10000000))
-				delete[] (unsigned char*) data;
+		delete[] (unsigned char*) data;
 	frameBuffer->blit();
 	return msg;
 }
@@ -588,13 +586,11 @@ int CScanTs::greater_xpos(int xpos, const neutrino_locale_t txt)
 void CScanTs::showSNR ()
 {
 	if (signalbox == NULL){
-
-	CFrontend * frontend = CServiceScan::getInstance()->GetFrontend();
+		CFrontend * frontend = CServiceScan::getInstance()->GetFrontend();
 		signalbox = new CSignalBox(xpos1, y + height - mheight - 5, width - 2*(xpos1-x), g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getHeight(), frontend, false);
 		signalbox->setColorBody(COL_MENUCONTENT_PLUS_0);
 		signalbox->setTextColor(COL_MENUCONTENT_TEXT);
 		signalbox->doPaintBg(true);
-
 	}
 
 	signalbox->paint(false);

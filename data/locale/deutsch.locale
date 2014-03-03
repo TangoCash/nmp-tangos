@@ -250,6 +250,7 @@ channellist.nonefound Es wurden keine Kanäle gefunden!\nFühren Sie bitte eine 
 channellist.numeric_adjust Numeric zap adjust
 channellist.provs Anbieter
 channellist.recording_not_possible Aufnahme nicht möglich!
+channellist.remember Zuletzt verwendete
 channellist.reset_all Entferne Markierung "Neu" für alle Kanäle
 channellist.reset_flags Entferne Kanal-Markierung "Neu"
 channellist.sats Satelliten
@@ -401,7 +402,7 @@ extra.key_pic_size 4:3 Anzeigeverhalten
 extra.key_pip_close Stop/Start PiP
 extra.key_pip_setup PiP Konfiguration
 extra.key_pip_swap Umschalten PiP/live
-extra.key_plugin One-touch-Plugin
+extra.key_plugin Schnellstart-Plugin
 extra.key_screenshot Screenshot Taste
 extra.key_switchformat Nächste Auflösung
 extra.key_timeshift Timeshift
@@ -587,6 +588,7 @@ fontmenu.gamelist Spiele-Liste
 fontmenu.head Schrift
 fontmenu.infobar Infobar
 fontmenu.menu Menü
+fontmenu.other Andere
 fontmenu.scaling Schriftgrössenfaktor
 fontmenu.scaling_x Horizontal (in %)
 fontmenu.scaling_x_hint2 Horizontal (in %) min 50 / max 200
@@ -619,6 +621,7 @@ fontsize.menu Menütext
 fontsize.menu_hint Menü-Hilfe
 fontsize.menu_info Menüinfo
 fontsize.menu_title Menütitel
+fontsize.subtitles Text Untertitel
 glcd.brightness Helligkeit
 glcd.brightness_standby Helligkeit in Standby
 glcd.color.black Schwarz
@@ -655,22 +658,20 @@ hdd_60min 60 min.
 hdd_activate Übernehmen
 hdd_check Dateisystemprüfung
 hdd_check_failed Festplattenprüfung fehlgeschlagen
-hdd_ext3 ext3
-hdd_ext2 ext2
-hdd_jfs jfs
+hdd_check_format_bad Überprüfung von Datenträgern mit Format %s wird nicht unterstützt.
 hdd_extended_settings Erweiterte Festplatteneinstellungen
 hdd_fast Schnell
 hdd_format Formatiere Datenträger
 hdd_format_failed Formatierung fehlgeschlagen
 hdd_format_warn Formatierung wird gestartet
-hdd_fs Dateisystem
+hdd_fs Dateisystem zum formatieren
+hdd_fs_unknown unbekannt
 hdd_manage Laufwerke verwalten
 hdd_middle Mittel
 hdd_mount einhängen
 hdd_mount_umount Laufwerke ein-/aushängen
 hdd_noise Akustikkontrolle (AAM)
 hdd_not_found Keine Festplatte
-hdd_reiser ReiserFS
 hdd_removable_device Wechseldatenträger
 hdd_settings Laufwerke
 hdd_sleep Ausschalten nach...
@@ -735,6 +736,7 @@ keybindingmenu.channellist Kanalliste
 keybindingmenu.channelup Kanal hoch
 keybindingmenu.head Tasten-Belegungen bearbeiten
 keybindingmenu.lastchannel Letzter Kanal
+keybindingmenu.longkeypress_duration Langer Tastendruck
 keybindingmenu.misc Sonstige
 keybindingmenu.mode_left_right_key_tv Funktion li/re Tasten im TV-Modus
 keybindingmenu.mode_left_right_key_tv_infobar Infobar einblenden
@@ -883,6 +885,8 @@ menu.hint_channellist_extended Bei aktivierter Funktion wird vor dem Sendernamen
 menu.hint_channellist_fonts Ändern Sie die Schriftgrößen in der Kanalliste
 menu.hint_channellist_foot Definiert, welche Informationen im unteren Sendungsfenster angezeigt werden sollen
 menu.hint_channellist_hdicon Zeigt HD Symbol in der Kanalliste
+menu.hint_channellist_mode Wählen Sie die Start-Kanalliste im TV-Modus
+menu.hint_channellist_mode_radio Wählen Sie die Start-Kanalliste im Radio-Modus
 menu.hint_channellist_setup Wählen Sie die Anzeigeoptionen für die Kanalliste
 menu.hint_channellist_show_channellogo Zeigt Senderlogos in der Kanalliste.
 menu.hint_channels Kanalliste öffnen
@@ -929,6 +933,7 @@ menu.hint_games Zeige Liste der installierten Spiele
 menu.hint_hdd Formatierung und Prüfung der Datenträger
 menu.hint_hdd_apply Die veränderten Einstellungen zum Sleep- und Akustik-Modus werden übernommen
 menu.hint_hdd_check Überprüft das Dateisystem und führt gegebenfalls eine Reparatur durch (fsck)
+menu.hint_hdd_fmt Wählen Sie das Datenträgerformat aus
 menu.hint_hdd_format Erstellt eine Partition auf dem Datenträger und formatiert diesen
 menu.hint_hdd_noise Setzen Sie Parameter für das Automatic Acoustic Management.\nNicht alle Laufwerke unterstützen diese Funktion
 menu.hint_hdd_sleep Dieser Wert definiert, nach wieviel Minuten die Festplatte bei Inaktivität in den Sleep-Modus geschaltet wird
@@ -998,6 +1003,7 @@ menu.hint_key_pic_size_active Die Taste für das 4:3 Anzeigeverhalten deaktivier
 menu.hint_key_pip_close Tastenzuordnung für Stop PiP oder Start mit aktuellem Kanal
 menu.hint_key_pip_setup Tastenzuordnung für PiP Konfiguration
 menu.hint_key_pip_swap Tastenzuordnung zum Umschalten PiP und aktuellem Kanal
+menu.hint_key_plugin Wählen Sie eine Taste für das Schnellstart-Plugin
 menu.hint_key_poweroff Wählen Sie eine Taste für den Standby und für das Verhalten für Standby und Deep-Standby
 menu.hint_key_quickzap Konfigurieren Sie die Tastenbelegung für die Schnellumschaltung
 menu.hint_key_repeatblock Die Verzögerung nach einem Tastendruck bis die Box reagieren soll
@@ -1024,6 +1030,7 @@ menu.hint_leds_record Definiert, ob die Power-LEDs blinken sollen, wenn eine Auf
 menu.hint_leds_standby Definiert den Status der Power-LEDs im Standby
 menu.hint_leds_tv Definiert den Status der Power-LEDs im TV-Modus
 menu.hint_load Laden der Neutrino-Einstellungen aus einer Datei
+menu.hint_longkeypress_duration Tasten, die länger als die angegebene Zeit betätigt werden, werden als "langer Tastendruck" behandelt.
 menu.hint_lua Plugins ausführen
 menu.hint_make_hdlist Bei aktiver Option wird ein Bouquet namens 'HD' erzeugt, in dem alle HD-Sender zusammengefasst sind
 menu.hint_make_newlist Nach einer Kanalsuche wird ein Bouquet namens 'neue Kanäle' erzeugt
@@ -1043,6 +1050,7 @@ menu.hint_misc_filebrowser Dateisystem, Dateirechte anzeigen im Dateibrowser, St
 menu.hint_misc_general Standby-, Teletext- und Rotor-Einstellungen, Pluginverzeichnis auf externem Datenträger
 menu.hint_misc_zapit Verwaltung der Start-Kanäle für den TV/Radio-Modus
 menu.hint_movie Wiedergabe von Filmen
+menu.hint_movieplayer_plugin Wählen Sie ein Plugin, das mit einer Schnellstart-Taste im Movieplayer-Modus gestartet wird
 menu.hint_net_broadcast Ändern Sie die Broadcast-Adresse.\nWenn Sie unsicher sind, verwenden Sie zuletzt .255
 menu.hint_net_dhcp Verwenden Sie einen DHCP-Server für die automatische Vergabe einer IP-Adresse im Netzwerk
 menu.hint_net_djmount Mountet UPnP-Geräte als Dateisystem unter /media/00upnp
@@ -1077,6 +1085,7 @@ menu.hint_net_xupnpd Freigabe von Live Channels über UPNP
 menu.hint_network IP-Adresse, Gateway, DNS, Zeit-Sync, Netzwerk-Freigaben, Dienste und mehr
 menu.hint_new_zap_mode Aktiviert Quickzap in der Kanalliste. Nach Betätigen der Mute-Taste wird mit den Hoch/Runter-Tasten direkt umgeschalten
 menu.hint_numeric_adjust Adjust channel list mode on numeric zap
+menu.hint_onekey_plugin Wählen Sie ein Plugin, das mit einer Schnellstart-Taste gestartet wird
 menu.hint_osd Farben, Schriftarten, Anzeigegröße, Ansichtsoptionen der Menüs und mehr
 menu.hint_osd_language Wählen Sie ihre Menü-Sprache
 menu.hint_osd_preset Wählen Sie zwischen Röhren-TV (CRT) oder Flachbildschirm (LCD)
@@ -1090,6 +1099,10 @@ menu.hint_pictureviewer_defdir Wählen Sie das Startverzeichnis für den Bildbet
 menu.hint_pictureviewer_scaling Stellen Sie die Bildauflösung ein
 menu.hint_pictureviewer_slide_time Ändern Sie den Diashow-Intervall.\nStandardmäßig sind 10 Sekunden eingstellt
 menu.hint_picview Bilder anzeigen
+menu.hint_plugin_type_games Legt fest, ob Spiele im Benutzermenü unter der Rubrik 'Plugin-Typen' gezeigt werden sollen
+menu.hint_plugin_type_lua Legt fest, ob Plugins im Benutzermenü unter der Rubrik 'Plugin-Typen' gezeigt werden sollen
+menu.hint_plugin_type_scripts Legt fest, ob Skripte im Benutzermenü unter der Rubrik 'Plugin-Typen' gezeigt werden sollen
+menu.hint_plugin_type_tools Legt fest, ob Werkzeuge im Benutzermenü unter der Rubrik 'Plugin-Typen' gezeigt werden sollen
 menu.hint_plugins_hdd_dir Auswahl des Verzeichnisses zum Laden der Plugins von einem externen Datenträger
 menu.hint_power_leds Konfiguriert das Verhalten der LEDs an der Power-Taste
 menu.hint_pref_lang Wählen Sie ihre bevorzugte Tonspur und EPG-Sprache,\ndie Einstellung 'none' deaktiviert diese Option
@@ -1539,10 +1552,12 @@ movieplayer.bookmark Bookmarks
 movieplayer.bookmarkname Bookmark Name
 movieplayer.bookmarkname_hint1 Geben Sie den Namen für das neue Lesezeichen ein
 movieplayer.bookmarkname_hint2 
+movieplayer.chapters Kapitel
 movieplayer.defplugin Start-Plugin
 movieplayer.fileplayback Datei-Browser
 movieplayer.head Movieplayer
 movieplayer.starting Wiedergabe starten...
+movieplayer.titles Titel
 movieplayer.toomanybookmarks Sie haben bereits zu viele Lesezeichen angelegt.\nEs muß erst ein anderes gelöscht werden.
 movieplayer.tshelp1 Stopp
 movieplayer.tshelp10 ca. 10 Minuten zurück
@@ -1566,7 +1581,7 @@ mpkey.next3dmode Nächster 3D-Modus
 mpkey.next_repeat_mode Nächster Wiederholungs-Modus
 mpkey.pause Pause
 mpkey.play Play
-mpkey.plugin Starte Plugin
+mpkey.plugin Movieplayer-Plugin
 mpkey.rewind Rücklauf
 mpkey.stop Stopp
 mpkey.subtitle Untertitel
@@ -1953,6 +1968,7 @@ streaming.slow System oder Datenträger zu langsam! Bitte ggf. einige Aufnahmen 
 streaming.write_error Die Aufnahme wurde leider abgebrochen,\nda ein Fehler beim Schreiben der Daten auftrat.
 stringinput.caps Groß-/Kleinbuchstaben
 stringinput.clear Alles löschen
+subtitles.charset Zeichensatz
 subtitles.head Untertitel
 subtitles.stop Untertitel aus
 terrestrialsetup.area Region
@@ -2163,8 +2179,10 @@ zapit.scantype.all Alle Services
 zapit.scantype.radio Nur Radio
 zapit.scantype.tv Nur TV
 zapit.scantype.tvradio Nur TV & Radio
+zapitsetup.channelmode Start-Kanalliste für TV
+zapitsetup.channelmode_radio Start-Kanalliste für Radio
 zapitsetup.head Startkanal-Verwaltung
-zapitsetup.info Start Kanal
+zapitsetup.info Startkanal
 zapitsetup.last_radio Radio Kanal
 zapitsetup.last_tv TV Kanal
 zapitsetup.last_use Kanal beim Runterfahren speichern

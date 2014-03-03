@@ -70,9 +70,11 @@ bool CServiceManager::ParseScanXml(fe_type_t delsys)
 		case FE_QPSK:
 			scanInputParser = parseXmlFile(SATELLITES_XML);
 			break;
+
 		case FE_QAM:
 			scanInputParser = parseXmlFile(CABLES_XML);
 			break;
+
 		case FE_OFDM:
 			scanInputParser = parseXmlFile(TERRESTRIAL_XML);
 			break;
@@ -353,7 +355,7 @@ void CServiceManager::ParseTransponders(xmlNodePtr node, t_satellite_position sa
 			if(feparams.dvb_feparams.frequency < 20000)
 				feparams.dvb_feparams.frequency = feparams.dvb_feparams.frequency*1000;
 			else
-				feparams.dvb_feparams.frequency = 1000 * ((feparams.dvb_feparams.frequency + 500) / 1000);
+				feparams.dvb_feparams.frequency = (int) 1000 * (int) round ((double) feparams.dvb_feparams.frequency / (double) 1000);
 		}
 		freq_id_t freq = CREATE_FREQ_ID(feparams.dvb_feparams.frequency, delsys != FE_QPSK);
 
@@ -534,7 +536,7 @@ void CServiceManager::ParseSatTransponders(fe_type_t fType, xmlNodePtr search, t
 			if(modulation == 2 && ((fe_code_rate_t) xml_fec != FEC_AUTO))
 				xml_fec += 9;
 			feparams.dvb_feparams.u.qpsk.fec_inner = (fe_code_rate_t) xml_fec;
-			feparams.dvb_feparams.frequency = 1000 * ((feparams.dvb_feparams.frequency + 500) / 1000);
+			feparams.dvb_feparams.frequency = (int) 1000 * (int) round ((double) feparams.dvb_feparams.frequency / (double) 1000);
 		}
 		else if (fType == FE_OFDM) {
 			feparams.dvb_feparams.u.ofdm.bandwidth = (fe_bandwidth_t)
@@ -716,7 +718,6 @@ bool CServiceManager::LoadServices(bool only_current)
 		satcleared = 1;
 	}
 #endif
-
 	TIMER_START();
 	allchans.clear();
 	transponders.clear();
@@ -826,6 +827,10 @@ void CServiceManager::CopyFile(char * from, char * to)
 
 void CServiceManager::WriteSatHeader(FILE * fd, sat_config_t &config)
 {
+	if ((config.position & 0xF00) == 0xF00)
+		config.deltype = FE_QAM;
+	else if ((config.position & 0xF00) == 0xE00)
+		config.deltype = FE_OFDM;
 	switch (config.deltype) {
 		case FE_QPSK: /* satellite */
 			fprintf(fd, "\t<sat name=\"%s\" position=\"%hd\" diseqc=\"%hd\" uncommited=\"%hd\">\n",
@@ -834,7 +839,7 @@ void CServiceManager::WriteSatHeader(FILE * fd, sat_config_t &config)
 		case FE_QAM: /* cable */
 			fprintf(fd, "\t<cable name=\"%s\" position=\"%hd\">\n", config.name.c_str(), config.position);
 			break;
-		case FE_OFDM: /* terrestrial */
+		case FE_OFDM:
 			fprintf(fd, "\t<terrestrial name=\"%s\" position=\"%hd\">\n", config.name.c_str(), config.position);
 			break;
 		default:

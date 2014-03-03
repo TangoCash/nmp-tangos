@@ -43,7 +43,7 @@
 const char * const file_extension_list[] =
 {
 	"asf",   "avi",  "bmp",  "cdr",  "crw",
-	"flac",  "flv",  "gif",  "imu",  "jpeg",
+	"flac",  "flv",  "gif",  "imu", "iso",  "jpeg",
 	"jpg",   "m2a",  "m3u",  "mkv",  "mp2",
 	"mp3",   "mp4",  "mpa",  "mpeg", "mpg",
 	"ogg",   "pls",  "png",  "sh",   "ts",
@@ -54,7 +54,7 @@ const char * const file_extension_list[] =
 const CFile::FileType file_type_list[] =
 {
 	CFile::FILE_ASF      , CFile::FILE_AVI      , CFile::FILE_PICTURE  , CFile::FILE_CDR      , CFile::FILE_PICTURE  ,
-	CFile::FILE_FLAC     , CFile::FILE_MPG      , CFile::FILE_PICTURE  , CFile::STREAM_PICTURE, CFile::FILE_PICTURE  ,
+	CFile::FILE_FLAC     , CFile::FILE_MPG      , CFile::FILE_PICTURE  , CFile::STREAM_PICTURE, CFile::FILE_ISO, CFile::FILE_PICTURE  ,
 	CFile::FILE_PICTURE  , CFile::FILE_MP3      , CFile::FILE_PLAYLIST , CFile::FILE_MKV      , CFile::FILE_MP3      ,
 	CFile::FILE_MP3      , CFile::FILE_MPG      , CFile::FILE_MP3      , CFile::FILE_MPG      , CFile::FILE_MPG      ,
 	CFile::FILE_OGG      , CFile::FILE_PLAYLIST , CFile::FILE_PICTURE  , CFile::FILE_TEXT     , CFile::FILE_TS       ,

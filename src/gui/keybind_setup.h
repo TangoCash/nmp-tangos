@@ -78,7 +78,7 @@ class CKeybindSetup : public CMenuTarget, public CChangeObserver
 #endif
 			KEY_TIMESHIFT,
 			MPKEY_PLUGIN,
-			/*KEY_PLUGIN,*/
+			KEY_PLUGIN,
 			KEY_UNLOCK,
 #if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
 			KEY_NEXT43MODE,

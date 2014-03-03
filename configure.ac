@@ -96,7 +96,6 @@ TUXBOX_APPS_LIB_PKGCONFIG(AVCODEC,libavcodec)
 TUXBOX_APPS_LIB_PKGCONFIG(AVUTIL,libavutil)
 TUXBOX_APPS_LIB_PKGCONFIG(SWRESAMPLE,libswresample)
 
-
 #TUXBOX_APPS_LIB_PKGCONFIG(CONFIGFILE,tuxbox-configfile)
 #TUXBOX_APPS_LIB_PKGCONFIG(CONNECTION,tuxbox-connection)
 #TUXBOX_APPS_LIB_PKGCONFIG(EVENTSERVER,tuxbox-eventserver)
@@ -138,7 +137,6 @@ AM_CONDITIONAL(ENABLE_GRAPHLCD,test "$enable_graphlcd" = "yes")
 if test "$enable_graphlcd" = "yes"; then
 	AC_DEFINE(ENABLE_GRAPHLCD,1,[include GraphLCD support])
 fi
-
 AC_ARG_ENABLE(giflib,
 	AS_HELP_STRING(--enable-giflib,use giflib instead of libungif),
 	,[enable_giflib=no])
@@ -176,7 +174,6 @@ AM_CONDITIONAL(ENABLE_EXTUPDATE,test "$enable_extupdate" = "yes")
 if test "$enable_extupdate" = "yes"; then
 	AC_DEFINE(ENABLE_EXTUPDATE,1,[include extended update routine])
 fi
-
 # Lua - embeddable scripting language
 AC_ARG_ENABLE(lua,
 	AS_HELP_STRING(--enable-lua,include Lua support),
@@ -224,9 +221,6 @@ AM_CONDITIONAL(ENABLE_TEST_MENU,test "$enable_testmenu" = "yes")
 if test "$enable_testmenu" = "yes"; then
 	AC_DEFINE(ENABLE_TEST_MENU,1,[include test menu in neutrino main menu - not recommended for general users!])
 fi
-
-
-
 
 if test "$BOXTYPE" = "coolstream"; then
 if test -e ${srcdir}/lib/libcoolstream/nevis_ir.h; then

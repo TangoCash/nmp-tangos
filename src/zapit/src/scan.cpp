@@ -613,6 +613,7 @@ bool CServiceScan::ScanTransponder()
 	freq_id_t freq = CREATE_FREQ_ID(TP->feparams.dvb_feparams.frequency, frontendType != FE_QPSK);
 
 	fake_tid++; fake_nid++;
+
 	transponder_id_t tid = CREATE_TRANSPONDER_ID64(freq, satellitePosition, fake_nid, fake_tid);
 	transponder t(frontendType, tid, TP->feparams,  TP->polarization);
 	t.dump("[scan]");

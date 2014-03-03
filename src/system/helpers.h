@@ -28,7 +28,7 @@
 #include <stdint.h>
 #include <string>
 #include <sstream>
-
+ 
 int my_system(const char * cmd);
 int my_system(int argc, const char *arg, ...); /* argc is number of arguments including command */
 
@@ -56,6 +56,8 @@ std::string getFileExt(std::string &file);
 std::string getNowTimeStr(const char* format);
 std::string trim(std::string &str, const std::string &trimChars = " \n\r\t");
 time_t toEpoch(std::string &date);
+std::string& str_replace(const std::string &search, const std::string &replace, std::string &text);
+std::string& htmlEntityDecode(std::string& text);
 
 class CFileHelpers
 {

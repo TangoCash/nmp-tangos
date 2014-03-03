@@ -3,7 +3,7 @@
 	Copyright (C) 2001 by Steffen Hehn 'McClean'
 
 	Classes for generic GUI-related components.
-	Copyright (C) 2012, 2013, 2014 Thilo Graf 'dbt'
+	Copyright (C) 2012-2014 Thilo Graf 'dbt'
 	Copyright (C) 2012, Michael Liebmann 'micha-bbg'
 
 	License: GPL
@@ -29,62 +29,66 @@
 #include <global.h>
 #include <neutrino.h>
 #include "cc_frm_window.h"
-#include <driver/screen_max.h>
 
 using namespace std;
 
 //-------------------------------------------------------------------------------------------------------
 //sub class CComponentsWindow inherit from CComponentsForm
-CComponentsWindow::CComponentsWindow()
+CComponentsWindow::CComponentsWindow(CComponentsForm *parent)
 {
-	initVarWindow();
+	initVarWindow(0, 0, 800, 600, "", "", parent);
 }
 
 CComponentsWindow::CComponentsWindow(	const int& x_pos, const int& y_pos, const int& w, const int& h,
 					neutrino_locale_t locale_caption,
 					const string& iconname,
+					CComponentsForm *parent,
 					bool has_shadow,
 					fb_pixel_t color_frame,
 					fb_pixel_t color_body,
 					fb_pixel_t color_shadow)
 {
 	string s_caption = locale_caption != NONEXISTANT_LOCALE ? g_Locale->getText(locale_caption) : "";
-	initVarWindow(x_pos, y_pos, w, h, s_caption, iconname, has_shadow, color_frame, color_body, color_shadow);
+	initVarWindow(x_pos, y_pos, w, h, s_caption, iconname, parent, has_shadow, color_frame, color_body, color_shadow);
 }
 
 CComponentsWindow::CComponentsWindow(	const int& x_pos, const int& y_pos, const int& w, const int& h,
 					const string& caption,
 					const string& iconname,
+					CComponentsForm *parent,
 					bool has_shadow,
 					fb_pixel_t color_frame,
 					fb_pixel_t color_body,
 					fb_pixel_t color_shadow)
 {
-	initVarWindow(x_pos, y_pos, w, h, caption, iconname, has_shadow, color_frame, color_body, color_shadow);
+	initVarWindow(x_pos, y_pos, w, h, caption, iconname, parent, has_shadow, color_frame, color_body, color_shadow);
 }
 
 CComponentsWindowMax::CComponentsWindowMax(	const string& caption,
 						const string& iconname,
+						CComponentsForm *parent,
 						bool has_shadow,
 						fb_pixel_t color_frame,
 						fb_pixel_t color_body,
 						fb_pixel_t color_shadow)
 						:CComponentsWindow(0, 0, 0, 0, caption,
-						iconname, has_shadow, color_frame, color_body, color_shadow){};
+						iconname, parent, has_shadow, color_frame, color_body, color_shadow){};
 
 CComponentsWindowMax::CComponentsWindowMax(	neutrino_locale_t locale_caption,
 						const string& iconname,
+						CComponentsForm *parent,
 						bool has_shadow,
 						fb_pixel_t color_frame,
 						fb_pixel_t color_body,
 						fb_pixel_t color_shadow)
 						:CComponentsWindow(0, 0, 0, 0,
 						locale_caption != NONEXISTANT_LOCALE ? g_Locale->getText(locale_caption) : "",
-						iconname, has_shadow, color_frame, color_body, color_shadow){};
+						iconname, parent, has_shadow, color_frame, color_body, color_shadow){};
 
 void CComponentsWindow::initVarWindow(	const int& x_pos, const int& y_pos, const int& w, const int& h,
 					const string& caption,
 					const string& iconname,
+					CComponentsForm *parent,
 					bool has_shadow,
 					fb_pixel_t color_frame,
 					fb_pixel_t color_body,
@@ -93,9 +97,10 @@ void CComponentsWindow::initVarWindow(	const int& x_pos, const int& y_pos, const
 	//CComponentsForm
 	cc_item_type 	= CC_ITEMTYPE_FRM_WINDOW;
 
-	//using current screen settings for default dimensions, do use full screen if default values for width/height = 0
-	x 		= x_pos;
-	y 		= y_pos;
+	//using current screen settings for default dimensions,
+	//do use full screen (from osd-settings) if default values for width/height = 0
+	x = x_pos;
+	y = y_pos;
 	width = w;
 	height = h;
 	initWindowSize();
@@ -121,6 +126,7 @@ void CComponentsWindow::initVarWindow(	const int& x_pos, const int& y_pos, const
 	ccw_align_mode	= CTextBox::NO_AUTO_LINEBREAK;
 
 	initCCWItems();
+	initParent(parent);
 }
 
 void CComponentsWindow::initWindowSize()
@@ -144,6 +150,7 @@ void CComponentsWindow::initWindowPos()
 	if (y == 0)
 		y = frameBuffer->getScreenY();
 }
+
 void CComponentsWindow::doCenter(){
 	x = cc_parent ? cc_parent->getWidth() - width/2 : getScreenStartX(width);
 	y = cc_parent ? cc_parent->getHeight() - height/2 : getScreenStartY(height);
@@ -163,7 +170,6 @@ void CComponentsWindow::initHeader()
 	//set header properties //TODO: assigned properties with internal header objekt have no effect!
 	if (ccw_head){
 		ccw_head->setWidth(width-2*fr_thickness);
-// 		ccw_head->setPos(0, 0);
 		ccw_head->setPos(0, 0);
 		ccw_head->setIcon(ccw_icon_name);
 		ccw_head->setCaption(ccw_caption, ccw_align_mode);
@@ -211,7 +217,6 @@ void CComponentsWindow::initCCWItems()
 #ifdef DEBUG_CC
 	printf("[CComponentsWindow]   [%s - %d] init items...\n", __func__, __LINE__);
 #endif
-
 	//add/remove header if required
 	if (ccw_show_header){
 		initHeader();
@@ -231,6 +236,7 @@ void CComponentsWindow::initCCWItems()
 			ccw_footer = NULL;
 		}
 	}
+
 	initBody();
 
 	//add header, body and footer items only one time

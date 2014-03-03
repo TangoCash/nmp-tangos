@@ -54,7 +54,7 @@ transponder::transponder()
 bool transponder::operator==(const transponder& t) const
 {
 	if (deltype != FE_OFDM)
-		return (
+	return (
 			(satellitePosition == t.satellitePosition) &&
 			//(transport_stream_id == t.transport_stream_id) &&
 			//(original_network_id == t.original_network_id) &&

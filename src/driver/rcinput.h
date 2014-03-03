@@ -142,6 +142,8 @@ class CRCInput
 		std::vector<timer> timers;
 
 		uint32_t	*repeatkeys;
+		uint64_t	longPressEnd;
+		bool		longPressAny;
 		int 		fd_pipe_high_priority[2];
 		int 		fd_pipe_low_priority[2];
 		int         	fd_gamerc;
@@ -166,9 +168,11 @@ class CRCInput
 
 		void open(int dev = -1);
 		void close();
-		int translate(int code, int num);
+		int translate(int code);
 		void calculateMaxFd(void);
 		int checkTimers();
+		bool mayRepeat(uint32_t key, bool bAllowRepeatLR = false);
+		bool mayLongPress(uint32_t key, bool bAllowRepeatLR = false);
 #ifdef IOC_IR_SET_PRI_PROTOCOL
 		void set_rc_hw(ir_protocol_t ir_protocol, unsigned int ir_address);
 #endif
@@ -209,8 +213,8 @@ class CRCInput
 			RC_home		= KEY_EXIT,	    /* /include/linux/input.h: #define KEY_HOME			102   */
 #endif
 			RC_setup	= KEY_MENU,	    /* /include/linux/input.h: #define KEY_SETUP		141   */
-			RC_topleft	= KEY_TOPLEFT,
-			RC_topright	= KEY_TOPRIGHT,
+			RC_topleft	= KEY_TOPLEFT,	
+			RC_topright	= KEY_TOPRIGHT,	
 			RC_page_up	= KEY_PAGEUP,	    /* /include/linux/input.h: #define KEY_PAGEUP		104   */
 			RC_page_down	= KEY_PAGEDOWN,	    /* /include/linux/input.h: #define KEY_PAGEDOWN		109   */
 			RC_ok		= KEY_OK,	    /* /include/linux/input.h: #define KEY_OK			0x160 */ /* in patched input.h */
@@ -303,7 +307,8 @@ class CRCInput
 		static bool isNumeric(const neutrino_msg_t key);
 		static int getNumericValue(const neutrino_msg_t key);
 		static unsigned int convertDigitToKey(const unsigned int digit);
-		static int getUnicodeValue(const neutrino_msg_t key);
+		static const char *getUnicodeValue(const neutrino_msg_t key);
+		uint32_t *setAllowRepeat(uint32_t *);
 
 		static const char * getSpecialKeyName(const unsigned int key);
 		static const char *getKeyNameC(const unsigned int key);
@@ -330,6 +335,7 @@ class CRCInput
 		void close_click();
 		void play_click();
 		void reset_dsp(int rate);
+		void setLongPressAny(bool b) { longPressAny = b; };
 };
 
 
