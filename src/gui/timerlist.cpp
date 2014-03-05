@@ -265,6 +265,7 @@ CTimerList::CTimerList()
 	Timer = new CTimerdClient();
 	skipEventID=0;
 	timerNew_message = "";
+	timerNew_pluginName = "";
 
 	/* most probable default */
 	saved_dispmode = (int)CVFD::MODE_TVRADIO;
@@ -345,9 +346,9 @@ int CTimerList::exec(CMenuTarget* parent, const std::string & actionKey)
 			data = (void*)timerNew_message.c_str();
 		else if (timerNew.eventType==CTimerd::TIMER_EXEC_PLUGIN)
 		{
-			if (strcmp(timerNew.pluginName, "---") == 0)
+			if (timerNew_pluginName == "---")
 				return menu_return::RETURN_REPAINT;
-			data= timerNew.pluginName;
+			data = (void*)timerNew_pluginName.c_str();
 		}
 		if (timerNew.eventRepeat >= CTimerd::TIMERREPEAT_WEEKDAYS)
 			Timer->getWeekdaysFromStr(&timerNew.eventRepeat, m_weekdaysStr);
@@ -1229,13 +1230,13 @@ int CTimerList::newTimer()
 	CStringInputSMS timerSettings_msg(LOCALE_TIMERLIST_MESSAGE, &timerNew_message, 30, NONEXISTANT_LOCALE, NONEXISTANT_LOCALE, "abcdefghijklmnopqrstuvwxyz0123456789-.,:!?/ ");
 	CMenuForwarder *m9 = new CMenuForwarder(LOCALE_TIMERLIST_MESSAGE, false, timerNew_message, &timerSettings_msg );
 
-	std::string timerNew_pluginName("---");
+	timerNew_pluginName = "---";
 	CPluginChooser plugin_chooser(LOCALE_TIMERLIST_PLUGIN, CPlugins::P_TYPE_SCRIPT | CPlugins::P_TYPE_TOOL
 #if ENABLE_LUA
 										       | CPlugins::P_TYPE_LUA
 #endif
 										       , timerNew_pluginName);
-	CMenuForwarder *m10 = new CMenuForwarder(LOCALE_TIMERLIST_PLUGIN, false, timerNew.pluginName, &plugin_chooser);
+	CMenuForwarder *m10 = new CMenuForwarder(LOCALE_TIMERLIST_PLUGIN, false, timerNew_pluginName, &plugin_chooser);
 
 
 	CTimerListNewNotifier notifier2((int *)&timerNew.eventType,

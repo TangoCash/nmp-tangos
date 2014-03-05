@@ -84,19 +84,17 @@ int CPluginList::run()
 
 int CPluginList::exec(CMenuTarget* parent, const std::string &actionKey)
 {
-
 	if (parent)
 		parent->hide();
 
 	number = -1;
 	if (actionKey != "")
 		number = atoi(actionKey.c_str());
-	//scan4plugins here!
+
 	if (number > -1)
 		return run();
 
 	const char *icon = "";
-
 	if (pluginlisttype == CPlugins::P_TYPE_GAME)
 		icon = NEUTRINO_ICON_GAMES;
 	else
@@ -113,16 +111,16 @@ int CPluginList::exec(CMenuTarget* parent, const std::string &actionKey)
 	for(int count = 0; count < nop; count++) {
 		if ((g_PluginList->getType(count) & pluginlisttype) && !g_PluginList->isHidden(count)) {
 			CMenuForwarder *f = new CMenuForwarder(std::string(g_PluginList->getName(count)), true, "", this, to_string(count).c_str(), CRCInput::convertDigitToKey(shortcut++));
-
+			//TODO: use hint-icons; header-icons are to small
 			f->setHint("", g_PluginList->getDescription(count));
 			m.addItem(f);
+		}
 	}
-}
-	m.exec(NULL, "");
+	int res = m.exec(NULL, "");
 	m.hide();
 	selected = m.getSelected();
 
-	return menu_return::RETURN_REPAINT;
+	return res;
 }
 
 CPluginChooser::CPluginChooser(const neutrino_locale_t Name, const uint32_t listtype, std::string &selectedFile) : CPluginList(Name, listtype)
@@ -136,4 +134,3 @@ int CPluginChooser::run()
 		*selectedFilePtr = g_PluginList->getFileName(number);
 	return menu_return::RETURN_EXIT;
 }
-
