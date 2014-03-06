@@ -561,7 +561,7 @@ bool CServiceScan::ScanProviders()
 		}
 
 		if( !scanBouquetManager->Bouquets.empty() ) {
-			scanBouquetManager->saveBouquets(bouquetMode, spI->second.c_str());
+			scanBouquetManager->saveBouquets(bouquetMode, spI->second.c_str(), position);
 		}
 		scanBouquetManager->clearAll();
 	}
@@ -633,7 +633,7 @@ bool CServiceScan::ScanTransponder()
 		found_channels = 0;
 
 	if(found_channels) {
-		scanBouquetManager->saveBouquets(bouquetMode, providerName.c_str());
+		scanBouquetManager->saveBouquets(bouquetMode, providerName.c_str(), scanedtransponders.size() > 1 ? satellitePosition : -1);
 		SaveServices();
 		Cleanup(true);
 		CZapitClient myZapitClient;

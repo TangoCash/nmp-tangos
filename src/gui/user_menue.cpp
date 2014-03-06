@@ -62,7 +62,6 @@
 #if !HAVE_GENERIC_HARDWARE
 #include "3dsetup.h"
 #endif
-
 #include <global.h>
 #include <neutrino.h>
 #include <mymenu.h>
@@ -91,11 +90,11 @@ CUserMenu::~CUserMenu()
 	
 }
 
-
 // USERMENU
 bool CUserMenu::showUserMenu(int button)
 {
 	InfoClock->enableInfoClock(false);
+
 	// set width
 	width = w_max (40, 10);
 	
@@ -407,10 +406,9 @@ bool CUserMenu::showUserMenu(int button)
 				menu->addItem(menu_item, false);
 			}
 			break;
-
 		case SNeutrinoSettings::ITEM_YOUTUBE:
 			{
-			menu_items++;
+				menu_items++;
 				menu_prev = SNeutrinoSettings::ITEM_YOUTUBE;
 				keyhelper.get(&key,&icon);
 				menu_item = new CMenuForwarder(LOCALE_MOVIEPLAYER_YTPLAYBACK, true, NULL, &CMoviePlayerGui::getInstance(), "ytplayback", key, icon);
@@ -418,18 +416,15 @@ bool CUserMenu::showUserMenu(int button)
 				menu->addItem(menu_item, 0);
 			}
 			break;
-
 		case SNeutrinoSettings::ITEM_FILEPLAY:
 			{
-					menu_items++;
+				menu_items++;
 				menu_prev = SNeutrinoSettings::ITEM_FILEPLAY;
-
-					//keyhelper.get(&key,&icon,CRCInput::RC_blue);
-					keyhelper.get(&key,&icon);
+				keyhelper.get(&key,&icon);
 				menu_item = new CMenuForwarder(LOCALE_MOVIEPLAYER_FILEPLAYBACK, true, NULL, &CMoviePlayerGui::getInstance(), "fileplayback", key, icon);
 				menu_item->setHint(NEUTRINO_ICON_HINT_FILEPLAY, LOCALE_MENU_HINT_FILEPLAY);
-					menu->addItem(menu_item, 0);
-				}
+				menu->addItem(menu_item, 0);
+			}
 			break;
 #if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
 		case SNeutrinoSettings::ITEM_THREE_D_MODE:
@@ -481,9 +476,6 @@ bool CUserMenu::showUserMenu(int button)
 	
 	user_menu[button].selected = menu->getSelected();
 
-	// restore mute symbol
-	//AudioMute(current_muted, true);
-
 	// clear the heap
 	if (tmpFavorites)                delete tmpFavorites;
 	if (tmpAudioSelectMenuHandler)   delete tmpAudioSelectMenuHandler;
@@ -498,9 +490,13 @@ bool CUserMenu::showUserMenu(int button)
 	if (imageinfo)			 delete imageinfo;
 	if (boxinfo)			 delete boxinfo;
 	if (games)                       delete games;
+	if (tools)			delete tools;
 	if (scripts)                     delete scripts;
+	if (lua)			delete lua;
 	if (menu)                        delete menu;
+
 	InfoClock->enableInfoClock(true);
+
  	return 0;
 }
 

@@ -250,6 +250,7 @@ bool CFEManager::loadSettings()
 		fe_config.uni_pin		= getConfigValue(fe, "uni_pin", -1);
 		fe_config.diseqc_order		= getConfigValue(fe, "diseqc_order", UNCOMMITED_FIRST);
 		fe_config.use_usals		= getConfigValue(fe, "use_usals", 0);
+		fe_config.rotor_swap		= getConfigValue(fe, "rotor_swap", 0);
 
 		fe->setRotorSatellitePosition(getConfigValue(fe, "lastSatellitePosition", 0));
 
@@ -345,6 +346,7 @@ void CFEManager::saveSettings(bool write)
 		setConfigValue(fe, "uni_pin", fe_config.uni_pin);
 		setConfigValue(fe, "diseqc_order", fe_config.diseqc_order);
 		setConfigValue(fe, "use_usals", fe_config.use_usals);
+		setConfigValue(fe, "rotor_swap", fe_config.rotor_swap);
 		setConfigValue(fe, "lastSatellitePosition", fe->getRotorSatellitePosition());
 		setConfigValue(fe, "mode", fe->getMode());
 		setConfigValue(fe, "master", fe->getMaster());
