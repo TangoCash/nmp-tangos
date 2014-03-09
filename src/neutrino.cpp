@@ -2209,8 +2209,10 @@ fprintf(stderr, "[neutrino start] %d  -> %5ld ms\n", __LINE__, time_monotonic_ms
 	powerManager = new cPowerManager;
 	powerManager->Open();
 
+#if !HAVE_SPARK_HARDWARE && !HAVE_DUCKBOX_HARDWARE
 	cpuFreq = new cCpuFreqManager();
 	cpuFreq->SetCpuFreq(g_settings.cpufreq * 1000 * 1000);
+#endif
 	switch (CFEManager::getInstance()->getLiveFE()->getInfo()->type) {
 		case FE_QPSK:
 			g_info.delivery_system = DVB_S;
@@ -2295,7 +2297,6 @@ fprintf(stderr, "[neutrino start] %d  -> %5ld ms\n", __LINE__, time_monotonic_ms
 
 	InitSectiondClient();
 
-	videoDecoder->Stop(1); //stopping videodecoder before 1st tune
 	/* wait until timerd is ready... */
 	time_t timerd_wait = time_monotonic_ms();
 	while (!timer_wakeup)

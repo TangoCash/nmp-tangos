@@ -55,13 +55,14 @@
 #include <global.h>
 #include <driver/shutdown_count.h>
 #include <neutrinoMessages.h>
-#include <neutrinoMessages.h>
 #include <timerd/timermanager.h>
 #include <timerdclient/timerdclient.h>
 #include <sectionsdclient/sectionsdclient.h>
 #include <cs_api.h>
 
+#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
 #include <gui/cec_setup.h>
+#endif
 //#define RCDEBUG
 //#define USE_GETTIMEOFDAY
 
@@ -1587,6 +1588,8 @@ const char * CRCInput::getSpecialKeyName(const unsigned int key)
 				return "analog off";
 			case RC_www:
 				return "www";
+			case RC_playmode:
+				return "play mode";
 			case RC_sub:
 				return "sub";
 			case RC_pos:

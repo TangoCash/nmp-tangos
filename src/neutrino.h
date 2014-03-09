@@ -33,6 +33,7 @@
 #ifndef __neutrino__
 #define __neutrino__
 
+#include "config.h"
 #include <configfile.h>
 
 #include <neutrinoMessages.h>

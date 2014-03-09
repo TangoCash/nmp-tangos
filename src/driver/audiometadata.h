@@ -41,6 +41,7 @@
 #endif
 
 #include <string>
+#include <unistd.h>
 
 #ifndef ENABLE_FFMPEGDEC
 #include <mad.h>

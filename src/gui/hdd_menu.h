@@ -35,6 +35,7 @@ using namespace std;
 enum {
 	fs_ext3,
 	fs_ext4,
+	fs_ext2,
 	fs_jfs,
 
 	fs_max

@@ -30,7 +30,9 @@ unsigned short crc16_ccitt(unsigned char *daten, int len, bool skipfirst);
 
 char *rtrim(char *text);
 
+#if !defined(__amd64__)
 typedef long long unsigned int uint64_t;
+#endif
 
 class cTimeMs {
 	private:

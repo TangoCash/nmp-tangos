@@ -997,7 +997,7 @@ void CMoviePlayerGui::PlayFile(void)
 
 			int newspeed;
 			if (msg == (neutrino_msg_t) g_settings.mpkey_rewind) {
-				newspeed = (speed >= 0) ? -1 : speed - 1;
+				newspeed = (speed >= 0) ? -1 : (speed - 1);
 #if HAVE_DUCKBOX_HARDWARE || BOXMODEL_SPARK7162
 				CVFD::getInstance()->ShowIcon(FP_ICON_PLAY, true);
 				CVFD::getInstance()->ShowIcon(FP_ICON_PAUSE, false);
@@ -1005,7 +1005,7 @@ void CMoviePlayerGui::PlayFile(void)
 				CVFD::getInstance()->ShowIcon(FP_ICON_FF, false);
 #endif
 			} else {
-				newspeed = (speed <= 0) ? 2 : speed + 1;
+				newspeed = (speed <= 0) ? 2 : (speed + 1);
 #if HAVE_DUCKBOX_HARDWARE || BOXMODEL_SPARK7162
 				CVFD::getInstance()->ShowIcon(FP_ICON_PLAY, true);
 				CVFD::getInstance()->ShowIcon(FP_ICON_PAUSE, false);
@@ -1073,11 +1073,11 @@ void CMoviePlayerGui::PlayFile(void)
 			ss -= hh * 3600;
 			int mm = ss/60;
 			ss -= mm * 60;
-			std::string Value = to_string(hh/10) + to_string(hh%10) + ":" + to_string(mm/10) + to_string(mm%10) + ":" + to_string(ss/10) + to_string(ss%10);			ss = 0;
+			std::string Value = to_string(hh/10) + to_string(hh%10) + ":" + to_string(mm/10) + to_string(mm%10) + ":" + to_string(ss/10) + to_string(ss%10);
 			CTimeInput jumpTime (LOCALE_MPKEY_GOTO, &Value, NONEXISTANT_LOCALE, NONEXISTANT_LOCALE, NULL, &cancel);
 			jumpTime.exec(NULL, "");
 			jumpTime.hide();
-			if (!cancel && ((3 == sscanf(Value.c_str(), "%d:%d:%d", &hh, &mm, &ss)) || (2 == sscanf(Value.c_str(), "%d:%d", &hh, &mm))) && (1000 * (hh * 3600 + mm * 60 + ss) < duration))
+			if (!cancel && (3 == sscanf(Value.c_str(), "%d:%d:%d", &hh, &mm, &ss)))
 				playback->SetPosition(1000 * (hh * 3600 + mm * 60 + ss), true);
 #endif
 		} else if (msg == CRCInput::RC_help || msg == CRCInput::RC_info) {

@@ -89,7 +89,6 @@ CHintBoxExt::CHintBoxExt(const neutrino_locale_t Caption, ContentLines& lines, c
 	m_message = NULL;
 	m_lines = lines;
 	m_bbheight = 0;
-	m_bbheight = 0;
 	init(Caption, "", Width, Icon);
 }
 

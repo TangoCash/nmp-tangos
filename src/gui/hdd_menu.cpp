@@ -65,8 +65,12 @@
 #define e2fsckBinary   "/sbin/e2fsck"
 #define ext3FsckBinary "/sbin/fsck.ext3"
 #define ext4FsckBinary "/sbin/fsck.ext4"
+#define ext2FsckBinary "/sbin/fsck.ext2"
+#define jfsFsckBinary  "/sbin/fsck.jfs"
 #define ext3MkfsBinary "/sbin/mkfs.ext3"
 #define ext4MkfsBinary "/sbin/mkfs.ext4"
+#define ext2MkfsBinary "/sbin/mkfs.ext2"
+#define jfsMkfsBinary  "/sbin/mkfs.jfs"
 #define blkidBinary    "/sbin/blkid"
 
 #define HDD_NOISE_OPTION_COUNT 4
@@ -78,11 +82,12 @@ const CMenuOptionChooser::keyval HDD_NOISE_OPTIONS[HDD_NOISE_OPTION_COUNT] =
 	{ 254, LOCALE_HDD_FAST }
 };
 
-#define HDD_FILESYS_OPTION_COUNT 3
+#define HDD_FILESYS_OPTION_COUNT 4
 const CMenuOptionChooser::keyval_ext HDD_FILESYS_OPTIONS[HDD_FILESYS_OPTION_COUNT] =
 {
 	{ fs_ext3, NONEXISTANT_LOCALE, "ext3" },
 	{ fs_ext4, NONEXISTANT_LOCALE, "ext4" },
+	{ fs_ext2, NONEXISTANT_LOCALE, "ext2" },
 	{ fs_jfs, NONEXISTANT_LOCALE, "jfs" }
 };
 
@@ -344,6 +349,10 @@ int CHDDMenuHandler::doMenu ()
 			g_settings.hdd_fs = fs_ext3;
 		else if (fmt_type == "ext4")
 			g_settings.hdd_fs = fs_ext4;
+		else if (fmt_type == "ext2")
+			g_settings.hdd_fs = fs_ext2;
+		else if (fmt_type == "jfs")
+			g_settings.hdd_fs = fs_jfs;
 		else
 			g_settings.hdd_fs = fs_ext3;
 		if (!ext4MkfsBinaryExist)
@@ -788,12 +797,16 @@ int CHDDFmtExec::exec(CMenuTarget* /*parent*/, const std::string& key)
 		case fs_ext4:
 			snprintf(cmd, sizeof(cmd), "%s -T largefile -m0 %s", ext4MkfsBinary, src);
 			break;
+		case fs_ext2:
+			snprintf(cmd, sizeof(cmd), "%s -T largefile -m0 %s", ext2MkfsBinary, src);
+			break;
 		case fs_jfs:
-			snprintf(cmd, sizeof(cmd), "/sbin/mkfs.jfs -L RECORD -q %s", src);
+			snprintf(cmd, sizeof(cmd), "%s  -q %s", jfsMkfsBinary, src);
 			break;
 		default:
 			return 0;
 	}
+	waitfordev(src, 30);
 
 	printf("CHDDFmtExec: executing %s\n", cmd);
 
@@ -888,20 +901,24 @@ _remount:
 #endif
 	{
         switch(g_settings.hdd_fs) {
-                case fs_ext3:
-			safe_mkdir(dst);
-			res = mount(src, dst, "ext3", 0, NULL);
-                        break;
-                case fs_ext4:
-			safe_mkdir(dst);
-			res = mount(src, dst, "ext4", 0, NULL);
-                        break;
-		case fs_jfs:
-			safe_mkdir(dst);
-			res = mount(src, dst, "jfs", 0, NULL);
-			break;
-		default:
-                        break;
+			case fs_ext3:
+				safe_mkdir(dst);
+				res = mount(src, dst, "ext3", 0, NULL);
+				break;
+			case fs_ext4:
+				safe_mkdir(dst);
+				res = mount(src, dst, "ext4", 0, NULL);
+				break;
+			case fs_ext2:
+				safe_mkdir(dst);
+				res = mount(src, dst, "ext2", 0, NULL);
+				break;
+			case fs_jfs:
+				safe_mkdir(dst);
+				res = mount(src, dst, "jfs", 0, NULL);
+				break;
+			default:
+				break;
         }
 	}
 #ifndef ASSUME_MDEV
@@ -1002,6 +1019,8 @@ int CHDDChkExec::exec(CMenuTarget* /*parent*/, const std::string& key)
 	int percent = 0, opercent = 0;
 
 	bool ext4FsckBinaryExist = (!access(ext4FsckBinary, X_OK));
+	bool ext2FsckBinaryExist = (!access(ext2FsckBinary, X_OK));
+	bool jfsFsckBinaryExist = (!access(jfsFsckBinary, X_OK));
 	bool e2fsckBinaryExist   = (!access(e2fsckBinary, X_OK));
 	bool blkidBinaryExist    = (!access(blkidBinary, X_OK));
 
@@ -1050,6 +1069,10 @@ printf("CHDDChkExec: key %s\n", key.c_str());
 		snprintf(cmd, sizeof(cmd), "%s -C 1 -f -y %s", ext3FsckBinary, src);
 		if ((ext4FsckBinaryExist) && (g_settings.hdd_fs == fs_ext4))
 			snprintf(cmd, sizeof(cmd), "%s -C 1 -f -y %s", ext4FsckBinary, src);
+		else if ((ext2FsckBinaryExist) && (g_settings.hdd_fs == fs_ext2))
+			snprintf(cmd, sizeof(cmd), "%s -C 1 -f -y %s", ext2FsckBinary, src);
+		else if ((jfsFsckBinaryExist) && (g_settings.hdd_fs == fs_jfs))
+			snprintf(cmd, sizeof(cmd), "%s -a -f -p %s", jfsFsckBinary, src);
 
 #if 0
 	switch(g_settings.hdd_fs) {
@@ -1059,11 +1082,11 @@ printf("CHDDChkExec: key %s\n", key.c_str());
 			case fs_ext4:
 				snprintf(cmd, sizeof(cmd), "%s -C 1 -f -y %s", ext4FsckBinary, src);
 			break;
-		case 2:
-			snprintf(cmd, sizeof(cmd), "/sbin/fsck.ext2 -C 1 -f -y %s", src);
+			case fs_ext2:
+				snprintf(cmd, sizeof(cmd), "%s -C 1 -f -y %s", ext2FsckBinary, src);
 			break;
-		case 3:
-			snprintf(cmd, sizeof(cmd), "/sbin/fsck.jfs -a -f -p %s", src);
+			case fs_jfs:
+				snprintf(cmd, sizeof(cmd), "%s -a -f -p %s", jfsFsckBinary, src);
 			break;
 		default:
 			return 0;
@@ -1131,6 +1154,10 @@ ret1:
                 case fs_ext4:
 			safe_mkdir(dst);
 			res = mount(src, dst, "ext4", 0, NULL);
+				break;
+			case fs_ext2:
+				safe_mkdir(dst);
+				res = mount(src, dst, "ext2", 0, NULL);
                         break;
 		case fs_jfs:
 			safe_mkdir(dst);

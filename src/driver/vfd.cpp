@@ -671,7 +671,7 @@ void CVFD::showVolume(const char vol, const bool /*perform_update*/)
 			oldpp = pp;
 		}
 #else
-		int pp = (vol * 8 + 50) / 100;
+		int pp = (int) round((double) vol * (double) 8 / (double) 100);
 		if(pp > 8) pp = 8;
 
 		if(oldpp != pp) {
@@ -706,7 +706,7 @@ void CVFD::showPercentOver(const unsigned char perc, const bool /*perform_update
 			if(perc == 255)
 				pp = 0;
 			else
-				pp = (perc * 8 + 50) / 100;
+				pp = (int) round((double) perc * (double) 8 / (double) 100);
 //printf("CVFD::showPercentOver: %d, bar %d\n", (int) perc, pp);
 			if(pp > 8) pp = 8;
 			if(pp != percentOver) {

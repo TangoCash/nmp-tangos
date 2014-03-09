@@ -73,7 +73,7 @@ extern cCpuFreqManager * cpuFreq;
 #define ENABLE_MULTI_CHANNEL
 
 #define TS_SIZE 188
-#define DMX_BUFFER_SIZE (2048*TS_SIZE)
+#define DMX_BUFFER_SIZE (5*2048*TS_SIZE)
 #define IN_SIZE (250*TS_SIZE)
 
 CStreamInstance::CStreamInstance(int clientfd, t_channel_id chid, stream_pids_t &_pids)
@@ -195,6 +195,12 @@ void CStreamInstance::run()
 
 	CCamManager::getInstance()->Start(channel_id, CCamManager::STREAM);
 
+#if HAVE_DUCKBOX_HARDWARE || HAVE_SPARK_HARDWARE
+	CFrontend *fe = CFEManager::getInstance()->allocateFE(tmpchan, true);
+	CFEManager::getInstance()->lockFrontend(fe);
+	CZapit::getInstance()->SetRecordMode(true);
+	g_Sectionsd->setPauseScanning(true);
+#endif
 	while (running) {
 		ssize_t r = dmx->Read(buf, IN_SIZE, 100);
 		if(r > 0)
@@ -203,6 +209,11 @@ void CStreamInstance::run()
 
 	CCamManager::getInstance()->Stop(channel_id, CCamManager::STREAM);
 
+#if HAVE_DUCKBOX_HARDWARE || HAVE_SPARK_HARDWARE
+	CFEManager::getInstance()->unlockFrontend(fe);
+	CZapit::getInstance()->SetRecordMode(false);
+	g_Sectionsd->setPauseScanning(false);
+#endif
 	printf("CStreamInstance::run: exiting %" PRIx64 " (%d fds)\n", channel_id, (int)fds.size());
 
 	Close();
@@ -576,7 +587,7 @@ bool CStreamManager::Listen()
 {
 	struct sockaddr_in socketAddr;
 	int socketOptActive = 1;
-	int sendsize = 10*IN_SIZE;
+	int sendsize = 50*IN_SIZE;
 	unsigned int m = sizeof(sendsize);
 
 	if ((listenfd = socket (AF_INET, SOCK_STREAM, 0)) < 0) {

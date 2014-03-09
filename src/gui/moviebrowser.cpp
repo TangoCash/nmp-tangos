@@ -957,6 +957,11 @@ int CMovieBrowser::exec(CMenuTarget* parent, const std::string & actionKey)
             }
        }
     }
+    else if(actionKey == "show_menu")
+    {
+        showMenu(NULL);
+        saveSettings(&m_settings);
+    }
      return returnval;
 }
 

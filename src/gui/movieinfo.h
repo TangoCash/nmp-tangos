@@ -46,12 +46,14 @@
 #ifndef MOVIEINFO_H_
 #define MOVIEINFO_H_
 
+#define __USE_FILE_OFFSET64 1
 #ifdef HAVE_CONFIG_H
 #include <config.h>
 #endif
 
 #include <string>
 #include <vector>
+#include <stdint.h>
 #include "driver/file.h"
 
 /************************************************************************/
