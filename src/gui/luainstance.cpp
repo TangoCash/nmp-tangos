@@ -499,6 +499,7 @@ int CLuaInstance::DisplayImage(lua_State *L)
 	if (lua_isnumber(L, 7))
 		trans = luaL_checkint(L, 7);
 	g_PicViewer->DisplayImage(fname, x, y, w, h, trans);
+	CFrameBuffer::getInstance()->blit();
 	return 0;
 }
 
@@ -593,6 +594,7 @@ int CLuaInstance::GetInput(lua_State *L)
 	{
 		DBG("CLuaInstance::%s: msg 0x%08"PRIx32" data 0x%08"PRIx32"\n", __func__, msg, data);
 		CNeutrinoApp::getInstance()->handleMsg(msg, data);
+		return 0;
 	}
 	/* signed int is debatable, but the "big" messages can't yet be handled
 	 * inside lua scripts anyway. RC_timeout == -1, RC_nokey == -2 */
@@ -626,7 +628,7 @@ int CLuaInstance::GCWindow(lua_State *L)
 	return 0;
 }
 
-#if 1
+#if 0
 int CLuaInstance::Blit(lua_State *)
 {
 	return 0;
