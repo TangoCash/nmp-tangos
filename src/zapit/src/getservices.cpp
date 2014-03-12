@@ -70,11 +70,9 @@ bool CServiceManager::ParseScanXml(fe_type_t delsys)
 		case FE_QPSK:
 			scanInputParser = parseXmlFile(SATELLITES_XML);
 			break;
-
 		case FE_QAM:
 			scanInputParser = parseXmlFile(CABLES_XML);
 			break;
-
 		case FE_OFDM:
 			scanInputParser = parseXmlFile(TERRESTRIAL_XML);
 			break;
@@ -718,6 +716,7 @@ bool CServiceManager::LoadServices(bool only_current)
 		satcleared = 1;
 	}
 #endif
+
 	TIMER_START();
 	allchans.clear();
 	transponders.clear();
@@ -827,10 +826,12 @@ void CServiceManager::CopyFile(char * from, char * to)
 
 void CServiceManager::WriteSatHeader(FILE * fd, sat_config_t &config)
 {
-	if ((config.position & 0xF00) == 0xF00)
+	/* FIXME hack */
+	if (SAT_POSITION_CABLE(config.position))
 		config.deltype = FE_QAM;
-	else if ((config.position & 0xF00) == 0xE00)
+	else if (SAT_POSITION_TERR(config.position))
 		config.deltype = FE_OFDM;
+
 	switch (config.deltype) {
 		case FE_QPSK: /* satellite */
 			fprintf(fd, "\t<sat name=\"%s\" position=\"%hd\" diseqc=\"%hd\" uncommited=\"%hd\">\n",
@@ -839,7 +840,7 @@ void CServiceManager::WriteSatHeader(FILE * fd, sat_config_t &config)
 		case FE_QAM: /* cable */
 			fprintf(fd, "\t<cable name=\"%s\" position=\"%hd\">\n", config.name.c_str(), config.position);
 			break;
-		case FE_OFDM:
+		case FE_OFDM: /* terrestrial */
 			fprintf(fd, "\t<terrestrial name=\"%s\" position=\"%hd\">\n", config.name.c_str(), config.position);
 			break;
 		default:

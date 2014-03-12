@@ -287,10 +287,12 @@ struct SNeutrinoSettings
 		//user menu
 		P_UMENU_SHOW_CANCEL,
 
+		//plugins types
 		P_UMENU_PLUGIN_TYPE_GAMES,
 		P_UMENU_PLUGIN_TYPE_TOOLS,
 		P_UMENU_PLUGIN_TYPE_SCRIPTS,
 		P_UMENU_PLUGIN_TYPE_LUA,
+
  		P_SETTINGS_MAX
 	};
 
@@ -465,6 +467,7 @@ struct SNeutrinoSettings
 	int temp_timeshift;
 	int auto_delete;
 	int record_hours;
+	int timeshift_hours;
 #if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
 	int key_next43mode;
 	int key_switchformat;

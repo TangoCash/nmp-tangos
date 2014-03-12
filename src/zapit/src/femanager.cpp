@@ -114,7 +114,6 @@ bool CFEManager::Init()
 		dmap.push_back(CFeDmx(i));
 
 	INFO("found %d frontends, %d demuxes\n", (int)femap.size(), (int)dmap.size());
-	/* for testing without a frontend, export SIMULATE_FE=1 */
 	if (femap.empty() && getenv("SIMULATE_FE")) {
 		INFO("SIMULATE_FE is set, adding dummy frontend for testing");
 		fe = new CFrontend(0,0);
@@ -429,7 +428,6 @@ void CFEManager::linkFrontends(bool init)
 				} else {
 					INFO("Frontend #%d: link to master %d as TWIN", fe2->fenumber, fe->fenumber);
 				}
-				
 			}
 			frontend_config_t & fe_config = fe->getConfig();
 			satellite_map_t &satellites = fe->getSatellites();
@@ -710,13 +708,13 @@ CFrontend * CFEManager::getScanFrontend(t_satellite_position satellitePosition)
 	CFrontend * frontend = NULL;
 	for(fe_map_iterator_t it = femap.begin(); it != femap.end(); it++) {
 		CFrontend * mfe = it->second;
-		if(mfe->isCable()) {
-			if ((mfe->getMode() != CFrontend::FE_MODE_UNUSED) && ((satellitePosition & 0xF00) == 0xF00)) {
+		if (mfe->isCable()) {
+			if ((mfe->getMode() != CFrontend::FE_MODE_UNUSED) && SAT_POSITION_CABLE(satellitePosition)) {
 				frontend = mfe;
 				break;
 			}
 		} else if (mfe->isTerr()) {
-			if ((mfe->getMode() != CFrontend::FE_MODE_UNUSED) && (satellitePosition & 0xF00) == 0xE00) {
+			if ((mfe->getMode() != CFrontend::FE_MODE_UNUSED) && SAT_POSITION_TERR(satellitePosition)) {
 				frontend = mfe;
 				break;
 			}

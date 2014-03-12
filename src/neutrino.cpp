@@ -704,6 +704,7 @@ int CNeutrinoApp::loadSetup(const char * fname)
 		}
 	}
 	g_settings.record_hours = configfile.getInt32( "record_hours", 4 );
+	g_settings.timeshift_hours = configfile.getInt32( "timeshift_hours", 4 );
 	g_settings.filesystem_is_utf8              = configfile.getBool("filesystem_is_utf8"                 , true );
 
 	//recording (server + vcr)
@@ -1332,6 +1333,7 @@ void CNeutrinoApp::saveSetup(const char * fname)
 	configfile.setInt32( "auto_timeshift", g_settings.auto_timeshift );
 	configfile.setInt32( "auto_delete", g_settings.auto_delete );
 	configfile.setInt32( "record_hours", g_settings.record_hours );
+	configfile.setInt32( "timeshift_hours", g_settings.timeshift_hours );
 	//printf("set: key_unlock =============== %d\n", g_settings.key_unlock);
 #if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
 	configfile.setInt32( "screenshot_png_compression", g_settings.screenshot_png_compression );
