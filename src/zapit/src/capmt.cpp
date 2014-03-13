@@ -186,14 +186,6 @@ CCamManager * CCamManager::getInstance(void)
 	return manager;
 }
 
-void CCamManager::StopCam(t_channel_id channel_id, CCam *cam)
-{
-	cam->sendMessage(NULL, 0, false);
-	cam->sendCaPmt(channel_id, NULL, 0);
-	channel_map.erase(channel_id);
-	delete cam;
-}
-
 bool CCamManager::SetMode(t_channel_id channel_id, enum runmode mode, bool start, bool force_update)
 {
 	CCam * cam;
@@ -203,7 +195,12 @@ bool CCamManager::SetMode(t_channel_id channel_id, enum runmode mode, bool start
 
 	CZapitChannel * channel = CServiceManager::getInstance()->FindChannel(channel_id);
 
-	OpenThreads::ScopedLock<OpenThreads::Mutex> m_lock(mutex);
+	if(channel == NULL) {
+		printf("CCamManager: channel %" PRIx64 " not found\n", channel_id);
+		return false;
+	}
+	//INFO("channel %llx [%s] mode %d %s update %d", channel_id, channel->getName().c_str(), mode, start ? "START" : "STOP", force_update);
+	mutex.lock();
 
 	cammap_iterator_t it = channel_map.find(channel_id);
 	if(it != channel_map.end()) {
@@ -212,14 +209,9 @@ bool CCamManager::SetMode(t_channel_id channel_id, enum runmode mode, bool start
 		cam = new CCam();
 		channel_map.insert(std::pair<t_channel_id, CCam*>(channel_id, cam));
 	} else {
+		mutex.unlock();
 		return false;
 	}
-	if(channel == NULL) {
-		printf("CCamManager: channel %" PRIx64 " not found\n", channel_id);
-		StopCam(channel_id, cam);
-		return false;
-	}
-	//INFO("channel %llx [%s] mode %d %s update %d", channel_id, channel->getName().c_str(), mode, start ? "START" : "STOP", force_update);
 
 	/* FIXME until proper demux management */
 	CFrontend *frontend = NULL;
@@ -285,15 +277,11 @@ bool CCamManager::SetMode(t_channel_id channel_id, enum runmode mode, bool start
 	if((oldmask != newmask) || force_update) {
 		cam->setCaMask(newmask);
 		cam->setSource(source);
-<<<<<<< HEAD
 		if(newmask == 0) {
 			cam->sendMessage(NULL, 0, false);
 //			cam->sendCaPmt(channel->getChannelID(), NULL, 0);
 			cam->sendCaPmt(channel->getChannelID(), NULL, 0, channel->scrambled, channel->camap, mode, start);
 		} else {
-=======
-		if(newmask != 0) {
->>>>>>> 90b9469e3b2d2c9f50a9aee9a0b691d9677e6b13
 			cam->makeCaPmt(channel, true);
 			cam->setCaPmt(true);
 			// CI
@@ -325,9 +313,9 @@ bool CCamManager::SetMode(t_channel_id channel_id, enum runmode mode, bool start
 		/* FIXME: back to live channel from playback dont parse pmt and call setCaPmt
 		 * (see CMD_SB_LOCK / UNLOCK PLAYBACK */
 		//channel->setRawPmt(NULL);//FIXME
-		StopCam(channel_id, cam);
+		channel_map.erase(channel_id);
+		delete cam;
 	}
-<<<<<<< HEAD
 	// CI
 	if (mode && !start) {
 		CaIdVector caids;
@@ -345,23 +333,6 @@ bool CCamManager::SetMode(t_channel_id channel_id, enum runmode mode, bool start
 				continue;
 			if(!channel->scrambled)
 				continue;
-=======
-
-	CaIdVector caids;
-	cCA::GetInstance()->GetCAIDS(caids);
-	//uint8_t list = CCam::CAPMT_FIRST;
-	uint8_t list = CCam::CAPMT_ONLY;
-	if (channel_map.size() > 1)
-		list = CCam::CAPMT_ADD;
-	for (it = channel_map.begin(); it != channel_map.end(); /*++it*/)
-	{
-		cam = it->second;
-		channel = CServiceManager::getInstance()->FindChannel(it->first);
-		++it;
-		if(!channel)
-			continue;
-
->>>>>>> 90b9469e3b2d2c9f50a9aee9a0b691d9677e6b13
 #if 0
 			if (it == channel_map.end())
 				list |= CCam::CAPMT_LAST; // FIRST->ONLY or MORE->LAST
@@ -374,6 +345,7 @@ bool CCamManager::SetMode(t_channel_id channel_id, enum runmode mode, bool start
 			//list = CCam::CAPMT_MORE;
 		}
 	}
+	mutex.unlock();
 
 	return true;
 }
