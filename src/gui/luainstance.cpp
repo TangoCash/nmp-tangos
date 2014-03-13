@@ -1616,6 +1616,7 @@ int CLuaInstance::ComponentsTextPaint(lua_State *L)
 		return 0;
 
 	m->ct->paint(do_save_bg);
+	CFrameBuffer::getInstance()->blit();
 	return 0;
 }
 
@@ -1631,6 +1632,7 @@ int CLuaInstance::ComponentsTextHide(lua_State *L)
 		return 0;
 
 	m->ct->hide(no_restore);
+	CFrameBuffer::getInstance()->blit();
 	return 0;
 }
 
@@ -1654,6 +1656,7 @@ int CLuaInstance::ComponentsTextScroll(lua_State *L)
 		else
 			ctb->scrollPageUp(1);
 		ctb->enableBackgroundPaint(false);
+		CFrameBuffer::getInstance()->blit();
 	}
 	return 0;
 }
@@ -1666,6 +1669,7 @@ int CLuaInstance::ComponentsTextDelete(lua_State *L)
 
 	m->ct->kill();
 	delete m;
+	CFrameBuffer::getInstance()->blit();
 	return 0;
 }
 
