@@ -48,6 +48,7 @@
 #include <gui/widget/stringinput_ext.h>
 
 #include <timerdclient/timerdclient.h>
+
 #include <driver/screen_max.h>
 #include <driver/record.h>
 
@@ -208,12 +209,17 @@ int CRecordSetup::showRecordSetup()
 		CMenuOptionChooser* slow_warn = new CMenuOptionChooser(LOCALE_RECORDINGMENU_SLOW_WARN, &g_settings.recording_slow_warning, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true);
 		slow_warn->setHint("", LOCALE_MENU_HINT_RECORD_SLOW_WARN);
 		recordingSettings->addItem(slow_warn);
+
 		CMenuOptionChooser* startstop_msg = new CMenuOptionChooser(LOCALE_RECORDING_STARTSTOP_MSG, &g_settings.recording_startstop_msg, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true);
 		startstop_msg->setHint("", LOCALE_MENU_HINT_RECORD_STARTSTOP_MSG);
 		recordingSettings->addItem(startstop_msg);
 
 	//template
 	//CStringInput recordingSettings_filenameTemplate(LOCALE_RECORDINGMENU_FILENAME_TEMPLATE, &g_settings.recording_filename_template[0], 21, LOCALE_RECORDINGMENU_FILENAME_TEMPLATE_HINT, LOCALE_IPSETUP_HINT_2, "%/-_abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789 ");
+	CStringInputSMS* filename_template = new CStringInputSMS(LOCALE_RECORDINGMENU_FILENAME_TEMPLATE, &g_settings.recording_filename_template, 21, LOCALE_RECORDINGMENU_FILENAME_TEMPLATE_HINT, LOCALE_RECORDINGMENU_FILENAME_TEMPLATE_HINT2, "%/-_abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789 ");
+	CMenuForwarder* ft = new CMenuDForwarder(LOCALE_RECORDINGMENU_FILENAME_TEMPLATE, true, g_settings.recording_filename_template, filename_template, NULL, CRCInput::RC_1);
+	ft->setHint("", LOCALE_MENU_HINT_RECORD_FILENAME_TEMPLATE);
+	recordingSettings->addItem(ft);
 	//CMenuForwarder* mf11 = new CMenuForwarder(LOCALE_RECORDINGMENU_FILENAME_TEMPLATE, true, g_settings.recording_filename_template[0], &recordingSettings_filenameTemplate);
 #if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
 	CMenuOptionNumberChooser *ch;
@@ -240,8 +246,8 @@ int CRecordSetup::showRecordSetup()
 		mf->setHint("", LOCALE_MENU_HINT_RECORD_TIMER);
 		recordingSettings->addItem(mf);
 
-		//audiosettings
 	CMenuWidget recordingaAudioSettings(LOCALE_MAINSETTINGS_RECORDING, NEUTRINO_ICON_SETTINGS, width, MN_WIDGET_ID_RECORDSETUP_AUDIOSETTINGS);
+		//audiosettings
 		showRecordAudioSetup(&recordingaAudioSettings);
 		mf = new CMenuForwarder(LOCALE_RECORDINGMENU_APIDS, true, NULL, &recordingaAudioSettings, NULL, CRCInput::RC_blue, NEUTRINO_ICON_BUTTON_BLUE);
 		mf->setHint("", LOCALE_MENU_HINT_RECORD_APIDS);
@@ -250,7 +256,7 @@ int CRecordSetup::showRecordSetup()
 		//datasettings
 	CMenuWidget recordingaDataSettings(LOCALE_MAINSETTINGS_RECORDING, NEUTRINO_ICON_SETTINGS, width, MN_WIDGET_ID_RECORDSETUP_DATASETTINGS);
 		showRecordDataSetup(&recordingaDataSettings);
-		mf = new CMenuForwarder(LOCALE_RECORDINGMENU_DATA_PIDS, true, NULL, &recordingaDataSettings, NULL,  CRCInput::RC_1);
+		mf = new CMenuForwarder(LOCALE_RECORDINGMENU_DATA_PIDS, true, NULL, &recordingaDataSettings, NULL,  CRCInput::RC_2);
 		mf->setHint("", LOCALE_MENU_HINT_RECORD_DATA);
 		recordingSettings->addItem(mf);
 
@@ -273,18 +279,18 @@ void CRecordSetup::showRecordTimerSetup(CMenuWidget *menu_timersettings)
 	g_settings.record_safety_time_after = post/60;
 
 	menu_timersettings->addIntroItems(LOCALE_TIMERSETTINGS_SEPARATOR);
-	//start
+
 	std::string nf = "%d ";
 	nf += g_Locale->getText(LOCALE_UNIT_SHORT_MINUTE);
 
-	//end
+	//start
 	CMenuOptionNumberChooser *ch = new CMenuOptionNumberChooser(LOCALE_TIMERSETTINGS_RECORD_SAFETY_TIME_BEFORE,
 		&g_settings.record_safety_time_before, true, 0, 99, this);
 	ch->setNumberFormat(nf);
 	ch->setHint("", LOCALE_MENU_HINT_RECORD_TIMEBEFORE);
 	menu_timersettings->addItem(ch);
 
-	//announce
+	//end
 	ch = new CMenuOptionNumberChooser(LOCALE_TIMERSETTINGS_RECORD_SAFETY_TIME_AFTER,
 		&g_settings.record_safety_time_after, true, 0, 99, this);
 	ch->setNumberFormat(nf);
@@ -297,7 +303,7 @@ void CRecordSetup::showRecordTimerSetup(CMenuWidget *menu_timersettings)
 	chzapAnnounce->setHint("", LOCALE_MENU_HINT_RECORD_ZAP);
 	menu_timersettings->addItem(chzapAnnounce);
 
-
+	//zapto
 	ch = new CMenuOptionNumberChooser(LOCALE_MISCSETTINGS_ZAPTO_PRE_TIME,
 		&g_settings.zapto_pre_time, true, 0, 10);
 	ch->setHint("", LOCALE_MENU_HINT_RECORD_ZAP_PRE_TIME);
