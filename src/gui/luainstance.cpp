@@ -667,7 +667,7 @@ int CLuaInstance::GetLanguage(lua_State *L)
 	return 1;
 }
 
-bool CLuaInstance::tableLookup(lua_State *L, const char *what, std::string &value)
+bool CLuaInstance::tableLookup(lua_State *L, const char *what, std::string value)
 {
 	bool res = false;
 	lua_pushstring(L, what);
@@ -679,7 +679,7 @@ bool CLuaInstance::tableLookup(lua_State *L, const char *what, std::string &valu
 	return res;
 }
 
-bool CLuaInstance::tableLookup(lua_State *L, const char *what, lua_Integer &value)
+bool CLuaInstance::tableLookup(lua_State *L, const char *what, lua_Integer value)
 {
 	bool res = false;
 	lua_pushstring(L, what);
@@ -688,6 +688,7 @@ bool CLuaInstance::tableLookup(lua_State *L, const char *what, lua_Integer &valu
 	if (res)
 		value = lua_tointeger(L, -1);
 	lua_pop(L, 1);
+	(void) value;
 	return res;
 }
 
@@ -863,7 +864,7 @@ int CLuaInstance::MenuNew(lua_State *L)
 		std::string name, icon;
 		tableLookup(L, "name", name) || tableLookup(L, "title", name);
 		tableLookup(L, "icon", icon);
-		lua_Integer mwidth;
+		lua_Integer mwidth = 0;
 		if(tableLookup(L, "mwidth", mwidth))
 			m = new CMenuWidget(name.c_str(), icon.c_str(), mwidth);
 		else
