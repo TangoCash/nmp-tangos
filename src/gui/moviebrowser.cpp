@@ -4307,7 +4307,8 @@ static off64_t truncate_movie(MI_MOVIE_INFO * minfo)
 		else
 			snprintf(spart, sizeof(spart), "%s", name);
 printf("truncate: part %s to size %" PRId64 "\n", spart, secoffset);
-		truncate(spart, secoffset);
+		int ret = truncate(spart, secoffset);
+		(void) ret; // suppress warnings, but should be checked anyway!
 		minfo->file.Size = newsize;
 		minfo->length = minfo->bookmarks.end/60;
 		minfo->bookmarks.end = 0;
@@ -4463,6 +4464,7 @@ static off64_t cut_movie(MI_MOVIE_INFO * minfo, CMovieInfo * cmovie)
 	char spart[255];
 	char dpart[255];
 	char npart[255];
+	ssize_t ret_temp; // for warning suppression
 
 	unsigned char psi[PSI_SIZE];
 	int r, i;
@@ -4583,7 +4585,8 @@ printf("\n********* new file %s expected size %" PRId64 ", start time %s", dpart
 		perror(spart);
 		goto ret_err;
 	}
-	write(dstfd, psi, PSI_SIZE);
+	ret_temp = write(dstfd, psi, PSI_SIZE);
+	(void) ret_temp; // suppress warnings
 	bpos = books[i].pos;
 	bskip = books[i].len;
 	while (!stat64(spart, &s)) {
@@ -4816,7 +4819,8 @@ printf("copy: new file %s fd %d\n", dpart, dstfd);
 			}
 			dst_done = 1;
 			spos = 0;
-			write(dstfd, psi, PSI_SIZE);
+			ssize_t ret = write(dstfd, psi, PSI_SIZE);
+			(void) ret; // suppress warnings
 		}
 		need_gop = 1;
 next_file:
