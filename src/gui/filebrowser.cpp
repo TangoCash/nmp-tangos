@@ -59,21 +59,21 @@
 #include <system/helpers.h>
 #include <xmltree/xmlinterface.h>
 
-#ifdef __USE_FILE_OFFSET64
-typedef struct dirent64 dirent_struct;
-#define my_alphasort alphasort64
-#define my_scandir scandir64
-typedef struct stat64 stat_struct;
-#define my_stat stat64
-#define my_lstat lstat64
+#if defined (__x86_64__) || (__amd64__) || (__ppc64__) || (__mips64__) || (__arm64__)
+	typedef struct dirent64 dirent_struct;
+	#define my_alphasort alphasort64
+	#define my_scandir scandir64
+	typedef struct stat64 stat_struct;
+	#define my_stat stat64
+	#define my_lstat lstat64
 #else
-typedef struct dirent dirent_struct;
-#define my_alphasort alphasort
-#define my_scandir scandir
-typedef struct stat stat_struct;
-#define my_stat stat
-#define my_lstat lstat
-#error not using 64 bit file offsets
+	typedef struct dirent dirent_struct;
+	#define my_alphasort alphasort
+	#define my_scandir scandir
+	typedef struct stat stat_struct;
+	#define my_stat stat
+	#define my_lstat lstat
+	#error not using 64 bit file offsets
 #endif
 
 #define SMSKEY_TIMEOUT 2000
