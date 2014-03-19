@@ -2181,7 +2181,9 @@ fprintf(stderr, "[neutrino start] %d  -> %5ld ms\n", __LINE__, time_monotonic_ms
 #if !HAVE_SPARK_HARDWARE && !HAVE_DUCKBOX_HARDWARE
 	timer_wakeup = false;//init
 	wake_up( timer_wakeup );
-	pthread_create (&timer_thread, NULL, timerd_main_thread, (void *) (timer_wakeup && g_settings.shutdown_timer_record_type));
+
+	timer_wakeup = (timer_wakeup && g_settings.shutdown_timer_record_type); // store result in lvalue for passing to thread
+	pthread_create (&timer_thread, NULL, timerd_main_thread, static_cast<void*>(&timer_wakeup));
 	timerd_thread_started = true;
 
 	init_cec_setting = true;
