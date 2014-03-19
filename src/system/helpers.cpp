@@ -239,6 +239,29 @@ int safe_mkdir(char * path)
 	return mkdir(path, 0755);
 }
 
+int safe_mkdir(std::string path)
+{
+	char* tmp_str = 0; // should be replaced by nullptr in c++11
+	int ret_val = -1;
+	if (0 == path.size())
+	{
+		return ret_val;
+	}
+
+	tmp_str = new char[path.size()];
+	if (0 == tmp_str)
+	{
+		// mem alloc failed!
+		return ret_val;
+	}
+
+	strcpy(tmp_str, path.c_str());
+	ret_val = safe_mkdir(tmp_str);
+	delete[] tmp_str;
+
+	return ret_val;
+}
+
 /* function used to check is this dir writable, i.e. not flash, for record etc */
 int check_dir(const char * dir, bool allow_tmp)
 {
