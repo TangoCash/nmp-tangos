@@ -73,7 +73,7 @@
 	typedef struct stat stat_struct;
 	#define my_stat stat
 	#define my_lstat lstat
-	#error not using 64 bit file offsets
+	#warning not using 64 bit file offsets
 #endif
 
 #define SMSKEY_TIMEOUT 2000
