@@ -667,7 +667,7 @@ int CLuaInstance::GetLanguage(lua_State *L)
 	return 1;
 }
 
-bool CLuaInstance::tableLookup(lua_State *L, const char *what, std::string value)
+bool CLuaInstance::tableLookup(lua_State *L, const char *what, std::string &value)
 {
 	bool res = false;
 	lua_pushstring(L, what);
@@ -679,7 +679,7 @@ bool CLuaInstance::tableLookup(lua_State *L, const char *what, std::string value
 	return res;
 }
 
-bool CLuaInstance::tableLookup(lua_State *L, const char *what, lua_Integer value)
+bool CLuaInstance::tableLookup(lua_State *L, const char *what, lua_Integer &value)
 {
 	bool res = false;
 	lua_pushstring(L, what);

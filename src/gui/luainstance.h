@@ -240,8 +240,8 @@ private:
 	static int CPictureHide(lua_State *L);
 	static int CPictureSetPicture(lua_State *L);
 	static int CPictureDelete(lua_State *L);
-	static bool tableLookup(lua_State*, const char*, std::string);
-	static bool tableLookup(lua_State*, const char*, lua_Integer);
+	static bool tableLookup(lua_State*, const char*, std::string&);
+	static bool tableLookup(lua_State*, const char*, lua_Integer&);
 	static bool tableLookup(lua_State*, const char*, void**);
 };
 
