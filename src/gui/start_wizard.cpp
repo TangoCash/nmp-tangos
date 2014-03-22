@@ -69,7 +69,7 @@ CStartUpWizard::~CStartUpWizard()
 const CMenuOptionChooser::keyval WIZARD_SETUP_TYPE[] =
 {
 	{ 0, LOCALE_WIZARD_SETUP_EASY },
-	{ 1, LOCALE_WIZARD_SETUP_ADVANCED },
+	{ 1, LOCALE_WIZARD_SETUP_ADVANCED }
 };
 
 int CStartUpWizard::exec(CMenuTarget* parent, const string & /*actionKey*/)

@@ -1390,7 +1390,7 @@ bool chooserDir(std::string &setting_dir, bool test_dir, const char *action_str,
 const struct button_label FileBrowserFilterButton[2] =
 {
 	{ NEUTRINO_ICON_BUTTON_BLUE  , LOCALE_FILEBROWSER_FILTER_INACTIVE },
-	{ NEUTRINO_ICON_BUTTON_BLUE  , LOCALE_FILEBROWSER_FILTER_ACTIVE   },
+	{ NEUTRINO_ICON_BUTTON_BLUE  , LOCALE_FILEBROWSER_FILTER_ACTIVE   }
 };
 
 void CFileBrowser::paintFoot()
@@ -1399,14 +1399,14 @@ void CFileBrowser::paintFoot()
 	{
 		{ NEUTRINO_ICON_BUTTON_RED   , LOCALE_FILEBROWSER_NEXTPAGE        },
 		{ NEUTRINO_ICON_BUTTON_GREEN , LOCALE_FILEBROWSER_PREVPAGE        },
-		{ NEUTRINO_ICON_BUTTON_YELLOW, LOCALE_FILEBROWSER_MARK            },
+		{ NEUTRINO_ICON_BUTTON_YELLOW, LOCALE_FILEBROWSER_MARK            }
 	};
 
 	const struct button_label FileBrowserButtons2[3] =
 	{
 		{ NEUTRINO_ICON_BUTTON_OKAY		, LOCALE_FILEBROWSER_SELECT				},
 		{ NEUTRINO_ICON_BUTTON_HELP		, sortByNames[g_settings.filebrowser_sortmethod]	},
-		{ NEUTRINO_ICON_BUTTON_MUTE_SMALL	, LOCALE_FILEBROWSER_DELETE				},
+		{ NEUTRINO_ICON_BUTTON_MUTE_SMALL	, LOCALE_FILEBROWSER_DELETE				}
 	};
 
 // 	int iw = 0, ih = 0; 

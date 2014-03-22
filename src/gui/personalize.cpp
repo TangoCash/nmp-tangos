@@ -182,19 +182,19 @@ const CMenuOptionChooser::keyval PERSONALIZE_MODE_OPTIONS[CPersonalizeGui::PERSO
 {
 	{ CPersonalizeGui::PERSONALIZE_MODE_NOTVISIBLE	, LOCALE_PERSONALIZE_NOTVISIBLE      	},// The option is NOT visible on the menu's
 	{ CPersonalizeGui::PERSONALIZE_MODE_VISIBLE	, LOCALE_PERSONALIZE_VISIBLE         	},// The option is visible on the menu's
-	{ CPersonalizeGui::PERSONALIZE_MODE_PIN		, LOCALE_PERSONALIZE_PIN      		},// PIN Protect the item on the menu
+	{ CPersonalizeGui::PERSONALIZE_MODE_PIN		, LOCALE_PERSONALIZE_PIN      		}// PIN Protect the item on the menu
 };
 
 const CMenuOptionChooser::keyval PERSONALIZE_ACTIVE_MODE_OPTIONS[CPersonalizeGui::PERSONALIZE_ACTIVE_MODE_MAX] =
 {
 	{ CPersonalizeGui::PERSONALIZE_ACTIVE_MODE_DISABLED	, LOCALE_PERSONALIZE_DISABLED        	},// The option is NOT enabled / accessible
-	{ CPersonalizeGui::PERSONALIZE_ACTIVE_MODE_ENABLED	, LOCALE_PERSONALIZE_ENABLED         	},// The option is enabled / accessible
+	{ CPersonalizeGui::PERSONALIZE_ACTIVE_MODE_ENABLED	, LOCALE_PERSONALIZE_ENABLED         	}// The option is enabled / accessible
 };
 
 const CMenuOptionChooser::keyval PERSONALIZE_PROTECT_MODE_OPTIONS[CPersonalizeGui::PERSONALIZE_PROTECT_MODE_MAX] =
 {
 	{ CPersonalizeGui::PERSONALIZE_PROTECT_MODE_NOT_PROTECTED	, LOCALE_PERSONALIZE_NOTPROTECTED    	},// The menu/option is NOT protected
-	{ CPersonalizeGui::PERSONALIZE_PROTECT_MODE_PIN_PROTECTED	, LOCALE_PERSONALIZE_PINPROTECT      	},// The menu/option is protected by a PIN
+	{ CPersonalizeGui::PERSONALIZE_PROTECT_MODE_PIN_PROTECTED	, LOCALE_PERSONALIZE_PINPROTECT      	}// The menu/option is protected by a PIN
 };
 
 CPersonalizeGui::CPersonalizeGui() : CPINProtection(g_settings.personalize_pincode)
