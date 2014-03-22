@@ -315,10 +315,12 @@ int CScanSetup::exec(CMenuTarget* parent, const std::string &actionKey)
 			return menu_return::RETURN_EXIT_ALL;
 		return res;
 	}
+#ifdef ENABLE_FASTSCAN
 	if (actionKey == "fastdiseqc") {
 		printf("[neutrino] CScanSetup::%s: showFastscanDiseqcSetup()\n", __FUNCTION__);
 		return showFastscanDiseqcSetup();
 	}
+#endif
 	std::string scants_key[] = {"all", "manual", "test", "fast", "auto"/*doesn't exists in CScanTs!*/};
 
 	if (actionKey.size() > 1) {
