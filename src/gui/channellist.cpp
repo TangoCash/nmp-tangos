@@ -1009,8 +1009,11 @@ int CChannelList::show()
 		printf("CChannelList:: bouquetList->exec res %d\n", res);
 	}
 
-	if (headerClock)
+	if (headerClock) {
+		if (headerClock->isPainted())
+			headerClock->hide();
 		headerClock->Stop();
+	}
 
 	if(NeutrinoMessages::mode_ts == CNeutrinoApp::getInstance()->getMode())
 		return -1;
@@ -1038,6 +1041,8 @@ void CChannelList::hide()
 		cc_minitv = NULL;
 	}
 	if (headerClock) {
+		if (headerClock->isPainted())
+			headerClock->hide();
 		headerClock->Stop();
 		headerClock->kill();
 	}
