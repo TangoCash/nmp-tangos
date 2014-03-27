@@ -173,6 +173,7 @@ struct SNeutrinoSettings
 	int epg_extendedcache;
 	std::string epg_dir;
 	int epg_scan;
+	int epg_scan_mode;
 
 	int epg_search_history_size;
 	int epg_search_history_max;

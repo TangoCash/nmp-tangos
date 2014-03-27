@@ -52,6 +52,7 @@
 #include <gui/widget/messagebox.h>
 
 #include <driver/screen_max.h>
+#include <driver/scanepg.h>
 
 #include <system/debug.h>
 #include <zapit/femanager.h>
@@ -204,13 +205,22 @@ const CMenuOptionChooser::keyval_ext CPU_FREQ_OPTIONS[CPU_FREQ_OPTION_COUNT] =
 };
 #endif /*CPU_FREQ*/
 
-#define EPG_SCAN_OPTION_COUNT 3
-const CMenuOptionChooser::keyval EPG_SCAN_OPTIONS[EPG_SCAN_OPTION_COUNT] =
+const CMenuOptionChooser::keyval EPG_SCAN_OPTIONS[] =
 {
-	{ 0, LOCALE_OPTIONS_OFF },
-	{ 1, LOCALE_MISCSETTINGS_EPG_SCAN_BQ },
-	{ 2, LOCALE_MISCSETTINGS_EPG_SCAN_FAV }
+	{ CEpgScan::SCAN_OFF,     LOCALE_OPTIONS_OFF },
+	{ CEpgScan::SCAN_CURRENT, LOCALE_MISCSETTINGS_EPG_SCAN_BQ },
+	{ CEpgScan::SCAN_FAV,     LOCALE_MISCSETTINGS_EPG_SCAN_FAV },
+	{ CEpgScan::SCAN_SEL,     LOCALE_MISCSETTINGS_EPG_SCAN_SEL },
 };
+#define EPG_SCAN_OPTION_COUNT (sizeof(EPG_SCAN_OPTIONS)/sizeof(CMenuOptionChooser::keyval))
+
+const CMenuOptionChooser::keyval EPG_SCAN_MODE_OPTIONS[] =
+{
+	{ CEpgScan::MODE_LIVE,     LOCALE_MISCSETTINGS_EPG_SCAN_LIVE },
+	{ CEpgScan::MODE_STANDBY,  LOCALE_MISCSETTINGS_EPG_SCAN_STANDBY },
+	{ CEpgScan::MODE_ALWAYS,   LOCALE_MISCSETTINGS_EPG_SCAN_ALWAYS }
+};
+#define EPG_SCAN_MODE_OPTION_COUNT (sizeof(EPG_SCAN_MODE_OPTIONS)/sizeof(CMenuOptionChooser::keyval))
 
 #define SLEEPTIMER_MIN_OPTION_COUNT 7
 const CMenuOptionChooser::keyval_ext SLEEPTIMER_MIN_OPTIONS[SLEEPTIMER_MIN_OPTION_COUNT] =
@@ -267,18 +277,16 @@ int CMiscMenue::showMiscSettingsMenu()
 	//cec settings
 	CCECSetup cecsetup;
 	if (g_info.hw_caps->can_cec) {
-		mf = new CMenuForwarder(LOCALE_VIDEOMENU_HDMI_CEC, true, NULL, &cecsetup, NULL, CRCInput::RC_1);
-		mf->setHint("", LOCALE_MENU_HINT_MISC_CEC);
-		misc_menue.addItem(mf);
+	mf = new CMenuForwarder(LOCALE_VIDEOMENU_HDMI_CEC, true, NULL, &cecsetup, NULL, CRCInput::RC_1);
+	mf->setHint("", LOCALE_MENU_HINT_MISC_CEC);
+	misc_menue.addItem(mf);
 	}
 
-//	if (!g_info.hw_caps->can_shutdown) {
-		/* we don't have the energy menu, but put the sleeptimer directly here */
+	//channellist
 /*		mf = new CMenuDForwarder(LOCALE_MISCSETTINGS_SLEEPTIMER, true, &g_settings.shutdown_min, new CSleepTimerWidget, "permanent", CRCInput::RC_1);
 		mf->setHint("", LOCALE_MENU_HINT_INACT_TIMER);
 		misc_menue.addItem(mf);
 	}*/
-	//channellist
 	mf = new CMenuForwarder(LOCALE_MISCSETTINGS_CHANNELLIST, true, NULL, this, "channellist", CRCInput::RC_2);
 	mf->setHint("", LOCALE_MENU_HINT_MISC_CHANNELLIST);
 	misc_menue.addItem(mf);
@@ -301,7 +309,6 @@ int CMiscMenue::showMiscSettingsMenu()
 	KernelOptions_Menu kernelOptions;
 	misc_menue.addItem(new CMenuForwarder(LOCALE_KERNELOPTIONS_HEAD, true, NULL, &kernelOptions, NULL, CRCInput::RC_5));
 #endif
-
 	int res = misc_menue.exec(NULL, "");
 
 	g_settings.epg_cache = atoi(epg_cache.c_str());
@@ -378,7 +385,7 @@ int CMiscMenue::showMiscSettingsMenuEnergy()
 	CStringInput * miscSettings_shutdown_count = new CStringInput(LOCALE_MISCSETTINGS_SHUTDOWN_COUNT, &shutdown_count, 3, LOCALE_MISCSETTINGS_SHUTDOWN_COUNT_HINT1, LOCALE_MISCSETTINGS_SHUTDOWN_COUNT_HINT2, "0123456789 ");
 	CMenuForwarder *m2 = new CMenuDForwarder(LOCALE_MISCSETTINGS_SHUTDOWN_COUNT, !g_settings.shutdown_real, shutdown_count, miscSettings_shutdown_count);
 	m2->setHint("", LOCALE_MENU_HINT_SHUTDOWN_COUNT);
-	
+
 	COnOffNotifier * miscNotifier = new COnOffNotifier(1);
 	miscNotifier->addItem(m1);
 	miscNotifier->addItem(m2);
@@ -398,9 +405,9 @@ int CMiscMenue::showMiscSettingsMenuEnergy()
 	m4->setHint("", LOCALE_MENU_HINT_SLEEPTIMER_MIN);
 	ms_energy->addItem(m4);
 
-	CMenuOptionChooser *cec_ch = new CMenuOptionChooser(LOCALE_VIDEOMENU_HDMI_CEC, &g_settings.hdmi_cec_mode, VIDEOMENU_HDMI_CEC_MODE_OPTIONS, VIDEOMENU_HDMI_CEC_MODE_OPTION_COUNT, true, this);
-	cec_ch->setHint("", LOCALE_MENU_HINT_CEC_MODE);
-	ms_energy->addItem(cec_ch);
+		CMenuOptionChooser *cec_ch = new CMenuOptionChooser(LOCALE_VIDEOMENU_HDMI_CEC, &g_settings.hdmi_cec_mode, VIDEOMENU_HDMI_CEC_MODE_OPTIONS, VIDEOMENU_HDMI_CEC_MODE_OPTION_COUNT, true, this);
+		cec_ch->setHint("", LOCALE_MENU_HINT_CEC_MODE);
+		ms_energy->addItem(cec_ch);
 
 	int res = ms_energy->exec(NULL, "");
 
@@ -466,6 +473,9 @@ void CMiscMenue::showMiscSettingsMenuEpg(CMenuWidget *ms_epg)
 		true /*CFEManager::getInstance()->getEnabledCount() > 1*/);
 	mc2->setHint("", LOCALE_MENU_HINT_EPG_SCAN);
 
+	CMenuOptionChooser * mc3 = new CMenuOptionChooser(LOCALE_MISCSETTINGS_EPG_SCAN, &g_settings.epg_scan_mode, EPG_SCAN_MODE_OPTIONS, EPG_SCAN_MODE_OPTION_COUNT,
+		CFEManager::getInstance()->getEnabledCount() > 1);
+	mc3->setHint("", LOCALE_MENU_HINT_EPG_SCAN_MODE);
 	ms_epg->addItem(mc);
 	ms_epg->addItem(mc1);
 	ms_epg->addItem(mf);
@@ -474,6 +484,7 @@ void CMiscMenue::showMiscSettingsMenuEpg(CMenuWidget *ms_epg)
 	ms_epg->addItem(mf3);
 	ms_epg->addItem(mf4);
 	ms_epg->addItem(mc2);
+	ms_epg->addItem(mc3);
 }
 
 //filebrowser settings

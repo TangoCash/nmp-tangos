@@ -542,6 +542,7 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	g_settings.epg_save = configfile.getBool("epg_save", false);
 	g_settings.epg_save_standby = configfile.getBool("epg_save_standby", true);
 	g_settings.epg_scan = configfile.getInt32("epg_scan", 0);
+	g_settings.epg_scan_mode = configfile.getInt32("epg_scan_mode", CEpgScan::MODE_ALWAYS);
 	//widget settings
 	g_settings.widget_fade = false;
 	g_settings.widget_fade           = configfile.getBool("widget_fade"          , false );
@@ -1160,6 +1161,7 @@ void CNeutrinoApp::saveSetup(const char * fname)
 	configfile.setBool("epg_save", g_settings.epg_save);
 	configfile.setBool("epg_save_standby", g_settings.epg_save_standby);
 	configfile.setInt32("epg_scan", g_settings.epg_scan);
+	configfile.setInt32("epg_scan_mode", g_settings.epg_scan_mode);
 	configfile.setInt32("epg_cache_time"           ,g_settings.epg_cache );
 	configfile.setInt32("epg_extendedcache_time"   ,g_settings.epg_extendedcache);
 	configfile.setInt32("epg_old_events"           ,g_settings.epg_old_events );
@@ -2181,7 +2183,6 @@ fprintf(stderr, "[neutrino start] %d  -> %5ld ms\n", __LINE__, time_monotonic_ms
 #if !HAVE_SPARK_HARDWARE && !HAVE_DUCKBOX_HARDWARE
 	timer_wakeup = false;//init
 	wake_up( timer_wakeup );
-
 	timer_wakeup = (timer_wakeup && g_settings.shutdown_timer_record_type); // store result in lvalue for passing to thread
 	pthread_create (&timer_thread, NULL, timerd_main_thread, static_cast<void*>(&timer_wakeup));
 	timerd_thread_started = true;
@@ -2490,6 +2491,7 @@ void CNeutrinoApp::RealRun(CMenuWidget &mainMenu)
 					InfoClock->enableInfoClock(false);
 					int old_ttx = g_settings.cacheTXT;
 					int old_epg = g_settings.epg_scan;
+					int old_mode = g_settings.epg_scan_mode;
 					mainMenu.exec(NULL, "");
 					InfoClock->enableInfoClock(true);
 #if HAVE_DUCKBOX_HARDWARE || BOXMODEL_SPARK7162
@@ -2497,7 +2499,7 @@ void CNeutrinoApp::RealRun(CMenuWidget &mainMenu)
 #endif
 					StartSubtitles();
 					saveSetup(NEUTRINO_SETTINGS_FILE);
-					if (old_epg != g_settings.epg_scan) {
+					if (old_epg != g_settings.epg_scan || old_mode != g_settings.epg_scan_mode) {
 						if (g_settings.epg_scan)
 							CEpgScan::getInstance()->Start();
 						else
@@ -2887,6 +2889,39 @@ void CNeutrinoApp::zapTo(t_channel_id channel_id)
 	}
 }
 
+void CNeutrinoApp::wakeupFromStandby(void)
+{
+	bool alive = recordingstatus || CEpgScan::getInstance()->Running() ||
+		CStreamManager::getInstance()->StreamStatus();
+
+	if ((mode == mode_standby) && !alive) {
+		cpuFreq->SetCpuFreq(g_settings.cpufreq * 1000 * 1000);
+		if(g_settings.ci_standby_reset) {
+			g_CamHandler->exec(NULL, "ca_ci_reset0");
+			g_CamHandler->exec(NULL, "ca_ci_reset1");
+		}
+		g_Zapit->setStandby(false);
+		g_Zapit->getMode();
+	}
+}
+
+void CNeutrinoApp::standbyToStandby(void)
+{
+	bool alive = recordingstatus || CEpgScan::getInstance()->Running() ||
+		CStreamManager::getInstance()->StreamStatus();
+
+	if ((mode == mode_standby) && !alive) {
+		// zap back to pre-recording channel if necessary
+		t_channel_id live_channel_id = CZapit::getInstance()->GetCurrentChannelID();
+		if (standby_channel_id && (live_channel_id != standby_channel_id)) {
+			live_channel_id = standby_channel_id;
+			channelList->zapTo_ChannelID(live_channel_id);
+		}
+		g_Zapit->setStandby(true);
+		g_Sectionsd->setPauseScanning(true);
+		cpuFreq->SetCpuFreq(g_settings.standby_cpufreq * 1000 * 1000);
+	}
+}
 int CNeutrinoApp::handleMsg(const neutrino_msg_t _msg, neutrino_msg_data_t data)
 {
 	int res = 0;
@@ -3175,24 +3210,10 @@ int CNeutrinoApp::handleMsg(const neutrino_msg_t _msg, neutrino_msg_data_t data)
 		//if(!CRecordManager::getInstance()->RecordingStatus() && was_record && (!data))
 
 		/* no records left and record mode off FIXME check !*/
-		if(!CRecordManager::getInstance()->RecordingStatus() && (!data))
-		{
-			if(mode == mode_standby) {
-				// zap back to pre-recording channel if necessary
-				t_channel_id live_channel_id = CZapit::getInstance()->GetCurrentChannelID();
-				if (standby_channel_id && (live_channel_id != standby_channel_id)) {
-					live_channel_id = standby_channel_id;
-					channelList->zapTo_ChannelID(live_channel_id);
-				}
-				/* do not put zapit to standby, if epg scan not finished */
-				if (!CEpgScan::getInstance()->Running())
-					g_Zapit->setStandby(true);
-				cpuFreq->SetCpuFreq(g_settings.standby_cpufreq * 1000 * 1000);
-			}
+		recordingstatus = data;
 			/* try to wakeup epg scan */
 			CEpgScan::getInstance()->Next();
-		}
-		recordingstatus = data;
+		standbyToStandby();
 		autoshift = CRecordManager::getInstance()->TimeshiftOnly();
 #if HAVE_DUCKBOX_HARDWARE
 		CVFD::getInstance()->ShowIcon(FP_ICON_REC, recordingstatus != 0);
@@ -3208,13 +3229,7 @@ int CNeutrinoApp::handleMsg(const neutrino_msg_t _msg, neutrino_msg_data_t data)
 	else if (msg == NeutrinoMessages::RECORD_START) {
 
 		//FIXME better at announce ?
-		if( mode == mode_standby ) {
-			cpuFreq->SetCpuFreq(g_settings.cpufreq * 1000 * 1000);
-			if(!recordingstatus && g_settings.ci_standby_reset) {
-				g_CamHandler->exec(NULL, "ca_ci_reset0");
-				g_CamHandler->exec(NULL, "ca_ci_reset1");
-			}
-		}
+		wakeupFromStandby();
 #if HAVE_DUCKBOX_HARDWARE
 		CVFD::getInstance()->ShowIcon(FP_ICON_REC, true);
 #endif
@@ -3257,11 +3272,25 @@ int CNeutrinoApp::handleMsg(const neutrino_msg_t _msg, neutrino_msg_data_t data)
 		delete[] (unsigned char*) data;
 		return messages_return::handled;
 	}
+	else if (msg == NeutrinoMessages::EVT_STREAM_START) {
+		int fd = (int) data;
+		printf("NeutrinoMessages::EVT_STREAM_START: fd %d\n", fd);
+		wakeupFromStandby();
+
+		if (!CStreamManager::getInstance()->AddClient(fd))
+			close(fd);
+		return messages_return::handled;
+	}
+	else if (msg == NeutrinoMessages::EVT_STREAM_STOP) {
+		printf("NeutrinoMessages::EVT_STREAM_STOP\n");
+		CEpgScan::getInstance()->Next();
+		standbyToStandby();
+		return messages_return::handled;
+	}
 	else if( msg == NeutrinoMessages::EVT_PMT_CHANGED) {
-		res = messages_return::handled;
 		t_channel_id channel_id = *(t_channel_id*) data;
 		CRecordManager::getInstance()->Update(channel_id);
-		return res;
+		return messages_return::handled;
 	}
 
 	else if( msg == NeutrinoMessages::ZAPTO) {
@@ -4308,7 +4337,9 @@ void stop_daemons(bool stopall, bool for_flash)
 		pthread_join(nhttpd_thread, NULL);
 	}
 	printf("httpd shutdown done\n");
+	printf("streaming shutdown\n");
 	CStreamManager::getInstance()->Stop();
+	printf("streaming shutdown done\n");
 	if(stopall || for_flash) {
 		printf("timerd shutdown\n");
 		if (g_Timerd)
