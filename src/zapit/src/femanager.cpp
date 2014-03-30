@@ -469,12 +469,14 @@ void CFEManager::linkFrontends(bool init)
 			fe->Close();
 			if (!unused_demux) {
 			unused_demux = fe->fenumber + 1;
+			for(int i = 0; i < MAX_DMX_UNITS; i++) {
+				if (demuxes[i] == 0) {
+					unused_demux = i;
+					INFO("pip demux: %d\n", unused_demux);
+					break;
+				}
+			}
 		}
-	for(int i = 0; i < MAX_DMX_UNITS; i++) {
-		if (demuxes[i] == 0) {
-			unused_demux = i;
-			INFO("pip demux: %d\n", unused_demux);
-			break;
 	}
 }
 }
