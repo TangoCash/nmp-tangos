@@ -271,14 +271,11 @@ bool CFEManager::loadSettings()
 			def_mode = CFrontend::FE_MODE_INDEPENDENT;
 		}
 		if (fe->isTerr()) {
-#if 0
 			if (fterr) {
 				fterr = false;
 				def_mode = def_mode0;
 			}
 			if (def_mode > CFrontend::FE_MODE_INDEPENDENT)
-				def_mode = CFrontend::FE_MODE_INDEPENDENT;
-#endif
 			def_mode = CFrontend::FE_MODE_INDEPENDENT;
 		}
 		if (femap.size() == 1)
@@ -455,9 +452,10 @@ void CFEManager::linkFrontends(bool init)
 		}
 		if (init && femode != CFrontend::FE_MODE_UNUSED)
 			fe->Init();
-		if (femode != CFrontend::FE_MODE_UNUSED)
-		{
+		if (femode != CFrontend::FE_MODE_UNUSED) {
 			enabled_count++;
+			if ((fe->fenumber + 1) < MAX_DMX_UNITS)
+				demuxes[fe->fenumber + 1] = 1;
 			if (fe->isSat())
 				have_sat = true;
 			else if (fe->isCable())
@@ -465,20 +463,14 @@ void CFEManager::linkFrontends(bool init)
 			else if (fe->isTerr())
 				have_terr = true;
 		}
-		else {	/* unused -> no need to keep open */
-			fe->Close();
-			if (!unused_demux) {
-			unused_demux = fe->fenumber + 1;
-			for(int i = 0; i < MAX_DMX_UNITS; i++) {
-				if (demuxes[i] == 0) {
-					unused_demux = i;
-					INFO("pip demux: %d\n", unused_demux);
-					break;
-				}
-			}
+	}
+	for(int i = 0; i < MAX_DMX_UNITS; i++) {
+		if (demuxes[i] == 0) {
+			unused_demux = i;
+			INFO("pip demux: %d\n", unused_demux);
+			break;
 		}
 	}
-}
 }
 
 void CFEManager::Open()

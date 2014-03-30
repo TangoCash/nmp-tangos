@@ -192,6 +192,14 @@ CCamManager * CCamManager::getInstance(void)
 	return manager;
 }
 
+void CCamManager::StopCam(t_channel_id channel_id, CCam *cam)
+{
+	cam->sendMessage(NULL, 0, false);
+	cam->sendCaPmt(channel_id, NULL, 0);
+	channel_map.erase(channel_id);
+	delete cam;
+}
+
 bool CCamManager::SetMode(t_channel_id channel_id, enum runmode mode, bool start, bool force_update)
 {
 	CCam * cam;
@@ -201,12 +209,7 @@ bool CCamManager::SetMode(t_channel_id channel_id, enum runmode mode, bool start
 
 	CZapitChannel * channel = CServiceManager::getInstance()->FindChannel(channel_id);
 
-	if(channel == NULL) {
-		printf("CCamManager: channel %" PRIx64 " not found\n", channel_id);
-		return false;
-	}
-	//INFO("channel %llx [%s] mode %d %s update %d", channel_id, channel->getName().c_str(), mode, start ? "START" : "STOP", force_update);
-	mutex.lock();
+	OpenThreads::ScopedLock<OpenThreads::Mutex> m_lock(mutex);
 
 	cammap_iterator_t it = channel_map.find(channel_id);
 	if(it != channel_map.end()) {
@@ -215,7 +218,11 @@ bool CCamManager::SetMode(t_channel_id channel_id, enum runmode mode, bool start
 		cam = new CCam();
 		channel_map.insert(std::pair<t_channel_id, CCam*>(channel_id, cam));
 	} else {
-		mutex.unlock();
+		return false;
+	}
+	if(channel == NULL) {
+		printf("CCamManager: channel %" PRIx64 " not found\n", channel_id);
+		StopCam(channel_id, cam);
 		return false;
 	}
 
@@ -277,11 +284,7 @@ bool CCamManager::SetMode(t_channel_id channel_id, enum runmode mode, bool start
 	if((oldmask != newmask) || force_update) {
 		cam->setCaMask(newmask);
 		cam->setSource(source);
-		if(newmask == 0) {
-			cam->sendMessage(NULL, 0, false);
-//			cam->sendCaPmt(channel->getChannelID(), NULL, 0);
-			cam->sendCaPmt(channel->getChannelID(), NULL, 0, channel->scrambled, channel->camap, mode, start);
-		} else {
+		if(newmask != 0) {
 			cam->makeCaPmt(channel, true);
 			cam->setCaPmt(true);
 			// CI
@@ -313,8 +316,7 @@ bool CCamManager::SetMode(t_channel_id channel_id, enum runmode mode, bool start
 		/* FIXME: back to live channel from playback dont parse pmt and call setCaPmt
 		 * (see CMD_SB_LOCK / UNLOCK PLAYBACK */
 		//channel->setRawPmt(NULL);//FIXME
-		channel_map.erase(channel_id);
-		delete cam;
+		StopCam(channel_id, cam);
 	}
 	// CI
 	if (mode && !start) {
@@ -345,7 +347,6 @@ bool CCamManager::SetMode(t_channel_id channel_id, enum runmode mode, bool start
 			//list = CCam::CAPMT_MORE;
 		}
 	}
-	mutex.unlock();
 
 	return true;
 }

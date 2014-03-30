@@ -119,8 +119,8 @@ class CServiceScan : public OpenThreads::Thread
 		void process_satellite_delivery_system_descriptor(const unsigned char * const buffer, FrontendParameters * feparams, uint8_t * polarization, t_satellite_position * satellitePosition);
 		bool ScanFast();
 		void ReportFastScan(FrontendParameters &feparams, uint8_t polarization, t_satellite_position satellitePosition);
-
 #endif
+
 		void run();
 
 		CFrontend * frontend;
