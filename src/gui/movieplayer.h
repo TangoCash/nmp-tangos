@@ -113,6 +113,9 @@ class CMoviePlayerGui : public CMenuTarget
 
 	CMovieBrowser* moviebrowser;
 	MI_MOVIE_INFO * p_movie_info;
+#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+	CFrameBuffer::Mode3D old3dmode;
+#endif
 	const static short MOVIE_HINT_BOX_TIMER = 5;	// time to show bookmark hints in seconds
 
 	/* playback from file */
@@ -175,12 +178,14 @@ class CMoviePlayerGui : public CMenuTarget
 	bool osdTimeVisible() { return FileTime.IsVisible(); };
 	std::string CurrentAudioName() { return currentaudioname; };
 	int GetSpeed() { return speed; }
+	uint64_t GetPts();
 	int GetPosition() { return position; }
 	int GetDuration() { return duration; }
 	void UpdatePosition();
 	int timeshift;
 	int file_prozent;
 	void SetFile(std::string &name, std::string &file) { file_name = name; full_name = file; }
+	cPlayback *getPlayback() { return playback; }
 };
 
 #endif

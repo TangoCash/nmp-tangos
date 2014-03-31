@@ -117,6 +117,29 @@ CMoviePlayerGui::~CMoviePlayerGui()
 	instance_mp = NULL;
 }
 
+void getPlayerPts(int64_t *pts)
+{
+	//playback->GetPosition(position, duration)
+	//*pts = CMoviePlayerGui::getInstance().Pts();
+	cPlayback *playback = CMoviePlayerGui::getInstance().getPlayback();
+	if (playback) {
+		int position, duration;
+		playback->GetPosition(position, duration);
+		*pts = position * 90;
+	}
+}
+
+uint64_t CMoviePlayerGui::GetPts(void)
+{
+#ifndef INVALID_PTS_VALUE
+#define INVALID_PTS_VALUE 0x200000000ull
+#endif
+	uint64_t pts = INVALID_PTS_VALUE;
+#if !HAVE_COOL_HARDWARE
+	playback->GetPts(pts);
+#endif
+	return pts;
+}
 void CMoviePlayerGui::Init(void)
 {
 	playing = false;
@@ -707,7 +730,7 @@ void CMoviePlayerGui::PlayFile(void)
 
 	file_prozent = 0;
 #if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
-	CFrameBuffer::Mode3D old3dmode = frameBuffer->get3DMode();
+	old3dmode = frameBuffer->get3DMode();
 #ifdef ENABLE_GRAPHLCD
 	if (p_movie_info)
 		nGLCD::lockChannel(p_movie_info->epgChannel, p_movie_info->epgTitle);
@@ -817,7 +840,7 @@ void CMoviePlayerGui::PlayFile(void)
 	while (playstate >= CMoviePlayerGui::PLAY)
 	{
 #ifdef ENABLE_GRAPHLCD
-		if (p_movie_info)
+		if (p_movie_info && !isWebTV)
 			nGLCD::lockChannel(p_movie_info->epgChannel, p_movie_info->epgTitle, duration ? (100 * position / duration) : 0);
 		else {
 			glcd_play = true;

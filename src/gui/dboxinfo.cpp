@@ -310,24 +310,8 @@ void CDBoxInfoWidget::paint()
 	//paint menu head
 
 	std::string title(g_Locale->getText(LOCALE_EXTRA_DBOXINFO));
-	std::map<std::string,std::string> cpuinfo;
-	in.open("/proc/cpuinfo");
-	if (in.is_open()) {
-		std::string line;
-		while (getline(in, line)) {
-			size_t colon = line.find_first_of(':');
-			if (colon != string::npos && colon > 1) {
-				std::string key = line.substr(0, colon - 1);
-				std::string val = line.substr(colon + 1);
-				cpuinfo[trim(key)] = trim(val);
-			}
-		}
-		in.close();
-	}
-	if (!cpuinfo["Hardware"].empty()) {
-		title += ": ";
-		title += g_info.hw_caps->boxname;
-	 	}
+	title += ": ";
+	title += g_info.hw_caps->boxname;
 
 	CComponentsHeader header(x, ypos, width, hheight, title, NEUTRINO_ICON_SHELL);
 	header.paint(CC_SAVE_SCREEN_NO);
