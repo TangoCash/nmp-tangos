@@ -157,9 +157,11 @@ class CServiceScan : public OpenThreads::Thread
 		/* fast-scan */
 		bool TestDiseqcConfig(int num);
 		bool ReadFstVersion(int num);
+#ifdef ENABLE_FASTSCAN
 		unsigned char GetFstVersion() { return fst_version; }
 		void QuietFastScan(bool enable) { quiet_fastscan = enable; }
 		bool ScanFast(int num, bool reload = true);
+#endif
 };
 
 #endif /* __scan_h__ */
