@@ -43,7 +43,7 @@ CCam::CCam()
 {
 	camask = 0;
 	demuxes = new int[MAX_DMX_UNITS];
-	for(int i = 0; i < MAX_DMX_UNITS; i++)
+	for(unsigned i = 0; i < MAX_DMX_UNITS; i++)
 		demuxes[i] = 0;
 	source_demux = -1;
 	calen = 0;
@@ -162,7 +162,7 @@ int CCam::makeMask(int demux, bool add)
 	else if(demuxes[demux] > 0)
 		demuxes[demux]--;
 
-	for(int i = 0; i < MAX_DMX_UNITS; i++) {
+	for(unsigned i = 0; i < MAX_DMX_UNITS; i++) {
 		if(demuxes[i] > 0)
 			mask |= 1 << i;
 	}

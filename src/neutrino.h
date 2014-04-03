@@ -133,6 +133,7 @@ private:
 	void SetupFrameBuffer();
 	void CmdParser(int argc, char **argv);
 	void Cleanup();
+	void CheckFastScan(bool standby = false, bool reload = true);
 	CNeutrinoApp();
 
 public:
@@ -222,7 +223,7 @@ public:
 	CPersonalizeGui & getPersonalizeGui() { return personalize; }
 	bool getChannellistIsVisible() { return channellist_visible; }
 	void zapTo(t_channel_id channel_id);
-	void wakeupFromStandby(void);
+	bool wakeupFromStandby(void);
 	void standbyToStandby(void);
 #if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
 	enum {

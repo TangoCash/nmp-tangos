@@ -2,8 +2,8 @@
 	Neutrino-GUI  -   DBoxII-Project
 
 	Copyright (C) 2001 Steffen Hehn 'McClean'
-	Copyright (C) 2011-2012 Stefan Seyfried
 
+	Copyright (C) 2011-2012 Stefan Seyfried
 
 	License: GPL
 
@@ -154,7 +154,8 @@ void CScanTs::testFunc()
 	} else if (deltype == FE_OFDM) {
 		sprintf(buffer, "%u", TP.feparams.dvb_feparams.frequency); /* no way int can overflow the buffer */
 	}
-printf("CScanTs::testFunc: %s\n", buffer);
+
+	printf("CScanTs::testFunc: %s\n", buffer);
 	paintLine(xpos2, ypos_cur_satellite, w - 95, pname.c_str());
 	paintLine(xpos2, ypos_frequency, w, buffer);
 	paintRadar();
@@ -306,6 +307,7 @@ int CScanTs::exec(CMenuTarget* /*parent*/, const std::string & actionKey)
 		success = g_Zapit->scan_TP(TP);
 	else if(fast) {
 #ifdef ENABLE_FASTSCAN
+		CServiceScan::getInstance()->QuietFastScan(false);
 		success = CZapit::getInstance()->StartFastScan(scansettings.fast_type, scansettings.fast_op);
 #endif
 	}
@@ -527,6 +529,7 @@ void CScanTs::paintLine(int px, int py, int w, const char * const txt)
 void CScanTs::paint(bool fortest)
 {
 	CComponentsHeaderLocalized header(x, y, width, hheight, fortest ? LOCALE_SCANTS_TEST : LOCALE_SCANTS_HEAD);
+	header.setCaptionAlignment(CTextBox::CENTER);
 	header.paint(CC_SAVE_SCREEN_NO);
 
 	frameBuffer->paintBoxRel(x, y + hheight, width, height - hheight, COL_MENUCONTENT_PLUS_0, RADIUS_LARGE, CORNER_BOTTOM);

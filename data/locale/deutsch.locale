@@ -327,6 +327,11 @@ date.Sun  So
 date.Thu  Do
 date.Tue  Di
 date.Wed  Mi
+debug Debug Ausgabe
+debug.level Stufe
+debug.level_1 normal
+debug.level_2 informativ
+debug.level_3 ausführlich
 epg.saving Speichere EPG
 epgextended.actors Darsteller
 epgextended.director Regie
@@ -1837,7 +1842,7 @@ satsetup.fastscan_all SD und HD
 satsetup.fastscan_auto_diseqc Start automatische Diseqc Konfiguration
 satsetup.fastscan_auto_diseqc_wait Automatische Diseqc Konfiguration wird durchgeführt
 satsetup.fastscan_hd nur HD
-satsetup.fastscan_head Schnellscan (Astra 1, 19.2E, 12.515Mhz)
+satsetup.fastscan_head Schnellscan
 satsetup.fastscan_prov Anbieter:
 satsetup.fastscan_prov_cd_hd CanalDigitaal (HD)
 satsetup.fastscan_prov_cd_sd CanalDigitaal (SD)
