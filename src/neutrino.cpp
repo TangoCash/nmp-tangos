@@ -4863,6 +4863,7 @@ void CNeutrinoApp::Cleanup()
 
 void CNeutrinoApp::CheckFastScan(bool standby, bool reload)
 {
+#ifdef ENABLE_FASTSCAN
 	if (scansettings.fst_version) {
 		g_Zapit->getMode();
 		INFO("fst version %02x (%s)", scansettings.fst_version, standby ? "force" : "check");
@@ -4889,4 +4890,5 @@ void CNeutrinoApp::CheckFastScan(bool standby, bool reload)
 				CVFD::getInstance()->setMode(CVFD::MODE_STANDBY);
 		}
 	}
+#endif
 }

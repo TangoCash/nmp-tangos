@@ -344,7 +344,9 @@ int CScanSetup::exec(CMenuTarget* parent, const std::string &actionKey)
 				scanTs.exec(NULL, scants_key[i]);
 				/* FIXME save fst version. other than fast scan will reset it to 0
 				   to disable fast scan updates */
+#ifdef ENABLE_FASTSCAN
 				scansettings.fst_version = CServiceScan::getInstance()->GetFstVersion();
+#endif
 				if (is_wizard && as == "fast")
 					return menu_return::RETURN_EXIT_ALL;
 				return res;
