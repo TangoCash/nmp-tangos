@@ -148,6 +148,7 @@ void nGLCD::Exec() {
 		} else {
 			nglcd->bitmap->Clear(g_settings.glcd_color_bg);
 			nglcd->lcd->Refresh(true);
+			return;
 		}
 	}
 
