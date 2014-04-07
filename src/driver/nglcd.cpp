@@ -132,7 +132,6 @@ void nGLCD::Exec() {
 					0, 0, (uint32_t) nglcd->bitmap->Width(), (uint32_t) nglcd->bitmap->Height(), false, true);
 
 				GLCD::cFont font_tmp;
-
 				int fw = font_epg.Width(Epg);
 				font_tmp.LoadFT2(g_settings.glcd_font, "UTF-8", fontsize_epg * (bitmap->Width() - 4) / fw);
 				fw = font_tmp.Width(Epg);
@@ -143,13 +142,12 @@ void nGLCD::Exec() {
 
 				lcd->SetScreen(bitmap->Data(), bitmap->Width(), bitmap->Height());
 				lcd->Refresh(true);
-				return;
 			}
 		} else {
 			nglcd->bitmap->Clear(g_settings.glcd_color_bg);
 			nglcd->lcd->Refresh(true);
-			return;
 		}
+		return;
 	}
 
 	if (doStandbyTime) {
