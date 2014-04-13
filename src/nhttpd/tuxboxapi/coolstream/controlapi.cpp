@@ -55,8 +55,10 @@ extern cVideo * videoDecoder;
 
 extern CPlugins *g_PluginList;//for relodplugins
 extern CBouquetManager *g_bouquetManager;
-#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+#if HAVE_DUCKBOX_HARDWARE
 #define EVENTDEV "/dev/input/event0"
+#elif HAVE_SPARK_HARDWARE
+#define EVENTDEV "/dev/input/event1"
 #else
 #define EVENTDEV "/dev/input/input0"
 #endif
