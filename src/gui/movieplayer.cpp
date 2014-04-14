@@ -453,18 +453,22 @@ void CMoviePlayerGui::fillPids()
 		currentapid = p_movie_info->audioPids[0].epgAudioPid;
 		currentac3 = p_movie_info->audioPids[0].atype;
 	}
-	for (int i = 0; i < (int)p_movie_info->audioPids.size(); i++) {
-		apids[i] = p_movie_info->audioPids[i].epgAudioPid;
-		ac3flags[i] = p_movie_info->audioPids[i].atype;
-		numpida++;
-		if (p_movie_info->audioPids[i].selected) {
-			currentapid = p_movie_info->audioPids[i].epgAudioPid;
-			currentac3 = p_movie_info->audioPids[i].atype;
-		}
+	for (unsigned int i = 0; i < p_movie_info->audioPids.size(); i++) {
+		unsigned int j;
+		for (j = 0; j < numpida && p_movie_info->audioPids[i].epgAudioPid != apids[j]; j++);
+		if (j == numpida) {
+			apids[i] = p_movie_info->audioPids[i].epgAudioPid;
+			ac3flags[i] = p_movie_info->audioPids[i].atype;
+			numpida++;
+			if (p_movie_info->audioPids[i].selected) {
+				currentapid = p_movie_info->audioPids[i].epgAudioPid;
+				currentac3 = p_movie_info->audioPids[i].atype;
+			}
 #if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
-		if (numpida == REC_MAX_APIDS)
-			break;
+			if (numpida == REC_MAX_APIDS)
+				break;
 #endif
+		}
 	}
 	vpid = p_movie_info->epgVideoPid;
 	vtype = p_movie_info->VideoType;
@@ -762,12 +766,16 @@ void CMoviePlayerGui::PlayFile(void)
 		playback->FindAllPids(apids, ac3flags, &numpida, language);
 		if (p_movie_info)
 			for (int i = 0; i < numpida; i++) {
-				EPG_AUDIO_PIDS pids;
-				pids.epgAudioPid = apids[i];
-				pids.selected = 0;
-				pids.atype = ac3flags[i];
-				pids.epgAudioPidName = language[i];
-				p_movie_info->audioPids.push_back(pids);
+				unsigned int j, asize = p_movie_info->audioPids.size();
+				for (j = 0; j < asize && p_movie_info->audioPids[j].epgAudioPid != apids[i]; j++);
+				if (j == asize) {
+					EPG_AUDIO_PIDS pids;
+					pids.epgAudioPid = apids[i];
+					pids.selected = 0;
+					pids.atype = ac3flags[i];
+					pids.epgAudioPidName = language[i];
+					p_movie_info->audioPids.push_back(pids);
+				}
 			}
 #endif
 		playstate = CMoviePlayerGui::PLAY;
