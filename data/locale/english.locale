@@ -183,7 +183,7 @@ audioplayer.shuffle shuffle
 audioplayer.spectrum lcd a-spectrum
 audioplayer.stop Stop
 audioplayer.title_artist Title, Artist
-audioplayerpicsettings.general Audioplayer / Picviewer
+audioplayerpicsettings.general Audioplayer/Picviewer/Movieplayer
 bookmarkmanager.delete delete
 bookmarkmanager.name bookmarks
 bookmarkmanager.rename rename
