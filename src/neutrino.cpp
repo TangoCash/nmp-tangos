@@ -153,9 +153,11 @@ static pthread_t timer_thread;
 void * timerd_main_thread(void *data);
 static bool timerd_thread_started = false;
 
+#if ENABLE_WEBIF
 void * nhttpd_main_thread(void *data);
 static pthread_t nhttpd_thread ;
 static bool nhttpd_thread_started = false;
+#endif
 
 //#define DISABLE_SECTIONSD
 
@@ -2251,8 +2253,10 @@ fprintf(stderr, "[neutrino start] %d  -> %5ld ms\n", __LINE__, time_monotonic_ms
 
 	dvbsub_init();
 
+#if ENABLE_WEBIF
 	pthread_create (&nhttpd_thread, NULL, nhttpd_main_thread, (void *) NULL);
 	nhttpd_thread_started = true;
+#endif
 
 	CStreamManager::getInstance()->Start();
 
@@ -4362,12 +4366,14 @@ void stop_daemons(bool stopall, bool for_flash)
 		delete g_Radiotext;
 		g_Radiotext = NULL;
 	}
+#if ENABLE_WEBIF
 	printf("httpd shutdown\n");
 	if (nhttpd_thread_started) {
 		pthread_cancel(nhttpd_thread);
 		pthread_join(nhttpd_thread, NULL);
 	}
 	printf("httpd shutdown done\n");
+#endif
 	printf("streaming shutdown\n");
 	CStreamManager::getInstance()->Stop();
 	printf("streaming shutdown done\n");
