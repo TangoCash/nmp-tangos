@@ -427,6 +427,9 @@ void CNeutrinoApp::InitMenuService()
 		personalize.addItem(MENU_SERVICE, mf, &g_settings.personalize[SNeutrinoSettings::P_MSER_RESET_CHANNELS]);
 
 	//separator
+	personalize.addSeparator(MENU_SERVICE);
+
+
 		personalize.addSeparator(MENU_SERVICE);
 
 		//restart neutrino

@@ -277,6 +277,10 @@
 #define NEUTRINO_ICON_GREEN_8	"8-green"
 #define NEUTRINO_ICON_GREEN_9	"9-green"
 
+/* opkg manager */
+#define NEUTRINO_ICON_CHECKMARK "checkmark"
+#define NEUTRINO_ICON_WARNING "warning"
+
 /* misc */
 #define NEUTRINO_ICON_HINT_YTPLAY	"hint_ytplay"
 

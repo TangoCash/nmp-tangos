@@ -474,7 +474,7 @@ xprintf("addEvent: ch %012" PRIx64 " running %d (%s) got_CN %d\n", evt.get_chann
 		}
 		deleteEvent(e->uniqueKey());
 		readLockEvents();
-		if ( !mySIeventsOrderUniqueKey.empty() && mySIeventsOrderUniqueKey.size() >= max_events && max_events != 0 ) {
+		if ( !mySIeventsOrderFirstEndTimeServiceIDEventUniqueKey.empty() && mySIeventsOrderUniqueKey.size() >= max_events && max_events != 0 ) {
 			MySIeventsOrderFirstEndTimeServiceIDEventUniqueKey::iterator lastEvent =
 				mySIeventsOrderFirstEndTimeServiceIDEventUniqueKey.begin();
 
@@ -485,7 +485,7 @@ xprintf("addEvent: ch %012" PRIx64 " running %d (%s) got_CN %d\n", evt.get_chann
 #else
 			time_t now = time(NULL);
 			bool back = false;
-			if (*lastEvent!=NULL && (*lastEvent)->times.size() == 1)
+			if ((*lastEvent)->times.size() == 1)
 			{
 				if ((*lastEvent)->times.begin()->startzeit + (long)(*lastEvent)->times.begin()->dauer >= now - oldEventsAre)
 					back = true;
@@ -506,10 +506,10 @@ xprintf("addEvent: ch %012" PRIx64 " running %d (%s) got_CN %d\n", evt.get_chann
 				}
 				unlockMessaging();
 			}
+			event_id_t uniqueKey = (*lastEvent)->uniqueKey();
 			// else fprintf(stderr, ">");
 			unlockEvents();
-			if(*lastEvent!=NULL)
-				deleteEvent((*lastEvent)->uniqueKey());
+			deleteEvent(uniqueKey);
 		}
 		else
 			unlockEvents();

@@ -45,7 +45,7 @@
 #include <list>
 
 #ifdef BOXMODEL_APOLLO
-#define VIDEOMENU_VIDEOMODE_OPTION_COUNT 14
+#define VIDEOMENU_VIDEOMODE_OPTION_COUNT 16
 #else
 #define VIDEOMENU_VIDEOMODE_OPTION_COUNT 13
 #endif
@@ -62,6 +62,7 @@ struct SNeutrinoSettings
 	int brightness;
 	int contrast;
 	int saturation;
+	int enable_sd_osd;
 #endif
 #if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
 	int hdmi_mode;
@@ -508,6 +509,7 @@ struct SNeutrinoSettings
 	int screenshot_video;
 	int screenshot_scale;
 #endif
+	int auto_cover;
 	std::string screenshot_dir;
 
 	int key_current_transponder;
@@ -882,6 +884,7 @@ class CScanSettings
 		int		fast_type;
 		int		fast_op;
 		int		fst_version;
+		int		fst_update;
 		int		cable_nid;
 
 		std::string	satName;

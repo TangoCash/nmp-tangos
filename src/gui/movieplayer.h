@@ -127,6 +127,7 @@ class CMoviePlayerGui : public CMenuTarget
 	CFileList::iterator filelist_it;
 	std::string Path_local;
 	int menu_ret;
+	bool autoshot_done;
 
 	/* playback from bookmark */
 	CBookmarkManager * bookmarkmanager;
@@ -161,6 +162,7 @@ class CMoviePlayerGui : public CMenuTarget
 	void parsePlaylist(CFile *file);
 	bool mountIso(CFile *file);
 	void makeFilename();
+	void makeScreenShot(bool autoshot = false, bool forcover = false);
 
 	void Cleanup();
 	static void *ShowStartHint(void *arg);

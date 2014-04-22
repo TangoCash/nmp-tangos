@@ -771,6 +771,7 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	g_settings.screenshot_video = configfile.getInt32( "screenshot_video",  1);
 	g_settings.screenshot_scale = configfile.getInt32( "screenshot_scale",  0);
 #endif
+	g_settings.auto_cover = configfile.getInt32( "auto_cover",  0);
 
 #if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
 	g_settings.screenshot_dir = configfile.getString( "screenshot_dir", "/hdd/movie" );
@@ -999,6 +1000,7 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	g_settings.brightness = configfile.getInt32("brightness", 0);
 	g_settings.contrast = configfile.getInt32("contrast", 0);
 	g_settings.saturation = configfile.getInt32("saturation", 0);
+	g_settings.enable_sd_osd = configfile.getInt32("enable_sd_osd", 1);
 #endif
 #ifdef ENABLE_PIP
 	g_settings.pip_x = configfile.getInt32("pip_x", 50);
@@ -1358,6 +1360,7 @@ void CNeutrinoApp::saveSetup(const char * fname)
 	configfile.setInt32( "screenshot_video", g_settings.screenshot_video );
 	configfile.setInt32( "screenshot_scale", g_settings.screenshot_scale );
 #endif
+	configfile.setInt32( "auto_cover", g_settings.auto_cover );
 
 	configfile.setString( "screenshot_dir", g_settings.screenshot_dir);
 	configfile.setInt32( "cacheTXT", g_settings.cacheTXT );
@@ -1515,7 +1518,7 @@ void CNeutrinoApp::saveSetup(const char * fname)
 #ifdef BOXMODEL_APOLLO
 	configfile.setInt32("brightness", g_settings.brightness );
 	configfile.setInt32("contrast", g_settings.contrast );
-	configfile.setInt32("saturation", g_settings.saturation );
+	configfile.setInt32("enable_sd_osd", g_settings.enable_sd_osd );
 #endif
 #ifdef ENABLE_PIP
 	configfile.setInt32("pip_x", g_settings.pip_x);
@@ -3328,10 +3331,10 @@ int CNeutrinoApp::handleMsg(const neutrino_msg_t _msg, neutrino_msg_data_t data)
 				dvbsub_stop();
 
 				if ((!isTVMode) && (mode != mode_radio)) {
-					radioMode(false);
+					radioMode(true);
 				}
 				else if (isTVMode && (mode != mode_tv)) {
-					tvMode(false);
+					tvMode(true);
 				}
 				channelList->zapTo_ChannelID(eventinfo->channel_id);
 			}
@@ -3994,7 +3997,7 @@ void CNeutrinoApp::standbyMode( bool bOnOff, bool fromDeepStandby )
 		// Active standby on
 		powerManager->SetStandby(false, false);
 		CEpgScan::getInstance()->Start(true);
-		if (scansettings.fst_version)
+		if (scansettings.fst_update)
 			fst_timer = g_RCInput->addTimer(30*1000*1000, true);
 	} else {
 		// Active standby off
@@ -4870,7 +4873,7 @@ void CNeutrinoApp::Cleanup()
 void CNeutrinoApp::CheckFastScan(bool standby, bool reload)
 {
 #ifdef ENABLE_FASTSCAN
-	if (scansettings.fst_version) {
+	if (scansettings.fst_update) {
 		g_Zapit->getMode();
 		INFO("fst version %02x (%s)", scansettings.fst_version, standby ? "force" : "check");
 		CServiceScan::getInstance()->QuietFastScan(true);
