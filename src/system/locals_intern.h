@@ -1073,6 +1073,7 @@ const char * locale_real_names[] =
 	"menu.hint_make_hdlist",
 	"menu.hint_make_newlist",
 	"menu.hint_make_removedlist",
+	"menu.hint_make_webtvlist",
 	"menu.hint_manage_settings",
 	"menu.hint_mb",
 	"menu.hint_media",
