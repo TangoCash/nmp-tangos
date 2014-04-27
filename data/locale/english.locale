@@ -682,6 +682,7 @@ hdd_settings Hard Disk Drive/USB
 hdd_sleep Switch off after...
 hdd_slow Slow
 hdd_umount unmount
+hdd_umounted Device removed
 hdd_umount_warn unmount device
 imageinfo.creator Creator:
 imageinfo.date Date:
