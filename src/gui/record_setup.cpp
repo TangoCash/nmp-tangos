@@ -97,8 +97,8 @@ int CRecordSetup::exec(CMenuTarget* parent, const std::string &actionKey)
 				timeshiftDir = g_settings.network_nfs_recordingdir + "/.timeshift";
 				safe_mkdir(timeshiftDir.c_str());
 				printf("New timeshift dir: %s\n", timeshiftDir.c_str());
+				CRecordManager::getInstance()->SetTimeshiftDirectory(timeshiftDir);
 			}
-			CRecordManager::getInstance()->SetTimeshiftDirectory(timeshiftDir);
 		}
 		return res;
 	}
@@ -184,6 +184,7 @@ int CRecordSetup::showRecordSetup()
 	recordingSettings->addItem(GenericMenuSeparatorLine);
 #endif
 
+	bool recstatus = CNeutrinoApp::getInstance()->recordingstatus;
 	//record dir
 	CMenuForwarder* fRecDir;
 		fRecDir = new CMenuForwarder(LOCALE_RECORDINGMENU_DEFDIR, true, g_settings.network_nfs_recordingdir, this, "recordingdir");
@@ -361,7 +362,8 @@ void CRecordSetup::showRecordTimeShiftSetup(CMenuWidget *menu_ts)
 	menu_ts->addIntroItems(LOCALE_RECORDINGMENU_TIMESHIFT);
 
 	//timeshift dir
-	CMenuForwarder* fTsDir = new CMenuForwarder(LOCALE_RECORDINGMENU_TSDIR, true, g_settings.timeshiftdir, this, "timeshiftdir");
+	bool recstatus = CNeutrinoApp::getInstance()->recordingstatus;
+	CMenuForwarder* fTsDir = new CMenuForwarder(LOCALE_RECORDINGMENU_TSDIR, !recstatus, g_settings.timeshiftdir, this, "timeshiftdir");
 	fTsDir->setHint("", LOCALE_MENU_HINT_RECORD_TDIR);
 	menu_ts->addItem(fTsDir);
 

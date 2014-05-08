@@ -162,6 +162,7 @@ CRCInput::CRCInput(bool &_timer_wakeup)
 	repeat_block = repeat_block_generic = 0;
 	open();
 	rc_last_key =  KEY_MAX;
+	firstKey = true;
 	longPressEnd = 0;
 
 	//select and setup remote control hardware
@@ -1181,7 +1182,7 @@ void CRCInput::getMsg_us(neutrino_msg_t * msg, neutrino_msg_data_t * data, uint6
 					}
 					else if (emsg.initiatorID == CEventServer::INITID_NEUTRINO)
 					{
-						printf("CRCInput::getMsg_us: INITID_NEUTRINO: msg %x size %d data %x\n", (int) emsg.eventID, emsg.dataSize, (int) p);
+						printf("CRCInput::getMsg_us: INITID_NEUTRINO: msg %x size %d data %p\n", (int) emsg.eventID, emsg.dataSize, p);
 						if (emsg.eventID == NeutrinoMessages::EVT_HOTPLUG) {
 							printf("EVT_HOTPLUG: [%s]\n", (char *) p);
 							*msg  = emsg.eventID;
@@ -1255,6 +1256,11 @@ void CRCInput::getMsg_us(neutrino_msg_t * msg, neutrino_msg_data_t * data, uint6
 				if (ev.type == EV_SYN)
 					continue;
 				SHTDCNT::getInstance()->resetSleepTimer();
+				if (firstKey) {
+					firstKey = false;
+					CTimerManager::getInstance()->cancelShutdownOnWakeup();
+				}
+
 				uint32_t trkey = translate(ev.code);
 #ifdef DEBUG
 				printf("%d key: %04x value %d, translate: %04x -%s-\n", ev.value, ev.code, ev.value, trkey, getKeyName(trkey).c_str());

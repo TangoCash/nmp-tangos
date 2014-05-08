@@ -162,6 +162,7 @@ class CRCInput
 
 		int		fd_max;
 		int		clickfd;
+		bool		firstKey;
 		bool		*timer_wakeup;
 		__u16 rc_last_key;
 		void set_dsp();
