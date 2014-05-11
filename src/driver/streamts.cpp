@@ -392,6 +392,9 @@ bool CStreamManager::Parse(int fd, stream_pids_t &pids, t_channel_id &chid)
 		for (int i = 0; i <  channel->getAudioChannelCount(); i++)
 			pids.insert(channel->getAudioChannel(i)->pid);
 
+	} else {
+		for (stream_pids_t::iterator it = pids.begin(); it != pids.end(); ++it)
+			pids.insert(*it);
 	}
 	CGenPsi psi;
 	for (stream_pids_t::iterator it = pids.begin(); it != pids.end(); ++it) {
