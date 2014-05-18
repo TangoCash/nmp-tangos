@@ -1126,11 +1126,13 @@ printf("CHDDChkExec: key %s\n", key.c_str());
 				progress->showLocalStatus(percent);
 			}
 		}
-		else if(!strncmp(buf, "Pass", 4)) {
+		else {
 			char *t = strrchr(buf, '\n');
 			if (t)
 				*t = 0;
-			progress->showStatusMessageUTF(buf);
+			if(!strncmp(buf, "Pass", 4)) {
+				progress->showStatusMessageUTF(buf);
+			}
 		}
 	}
 //printf("CHDDChkExec: %s\n", buf);

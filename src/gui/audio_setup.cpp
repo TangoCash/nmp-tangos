@@ -173,13 +173,17 @@ int CAudioSetup::showAudioSetup()
 
 	CMenuOptionChooser * as_oj_avsync = NULL;
 	CMenuOptionNumberChooser * as_oj_vsteps = NULL;
+	CMenuOptionNumberChooser * st = NULL;
 	//av synch
 	as_oj_avsync	= new CMenuOptionChooser(LOCALE_AUDIOMENU_AVSYNC, &g_settings.avsync, AUDIOMENU_AVSYNC_OPTIONS, AUDIOMENU_AVSYNC_OPTION_COUNT, true, audioSetupNotifier);
 	as_oj_avsync->setHint("", LOCALE_MENU_HINT_AUDIO_AVSYNC);
 
-	//volume steps
-	as_oj_vsteps = new CMenuOptionNumberChooser(LOCALE_AUDIOMENU_VOLUME_STEP, (int *)&g_settings.current_volume_step, true, 1, 25, NULL);
-	as_oj_vsteps->setHint("", LOCALE_MENU_HINT_AUDIO_VOLSTEP);
+		//volume steps
+		as_oj_vsteps = new CMenuOptionNumberChooser(LOCALE_AUDIOMENU_VOLUME_STEP, (int *)&g_settings.current_volume_step, true, 1, 25, NULL);
+		as_oj_vsteps->setHint("", LOCALE_MENU_HINT_AUDIO_VOLSTEP);
+		//clock rec
+		//CMenuOptionChooser * as_oj_clockrec new CMenuOptionChooser(LOCALE_AUDIOMENU_CLOCKREC, &g_settings.clockrec, AUDIOMENU_CLOCKREC_OPTIONS, AUDIOMENU_CLOCKREC_OPTION_COUNT, true, audioSetupNotifier);
+	}
 
 	//clock rec
 //	CMenuOptionChooser * as_oj_clockrec new CMenuOptionChooser(LOCALE_AUDIOMENU_CLOCKREC, &g_settings.clockrec, AUDIOMENU_CLOCKREC_OPTIONS, AUDIOMENU_CLOCKREC_OPTION_COUNT, true, audioSetupNotifier);

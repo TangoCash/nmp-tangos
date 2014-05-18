@@ -136,6 +136,7 @@ audiomenu.volume_adjustment Channel specific volume adjustment
 audiomenu.volume_adjustment_ac3 AC-3 streams
 audiomenu.volume_adjustment_clear Clear remembered values
 audiomenu.volume_adjustment_pcm PCM streams
+audiomenu.volume_start Start volume
 audiomenu.volume_step Volume step
 audioplayer.add Add
 audioplayer.add_ic Icecast
@@ -866,6 +867,7 @@ menu.hint_audio_srs_algo Amount of control, light or normal
 menu.hint_audio_srs_nmgr Noise manager
 menu.hint_audio_srs_volume Reference level to maintain
 menu.hint_audio_volstep Volume +/- keys increase/decrease step
+menu.hint_audio_volstart Always set selected volume value on boot
 menu.hint_audioplayer_defdir Default audioplayer directory
 menu.hint_audioplayer_follow Move playlist selected pointer\nto current playing song
 menu.hint_audioplayer_highprio Increase playback priority
@@ -919,8 +921,8 @@ menu.hint_epg_max_events Maximum events to cache. After reaching limit\nEPG cach
 menu.hint_epg_old_events Hours after event end time to consider\nevent old and remove it from cache
 menu.hint_epg_save Save cached EPG to harddisk or usb flash\nand load it after boot
 menu.hint_epg_save_standby Save EPG on soft standby mode
-menu.hint_epg_scan Enable background epg scan using free tuner,\ncurrent bouquet or all favorites
-menu.hint_epg_scan_mode Select box state to run epg scan
+menu.hint_epg_scan Select bouquets to scan epg, current on zap,\nall or selected favorites
+menu.hint_epg_scan_mode Enable background epg scan using free tuner
 menu.hint_event_textcolor Change event color for colored-event options\nin channel list and infobar
 menu.hint_eventlist_additional Show additional informations\nin main box
 menu.hint_eventlist_fonts Change event list font sizes
@@ -1336,10 +1338,11 @@ miscsettings.epg_old_events_hint1 How long will EPG-Data be stored after they ti
 miscsettings.epg_old_events_hint2 Set in hours
 miscsettings.epg_save Save/Restore epg on reboot
 miscsettings.epg_save_standby Save epg on soft standby
-miscsettings.epg_scan EPG scan
+miscsettings.epg_scan EPG scan mode
 miscsettings.epg_scan_always Always
-miscsettings.epg_scan_bq bouquet
-miscsettings.epg_scan_fav favorites
+miscsettings.epg_scan_bouquets EPG scan bouquets
+miscsettings.epg_scan_bq Current
+miscsettings.epg_scan_fav Favorites
 miscsettings.epg_scan_live Live
 miscsettings.epg_scan_sel Selected
 miscsettings.epg_scan_standby Standby
