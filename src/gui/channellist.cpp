@@ -2361,7 +2361,8 @@ void CChannelList::paint_events(int index)
 	for (e=evtlist.begin(); e!=evtlist.end(); ++e )
 	{
 		//Remove events in the past
-		if ( (u_azeit > (e->startTime + e->duration)) && (!(e->eventID == 0)))
+        time_t dif = azeit - e->startTime;
+        if ( (dif > 0) && (!(e->eventID == 0)))
 		{
 			do
 			{
@@ -2369,8 +2370,9 @@ void CChannelList::paint_events(int index)
 				e = evtlist.erase( e );
 				if (e == evtlist.end())
 					break;
+				dif = azeit - e->startTime;
 			}
-			while ( u_azeit > (e->startTime + e->duration));
+			while ( dif > 0);
 		}
 		if (e == evtlist.end())
 			break;
