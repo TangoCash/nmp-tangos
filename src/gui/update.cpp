@@ -269,11 +269,13 @@ bool CFlashUpdate::selectHttpImage(void)
 		ShowMsg(LOCALE_MESSAGEBOX_ERROR, g_Locale->getText(LOCALE_FLASHUPDATE_GETINFOFILEERROR), CMessageBox::mbrOk, CMessageBox::mbOk); // UTF-8
 		return false;
 	}
+#if 0
 	if(newfound)
 		ShowMsg(LOCALE_MESSAGEBOX_INFO, g_Locale->getText(LOCALE_FLASHUPDATE_NEW_FOUND), CMessageBox::mbrOk, CMessageBox::mbOk, NEUTRINO_ICON_INFO);
 	else
 		ShowMsg(LOCALE_MESSAGEBOX_INFO, g_Locale->getText(LOCALE_FLASHUPDATE_NEW_NOTFOUND), CMessageBox::mbrOk, CMessageBox::mbOk, NEUTRINO_ICON_INFO);
 
+#endif
 	menu_ret = SelectionWidget.exec(NULL, "");
 
 	for (std::vector<CUpdateMenuTarget*>::iterator it = update_t_list.begin(); it != update_t_list.end(); ++it)
