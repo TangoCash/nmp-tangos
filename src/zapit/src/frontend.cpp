@@ -457,22 +457,28 @@ struct dvb_frontend_event CFrontend::getEvent(void)
 
 	FE_TIMER_INIT();
 
+	int msec = TIME_STEP;
+	int tmsec = msec;
+
 	pfd.fd = fd;
 	pfd.events = POLLIN | POLLPRI;
 	pfd.revents = 0;
 
 	memset(&event, 0, sizeof(struct dvb_frontend_event));
 
+	INFO("[fe%d,%d] ******** max timeout: %d\n", adapter, fenumber, TIMEOUT_MAX_MS);
+
 	FE_TIMER_START();
 
 	while ((int) timer_msec < TIMEOUT_MAX_MS) {
-		int ret = poll(&pfd, 1, TIMEOUT_MAX_MS - timer_msec);
+		int ret = poll(&pfd, 1, TIMEOUT_MAX_MS);
 		if (ret < 0) {
-			ERROR("poll");
+			perror("CFrontend::getEvent poll");
 			continue;
 		}
 		if (ret == 0) {
-			FE_TIMER_STOP("############################## poll timeout, time");
+			FE_TIMER_STOP("poll timeout, time");
+			msec += TIME_STEP;
 			continue;
 		}
 
@@ -480,43 +486,36 @@ struct dvb_frontend_event CFrontend::getEvent(void)
 			FE_TIMER_STOP("poll has event after");
 			memset(&event, 0, sizeof(struct dvb_frontend_event));
 
-			ret = ioctl(fd, FE_GET_EVENT, &event);
-			if (ret < 0) {
-				ERROR("ioctl");
+			if (ioctl(fd, FE_GET_EVENT, &event) < 0) {
+				perror("CFrontend::getEvent ioctl");
 				continue;
 			}
-			//printf("[fe%d] poll events %d status %x\n", fenumber, pfd.revents, event.status);
-			if (event.status == 0) /* some drivers always deliver an empty event after tune */
-				continue;
 
 			if (event.status & FE_HAS_LOCK) {
-				INFO("[fe%d] ******** FE_HAS_LOCK: freq %lu", fenumber, (long unsigned int)event.parameters.frequency);
+				INFO("[fe%d,%d] ******** FE_HAS_LOCK: freq %lu", adapter , fenumber, (long unsigned int)event.parameters.frequency);
 				tuned = true;
 				break;
 			} else if (event.status & FE_TIMEDOUT) {
 				if(timedout < timer_msec)
 					timedout = timer_msec;
-				INFO("[fe%d] ######## FE_TIMEDOUT (max %d)", fenumber, timedout);
-				/*break;*/
+				INFO("[fe%d,%d] ******** FE_TIMEDOUT\n", adapter, fenumber);
 			} else {
 				if (event.status & FE_HAS_SIGNAL)
-					printf("[fe%d] FE_HAS_SIGNAL\n", fenumber);
+					printf("[fe%d,%d] ******** FE_HAS_SIGNAL\n", adapter, fenumber);
 				if (event.status & FE_HAS_CARRIER)
-					printf("[fe%d] FE_HAS_CARRIER\n", fenumber);
+					printf("[fe%d,%d] ******** FE_HAS_CARRIER\n", adapter, fenumber);
 				if (event.status & FE_HAS_VITERBI)
-					printf("[fe%d] FE_HAS_VITERBI\n", fenumber);
+					printf("[fe%d,%d] ******** FE_HAS_VITERBI\n", adapter, fenumber);
 				if (event.status & FE_HAS_SYNC)
-					printf("[fe%d] FE_HAS_SYNC\n", fenumber);
+					printf("[fe%d,%d] ******** FE_HAS_SYNC\n", adapter, fenumber);
 				if (event.status & FE_REINIT)
-					printf("[fe%d] FE_REINIT\n", fenumber);
-				/* msec = TIME_STEP; */
+					printf("[fe%d,%d] ******** FE_REINIT\n", adapter, fenumber);
 			}
 		} else if (pfd.revents & POLLHUP) {
 			FE_TIMER_STOP("poll hup after");
 			reset();
 		}
 	}
-	//printf("[fe%d] event after: %d\n", fenumber, tmsec);
 	return event;
 }
 
