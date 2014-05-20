@@ -107,7 +107,6 @@
 #include <fcntl.h>
 #include <poll.h>
 #include <sys/types.h>
-#include <driver/audioplay.h>
 /*
 TODO:
 	- ICECAST support
@@ -1499,7 +1498,7 @@ int pop(FILE *fd, char *buf, long len)
 #else
 			while(true) {
 				int lret = pthread_mutex_trylock(&cache[i].readable);
-				if((lret == 0) || (CAudioPlayer::getInstance()->getState() == CBaseDec::STOP_REQ))
+				if((lret == 0))
 					break;
 				usleep(100);
 			}
@@ -1573,7 +1572,7 @@ int pop(FILE *fd, char *buf, long len)
 			}
 			else
 				dprintf(stderr, "pop: buffer underrun; cache empty - leaving cache locked\n");
-		} while((rval < len) && (CAudioPlayer::getInstance()->getState() != CBaseDec::STOP_REQ));
+		} while((rval < len));
 	}
 	else
 	{

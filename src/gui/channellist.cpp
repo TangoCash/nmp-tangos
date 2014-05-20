@@ -52,6 +52,7 @@
 #include <gui/color.h>
 #include <gui/epgview.h>
 #include <gui/eventlist.h>
+#include <gui/filebrowser.h>
 #include <gui/infoviewer.h>
 #include <gui/osd_setup.h>
 #include <gui/widget/buttons.h>
@@ -64,7 +65,6 @@
 #include <gui/bouquetlist.h>
 #include <daemonc/remotecontrol.h>
 #include <zapit/client/zapittools.h>
-#include <gui/pictureviewer.h>
 
 #include <zapit/zapit.h>
 #include <zapit/satconfig.h>

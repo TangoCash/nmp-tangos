@@ -1,6 +1,6 @@
 AM_CXXFLAGS = -fno-rtti -fno-exceptions -D__STDC_FORMAT_MACROS
 
-SUBDIRS = pictureviewer audiodec
+SUBDIRS = pictureviewer
 
 AM_CPPFLAGS = \
 	-I$(top_builddir) \
@@ -18,9 +18,6 @@ noinst_LIBRARIES = libneutrino_driver.a libneutrino_driver_netfile.a
 
 libneutrino_driver_a_SOURCES = \
 	abstime.c \
-	audiofile.cpp \
-	audiometadata.cpp \
-	audioplay.cpp \
 	fade.cpp \
 	fb_window.cpp \
 	fbaccel.cpp \

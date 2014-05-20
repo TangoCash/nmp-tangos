@@ -58,8 +58,6 @@ libneutrino_gui_a_SOURCES = \
 	audio_select.cpp \
 	audio_setup.cpp \
 	audiomute.cpp \
-	audioplayer.cpp \
-	audioplayer_setup.cpp\
 	bookmarkmanager.cpp \
 	bouquetlist.cpp \
 	buildinfo.cpp \
@@ -86,14 +84,11 @@ libneutrino_gui_a_SOURCES = \
 	network_service.cpp \
 	network_setup.cpp \
 	nfs.cpp \
-	opkg_manager.cpp \
 	osd_progressbar_setup.cpp \
 	osd_setup.cpp \
 	osdlang_setup.cpp \
 	parentallock_setup.cpp \
 	personalize.cpp \
-	pictureviewer.cpp \
-	pictureviewer_setup.cpp \
 	pipsetup.cpp \
 	pluginlist.cpp \
 	plugins.cpp \
@@ -102,7 +97,6 @@ libneutrino_gui_a_SOURCES = \
 	record_setup.cpp \
 	scan.cpp \
 	scan_setup.cpp \
-	screensaver.cpp \
 	screensetup.cpp \
 	settings_manager.cpp \
 	sleeptimer.cpp \
@@ -118,8 +112,6 @@ libneutrino_gui_a_SOURCES = \
 	user_menue_setup.cpp \
 	vfd_setup.cpp \
 	videosettings.cpp \
-	webtv.cpp \
-	webtv_setup.cpp \
 	volumebar.cpp \
 	zapit_setup.cpp
 
@@ -154,7 +146,6 @@ libneutrino_gui2_a_SOURCES = \
 	color.cpp \
 	hdd_menu.cpp \
 	infoclock.cpp \
-	kerneloptions.cpp \
 	motorcontrol.cpp
 
 if ENABLE_UPNP

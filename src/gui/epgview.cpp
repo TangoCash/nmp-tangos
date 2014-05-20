@@ -46,7 +46,6 @@
 #include <driver/fade.h>
 #include <gui/filebrowser.h>
 #include <gui/customcolor.h>
-#include <gui/pictureviewer.h>
 
 #include <zapit/bouquets.h>
 #include <zapit/getservices.h>

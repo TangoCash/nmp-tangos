@@ -69,7 +69,6 @@
 #include "gui/psisetup.h"
 #endif
 #include "gui/audiomute.h"
-#include "gui/audioplayer.h"
 #include "gui/bouquetlist.h"
 #include "gui/cam_menu.h"
 #include "gui/cec_setup.h"
@@ -84,7 +83,6 @@
 #include "gui/movieplayer.h"
 #include "gui/osd_setup.h"
 #include "gui/osdlang_setup.h"
-#include "gui/pictureviewer.h"
 #include "gui/plugins.h"
 #include "gui/rc_lock.h"
 #include "gui/scan_setup.h"
@@ -902,20 +900,6 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	g_settings.picviewer_slide_time = configfile.getInt32( "picviewer_slide_time", 10);
 	g_settings.picviewer_scaling = configfile.getInt32("picviewer_scaling", 1 /*(int)CPictureViewer::SIMPLE*/);
 	g_settings.picviewer_decode_server_ip = configfile.getString("picviewer_decode_server_ip", "");
-
-	//Audio-Player
-	g_settings.audioplayer_display = configfile.getInt32("audioplayer_display",(int)CAudioPlayerGui::ARTIST_TITLE);
-	g_settings.audioplayer_follow  = configfile.getInt32("audioplayer_follow",0);
-	g_settings.audioplayer_screensaver = configfile.getInt32("audioplayer_screensaver", 1);
-#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
-	g_settings.audioplayer_screensaver_dir = configfile.getString( "audioplayer_screensaver_dir", "/hdd/pictures/screensaver" );
-#endif
-	g_settings.audioplayer_highprio  = configfile.getInt32("audioplayer_highprio",0);
-	g_settings.audioplayer_select_title_by_name = configfile.getInt32("audioplayer_select_title_by_name",0);
-	g_settings.audioplayer_repeat_on = configfile.getInt32("audioplayer_repeat_on",0);
-	g_settings.audioplayer_show_playlist = configfile.getInt32("audioplayer_show_playlist",1);
-	g_settings.audioplayer_enable_sc_metadata = configfile.getInt32("audioplayer_enable_sc_metadata",1);
-	g_settings.shoutcast_dev_id = configfile.getString("shoutcast_dev_id","XXXXXXXXXXXXXXXX");
 
 	//Filebrowser
 	g_settings.movieplayer_repeat_on = configfile.getInt32("movieplayer_repeat_on",0);

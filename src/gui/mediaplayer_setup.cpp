@@ -44,10 +44,7 @@
 #include <gui/widget/stringinput.h>
 
 
-#include <gui/audioplayer_setup.h>
-#include <gui/pictureviewer_setup.h>
 #if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
-#include <gui/webtv_setup.h>
 #include <gui/moviebrowser.h>
 #include <gui/filebrowser_setup.h>
 #endif
@@ -99,23 +96,12 @@ int CMediaPlayerSetup::showMediaPlayerSetup()
 #endif
 
 #if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
-	CAudioPlayerSetup asetup;
-	mediaSetup->addItem(new CMenuForwarder(LOCALE_AUDIOPLAYER_NAME, true, NULL, &asetup, "", CRCInput::RC_red, NEUTRINO_ICON_BUTTON_RED));
-	CPictureViewerSetup psetup;
-	mediaSetup->addItem(new CMenuForwarder(LOCALE_PICTUREVIEWER_HEAD, true, NULL, &psetup, "", CRCInput::RC_blue, NEUTRINO_ICON_BUTTON_BLUE));
 	mediaSetup->addItem(new CMenuSeparator(CMenuSeparator::LINE | CMenuSeparator::STRING, LOCALE_MAINMENU_MOVIEPLAYER));
 	CMovieBrowser msetup;
 	int shortcut = 1;
 	mediaSetup->addItem(new CMenuForwarder(LOCALE_MOVIEBROWSER_HEAD, true, NULL, &msetup, "show_menu", CRCInput::convertDigitToKey(shortcut++)));
 	CFileBrowserSetup fsetup;
 	mediaSetup->addItem(new CMenuForwarder(LOCALE_MOVIEPLAYER_FILEPLAYBACK, true, NULL, &fsetup, "show_menu", CRCInput::convertDigitToKey(shortcut++)));
-	CWebTVSetup wsetup;
-	mediaSetup->addItem(new CMenuForwarder(LOCALE_WEBTV_HEAD, true, NULL, &wsetup, "show_menu", CRCInput::convertDigitToKey(shortcut++)));
-#else
-	CPictureViewerSetup psetup;
-	mediaSetup->addItem(new CMenuForwarder(LOCALE_PICTUREVIEWER_HEAD, true, NULL, &psetup, "", CRCInput::RC_red, NEUTRINO_ICON_BUTTON_RED));
-	CAudioPlayerSetup asetup;
-	mediaSetup->addItem(new CMenuForwarder(LOCALE_AUDIOPLAYER_NAME, true, NULL, &asetup, "", CRCInput::RC_green, NEUTRINO_ICON_BUTTON_GREEN));
 #endif
 
 	int res = mediaSetup->exec (NULL, "");

@@ -42,7 +42,6 @@
 #include <gui/movieinfo.h>
 #include <gui/widget/hintbox.h>
 #include <gui/timeosd.h>
-#include <gui/webtv.h>
 #include <driver/record.h>
 #include <playback.h>
 
@@ -107,9 +106,7 @@ class CMoviePlayerGui : public CMenuTarget
 	bool isHTTP;
 	bool isUPNP;
 	bool showStartingHint;
-	bool isWebTV;
 	bool probePids;
-	CWebTV* webtv;
 
 	CMovieBrowser* moviebrowser;
 	MI_MOVIE_INFO * p_movie_info;

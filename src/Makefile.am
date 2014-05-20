@@ -12,7 +12,6 @@ if ENABLE_WEBIF
 SUBDIRS += nhttpd
 endif
 
-
 AM_CPPFLAGS = \
 	-I$(srcdir) \
 	-I$(top_builddir) \
@@ -93,7 +92,6 @@ neutrino_LDADD = \
 	eitd/libsectionsd.a \
 	gui/volumebar.o \
 	driver/libneutrino_driver.a \
-	driver/audiodec/libneutrino_driver_audiodec.a \
 	driver/libneutrino_driver_netfile.a \
 	timerd/libtimerd.a \
 	zapit/src/libzapit.a \

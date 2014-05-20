@@ -304,7 +304,6 @@ src/nhttpd/nhttpd.conf
 src/Makefile
 src/daemonc/Makefile
 src/driver/pictureviewer/Makefile
-src/driver/audiodec/Makefile
 src/driver/Makefile
 src/gui/Makefile
 src/gui/bedit/Makefile
@@ -327,7 +326,6 @@ data/locale/Makefile
 data/neutrino-scripts/Makefile
 data/scripts/Makefile
 data/themes/Makefile
-data/webtv/Makefile
 src/eitd/Makefile
 src/timerd/Makefile
 src/zapit/Makefile

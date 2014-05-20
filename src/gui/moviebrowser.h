@@ -81,7 +81,6 @@
 #include <driver/file.h>
 #include <driver/fb_window.h>
 #include <driver/pictureviewer/pictureviewer.h>
-#include <system/ytparser.h>
 
 #define MAX_NUMBER_OF_BOOKMARK_ITEMS MI_MOVIE_BOOK_USER_MAX // we just use the same size as used in Movie info (MAX_NUMBER_OF_BOOKMARK_ITEMS is used for the number of menu items)
 #define MOVIEBROWSER_SETTINGS_FILE          CONFIGDIR "/moviebrowser.conf"
@@ -183,13 +182,6 @@ typedef struct
     int* used;
 }MB_DIR;
 
-typedef enum
-{
-	MB_SHOW_RECORDS,
-	MB_SHOW_FILES,
-	MB_SHOW_YT
-} MB_SHOW_MODE;
-
 #define MB_MAX_ROWS 6
 #define MB_MAX_DIRS 5
 /* MB_SETTINGS to be stored in g_settings anytime ....*/
@@ -232,17 +224,6 @@ typedef struct
 	int lastRecordRowNr;
 	MB_INFO_ITEM lastRecordRow[MB_MAX_ROWS];
 	int lastRecordRowWidth[MB_MAX_ROWS];
-	int ytmode;
-	int ytorderby;
-	int ytresults;
-	int ytquality;
-	int ytconcconn;
-	int ytsearch_history_size;
-	int ytsearch_history_max;
-	std::string ytregion;
-	std::string ytvid;
-	std::string ytsearch;
-	std::list<std::string> ytsearch_history;
 } MB_SETTINGS;
 
 // Priorities for Developmemt: P1: critical feature, P2: important feature, P3: for next release, P4: looks nice, lets see
@@ -327,11 +308,6 @@ class CMovieBrowser : public CMenuTarget
 		//bool restart_mb_timeout;
 		int menu_ret;
 
-		cYTFeedParser ytparser;
-		int show_mode;
-		void loadYTitles(int mode, std::string search = "", std::string id = "");
-		bool showYTMenu(void);
-
 	public:  // Functions //////////////////////////////////////////////////////////7
 		CMovieBrowser(const char* path); //P1
 		CMovieBrowser(); //P1
@@ -356,8 +332,6 @@ class CMovieBrowser : public CMenuTarget
 #if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
 		bool doProbe(void);
 #endif
-		int  getMode() { return show_mode; }
-		void  setMode(int mode) { show_mode = mode; }
 
 	private: //Functions
 		///// MovieBrowser init ///////////////
@@ -436,8 +410,6 @@ class CMovieBrowser : public CMenuTarget
 		void autoFindSerie(void);
 
 		void info_hdd_level(bool paint_hdd=false);
-
-		neutrino_locale_t getFeedLocale(void);
 };
 
 // Class to show Moviebrowser Information, to be used by menu
