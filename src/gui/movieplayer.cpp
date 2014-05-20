@@ -54,6 +54,7 @@
 #include <sys/timeb.h>
 #include <sys/mount.h>
 
+#include <eitd/edvbstring.h>
 #include <video.h>
 #include <libtuxtxt/teletext.h>
 #include <zapit/zapit.h>
@@ -732,6 +733,37 @@ void CMoviePlayerGui::PlayFile(void)
 	if(!res) {
 		playback->Close();
 	} else {
+		if (!p_movie_info) {
+			std::vector<std::string> keys, values;
+			playback->GetMetadata(keys, values);
+			size_t count = keys.size();
+			if (count > 0) {
+				CMovieInfo cmi;
+				cmi.clearMovieInfo(&mi);
+				for (size_t i = 0; i < count; i++) {
+					std::string key = trim(keys[i]);
+					if (mi.epgTitle.empty() && !strcasecmp("title", key.c_str())) {
+ 						mi.epgTitle = isUTF8(values[i]) ? values[i] : convertLatin1UTF8(values[i]);
+						CVFD::getInstance()->showServicename(mi.epgTitle.c_str());
+						continue;
+					}
+					if (mi.epgChannel.empty() && !strcasecmp("artist", key.c_str())) {
+ 						mi.epgChannel = isUTF8(values[i]) ? values[i] : convertLatin1UTF8(values[i]);
+						continue;
+					}
+					if (mi.epgInfo1.empty() && !strcasecmp("album", key.c_str())) {
+ 						mi.epgInfo1 = isUTF8(values[i]) ? values[i] : convertLatin1UTF8(values[i]);
+						continue;
+					}
+				}
+				if (!mi.epgChannel.empty() || !mi.epgTitle.empty())
+					p_movie_info = &mi;
+#ifdef ENABLE_GRAPHLCD
+				if (p_movie_info)
+					nGLCD::lockChannel(p_movie_info->epgChannel, p_movie_info->epgTitle);
+#endif
+			}
+		}
 #if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
 		numpida = REC_MAX_APIDS;
 		playback->FindAllPids(apids, ac3flags, &numpida, language);
@@ -1195,9 +1227,13 @@ void CMoviePlayerGui::callInfoViewer(/*const int duration, const int curr_pos*/)
 	currentaudioname = "Unk";
 	getCurrentAudioName( is_file_player, currentaudioname);
 
-	if (isMovieBrowser && p_movie_info) {
-		g_InfoViewer->showMovieTitle(playstate, p_movie_info->epgEpgId >>16, p_movie_info->epgChannel, p_movie_info->epgTitle, p_movie_info->epgInfo1,
-					     duration, position , repeat_mode);
+	if (p_movie_info) {
+		std::string channelName = p_movie_info->epgChannel;
+		if (channelName.empty())
+			channelName = g_Locale->getText(LOCALE_MOVIEPLAYER_FILEPLAYBACK);
+
+		g_InfoViewer->showMovieTitle(playstate, p_movie_info->epgEpgId >>16, channelName, p_movie_info->epgTitle, p_movie_info->epgInfo1,
+					     duration, position, repeat_mode);
 		return;
 	}
 
