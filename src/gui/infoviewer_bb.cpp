@@ -231,14 +231,14 @@ void CInfoViewerBB::getBBButtonInfo()
 		std::string text, icon;
 		switch (i) {
 		case CInfoViewerBB::BUTTON_EPG:
-			icon = NEUTRINO_ICON_BUTTON_RED;
+			icon = NEUTRINO_ICON_INFO_RED;
 			frameBuffer->getIconSize(icon.c_str(), &w, &h);
 			text = g_settings.usermenu_text[SNeutrinoSettings::BUTTON_RED];
 			if (text.empty())
 				text = g_Locale->getText(LOCALE_INFOVIEWER_EVENTLIST);
 			break;
 		case CInfoViewerBB::BUTTON_AUDIO:
-			icon = NEUTRINO_ICON_BUTTON_GREEN;
+			icon = NEUTRINO_ICON_INFO_GREEN;
 			frameBuffer->getIconSize(icon.c_str(), &w, &h);
 			text = g_settings.usermenu_text[SNeutrinoSettings::BUTTON_GREEN];
 			if (text == g_Locale->getText(LOCALE_AUDIOSELECTMENUE_HEAD))
@@ -253,14 +253,14 @@ void CInfoViewerBB::getBBButtonInfo()
 			}
 			break;
 		case CInfoViewerBB::BUTTON_SUBS:
-			icon = NEUTRINO_ICON_BUTTON_YELLOW;
+			icon = NEUTRINO_ICON_INFO_YELLOW;
 			frameBuffer->getIconSize(icon.c_str(), &w, &h);
-			text = g_settings.usermenu_text[SNeutrinoSettings::BUTTON_YELLOW];
-			if (text.empty())
+			text = ""; //g_settings.usermenu_text[SNeutrinoSettings::BUTTON_YELLOW];
+			if (text.empty() && !g_RemoteControl->subChannels.empty())
 				text = g_Locale->getText((g_RemoteControl->are_subchannels) ? LOCALE_INFOVIEWER_SUBSERVICE : LOCALE_INFOVIEWER_SELECTTIME);
 			break;
 		case CInfoViewerBB::BUTTON_FEAT:
-			icon = NEUTRINO_ICON_BUTTON_BLUE;
+			icon = NEUTRINO_ICON_INFO_BLUE;
 			frameBuffer->getIconSize(icon.c_str(), &w, &h);
 			text = g_settings.usermenu_text[SNeutrinoSettings::BUTTON_BLUE];
 			if (text.empty())
@@ -269,24 +269,18 @@ void CInfoViewerBB::getBBButtonInfo()
 		default:
 			break;
 		}
-		bbButtonInfo[i].w = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->getRenderWidth(text) + w + 10;
-		bbButtonInfo[i].cx = w + 5;
+		bbButtonInfo[i].w = w;
+		bbButtonInfo[i].cx = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->getRenderWidth(text);
 		bbButtonInfo[i].h = h;
 		bbButtonInfo[i].text = text;
 		bbButtonInfo[i].icon = icon;
 	}
 	// Calculate position/size of buttons
 	minX = std::min(bbIconMinX, g_InfoViewer->ChanInfoX + (((g_InfoViewer->BoxEndX - g_InfoViewer->ChanInfoX) * 75) / 100));
-	int MaxBr = minX - (g_InfoViewer->ChanInfoX + 10);
+	int MaxBr = (g_InfoViewer->BoxEndX - 10) - (g_InfoViewer->ChanInfoX + 10);
 	bbButtonMaxX = g_InfoViewer->ChanInfoX + 10;
 	int br = 0, count = 0;
 	for (int i = 0; i < CInfoViewerBB::BUTTON_MAX; i++) {
-		if ((i == CInfoViewerBB::BUTTON_SUBS) && (g_RemoteControl->subChannels.empty())) { // no subchannels
-			bbButtonInfo[i].paint = false;
-//			bbButtonInfo[i].x = -1;
-//			continue;
-		}
-		else
 		{
 			count++;
 			bbButtonInfo[i].paint = true;
@@ -334,7 +328,7 @@ void CInfoViewerBB::getBBButtonInfo()
 		for (int i = 0; i < BUTTON_MAX; i++) {
 			if (!bbButtonInfo[i].paint)
 				continue;
-			bbButtonInfo[i].x = bbButtonMaxX + step * count;
+			bbButtonInfo[i].x = bbButtonMaxX + step * count + (step/2 - bbButtonInfo[i].w /2);
 			// printf("%s: i = %d count = %d b.x = %d\n", __func__, i, count, bbButtonInfo[i].x);
 			count++;
 		}
@@ -371,25 +365,16 @@ void CInfoViewerBB::showBBButtons(const int modus)
 	}
 
 	if (paint) {
-		int last_x = minX;
 		frameBuffer->paintBoxRel(g_InfoViewer->ChanInfoX, BBarY, minX - g_InfoViewer->ChanInfoX, InfoHeightY_Info, COL_INFOBAR_BUTTONS_BACKGROUND, RADIUS_LARGE, CORNER_BOTTOM); //round
 		for (i = BUTTON_MAX; i > 0;) {
 			--i;
-			if ((bbButtonInfo[i].x <= g_InfoViewer->ChanInfoX) || (bbButtonInfo[i].x >= g_InfoViewer->BoxEndX) || (!bbButtonInfo[i].paint))
+			if ((bbButtonInfo[i].x <= g_InfoViewer->ChanInfoX) || (bbButtonInfo[i].x + bbButtonInfo[i].w >= g_InfoViewer->BoxEndX) || (!bbButtonInfo[i].paint))
 				continue;
 			if (bbButtonInfo[i].x > 0) {
-				if (bbButtonInfo[i].x + bbButtonInfo[i].w > last_x) /* text too long */
-					bbButtonInfo[i].w = last_x - bbButtonInfo[i].x;
-				last_x = bbButtonInfo[i].x;
-				if (bbButtonInfo[i].w - bbButtonInfo[i].cx <= 0) {
-					printf("[infoviewer_bb:%d cannot paint icon %d (not enough space)\n",
-							__LINE__, i);
-					continue;
-				}
 				frameBuffer->paintIcon(bbButtonInfo[i].icon, bbButtonInfo[i].x, BBarY, InfoHeightY_Info);
 
-				g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->RenderString(bbButtonInfo[i].x + bbButtonInfo[i].cx, BBarFontY, 
-				       bbButtonInfo[i].w - bbButtonInfo[i].cx, bbButtonInfo[i].text, COL_INFOBAR_TEXT, 0, true); // UTF-8
+				g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->RenderString(bbButtonInfo[i].x + (bbButtonInfo[i].w /2 - bbButtonInfo[i].cx /2), BBarFontY, 
+				       bbButtonInfo[i].w, bbButtonInfo[i].text, COL_INFOBAR_TEXT, 0, true); // UTF-8
 			}
 		}
 
@@ -409,7 +394,7 @@ void CInfoViewerBB::showBBIcons(const int modus, const std::string & icon)
 	if ((bbIconInfo[modus].x <= g_InfoViewer->ChanInfoX) || (bbIconInfo[modus].x >= g_InfoViewer->BoxEndX))
 		return;
 	if ((modus >= CInfoViewerBB::ICON_SUBT) && (modus < CInfoViewerBB::ICON_MAX) && (bbIconInfo[modus].x != -1) && (is_visible)) {
-		frameBuffer->paintIcon(icon, bbIconInfo[modus].x, BBarY, 
+		frameBuffer->paintIcon(icon, bbIconInfo[modus].x - g_InfoViewer->time_width, g_InfoViewer->ChanNameY + 8, 
 				       InfoHeightY_Info, 1, true, true, COL_INFOBAR_BUTTONS_BACKGROUND);
 	}
 }
@@ -445,11 +430,13 @@ void CInfoViewerBB::paintshowButtonBar()
 	showIcon_CA_Status(0);
 	showIcon_Resolution();
 	showIcon_Tuner();
-	showSysfsHdd();
+	//showSysfsHdd();
+
 }
 
 void CInfoViewerBB::showIcon_SubT()
 {
+	return;
 	if (!is_visible)
 		return;
 	bool have_sub = false;
