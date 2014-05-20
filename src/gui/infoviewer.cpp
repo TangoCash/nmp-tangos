@@ -544,6 +544,7 @@ void CInfoViewer::showMovieTitle(const int playState, const t_channel_id &Channe
 
 	/* showChannelLogo() changes this, so better reset it every time... */
 	ChanNameX = BoxStartX + ChanWidth + SHADOW_OFFSET;
+	ChanNumWidth = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_NUMBER]->getRenderWidth("888") + 5;
 
 	paintBackground(COL_INFOBAR_PLUS_0);
 
@@ -616,7 +617,7 @@ void CInfoViewer::showMovieTitle(const int playState, const t_channel_id &Channe
 	int icon_y = (BoxEndY + ChanNameY + time_height) / 2 - icon_h / 2;
 	if (speed) {
 		int sh = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_INFO]->getHeight();
-		int sy = BoxStartY + ChanHeight/2 - sh/2 + sh;
+		int sy = (BoxEndY + ChanNameY + time_height) / 2 - sh/2 + sh;
 		g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_INFO]->RenderString(icon_x, sy, ChanHeight, runningRest, COL_INFOBAR_TEXT, 0, true);
 		icon_x += speedw;
 	}
