@@ -792,16 +792,16 @@ int CHDDFmtExec::exec(CMenuTarget* /*parent*/, const std::string& key)
 
 	switch(g_settings.hdd_fs) {
 		case fs_ext3:
-			snprintf(cmd, sizeof(cmd), "%s -T largefile -m0 %s", ext3MkfsBinary, src);
+			snprintf(cmd, sizeof(cmd), "%s -L RECORD -T largefile -m0 %s", ext3MkfsBinary, src);
 			break;
 		case fs_ext4:
-			snprintf(cmd, sizeof(cmd), "%s -T largefile -m0 %s", ext4MkfsBinary, src);
+			snprintf(cmd, sizeof(cmd), "%s -L RECORD -T largefile -m0 %s", ext4MkfsBinary, src);
 			break;
 		case fs_ext2:
-			snprintf(cmd, sizeof(cmd), "%s -T largefile -m0 %s", ext2MkfsBinary, src);
+			snprintf(cmd, sizeof(cmd), "%s -L RECORD -T largefile -m0 %s", ext2MkfsBinary, src);
 			break;
 		case fs_jfs:
-			snprintf(cmd, sizeof(cmd), "%s  -q %s", jfsMkfsBinary, src);
+			snprintf(cmd, sizeof(cmd), "%s -L RECORD  -q %s", jfsMkfsBinary, src);
 			break;
 		default:
 			return 0;
