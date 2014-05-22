@@ -261,7 +261,7 @@ void CComponentsForm::paintCCItems()
 		//check item for corrupt position, skip current item if found problems
 		//TODO: need a solution with possibility for scrolling
 		if (ypos > height || xpos > width){
-			printf("[CComponentsForm] %s: [form: %d] [item-index %d] [type=%d] WARNING: item position is out of form size:\ndefinied x=%d, defined width=%d \ndefinied y=%d, defined height=%d \n",
+			dprintf(DEBUG_INFO, "[CComponentsForm] %s: [form: %d] [item-index %d] [type=%d] WARNING: item position is out of form size:\ndefinied x=%d, defined width=%d \ndefinied y=%d, defined height=%d \n",
 				__func__, cc_item_index, cc_item->getIndex(), cc_item->getItemType(), xpos, width, ypos, height);
 			if (this->cc_item_type != CC_ITEMTYPE_FRM_CHAIN)
 				continue;
@@ -276,7 +276,7 @@ void CComponentsForm::paintCCItems()
 		}
 		//positionize vertical centered
 		else if (xpos == CC_CENTERED){
-			auto_x =  width/2 - cc_item->getWidth()/2;
+			auto_x =  width/2 - w_item/2 +fr_thickness;
 			cc_item->setRealXPos(this_x + auto_x);
 		}
 		else{
@@ -293,7 +293,7 @@ void CComponentsForm::paintCCItems()
 		}
 		//positionize hor centered
 		else if (ypos == CC_CENTERED){
-			auto_y =  height/2 - cc_item->getHeight()/2;
+			auto_y =  height/2 - h_item/2 +fr_thickness;
 			cc_item->setRealYPos(this_y + auto_y);
 		}
 		else{
@@ -314,7 +314,7 @@ void CComponentsForm::paintCCItems()
 		right_item -= (new_w%2);
 		w_item -= (new_w%2);
 		if (right_item > right_frm){
-			printf("[CComponentsForm] %s: [form: %d] [item-index %d] [type=%d] width is too large, definied width=%d, possible width=%d \n",
+			dprintf(DEBUG_INFO, "[CComponentsForm] %s: [form: %d] [item-index %d] [type=%d] width is too large, definied width=%d, possible width=%d \n",
 				__func__, cc_item_index, cc_item->getIndex(), cc_item->getItemType(), w_item, new_w);
 			cc_item->setWidth(new_w);
 		}
@@ -328,7 +328,7 @@ void CComponentsForm::paintCCItems()
 		bottom_item -= (new_h%2);
 		h_item -= (new_h%2);
 		if (bottom_item > bottom_frm){
-			printf("[CComponentsForm] %s: [form: %d] [item-index %d] [type=%d] height is too large, definied height=%d, possible height=%d \n",
+			dprintf(DEBUG_INFO, "[CComponentsForm] %s: [form: %d] [item-index %d] [type=%d] height is too large, definied height=%d, possible height=%d \n",
 			       __func__, cc_item_index, cc_item->getIndex(), cc_item->getItemType(), h_item, new_h);
 			cc_item->setHeight(new_h);
 		}
