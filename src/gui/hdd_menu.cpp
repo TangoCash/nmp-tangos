@@ -209,7 +209,6 @@ int CHDDMenuHandler::doMenu ()
 	struct stat s;
 	int root_dev = -1;
 
-	bool ext4MkfsBinaryExist   = (!access(ext4MkfsBinary, X_OK));
 	bool blkidBinaryExist      = (!access(blkidBinary, X_OK));
 	bool hdd_found = 0;
 	int n = scandir("/sys/block", &namelist, my_filter, alphasort);
@@ -355,12 +354,10 @@ int CHDDMenuHandler::doMenu ()
 			g_settings.hdd_fs = fs_jfs;
 		else
 			g_settings.hdd_fs = fs_ext3;
-		if (!ext4MkfsBinaryExist)
-			g_settings.hdd_fs = fs_ext3;
-		mc = new CMenuOptionChooser(LOCALE_HDD_FS, &g_settings.hdd_fs, HDD_FILESYS_OPTIONS, HDD_FILESYS_OPTION_COUNT, ext4MkfsBinaryExist);
+
+		mc = new CMenuOptionChooser(LOCALE_HDD_FS, &g_settings.hdd_fs, HDD_FILESYS_OPTIONS, HDD_FILESYS_OPTION_COUNT, true);
 		mc->setHint("", LOCALE_MENU_HINT_HDD_FMT);
 		tempMenu[i]->addItem(mc);
-		tempMenu[i]->addItem( new CMenuOptionChooser(LOCALE_HDD_FS, &g_settings.hdd_fs, HDD_FILESYS_OPTIONS, HDD_FILESYS_OPTION_COUNT, true));
 
 		mf = new CMenuForwarder(LOCALE_HDD_FORMAT, true, "", &fmtexec, namelist[i]->d_name);
 		mf->setHint("", LOCALE_MENU_HINT_HDD_FORMAT);
@@ -477,6 +474,7 @@ int CHDDMenuHandler::doMenu ()
 		}
 	}
 
+	hddmenu=NULL;
 	delete hddmenu;
 	return ret;
 }
@@ -801,7 +799,7 @@ int CHDDFmtExec::exec(CMenuTarget* /*parent*/, const std::string& key)
 			snprintf(cmd, sizeof(cmd), "%s -L RECORD -T largefile -m0 %s", ext2MkfsBinary, src);
 			break;
 		case fs_jfs:
-			snprintf(cmd, sizeof(cmd), "%s -L RECORD  -q %s", jfsMkfsBinary, src);
+			snprintf(cmd, sizeof(cmd), "%s -L RECORD -q %s", jfsMkfsBinary, src);
 			break;
 		default:
 			return 0;
