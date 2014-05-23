@@ -287,6 +287,8 @@ void *insertEventsfromFile(void * data)
 	char * epg_dir = (char *) data;
 	indexname = std::string(epg_dir) + "index.xml";
 
+	if (access(indexname.c_str(), F_OK)) pthread_exit(NULL);
+
 	xmlDocPtr index_parser = parseXmlFile(indexname.c_str());
 
 	if (index_parser == NULL) {

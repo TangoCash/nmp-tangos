@@ -1451,7 +1451,7 @@ void CTimeThread::run()
 		dvb_time = 0;
 		timediff = 0;
 
-		if (ntpenable /*&& system( ntp_system_cmd.c_str() ) == 0*/) {
+		if (ntpenable && system( ntp_system_cmd.c_str() ) == 0) {
 			time_ntp = true;
 			success = true;
 		} else if (dvb_time_update) {
