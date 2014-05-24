@@ -60,6 +60,7 @@
 #include <gui/widget/messagebox.h>
 
 #include <system/settings.h>
+#include <system/set_threadname.h>
 #include <gui/customcolor.h>
 
 #include <gui/bouquetlist.h>
@@ -73,6 +74,8 @@
 #include <zapit/debug.h>
 
 #include <eitd/sectionsd.h>
+
+#include <semaphore.h>
 
 extern CBouquetList * bouquetList;       /* neutrino.cpp */
 extern CRemoteControl * g_RemoteControl; /* neutrino.cpp */
@@ -122,6 +125,8 @@ CChannelList::CChannelList(const char * const pName, bool phistoryMode, bool _vl
 	cc_minitv = NULL;
 	logo_off = 0;
 	pig_on_win = false;
+
+	paint_events_index = -2;
 //printf("************ NEW LIST %s : %x\n", name.c_str(), (int) this);fflush(stdout);
 }
 
@@ -993,6 +998,8 @@ int CChannelList::show()
 		frameBuffer->blit();
 	}
 
+	paint_events(-2); // cancel paint_events thread
+
 	if (bouquet_changed)
 		res = -5; /* in neutrino.cpp: -5 == "don't change bouquet after adding a channel to fav" */
 	if(!dont_hide){
@@ -1041,8 +1048,10 @@ void CChannelList::hide()
 		cc_minitv = NULL;
 	}
 	if (headerClock) {
-		if (headerClock->Stop())
-			headerClock->kill();
+		if (headerClock->isPainted())
+			headerClock->hide();
+		headerClock->Stop();
+		headerClock->kill();
 	}
 	frameBuffer->paintBackgroundBoxRel(x, y, full_width, height + info_height);
 	clearItem2DetailsLine();
@@ -2333,8 +2342,70 @@ void CChannelList::paintPig (int _x, int _y, int w, int h)
 
 void CChannelList::paint_events(int index)
 {
+	if (index == -2 && paint_events_index > -2) {
+		pthread_mutex_lock(&paint_events_mutex);
+		paint_events_index = index;
+		sem_post(&paint_events_sem);
+		pthread_join(paint_events_thr, NULL);
+		sem_destroy(&paint_events_sem);
+		pthread_mutex_unlock(&paint_events_mutex);
+	} else if (paint_events_index == -2) {
+		if (index == -2)
+			return;
+		// First paint_event. No need to lock.
+		pthread_mutexattr_t attr;
+		pthread_mutexattr_init(&attr);
+		pthread_mutexattr_settype(&attr, PTHREAD_MUTEX_ERRORCHECK_NP);
+		pthread_mutex_init(&paint_events_mutex, &attr);
+
+		sem_init(&paint_events_sem, 0, 0);
+		if (!pthread_create(&paint_events_thr, NULL, paint_events, (void *) this)) {
+			pthread_mutex_lock(&paint_events_mutex);
+			paint_events_index = index;
+			pthread_mutex_unlock(&paint_events_mutex);
+			sem_post(&paint_events_sem);
+		}
+	} else {
+		pthread_mutex_lock(&paint_events_mutex);
+		paint_events_index = index;
+		pthread_mutex_unlock(&paint_events_mutex);
+		sem_post(&paint_events_sem);
+	}
+}
+
+void *CChannelList::paint_events(void *arg)
+{
+	CChannelList *me = (CChannelList *) arg;
+	me->paint_events();
+	pthread_exit(NULL);
+}
+
+void CChannelList::paint_events()
+{
+	set_threadname(__func__);
+
+	while (paint_events_index != -2) {
+		sem_wait(&paint_events_sem);
+		if (paint_events_index < 0)
+			continue;
+		while(!sem_trywait(&paint_events_sem));
+		int current_index = paint_events_index;
+
+		CChannelEventList evtlist;
+		readEvents(chanlist[current_index]->channel_id, evtlist);
+		if (current_index == paint_events_index) {
+			pthread_mutex_lock(&paint_events_mutex);
+			if (current_index == paint_events_index)
+				paint_events_index = -1;
+			pthread_mutex_unlock(&paint_events_mutex);
+			paint_events(evtlist);
+		}
+	}
+}
+
+void CChannelList::paint_events(CChannelEventList &evtlist)
+{
 	ffheight = g_Font[eventFont]->getHeight();
-	readEvents(chanlist[index]->channel_id);
 	frameBuffer->paintBoxRel(x+ width,y+ theight+pig_height, infozone_width, infozone_height,COL_MENUCONTENT_PLUS_0);
 
 	char startTime[10];
@@ -2398,8 +2469,7 @@ void CChannelList::paint_events(int index)
 		}
 		i++;
 	}
-	if ( !evtlist.empty() )
-		evtlist.clear();
+	frameBuffer->blit();
 }
 
 static bool sortByDateTime (const CChannelEvent& a, const CChannelEvent& b)
@@ -2407,7 +2477,7 @@ static bool sortByDateTime (const CChannelEvent& a, const CChannelEvent& b)
 	return a.startTime < b.startTime;
 }
 
-void CChannelList::readEvents(const t_channel_id channel_id)
+void CChannelList::readEvents(const t_channel_id channel_id, CChannelEventList &evtlist)
 {
 	CEitManager::getInstance()->getEventsServiceKey(channel_id , evtlist);
 
