@@ -44,6 +44,7 @@
 #if ENABLE_UPNP
 #include <gui/upnpbrowser.h>
 #endif
+#include <gui/nfs.h>
 
 #include <gui/widget/icons.h>
 
@@ -103,7 +104,6 @@ int CMediaPlayerMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 	return res;
 }
 
-
 //show selectable mediaplayer items
 int CMediaPlayerMenu::initMenuMedia(CMenuWidget *m, CPersonalizeGui *p)
 {	
@@ -141,6 +141,8 @@ int CMediaPlayerMenu::initMenuMedia(CMenuWidget *m, CPersonalizeGui *p)
 	if (usage_mode == MODE_VIDEO)
 	{
 		showMoviePlayer(media, personalize);
+
+		showNetworkNFSMounts(media, personalize);
 	}
 	else
 	{
@@ -150,6 +152,7 @@ int CMediaPlayerMenu::initMenuMedia(CMenuWidget *m, CPersonalizeGui *p)
 #endif
 		if (g_settings.recording_type != CNeutrinoApp::RECORDING_OFF)
 			showMoviePlayer(media, personalize);
+		showNetworkNFSMounts(media, personalize);
 
 	}
 	
@@ -186,4 +189,17 @@ void CMediaPlayerMenu::showMoviePlayer(CMenuWidget *moviePlayer, CPersonalizeGui
 	CMenuForwarder *fw_file = new CMenuForwarder(LOCALE_MOVIEPLAYER_FILEPLAYBACK, true, NULL, &CMoviePlayerGui::getInstance(), "fileplayback");
 	fw_file->setHint(NEUTRINO_ICON_HINT_FILEPLAY, LOCALE_MENU_HINT_FILEPLAY);
 	p->addItem(moviePlayer, fw_file, &g_settings.personalize[SNeutrinoSettings::P_MPLAYER_FILEPLAY]);
+}
+
+void CMediaPlayerMenu::showNetworkNFSMounts(CMenuWidget *menu_nfs, CPersonalizeGui *p)
+{
+	p->addSeparator(*menu_nfs, LOCALE_NETWORKMENU_MOUNT, true);
+	
+	CMenuForwarder * mf_mount = new CMenuForwarder(LOCALE_NFS_MOUNT , true, NULL, new CNFSMountGui(), NULL);
+	mf_mount->setHint("", LOCALE_MENU_HINT_NET_NFS_MOUNT);
+	p->addItem(menu_nfs, mf_mount, &g_settings.personalize[SNeutrinoSettings::P_MPLAYER_FILEPLAY]);
+
+	CMenuForwarder * mf_umount = new CMenuForwarder(LOCALE_NFS_UMOUNT, true, NULL, new CNFSUmountGui(), NULL);
+	mf_umount->setHint("", LOCALE_MENU_HINT_NET_NFS_UMOUNT);
+	p->addItem(menu_nfs, mf_umount, &g_settings.personalize[SNeutrinoSettings::P_MPLAYER_FILEPLAY]);
 }
