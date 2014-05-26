@@ -70,6 +70,7 @@ void CZapitChannel::Init()
 	polarization = 0;
 	flags = 0;
 	deltype = FE_QPSK;
+	bLockCount = 0;
 }
 
 CZapitChannel::~CZapitChannel(void)
