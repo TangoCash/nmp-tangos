@@ -607,28 +607,28 @@ CTimeInput::CTimeInput(const neutrino_locale_t Name, std::string* Value, const n
 {
 	valueString = Value;
 	frameBuffer = CFrameBuffer::getInstance();
-#if 0
+#if 1
 	// As nobody else seems to use this class I feel free to make some minor (and mostly backwards-compatible)
 	// adjustments to make it suitable for movieplayer playtime selection ... --martii
 
 	const char *v = valueString->c_str();
 	if (!isdigit(*v)) {
-	addInputField( new CExtendedInput_Item_Char("=+-") );
-	addInputField( new CExtendedInput_Item_Spacer(20) );
+		addInputField( new CExtendedInput_Item_Char("=+-") );
+		addInputField( new CExtendedInput_Item_Spacer(20) );
 	}
 	addInputField( new CExtendedInput_Item_Char("0123456789") );
 	addInputField( new CExtendedInput_Item_Char("0123456789") );
 	v = strstr(v, ":");
 	if (v) {
 		v++;
-	addInputField( new CExtendedInput_Item_Char(":",false) );
-	addInputField( new CExtendedInput_Item_Char("0123456789") );
-	addInputField( new CExtendedInput_Item_Char("0123456789") );
+		addInputField( new CExtendedInput_Item_Char(":",false) );
+		addInputField( new CExtendedInput_Item_Char("0123456789") );
+		addInputField( new CExtendedInput_Item_Char("0123456789") );
 		v = strstr(v, ":");
 		if (v) {
-	addInputField( new CExtendedInput_Item_Char(":",false) );
-	addInputField( new CExtendedInput_Item_Char("0123456789") );
-	addInputField( new CExtendedInput_Item_Char("0123456789") );
+			addInputField( new CExtendedInput_Item_Char(":",false) );
+			addInputField( new CExtendedInput_Item_Char("0123456789") );
+			addInputField( new CExtendedInput_Item_Char("0123456789") );
 		}
 	}
 #else

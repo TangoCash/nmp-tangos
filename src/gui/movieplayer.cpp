@@ -863,7 +863,7 @@ void CMoviePlayerGui::PlayFile(void)
 
 		if (msg == (neutrino_msg_t) g_settings.mpkey_plugin) {
 			g_PluginList->startPlugin_by_name(g_settings.movieplayer_plugin.c_str ());
-		} else if (msg == (neutrino_msg_t) g_settings.mpkey_stop || (filelist.size() > 0 && msg == (neutrino_msg_t) CRCInput::RC_right)) {
+		} else if (msg == (neutrino_msg_t) g_settings.mpkey_stop || (filelist.size() > 0 && msg == ((neutrino_msg_t) CRCInput::RC_right || (neutrino_msg_t) CRCInput::RC_next))) {
 			playstate = CMoviePlayerGui::STOPPED;
 			if ((duration - position) > 600000)
 				makeScreenShot(true);
@@ -896,7 +896,7 @@ void CMoviePlayerGui::PlayFile(void)
 		} else if (msg == (neutrino_msg_t) g_settings.mpkey_next3dmode) {
 			frameBuffer->set3DMode((CFrameBuffer::Mode3D)(((frameBuffer->get3DMode()) + 1) % CFrameBuffer::Mode3D_SIZE));
 #endif
-		} else if(filelist.size() > 1 && msg == (neutrino_msg_t) CRCInput::RC_left) {
+		} else if(filelist.size() > 1 && msg == ((neutrino_msg_t) CRCInput::RC_left || (neutrino_msg_t) CRCInput::RC_prev)) {
 			if (filelist_it != filelist.begin())
 				--filelist_it;
 			if (filelist_it == filelist.begin())
