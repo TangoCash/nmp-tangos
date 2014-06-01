@@ -731,6 +731,7 @@ struct SNeutrinoSettings
 	int	sms_channel;
 	std::string	font_file;
 	std::string	ttx_font_file;
+	std::string	sub_font_file;
 	std::string	update_dir;
 	// USERMENU
 	typedef enum

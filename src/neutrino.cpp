@@ -314,6 +314,8 @@ const lcd_setting_struct_t lcd_setting[SNeutrinoSettings::LCD_SETTING_COUNT] =
 #define DEFAULT_Y_END_HD	690  //715
 
 std::string ttx_font_file = "";
+std::string *sub_font_file;
+int sub_font_size;
 
 int CNeutrinoApp::loadSetup(const char * fname)
 {
@@ -869,7 +871,11 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	//
 	g_settings.font_file = configfile.getString("font_file", FONTDIR"/neutrino.ttf");
 	g_settings.ttx_font_file = configfile.getString( "ttx_font_file", FONTDIR"/DejaVuLGCSansMono-Bold.ttf");
-	ttx_font_file = g_settings.ttx_font_file.c_str();
+	ttx_font_file = g_settings.ttx_font_file;
+	g_settings.sub_font_file = configfile.getString("sub_font_file", FONTDIR"/neutrino.ttf");
+	sub_font_file = &g_settings.sub_font_file;
+	sub_font_size = configfile.getInt32("fontsize.subtitles", 24);
+
 	g_settings.update_dir = configfile.getString("update_dir", "/tmp");
 
 	// parentallock
@@ -1416,6 +1422,7 @@ void CNeutrinoApp::saveSetup(const char * fname)
 	configfile.setString("update_dir", g_settings.update_dir);
 	configfile.setString("font_file", g_settings.font_file);
 	configfile.setString("ttx_font_file", g_settings.ttx_font_file);
+	configfile.setString("sub_font_file", g_settings.sub_font_file);
 
 	//parentallock
 	configfile.setInt32( "parentallock_prompt", g_settings.parentallock_prompt );

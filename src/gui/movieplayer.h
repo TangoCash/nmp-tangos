@@ -81,12 +81,12 @@ class CMoviePlayerGui : public CMenuTarget
 	int duration;
 	CTimeOSD FileTime;
 
-	unsigned short numpida;
+	unsigned int numpida;
 	unsigned short vpid;
 	unsigned short vtype;
 	std::string    language[REC_MAX_APIDS];
-	unsigned short apids[REC_MAX_APIDS];
-	unsigned short ac3flags[REC_MAX_APIDS];
+	int apids[REC_MAX_APIDS];
+	unsigned int ac3flags[REC_MAX_APIDS];
 	unsigned short currentapid, currentac3;
 
 	repeat_mode_enum repeat_mode;
@@ -177,7 +177,6 @@ class CMoviePlayerGui : public CMenuTarget
 	bool osdTimeVisible() { return FileTime.IsVisible(); };
 	std::string CurrentAudioName() { return currentaudioname; };
 	int GetSpeed() { return speed; }
-	uint64_t GetPts();
 	int GetPosition() { return position; }
 	int GetDuration() { return duration; }
 	void UpdatePosition();

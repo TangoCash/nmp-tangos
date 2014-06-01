@@ -71,6 +71,8 @@ extern CRemoteControl * g_RemoteControl;
 
 extern const char * locale_real_names[];
 extern std::string ttx_font_file;
+extern std::string sub_font_file;
+extern int sub_font_size;
 
 COsdSetup::COsdSetup(bool wizard_mode)
 {
@@ -82,6 +84,7 @@ COsdSetup::COsdSetup(bool wizard_mode)
 	submenu_menus = NULL;
 	mfFontFile = NULL;
 	mfTtxFontFile = NULL;
+	mfSubFontFile = NULL;
 	mfWindowSize = NULL;
 	win_demo = NULL;
 
@@ -141,6 +144,7 @@ const SNeutrinoSettings::FONT_TYPES menu_font_sizes[4] =
 	SNeutrinoSettings::FONT_TYPE_MENU_INFO,
 	SNeutrinoSettings::FONT_TYPE_MENU_HINT
 };
+
 const SNeutrinoSettings::FONT_TYPES other_font_sizes[2] =
 {
 	SNeutrinoSettings::FONT_TYPE_SUBTITLES,
@@ -194,6 +198,7 @@ const CMenuOptionChooser::keyval SCREENSHOT_OPTIONS[SCREENSHOT_OPTION_COUNT] =
 	{ 1, LOCALE_SCREENSHOT_OSD }
 };
 #endif
+
 int COsdSetup::exec(CMenuTarget* parent, const std::string &actionKey)
 {
 	dprintf(DEBUG_DEBUG, "init osd setup\n");
@@ -236,6 +241,22 @@ int COsdSetup::exec(CMenuTarget* parent, const std::string &actionKey)
 			CNeutrinoApp::getInstance()->SetupFonts(CNeutrinoFonts::FONTSETUP_NEUTRINO_FONT | CNeutrinoFonts::FONTSETUP_NEUTRINO_FONT_INST);
 			osdTtxFontFile = "(" + getBaseName(fileBrowser.getSelectedFile()->Name) + ")";
 			mfTtxFontFile->setOption(osdTtxFontFile.c_str());
+		}
+		return res;
+	}
+	else if(actionKey == "sub_font")
+	{
+		CFileBrowser fileBrowser;
+		CFileFilter fileFilter;
+		fileFilter.addFilter("ttf");
+		fileBrowser.Filter = &fileFilter;
+		if (fileBrowser.exec(FONTDIR) == true)
+		{
+			g_settings.sub_font_file = fileBrowser.getSelectedFile()->Name;
+			sub_font_file = fileBrowser.getSelectedFile()->Name;
+			printf("[neutrino] sub font file %s\n", fileBrowser.getSelectedFile()->Name.c_str());
+			osdSubFontFile = getBaseName(fileBrowser.getSelectedFile()->Name);
+			mfSubFontFile->setOption(osdSubFontFile);
 		}
 		return res;
 	}
@@ -543,12 +564,14 @@ int COsdSetup::showOsdSetup()
 	mf->setHint("", LOCALE_MENU_HINT_VOLUME);
 	osd_menu->addItem(mf);
 
-	//screenshot
+	//info clock
 	CMenuWidget osd_menu_infoclock(LOCALE_MAINMENU_SETTINGS, NEUTRINO_ICON_SETTINGS, width, MN_WIDGET_ID_OSDSETUP_INFOCLOCK);
 	showOsdInfoclockSetup(&osd_menu_infoclock);
 	mf = new CMenuForwarder(LOCALE_MISCSETTINGS_INFOCLOCK, true, NULL, &osd_menu_infoclock, NULL, CRCInput::convertDigitToKey(shortcut++));
 	mf->setHint("", LOCALE_MENU_HINT_INFOCLOCK_SETUP);
 	osd_menu->addItem(mf);
+
+	//screenshot
 	CMenuWidget osd_menu_screenshot(LOCALE_MAINMENU_SETTINGS, NEUTRINO_ICON_SETTINGS, width, MN_WIDGET_ID_OSDSETUP_SCREENSHOT);
 	showOsdScreenShotSetup(&osd_menu_screenshot);
 	mf = new CMenuForwarder(LOCALE_SCREENSHOT_MENU, true, NULL, &osd_menu_screenshot, NULL, CRCInput::convertDigitToKey(shortcut++));
@@ -561,8 +584,8 @@ int COsdSetup::showOsdSetup()
 	CMenuOptionChooser *mc;
 	if (cs_get_revision() != 1) { /* 1 == Tripledragon */
 		mc = new CMenuOptionChooser(LOCALE_COLORMENU_OSD_PRESET, &g_settings.screen_preset, OSD_PRESET_OPTIONS, OSD_PRESET_OPTIONS_COUNT, true, this);
-	mc->setHint("", LOCALE_MENU_HINT_OSD_PRESET);
-	osd_menu->addItem(mc);
+		mc->setHint("", LOCALE_MENU_HINT_OSD_PRESET);
+		osd_menu->addItem(mc);
 	}
 
 	// round corners
@@ -603,6 +626,9 @@ int COsdSetup::showOsdSetup()
 	if (oldVolumeSize != g_settings.volume_size)
 		CVolumeHelper::getInstance()->refresh();
 
+	if (g_settings.screenshot_mode == 3)
+		g_settings.screenshot_mode = screenshot_res;
+
 	if (oldInfoClockSize != g_settings.infoClockFontSize) {
 		CInfoClock::getInstance()->setClockFontSize(g_settings.infoClockFontSize);
 		CVolumeHelper::getInstance()->refresh();
@@ -612,8 +638,7 @@ int COsdSetup::showOsdSetup()
 		}
 	}
 
-	if (g_settings.screenshot_mode == 3)
-		g_settings.screenshot_mode = screenshot_res;
+	sub_font_size = CNeutrinoApp::getInstance()->getConfigFile()->getInt32("fontsize.subtitles", 24);
 
 	delete colorInfoclockNotifier;
 	delete osd_menu;
@@ -778,6 +803,13 @@ void COsdSetup::showOsdFontSizeSetup(CMenuWidget *menu_fonts)
 	mfTtxFontFile->setHint("", LOCALE_MENU_HINT_FONT_TTX);
 	fontSettings->addItem(mfTtxFontFile);
 
+	// select subtitle font file
+	osdSubFontFile = g_settings.sub_font_file;
+	osdSubFontFile = getBaseName(osdSubFontFile);
+	mfSubFontFile = new CMenuForwarder(LOCALE_COLORMENU_FONT_SUB, true, osdSubFontFile.c_str(), this, "sub_font",  CRCInput::RC_yellow);
+	mfSubFontFile->setHint("", LOCALE_MENU_HINT_FONT_SUB);
+	fontSettings->addItem(mfSubFontFile);
+
 	// contrast fonts
 	CMenuOptionChooser * mc = new CMenuOptionChooser(LOCALE_COLORMENU_CONTRAST_FONTS, &g_settings.contrast_fonts, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true, this, CRCInput::RC_yellow, NEUTRINO_ICON_BUTTON_YELLOW);
 	mc->setHint("", LOCALE_MENU_HINT_CONTRAST_FONTS);
@@ -876,11 +908,13 @@ void COsdSetup::showOsdInfobarSetup(CMenuWidget *menu_infobar)
 	mc->setHint("", LOCALE_MENU_HINT_INFOBAR_CASYS);
 	menu_infobar->addItem(mc);
 
-	/*
-	// logo
+	// Dotmatrix
 	mc = new CMenuOptionChooser(LOCALE_MISCSETTINGS_INFOBAR_DOTMATRIX_DISPLAY, &g_settings.dotmatrix, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true);
 	mc->setHint("", LOCALE_MENU_HINT_INFOBAR_DOTMATRIX);
 	menu_infobar->addItem(mc);
+
+	/*
+	// logo
 	mc = new CMenuOptionChooser(LOCALE_MISCSETTINGS_INFOBAR_DISP_LOG, &g_settings.infobar_show_channellogo, LOCALE_MISCSETTINGS_INFOBAR_DISP_OPTIONS, LOCALE_MISCSETTINGS_INFOBAR_DISP_OPTIONS_COUNT, true);
 	mc->setHint("", LOCALE_MENU_HINT_INFOBAR_LOGO);
 	menu_infobar->addItem(mc);
@@ -966,10 +1000,12 @@ void COsdSetup::showOsdChanlistSetup(CMenuWidget *menu_chanlist)
 	mc->setHint("", LOCALE_MENU_HINT_CHANNELLIST_EXTENDED);
 	menu_chanlist->addItem(mc);
 
-	// foot
+	// hd-icon
 	mc = new CMenuOptionChooser(LOCALE_CHANNELLIST_HDICON, &g_settings.channellist_hdicon, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true);
 	mc->setHint("", LOCALE_MENU_HINT_CHANNELLIST_HDICON);
 	menu_chanlist->addItem(mc);
+
+	// foot
 	mc = new CMenuOptionChooser(LOCALE_CHANNELLIST_FOOT, &g_settings.channellist_foot, CHANNELLIST_FOOT_OPTIONS, CHANNELLIST_FOOT_OPTIONS_COUNT, true);
 	mc->setHint("", LOCALE_MENU_HINT_CHANNELLIST_FOOT);
 	menu_chanlist->addItem(mc);
@@ -978,6 +1014,8 @@ void COsdSetup::showOsdChanlistSetup(CMenuWidget *menu_chanlist)
 	mc = new CMenuOptionChooser(LOCALE_MISCSETTINGS_CHANNELLIST_COLORED_EVENTS, &g_settings.colored_events_channellist, OPTIONS_COLORED_EVENTS_OPTIONS, OPTIONS_COLORED_EVENTS_OPTION_COUNT, true);
 	mc->setHint("", LOCALE_MENU_HINT_CHANNELLIST_COLORED);
 	menu_chanlist->addItem(mc);
+
+	//show channel logo
 	mc = new CMenuOptionChooser(LOCALE_CHANNELLIST_SHOW_CHANNELLOGO, &g_settings.channellist_show_channellogo, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true);
 	mc->setHint("", LOCALE_MENU_HINT_CHANNELLIST_SHOW_CHANNELLOGO);
 	menu_chanlist->addItem(mc);
@@ -1026,6 +1064,7 @@ void COsdSetup::showOsdVolumeSetup(CMenuWidget *menu_volume)
 	menu_volume->addItem(mc);
 }
 
+//info clock
 void COsdSetup::showOsdInfoclockSetup(CMenuWidget *menu_infoclock)
 {
 	menu_infoclock->addIntroItems(LOCALE_MISCSETTINGS_INFOCLOCK);
@@ -1061,6 +1100,7 @@ void COsdSetup::showOsdInfoclockSetup(CMenuWidget *menu_infoclock)
 	menu_infoclock->addItem(mf);
 	colorInfoclockNotifier->addItem(mf);
 }
+
 bool COsdSetup::changeNotify(const neutrino_locale_t OptionName, void * data)
 {
 	if(ARE_LOCALES_EQUAL(OptionName, LOCALE_COLORMENU_CONTRAST_FONTS))
@@ -1163,6 +1203,7 @@ int COsdSetup::showContextChanlistMenu()
 	mc->setHint("", LOCALE_MENU_HINT_CHANNELLIST_HDICON);
 	menu_chanlist->addItem(mc);
 #endif
+
 	mc = new CMenuOptionChooser(LOCALE_CHANNELLIST_FOOT, &g_settings.channellist_foot, CHANNELLIST_FOOT_OPTIONS, CHANNELLIST_FOOT_OPTIONS_COUNT, true);
 	mc->setHint("", LOCALE_MENU_HINT_CHANNELLIST_FOOT);
 	menu_chanlist->addItem(mc);

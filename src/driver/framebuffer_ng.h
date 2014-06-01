@@ -107,6 +107,7 @@ class CFbAccel
 		int sX, sY, eX, eY;
 		int startX, startY, endX, endY;
 		t_fb_var_screeninfo s;
+		void blitArea(int src_width, int src_height, int fb_x, int fb_y, int width, int height);
 		void resChange(void);
 		void blitBB2FB(int fx0, int fy0, int fx1, int fy1, int tx0, int ty0, int tx1, int ty2);
 		void blitFB2FB(int fx0, int fy0, int fx1, int fy1, int tx0, int ty0, int tx1, int ty2);
@@ -309,6 +310,7 @@ class CFrameBuffer
 		enum Mode3D mode3D;
 
 	public:
+		void blitArea(int src_width, int src_height, int fb_x, int fb_y, int width, int height);
 		void ClearFB(void);
 		void resChange(void);
 #endif

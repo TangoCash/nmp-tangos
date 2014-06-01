@@ -1336,6 +1336,11 @@ bool CFrameBuffer::OSDShot(const std::string &name)
 	return true;
 }
 
+void CFrameBuffer::blitArea(int src_width, int src_height, int fb_x, int fb_y, int width, int height)
+{
+	accel->blitArea(src_width, src_height, fb_x, fb_y, width, height);
+}
+
 void CFrameBuffer::resChange(void)
 {
 	accel->resChange();

@@ -49,9 +49,9 @@ class COsdSetup : public CMenuTarget, public CChangeObserver
 		CFontSizeNotifier *fontsizenotifier;
 		CMenuWidget *osd_menu;
 		CMenuWidget *submenu_menus;
-		CMenuForwarder *mfFontFile, *mfTtxFontFile, *mfWindowSize;
+		CMenuForwarder *mfFontFile, *mfTtxFontFile, *mfSubFontFile, *mfWindowSize;
 		char window_size_value[10];
-		std::string osdFontFile, osdTtxFontFile;
+		std::string osdFontFile, osdTtxFontFile, osdSubFontFile;
 		CComponentsShapeSquare *win_demo;
 		COnOffNotifier* colorInfoclockNotifier;
 

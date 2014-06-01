@@ -985,6 +985,39 @@ void CFbAccel::mark(int, int, int, int)
 #endif
 
 #if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+void CFbAccel::blitArea(int src_width, int src_height, int fb_x, int fb_y, int width, int height)
+{
+	if (!src_width || !src_height)
+		return;
+	STMFBIO_BLT_EXTERN_DATA blt_data;
+	memset(&blt_data, 0, sizeof(STMFBIO_BLT_EXTERN_DATA));
+	blt_data.operation  = BLT_OP_COPY;
+	blt_data.ulFlags    = BLT_OP_FLAGS_BLEND_SRC_ALPHA | BLT_OP_FLAGS_BLEND_DST_MEMORY;	// we need alpha blending
+//	blt_data.srcOffset  = 0;
+	blt_data.srcPitch   = src_width * 4;
+	blt_data.dstOffset  = lbb_off;
+	blt_data.dstPitch   = fb->stride;
+//	blt_data.src_top    = 0;
+//	blt_data.src_left   = 0;
+	blt_data.src_right  = src_width;
+	blt_data.src_bottom = src_height;
+	blt_data.dst_left   = fb_x;
+	blt_data.dst_top    = fb_y;
+	blt_data.dst_right  = fb_x + width;
+	blt_data.dst_bottom = fb_y + height;
+	blt_data.srcFormat  = SURF_ARGB8888;
+	blt_data.dstFormat  = SURF_ARGB8888;
+	blt_data.srcMemBase = (char *)backbuffer;
+	blt_data.dstMemBase = (char *)fb->lfb;
+	blt_data.srcMemSize = backbuf_sz;
+	blt_data.dstMemSize = fb->stride * DEFAULT_YRES + lbb_off;
+
+	msync(backbuffer, blt_data.srcPitch * src_height, MS_SYNC);
+
+	if(ioctl(fb->fd, STMFBIO_BLT_EXTERN, &blt_data) < 0)
+		perror("blitArea FBIO_BLIT");
+}
+
 void CFbAccel::resChange(void)
 {
 	if (ioctl(fb->fd, FBIOGET_VSCREENINFO, &s) == -1)
