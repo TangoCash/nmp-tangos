@@ -1184,7 +1184,7 @@ void CMoviePlayerGui::callInfoViewer(/*const int duration, const int curr_pos*/)
 	if (p_movie_info) {
 		std::string channelName = p_movie_info->epgChannel;
 		if (channelName.empty())
-			channelName = g_Locale->getText(LOCALE_MOVIEPLAYER_FILEPLAYBACK);
+			channelName = file_name;
 
 		g_InfoViewer->showMovieTitle(playstate, p_movie_info->epgEpgId >>16, channelName, p_movie_info->epgTitle, p_movie_info->epgInfo1,
 					     duration, position, repeat_mode);
