@@ -27,6 +27,7 @@
 
 /* include <config.h> before <gui/filebrowser.h> to enable 64 bit file offsets */
 #include <gui/filebrowser.h>
+#include "filebrowser_setup.h"
 
 #include <gui/components/cc.h>
 #include <gui/widget/buttons.h>
@@ -917,6 +918,14 @@ bool CFileBrowser::exec(const char * const dirname)
 				paintFoot();
 				ChangeDir(Path);
 			}
+		}
+		
+		else if ( msg == CRCInput::RC_setup )
+		{
+			CFileBrowserSetup fsetup;
+			fsetup.exec(NULL,"show_menu");
+			Multi_Select = g_settings.filebrowser_multi_select;
+			paint();
 		}
 		else if ( msg == CRCInput::RC_home )
 		{
