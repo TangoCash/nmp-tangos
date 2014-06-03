@@ -135,7 +135,7 @@ class CInfoViewerBB
 		static CInfoViewerBB* getInstance();
 		void Init(void);
 
-		int bottom_bar_offset, InfoHeightY_Info;
+		int bottom_bar_offset, InfoHeightY_Info, showBBIcons_width;
 		bool is_visible;
 
 		void showSysfsHdd(void);

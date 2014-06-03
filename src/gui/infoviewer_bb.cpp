@@ -161,6 +161,7 @@ bool CInfoViewerBB::checkBBIcon(const char * const icon, int *w, int *h)
 void CInfoViewerBB::getBBIconInfo()
 {
 	bbIconMaxH 		= 0;
+	showBBIcons_width = 0;
 	BBarY 			= g_InfoViewer->BoxEndY + bottom_bar_offset;
 	BBarFontY 		= BBarY + InfoHeightY_Info - (InfoHeightY_Info - g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->getHeight()) / 2; /* center in buttonbar */
 	bbIconMinX 		= g_InfoViewer->BoxEndX - 8; //should be 10px, but 2px will be reduced for each icon
@@ -209,6 +210,7 @@ void CInfoViewerBB::getBBIconInfo()
 			bbIconMinX -= w + 2;
 			bbIconInfo[i].x = bbIconMinX;
 			bbIconInfo[i].h = h;
+			showBBIcons_width += w;
 		}
 		else
 			bbIconInfo[i].x = -1;
