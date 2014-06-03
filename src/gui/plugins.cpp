@@ -263,6 +263,7 @@ bool CPlugins::parseCfg(plugin *plugin_data)
 	return !reject;
 }
 
+#if 0
 PluginParam * CPlugins::makeParam(const char * const id, const char * const value, PluginParam * const next)
 {
 	PluginParam * startparam = new PluginParam;
@@ -282,6 +283,7 @@ PluginParam * CPlugins::makeParam(const char * const id, const int value, Plugin
 
 	return makeParam(id, aval, next);
 }
+#endif
 
 void CPlugins::startPlugin_by_name(const std::string & name)
 {
