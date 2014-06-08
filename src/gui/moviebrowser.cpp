@@ -4043,9 +4043,7 @@ static int read_psi(char * spart, unsigned char * buf)
 
 static void save_info(CMovieInfo * cmovie, MI_MOVIE_INFO * minfo, char * dpart, off64_t spos, off64_t secsize)
 {
-	MI_MOVIE_INFO ninfo;
-
-	cmovie->copy(minfo, &ninfo);
+	MI_MOVIE_INFO ninfo = *minfo;
 	ninfo.file.Name = dpart;
 	ninfo.file.Size = spos;
 	ninfo.length = spos/secsize/60;
@@ -4059,7 +4057,6 @@ static void save_info(CMovieInfo * cmovie, MI_MOVIE_INFO * minfo, char * dpart, 
 		}
 	}
 	cmovie->saveMovieInfo(ninfo);
-	cmovie->clearMovieInfo(&ninfo);
 	reset_atime(dpart, minfo->file.Time);
 }
 

@@ -1178,7 +1178,7 @@ void CMoviePlayerGui::callInfoViewer(/*const int duration, const int curr_pos*/)
 				CNeutrinoApp::getInstance()->channelList->getActiveChannel_ChannelID());
 		return;
 	}
-	currentaudioname = "Unk";
+	currentaudioname = "Unknown";
 	getCurrentAudioName( is_file_player, currentaudioname);
 
 	if (p_movie_info) {
@@ -1249,37 +1249,17 @@ void CMoviePlayerGui::addAudioFormat(int count, std::string &apidtitle, bool& en
 
 void CMoviePlayerGui::getCurrentAudioName( bool file_player, std::string &audioname)
 {
-	if(file_player && !numpida){
-		playback->FindAllPids(apids, ac3flags, &numpida, language);
-		if(numpida)
-			currentapid = apids[0];
-	}
-	bool dumm = true;
-	for (unsigned int count = 0; count < numpida; count++) {
+	numpida = REC_MAX_APIDS;
+	playback->FindAllPids(apids, ac3flags, &numpida, language);
+	if(numpida)
+		currentapid = apids[0];
+	for (unsigned int count = 0; count < numpida; count++)
 		if(currentapid == apids[count]){
-			if(!file_player){
-				getAudioName(apids[count], audioname);
-				return ;
-			} else if (!language[count].empty()){
-				audioname = language[count];
-				addAudioFormat(count, audioname, dumm);
-				if(!dumm && (count < numpida)){
-					currentapid = apids[count+1];
-					continue;
-				}
-				return ;
-			}
-			char apidnumber[20];
-			sprintf(apidnumber, "Stream %d %X", count + 1, apids[count]);
-			audioname = apidnumber;
-			addAudioFormat(count, audioname, dumm);
-			if(!dumm && (count < numpida)){
-				currentapid = apids[count+1];
-				continue;
-			}
-			return ;
+			if (getAudioName(apids[count], audioname))
+				return;
+			audioname = language[count];
+			return;
 		}
-	}
 }
 
 void CMoviePlayerGui::selectAudioPid(bool file_player)
