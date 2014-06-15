@@ -334,6 +334,11 @@ int CMoviePlayerGui::exec(CMenuTarget * parent, const std::string & actionKey)
 		is_file_player = 1;
 		PlayFile();
 	}
+	else if (actionKey == "http") {
+		isHTTP = true;
+		is_file_player = 1;
+		PlayFile();
+	}
 	else {
 #if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
 		running = false;
@@ -1988,7 +1993,7 @@ void CMoviePlayerGui::showSubtitle(neutrino_msg_data_t data)
 		int x[subtext.size()];
 		int y[subtext.size()];
 		for (unsigned i = 0; i < subtext.size(); i++) {
-			int w = g_Font[SNeutrinoSettings::FONT_TYPE_SUBTITLES]->getRenderWidth (subtext[i].c_str(), true);
+			int w = g_Font[SNeutrinoSettings::FONT_TYPE_SUBTITLES]->getRenderWidth (subtext[i]);
 			x[i] = (sw - w) / 2;
 			y[i] = sh - height + h*(i + 1);
 			min_x = std::min(min_x, x[i]);
@@ -2000,7 +2005,7 @@ void CMoviePlayerGui::showSubtitle(neutrino_msg_data_t data)
 		frameBuffer->paintBoxRel(min_x, min_y, max_x - min_x, max_y-min_y, COL_MENUCONTENT_PLUS_0);
 
 		for (unsigned i = 0; i < subtext.size(); i++)
-			g_Font[SNeutrinoSettings::FONT_TYPE_SUBTITLES]->RenderString(x[i], y[i], sw, subtext[i].c_str(), COL_MENUCONTENT_TEXT, 0, true);
+			g_Font[SNeutrinoSettings::FONT_TYPE_SUBTITLES]->RenderString(x[i], y[i], sw, subtext[i].c_str(), COL_MENUCONTENT_TEXT);
 
 		end_time = sub->end_display_time + time_monotonic_ms();
 	}

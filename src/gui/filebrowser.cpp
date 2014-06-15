@@ -1257,7 +1257,7 @@ void CFileBrowser::paintItem(unsigned int pos)
 			}
 		frameBuffer->paintIcon(fileicon, x+5 , ypos + (fheight-16) / 2 );
 
-			fnt_item->RenderString(x + 35, ypos + fheight, colwidth1 - 10 , FILESYSTEM_ENCODING_TO_UTF8_STRING(actual_file->getFileName()), color, 0, true); // UTF-8
+			fnt_item->RenderString(x + 35, ypos + fheight, colwidth1 - 10 , FILESYSTEM_ENCODING_TO_UTF8_STRING(actual_file->getFileName()), color);
 
 			if( S_ISREG(actual_file->Mode) )
 			{
@@ -1463,8 +1463,8 @@ void CFileBrowser::paintSMSKey()
 	{
 		char cKey[2]={m_SMSKeyInput.getOldKey(),0};
 		cKey[0] = toupper(cKey[0]);
-		int len = fnt_small->getRenderWidth(cKey, true);
-		fnt_small->RenderString(x + width - skwidth, y + height - foheight + (skheight/2), len, cKey, COL_MENUHEAD_TEXT, 0, true);
+		int len = fnt_small->getRenderWidth(cKey);
+		fnt_small->RenderString(x + width - skwidth, y + height - foheight + (skheight/2), len, cKey, COL_MENUHEAD_TEXT);
 	}
 }
 

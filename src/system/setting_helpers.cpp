@@ -594,8 +594,6 @@ int CDataResetNotifier::exec(CMenuTarget* /*parent*/, const std::string& actionK
 		CServiceManager::getInstance()->SatelliteList().clear();
 		CZapit::getInstance()->LoadSettings();
 		CZapit::getInstance()->GetConfig(zapitCfg);
-		g_RCInput->postMsg( NeutrinoMessages::REBOOT, 0);
-		ret = menu_return::RETURN_EXIT_ALL;
 #ifdef BOXMODEL_APOLLO
 		/* flag file to erase /var partition on factory reset,
 		   will be done by init scripts */
@@ -603,6 +601,8 @@ int CDataResetNotifier::exec(CMenuTarget* /*parent*/, const std::string& actionK
 		if (fp)
 			fclose(fp);
 #endif
+		g_RCInput->postMsg( NeutrinoMessages::REBOOT, 0);
+		ret = menu_return::RETURN_EXIT_ALL;
 	}
 	if(delete_set) {
 		unlink(NEUTRINO_SETTINGS_FILE);

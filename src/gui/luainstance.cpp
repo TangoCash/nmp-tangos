@@ -29,6 +29,7 @@
 #include <gui/widget/msgbox.h>
 #include <gui/widget/messagebox.h>
 #include <gui/filebrowser.h>
+#include <gui/movieplayer.h>
 #include <driver/pictureviewer/pictureviewer.h>
 #include <neutrino.h>
 
@@ -407,6 +408,7 @@ const luaL_Reg CLuaInstance::methods[] =
 	{ "Blit", CLuaInstance::Blit },
 	{ "GetLanguage", CLuaInstance::GetLanguage },
 	{ "runScript", CLuaInstance::runScriptExt },
+	{ "PlayFile", CLuaInstance::PlayFile },
 	{ NULL, NULL }
 };
 
@@ -565,6 +567,28 @@ int CLuaInstance::DisplayImage(lua_State *L)
 	return 0;
 }
 
+int CLuaInstance::PlayFile(lua_State *L)
+{
+	printf("CLuaInstance::%s %d\n", __func__, lua_gettop(L));
+	int numargs = lua_gettop(L);
+
+	if (numargs < 3) {
+		printf("CLuaInstance::%s: not enough arguments (%d, expected 3)\n", __func__, numargs);
+		return 0;
+	}
+	const char *title;
+	const char *fname;
+
+	title = luaL_checkstring(L, 2);
+	fname = luaL_checkstring(L, 3);
+	printf("CLuaInstance::%s: title %s file %s\n", __func__, title, fname);
+	std::string st(title);
+	std::string sf(fname);
+	CMoviePlayerGui::getInstance().SetFile(st, sf);
+	CMoviePlayerGui::getInstance().exec(NULL, "http");
+	return 0;
+}
+
 int CLuaInstance::GetSize(lua_State *L)
 {
 	DBG("CLuaInstance::%s %d\n", __func__, lua_gettop(L));
@@ -608,7 +632,7 @@ int CLuaInstance::RenderString(lua_State *L)
 		center = luaL_checkint(L, 9);
 	if (f >= SNeutrinoSettings::FONT_TYPE_COUNT || f < 0)
 		f = SNeutrinoSettings::FONT_TYPE_MENU;
-	int rwidth = g_Font[f]->getRenderWidth(text, true);
+	int rwidth = g_Font[f]->getRenderWidth(text);
 	if (center) { /* center the text inside the box */
 		if (rwidth < w)
 			x += (w - rwidth) / 2;
@@ -616,7 +640,7 @@ int CLuaInstance::RenderString(lua_State *L)
 	if ((c & MAGIC_MASK) == MAGIC_COLOR)
 		c = CFrameBuffer::getInstance()->realcolor[c & 0x000000ff];
 	if (boxh > -1) /* if boxh < 0, don't paint string */
-		W->fbwin->RenderString(g_Font[f], x, y, w, text, c, boxh, true);
+		W->fbwin->RenderString(g_Font[f], x, y, w, text, c, boxh);
 	lua_pushinteger(L, rwidth); /* return renderwidth */
 	return 1;
 }
@@ -635,7 +659,7 @@ int CLuaInstance::getRenderWidth(lua_State *L)
 	if (f >= SNeutrinoSettings::FONT_TYPE_COUNT || f < 0)
 		f = SNeutrinoSettings::FONT_TYPE_MENU;
 
-	lua_pushinteger(L, (int)g_Font[f]->getRenderWidth(text, true));
+	lua_pushinteger(L, (int)g_Font[f]->getRenderWidth(text));
 	return 1;
 }
 
