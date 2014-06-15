@@ -376,7 +376,7 @@ void CInfoViewerBB::showBBButtons(const int modus)
 				frameBuffer->paintIcon(bbButtonInfo[i].icon, bbButtonInfo[i].x, BBarY, InfoHeightY_Info);
 
 				g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->RenderString(bbButtonInfo[i].x + (bbButtonInfo[i].w /2 - bbButtonInfo[i].cx /2), BBarFontY, 
-				       bbButtonInfo[i].w, bbButtonInfo[i].text, COL_INFOBAR_TEXT, 0, true); // UTF-8
+				       bbButtonInfo[i].w, bbButtonInfo[i].text, COL_INFOBAR_TEXT);
 			}
 		}
 
