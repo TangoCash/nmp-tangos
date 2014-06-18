@@ -160,6 +160,7 @@ class CMoviePlayerGui : public CMenuTarget
 	bool mountIso(CFile *file);
 	void makeFilename();
 	void makeScreenShot(bool autoshot = false, bool forcover = false);
+	void showFileInfos();
 
 	void Cleanup();
 	static void *ShowStartHint(void *arg);
