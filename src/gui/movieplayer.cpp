@@ -2088,7 +2088,7 @@ void CMoviePlayerGui::parsePlaylist(CFile *file)
 bool CMoviePlayerGui::mountIso(CFile *file)
 {
 	printf("ISO file passed: %s\n", file->Name.c_str());
-	safe_mkdir(ISO_MOUNT_POINT);
+	safe_mkdir((char *)ISO_MOUNT_POINT);
 	if (my_system(5, "mount", "-o", "loop", file->Name.c_str(), ISO_MOUNT_POINT) == 0) {
 		makeFilename();
 		full_name = "/media/iso";
