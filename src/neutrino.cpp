@@ -798,8 +798,8 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	g_settings.channellist_additional = configfile.getInt32("channellist_additional", 1); //default minitv
 	g_settings.eventlist_additional = configfile.getInt32("eventlist_additional", 1);
 	g_settings.channellist_epgtext_align_right	= configfile.getBool("channellist_epgtext_align_right"          , false);
-	g_settings.channellist_extended		= configfile.getBool("channellist_extended"          , true);
-	g_settings.channellist_foot	= configfile.getInt32("channellist_foot"          , 2);//default next Event
+	g_settings.channellist_extended = configfile.getInt32("channellist_extended", 1);
+	g_settings.channellist_foot	= configfile.getInt32("channellist_foot"          , 2);//default off
 	g_settings.channellist_new_zap_mode = configfile.getInt32("channellist_new_zap_mode", 1);
 	g_settings.channellist_sort_mode  = configfile.getInt32("channellist_sort_mode", 0);//sort mode: alpha, freq, sat 
 #if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
