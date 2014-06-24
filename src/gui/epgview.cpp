@@ -713,8 +713,8 @@ int CEpgData::show(const t_channel_id channel_id, uint64_t a_id, time_t* a_start
 						pb.paint(false);
 					}
 				}
-				if(data == fader.GetTimer()) {
-					if(fader.Fade())
+				if(data == fader.GetFadeTimer()) {
+					if(fader.FadeDone())
 						loop = false;
 				}
 				else
@@ -980,7 +980,7 @@ int CEpgData::show(const t_channel_id channel_id, uint64_t a_id, time_t* a_start
 			frameBuffer->blit();
 		}
 		hide();
-		fader.Stop();
+		fader.StopFade();
 	}
 	return res;
 }

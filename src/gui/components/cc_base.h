@@ -32,13 +32,13 @@
 #include <string>
 #include <driver/pictureviewer/pictureviewer.h>
 #include <gui/widget/icons.h>
-
+#include <driver/fade.h>
 /// Basic component class.
 /*!
 Basic attributes and member functions for component sub classes
 */
 
-class CComponents
+class CComponents : public COSDFader
 {
 	private:
 		///pixel buffer handling, returns pixel buffer depends of given parameters
@@ -81,9 +81,9 @@ class CComponents
 		///property: width of shadow
 		int shadow_w;
 
-		 ///property: frame thickness
+		 ///property: frame thickness, see also setFrameThickness()
 		int fr_thickness;
-		///property: frame thickness of selected component
+		///property: frame thickness of selected component, see also setFrameThickness()
 		int fr_thickness_sel;
 
 		///status: true=component was painted for 1st time
@@ -194,7 +194,7 @@ class CComponents
 		inline virtual int getCornerRadius(){return corner_rad;};
 
 		///set frame thickness
-		inline virtual void setFrameThickness(const int& thickness){fr_thickness = thickness;};
+		virtual void setFrameThickness(const int& thickness, const int& thickness_sel = 3);
 		///switch shadow on/off
 		///Note: it's recommended to use #defines: CC_SHADOW_ON=true or CC_SHADOW_OFF=false as parameter, see also cc_types.h
 		inline virtual void setShadowOnOff(bool has_shadow){shadow = has_shadow;};

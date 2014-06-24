@@ -39,7 +39,7 @@
 
 #include <global.h>
 #include <neutrino.h>
-
+#include <neutrino_menue.h>
 #include <driver/fontrenderer.h>
 #include <driver/screen_max.h>
 #include <driver/rcinput.h>
@@ -379,6 +379,10 @@ int CChannelList::doChannelMenu(void)
 	menu->addItem(new CMenuForwarder(LOCALE_CHANNELLIST_RESET_ALL, reset_all, NULL, selector, cnt, CRCInput::convertDigitToKey(shortcut++)), old_selected == i++);
 	snprintf(cnt, sizeof(cnt), "%d", i);
 	menu->addItem(new CMenuSeparator(CMenuSeparator::LINE));
+
+	//use osd channel list settings widget from COsdSetup class
+	CMenuWidget osd_menu_chanlist(LOCALE_MAINMENU_SETTINGS, NEUTRINO_ICON_SETTINGS, width, MN_WIDGET_ID_OSDSETUP_CHANNELLIST);
+	osd_menu_chanlist.suppressDetailsLine(true);
 	menu->addItem(new CMenuForwarder(LOCALE_MAINMENU_SETTINGS, true, NULL, selector, cnt, CRCInput::convertDigitToKey(shortcut++)), old_selected == i++);
 	menu->exec(NULL, "");
 	delete menu;
@@ -500,7 +504,7 @@ int CChannelList::doChannelMenu(void)
 			{
 				previous_channellist_additional = g_settings.channellist_additional;
 				COsdSetup osd_setup;
-				osd_setup.showContextChanlistMenu();
+				osd_setup.showContextChanlistMenu(&osd_menu_chanlist);
 				//FIXME check font/options changed ?
 				hide();
 				calcSize();
@@ -697,8 +701,8 @@ int CChannelList::show()
 		if ( msg <= CRCInput::RC_MaxRC )
 			timeoutEnd = CRCInput::calcTimeoutEnd(g_settings.timing[SNeutrinoSettings::TIMING_CHANLIST]);
 
-		if((msg == NeutrinoMessages::EVT_TIMER) && (data == fader.GetTimer())) {
-			if(fader.Fade()) {
+		if((msg == NeutrinoMessages::EVT_TIMER) && (data == fader.GetFadeTimer())) {
+			if(fader.FadeDone()) {
 				loop = false;
 			}
 		}
@@ -782,7 +786,7 @@ int CChannelList::show()
 		}
 		else if ( msg == CRCInput::RC_setup) {
 			old_b_id = bouquetList->getActiveBouquetNumber();
-			fader.Stop();
+			fader.StopFade();
 			int ret = doChannelMenu();
 			if (ret != 0)
 				CNeutrinoApp::getInstance()->MarkChannelListChanged();
@@ -1008,7 +1012,7 @@ int CChannelList::show()
 		new_zap_mode = 0;
 
 		hide();
-		fader.Stop();
+		fader.StopFade();
 	}
 
 	if (bShowBouquetList) {
