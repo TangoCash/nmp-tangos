@@ -43,7 +43,7 @@ COSDFader::COSDFader(unsigned char & alpha)
 
 COSDFader::~COSDFader()
 {
-	Stop();
+	StopFade();
 }
 
 void COSDFader::StartFadeIn()
@@ -88,7 +88,7 @@ bool COSDFader::StartFadeOut()
 	return ret;
 }
 
-void COSDFader::Stop()
+void COSDFader::StopFade()
 {
 	if ( fadeIn || fadeOut ) {
 		g_RCInput->killTimer(fadeTimer);
@@ -106,7 +106,7 @@ void COSDFader::Stop()
 }
 
 /* return true, if fade out done */
-bool COSDFader::Fade()
+bool COSDFader::FadeDone()
 {
 	bool ret = false;
 

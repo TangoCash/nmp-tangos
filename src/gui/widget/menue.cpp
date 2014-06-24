@@ -341,6 +341,7 @@ CMenuWidget::CMenuWidget()
 	preselected 	= -1;
 	details_line = NULL;
 	info_box = NULL;
+	show_details_line = true;
 }
 
 CMenuWidget::CMenuWidget(const neutrino_locale_t Name, const std::string & Icon, const int mwidth, const mn_widget_id_t &w_index)
@@ -365,6 +366,7 @@ void CMenuWidget::Init(const std::string & Icon, const int mwidth, const mn_widg
         frameBuffer = CFrameBuffer::getInstance();
         iconfile = Icon;
 	details_line = new CComponentsDetailLine();
+	show_details_line = true;
 	info_box = new CComponentsInfoBox();
 	
 	//handle select values
@@ -565,7 +567,7 @@ int CMenuWidget::exec(CMenuTarget* parent, const std::string &)
 
 			std::map<neutrino_msg_t, keyAction>::iterator it = keyActionMap.find(msg);
 			if (it != keyActionMap.end()) {
-				fader.Stop();
+				fader.StopFade();
 				int rv = it->second.menue->exec(this, it->second.action);
 				switch ( rv ) {
 					case menu_return::RETURN_EXIT_ALL:
@@ -613,8 +615,8 @@ int CMenuWidget::exec(CMenuTarget* parent, const std::string &)
 
 		switch (msg) {
 			case (NeutrinoMessages::EVT_TIMER):
-				if(data == fader.GetTimer()) {
-					if(fader.Fade())
+				if(data == fader.GetFadeTimer()) {
+					if(fader.FadeDone())
 						msg = CRCInput::RC_timeout;
 				} else {
 					if ( CNeutrinoApp::getInstance()->handleMsg( msg, data ) & messages_return::cancel_all ) {
@@ -701,7 +703,7 @@ int CMenuWidget::exec(CMenuTarget* parent, const std::string &)
 						if (!item->isSelectable())
 							break;
 						item->msg = msg;
-						fader.Stop();
+						fader.StopFade();
 						int rv = item->exec( this );
 						switch ( rv ) {
 							case menu_return::RETURN_EXIT_ALL:
@@ -776,7 +778,7 @@ int CMenuWidget::exec(CMenuTarget* parent, const std::string &)
 	delete[] background;
 	background = NULL;
 
-	fader.Stop();
+	fader.StopFade();
 
 	if(!parent)
 		if(oldLcdMode != CVFD::getInstance()->getMode())
@@ -1188,7 +1190,8 @@ void CMenuWidget::paintHint(int pos)
 	}
 	
 	//paint result
-	details_line->paint(savescreen);
+	if (show_details_line)
+		details_line->paint(savescreen);
 	info_box->paint(savescreen);
 	
 	hint_painted = true;
