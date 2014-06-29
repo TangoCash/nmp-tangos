@@ -299,6 +299,8 @@ class CMovieBrowser : public CMenuTarget
 		MB_SETTINGS m_settings;
 		std::vector<MB_DIR> m_dir;
 
+		CComponentsChannelLogo* CChannelLogo;
+
 		int movieInfoUpdateAll[MB_INFO_MAX_NUMBER];
 		int movieInfoUpdateAllIfDestEmptyOnly;
 

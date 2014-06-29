@@ -125,6 +125,7 @@ CChannelList::CChannelList(const char * const pName, bool phistoryMode, bool _vl
 	cc_minitv = NULL;
 	logo_off = 0;
 	pig_on_win = false;
+	CChannelLogo = NULL;
 
 	paint_events_index = -2;
 //printf("************ NEW LIST %s : %x\n", name.c_str(), (int) this);fflush(stdout);
@@ -148,6 +149,11 @@ CChannelList::~CChannelList()
 			headerClock->hide();
 		if (headerClock->isClockRun())
 			headerClock->stopThread();
+	}
+
+	if (CChannelLogo) {
+		delete CChannelLogo;
+		CChannelLogo = NULL;
 	}
 }
 void CChannelList::ClearList(void)
@@ -1833,19 +1839,16 @@ void CChannelList::paintItem2DetailsLine (int pos)
 void CChannelList::showChannelLogo()
 {
 	if(g_settings.channellist_show_channellogo){
-		static int logo_w = 0;
-		static int logo_h = 0;
 		int logo_w_max = full_width / 4;
-
-		if (logo_w && logo_h)
-			frameBuffer->paintBoxRel(x + full_width - logo_off - logo_w, y+(theight-logo_h)/2, logo_w, logo_h, COL_MENUHEAD_PLUS_0);
-
-		std::string lname;
-		if(g_PicViewer->GetLogoName(chanlist[selected]->channel_id, chanlist[selected]->getName(), lname, &logo_w, &logo_h)) {
-			if((logo_h > theight) || (logo_w > logo_w_max))
-				g_PicViewer->rescaleImageDimensions(&logo_w, &logo_h, logo_w_max, theight);
-			g_PicViewer->DisplayImage(lname, x + full_width - logo_off - logo_w, y+(theight-logo_h)/2, logo_w, logo_h);
+		if (CChannelLogo) {
+			CChannelLogo->hide();
+			delete CChannelLogo;
 		}
+		CChannelLogo = new CComponentsChannelLogo(0, 0, logo_w_max, theight,
+							  chanlist[selected]->getName(), chanlist[selected]->channel_id);
+		CChannelLogo->setXPos(x + full_width - logo_off - CChannelLogo->getWidth());
+		CChannelLogo->setYPos(y + (theight - CChannelLogo->getHeight()) / 2);
+		CChannelLogo->paint();
 	}
 }
 
@@ -2211,7 +2214,7 @@ void CChannelList::paintHead()
 			headerClock = new CComponentsFrmClock(0, 0, 0, 0, "%H:%M", true);
 			headerClock->setClockBlink("%H %M");
 			headerClock->setClockIntervall(1);
-
+			headerClock->doPaintBg(false);
 		}
 		headerClock->setClockFormat("%H:%M");
 		headerClock->setClockFont(SNeutrinoSettings::FONT_TYPE_MENU_TITLE);
