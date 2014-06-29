@@ -105,6 +105,8 @@ private:
 	bool new_mode_active;
 	int ChannelList_Rec;
 
+	CComponentsChannelLogo* CChannelLogo;
+
 	void paintDetails(int index);
 	void clearItem2DetailsLine ();
 	void paintItem2DetailsLine (int pos);
