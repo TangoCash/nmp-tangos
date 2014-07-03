@@ -237,16 +237,16 @@ bool CCamManager::SetMode(t_channel_id channel_id, enum runmode mode, bool start
 			source = cDemux::GetSource(0);
 			demux = cDemux::GetSource(0);
 			frontend = CFEManager::getInstance()->getFrontend(channel);
-			INFO("PLAY: fe_num %d dmx_src %d", frontend ? frontend->getNumber(true) : -1, cDemux::GetSource(0));
+			INFO("PLAY: fe_num %d dmx_src %d", frontend ? frontend->getNumber() : -1, cDemux::GetSource(0));
 #endif
 			break;
 		case STREAM:
 		case RECORD:
 #if HAVE_DUCKBOX_HARDWARE || HAVE_SPARK_HARDWARE
-			channel->setRecordDemux(CFEManager::getInstance()->allocateFE(channel)->getNumber(true));
+			channel->setRecordDemux(CFEManager::getInstance()->allocateFE(channel)->getNumber());
 #endif
 			frontend = CFEManager::getInstance()->getFrontend(channel);
-			INFO("RECORD/STREAM(%d): fe_num %d rec_dmx %d", mode, frontend ? frontend->getNumber(true) : -1, channel->getRecordDemux());
+			INFO("RECORD/STREAM(%d): fe_num %d rec_dmx %d", mode, frontend ? frontend->getNumber() : -1, channel->getRecordDemux());
 			source = channel->getRecordDemux();
 			demux = channel->getRecordDemux();
 			break;
@@ -273,7 +273,7 @@ bool CCamManager::SetMode(t_channel_id channel_id, enum runmode mode, bool start
 #if HAVE_SPARK_HARDWARE
 		source != cDemux::GetSource(0)
 #else
-		source != CFEManager::getInstance()->getFrontend(channel)->getNumber(true)
+		source != CFEManager::getInstance()->getFrontend(channel)->getNumber()
 #endif
 	) {
 		cam->sendMessage(NULL, 0, false);
