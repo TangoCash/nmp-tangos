@@ -1035,12 +1035,12 @@ int CLuaInstance::MenuAddItem(lua_State *L)
 		m->m->addItem(GenericMenuCancel);
 	} else if (type == "separator") {
 		m->m->addItem(GenericMenuSeparator);
-	} else if (type == "separatorline") {
+	} else if ((type == "separatorline") || (type == "subhead")) {
 		if (!b->name.empty()) {
-			m->m->addItem(new CMenuSeparator(CMenuSeparator::STRING | CMenuSeparator::LINE, b->name.c_str(), NONEXISTANT_LOCALE));
-		} else {
+			int flag = (type == "separatorline") ? CMenuSeparator::LINE : CMenuSeparator::SUB_HEAD;
+			m->m->addItem(new CMenuSeparator(CMenuSeparator::STRING | flag, b->name.c_str(), NONEXISTANT_LOCALE));
+		} else
 			m->m->addItem(GenericMenuSeparatorLine);
-		}
 	} else {
 		std::string right_icon;	tableLookup(L, "right_icon", right_icon);
 		std::string action;	tableLookup(L, "action", action);
@@ -1904,6 +1904,12 @@ int CLuaInstance::CPictureNew(lua_State *L)
 	lua_Integer color_background = (lua_Integer)COL_MENUCONTENT_PLUS_0;
 	lua_Integer color_shadow     = (lua_Integer)COL_MENUCONTENTDARK_PLUS_0;
 
+	/*
+	transparency = CFrameBuffer::TM_BLACK (2): Transparency when black content ('pseudo' transparency)
+	transparency = CFrameBuffer::TM_NONE  (1): No 'pseudo' transparency
+	*/
+	lua_Integer transparency     = CFrameBuffer::TM_NONE;
+
 	tableLookup(L, "parent"           , (void**)&parent);
 	tableLookup(L, "x"                , x);
 	tableLookup(L, "y"                , y);
@@ -1920,12 +1926,13 @@ int CLuaInstance::CPictureNew(lua_State *L)
 	tableLookup(L, "color_frame"      , color_frame);
 	tableLookup(L, "color_background" , color_background);
 	tableLookup(L, "color_shadow"     , color_shadow);
+	tableLookup(L, "transparency"     , transparency);
 
 	CComponentsForm* pw = (parent && parent->w) ? parent->w->getBodyObject() : NULL;
 
 	CLuaPicture **udata = (CLuaPicture **) lua_newuserdata(L, sizeof(CLuaPicture *));
 	*udata = new CLuaPicture();
-	(*udata)->cp = new CComponentsPicture(x, y, dx, dy, image_name, pw, has_shadow, (fb_pixel_t)color_frame, (fb_pixel_t)color_background, (fb_pixel_t)color_shadow);
+	(*udata)->cp = new CComponentsPicture(x, y, dx, dy, image_name, pw, has_shadow, (fb_pixel_t)color_frame, (fb_pixel_t)color_background, (fb_pixel_t)color_shadow, transparency);
 	(*udata)->parent = pw;
 	luaL_getmetatable(L, "cpicture");
 	lua_setmetatable(L, -2);
