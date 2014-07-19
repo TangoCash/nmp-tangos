@@ -258,6 +258,7 @@ channellist.reset_all Entferne Markierung "Neu" für alle Kanäle
 channellist.reset_flags Entferne Kanal-Markierung "Neu"
 channellist.sats Satelliten
 channellist.show_channellogo Senderlogos zeigen
+channellist.show_channelnumber Kanalnummern zeigen
 channellist.since seit
 channellist.start Start
 ci.clock CI Takt (Mhz)
@@ -648,6 +649,7 @@ glcd.select.bar Fortschrittsbalken-Farbe
 glcd.select.bg Hintergrund-Farbe
 glcd.select.fg Vordergrund-Farbe
 glcd.show_logo Sender-Logo anzeigen
+glcd.show_numbers Kanalnummern anzeigen
 glcd.size_bar Fortschrittsbalken-Größe
 glcd.size_channel Sender-Größe
 glcd.size_epg EPG-Größe
@@ -905,6 +907,7 @@ menu.hint_channellist_mode Wählen Sie die Start-Kanalliste im TV-Modus
 menu.hint_channellist_mode_radio Wählen Sie die Start-Kanalliste im Radio-Modus
 menu.hint_channellist_setup Wählen Sie die Anzeigeoptionen für die Kanalliste
 menu.hint_channellist_show_channellogo Zeigt Senderlogos in der Kanalliste.
+menu.hint_channellist_show_channelnumber Zeigt Kanalnummer in der Kanalliste.
 menu.hint_channels Kanalliste öffnen
 menu.hint_ci Conditional-Access-Menü zum Einrichten Ihres CI-Moduls oder der eingebetteten Conax-Karte
 menu.hint_clock_background Lassen Sie die Uhr mit Hintergrund anzeigen
