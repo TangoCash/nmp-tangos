@@ -561,6 +561,7 @@ struct SNeutrinoSettings
 	int channellist_hdicon;
 	int channellist_numeric_adjust;
 	int channellist_show_channellogo;
+	int channellist_show_numbers;
 	int repeat_blocker;
 	int repeat_genericblocker;
 #define LONGKEYPRESS_OFF 499
