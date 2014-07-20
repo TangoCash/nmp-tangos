@@ -44,9 +44,19 @@ struct table_key {
 	lua_Integer code;
 };
 
+struct table_key_u {
+	const char *name;
+	lua_Unsigned code;
+};
+
 struct lua_envexport {
 	const char *name;
 	table_key *t;
+};
+
+struct lua_envexport_u {
+	const char *name;
+	table_key_u *t;
 };
 
 static void set_lua_variables(lua_State *L)
@@ -147,7 +157,7 @@ static void set_lua_variables(lua_State *L)
 	};
 
 	/* list of colors, exported e.g. as COL['INFOBAR_SHADOW'] */
-	static table_key colorlist[] =
+	static table_key_u colorlist[] =
 	{
 		{ "COLORED_EVENTS_CHANNELLIST",	MAGIC_COLOR | (COL_COLORED_EVENTS_CHANNELLIST) },
 		{ "COLORED_EVENTS_INFOBAR",	MAGIC_COLOR | (COL_COLORED_EVENTS_INFOBAR) },
@@ -172,21 +182,21 @@ static void set_lua_variables(lua_State *L)
 		{ "LIGHT_BLUE",			MAGIC_COLOR | (COL_LIGHT_BLUE0) },
 		{ "WHITE",			MAGIC_COLOR | (COL_WHITE0) },
 		{ "BLACK",			MAGIC_COLOR | (COL_BLACK0) },
-		{ "COLORED_EVENTS_TEXT",	(lua_Integer) (COL_COLORED_EVENTS_TEXT) },
-		{ "INFOBAR_TEXT",		(lua_Integer) (COL_INFOBAR_TEXT) },
-		{ "INFOBAR_SHADOW_TEXT",	(lua_Integer) (COL_INFOBAR_SHADOW_TEXT) },
-		{ "MENUHEAD_TEXT",		(lua_Integer) (COL_MENUHEAD_TEXT) },
-		{ "MENUCONTENT_TEXT",		(lua_Integer) (COL_MENUCONTENT_TEXT) },
-		{ "MENUCONTENT_TEXT_PLUS_1",	(lua_Integer) (COL_MENUCONTENT_TEXT_PLUS_1) },
-		{ "MENUCONTENT_TEXT_PLUS_2",	(lua_Integer) (COL_MENUCONTENT_TEXT_PLUS_2) },
-		{ "MENUCONTENT_TEXT_PLUS_3",	(lua_Integer) (COL_MENUCONTENT_TEXT_PLUS_3) },
-		{ "MENUCONTENTDARK_TEXT",	(lua_Integer) (COL_MENUCONTENTDARK_TEXT) },
-		{ "MENUCONTENTDARK_TEXT_PLUS_1",	(lua_Integer) (COL_MENUCONTENTDARK_TEXT_PLUS_1) },
-		{ "MENUCONTENTDARK_TEXT_PLUS_2",	(lua_Integer) (COL_MENUCONTENTDARK_TEXT_PLUS_2) },
-		{ "MENUCONTENTSELECTED_TEXT",		(lua_Integer) (COL_MENUCONTENTSELECTED_TEXT) },
-		{ "MENUCONTENTSELECTED_TEXT_PLUS_1",	(lua_Integer) (COL_MENUCONTENTSELECTED_TEXT_PLUS_1) },
-		{ "MENUCONTENTSELECTED_TEXT_PLUS_2",	(lua_Integer) (COL_MENUCONTENTSELECTED_TEXT_PLUS_2) },
-		{ "MENUCONTENTINACTIVE_TEXT",		(lua_Integer) (COL_MENUCONTENTINACTIVE_TEXT) },
+		{ "COLORED_EVENTS_TEXT",	(lua_Unsigned) (COL_COLORED_EVENTS_TEXT) },
+		{ "INFOBAR_TEXT",		(lua_Unsigned) (COL_INFOBAR_TEXT) },
+		{ "INFOBAR_SHADOW_TEXT",	(lua_Unsigned) (COL_INFOBAR_SHADOW_TEXT) },
+		{ "MENUHEAD_TEXT",		(lua_Unsigned) (COL_MENUHEAD_TEXT) },
+		{ "MENUCONTENT_TEXT",		(lua_Unsigned) (COL_MENUCONTENT_TEXT) },
+		{ "MENUCONTENT_TEXT_PLUS_1",	(lua_Unsigned) (COL_MENUCONTENT_TEXT_PLUS_1) },
+		{ "MENUCONTENT_TEXT_PLUS_2",	(lua_Unsigned) (COL_MENUCONTENT_TEXT_PLUS_2) },
+		{ "MENUCONTENT_TEXT_PLUS_3",	(lua_Unsigned) (COL_MENUCONTENT_TEXT_PLUS_3) },
+		{ "MENUCONTENTDARK_TEXT",	(lua_Unsigned) (COL_MENUCONTENTDARK_TEXT) },
+		{ "MENUCONTENTDARK_TEXT_PLUS_1",	(lua_Unsigned) (COL_MENUCONTENTDARK_TEXT_PLUS_1) },
+		{ "MENUCONTENTDARK_TEXT_PLUS_2",	(lua_Unsigned) (COL_MENUCONTENTDARK_TEXT_PLUS_2) },
+		{ "MENUCONTENTSELECTED_TEXT",		(lua_Unsigned) (COL_MENUCONTENTSELECTED_TEXT) },
+		{ "MENUCONTENTSELECTED_TEXT_PLUS_1",	(lua_Unsigned) (COL_MENUCONTENTSELECTED_TEXT_PLUS_1) },
+		{ "MENUCONTENTSELECTED_TEXT_PLUS_2",	(lua_Unsigned) (COL_MENUCONTENTSELECTED_TEXT_PLUS_2) },
+		{ "MENUCONTENTINACTIVE_TEXT",		(lua_Unsigned) (COL_MENUCONTENTINACTIVE_TEXT) },
 		{ NULL, 0 }
 	};
 
@@ -254,7 +264,6 @@ static void set_lua_variables(lua_State *L)
 	lua_envexport e[] =
 	{
 		{ "RC",		keyname },
-		{ "COL",	colorlist },
 		{ "SCREEN",	screenopts },
 		{ "FONT",	fontlist },
 		{ "CORNER",	corners },
@@ -273,6 +282,26 @@ static void set_lua_variables(lua_State *L)
 			j++;
 		}
 		lua_setglobal(L, e[i].name);
+		i++;
+	}
+
+	lua_envexport_u e_u[] =
+	{
+		{ "COL",	colorlist },
+		{ NULL, NULL }
+	};
+
+	i = 0;
+	while (e_u[i].name) {
+		int j = 0;
+		lua_newtable(L);
+		while (e_u[i].t[j].name) {
+			lua_pushstring(L, e_u[i].t[j].name);
+			lua_pushunsigned(L, e_u[i].t[j].code);
+			lua_settable(L, -3);
+			j++;
+		}
+		lua_setglobal(L, e_u[i].name);
 		i++;
 	}
 }
@@ -317,6 +346,15 @@ void CLuaInstance::functionDeprecated(lua_State *L, const char* oldFunc, const c
 					g_Locale->getText(LOCALE_LUA_FUNCTION_DEPRECATED3), newFunc,
 					ar.short_src, ar.currentline);
 }
+
+lua_Unsigned CLuaInstance::checkMagicMask(lua_Unsigned &col)
+{
+	if ((col & MAGIC_MASK) == MAGIC_COLOR)
+		/* use the color constants */
+		col = CFrameBuffer::getInstance()->realcolor[col & 0x000000ff];
+	return col;
+}
+
 #define SET_VAR1(NAME) \
 	lua_pushinteger(lua, NAME); \
 	lua_setglobal(lua, #NAME);
@@ -520,9 +558,7 @@ int CLuaInstance::PaintBox(lua_State *L)
 		w = W->fbwin->dx - x;
 	if (h < 0 || y + h > W->fbwin->dy)
 		h = W->fbwin->dy - y;
-	/* use the color constants */
-	if ((c & MAGIC_MASK) == MAGIC_COLOR)
-		c = CFrameBuffer::getInstance()->realcolor[c & 0x000000ff];
+	checkMagicMask(c);
 	W->fbwin->paintBoxRel(x, y, w, h, c, radius, corner);
 	return 0;
 }
@@ -637,8 +673,7 @@ int CLuaInstance::RenderString(lua_State *L)
 		if (rwidth < w)
 			x += (w - rwidth) / 2;
 	}
-	if ((c & MAGIC_MASK) == MAGIC_COLOR)
-		c = CFrameBuffer::getInstance()->realcolor[c & 0x000000ff];
+	checkMagicMask(c);
 	if (boxh > -1) /* if boxh < 0, don't paint string */
 		W->fbwin->RenderString(g_Font[f], x, y, w, text, c, boxh);
 	lua_pushinteger(L, rwidth); /* return renderwidth */
@@ -781,9 +816,20 @@ bool CLuaInstance::tableLookup(lua_State *L, const char *what, lua_Integer &valu
 	lua_gettable(L, -2);
 	res = lua_isnumber(L, -1);
 	if (res)
-		value = lua_tointeger(L, -1);
+		value = (lua_Integer) lua_tonumber(L, -1);
 	lua_pop(L, 1);
-	(void) value;
+	return res;
+}
+
+bool CLuaInstance::tableLookup(lua_State *L, const char *what, lua_Unsigned &value)
+{
+	bool res = false;
+	lua_pushstring(L, what);
+	lua_gettable(L, -2);
+	res = lua_isnumber(L, -1);
+	if (res)
+		value = (lua_Unsigned) lua_tonumber(L, -1);
+	lua_pop(L, 1);
 	return res;
 }
 
@@ -798,6 +844,7 @@ bool CLuaInstance::tableLookup(lua_State *L, const char *what, void** value)
 	lua_pop(L, 1);
 	return res;
 }
+
 bool CLuaMenuChangeObserver::changeNotify(lua_State *L, const std::string &luaAction, const std::string &luaId, void *Data)
 {
 	const char *optionValue = (const char *) Data;
@@ -1440,9 +1487,9 @@ int CLuaInstance::CWindowNew(lua_State *L)
 	lua_assert(lua_istable(L,1));
 
 	std::string name, icon   = std::string(NEUTRINO_ICON_INFO);
-	lua_Integer color_frame  = (lua_Integer)COL_MENUCONTENT_PLUS_6;
-	lua_Integer color_body   = (lua_Integer)COL_MENUCONTENT_PLUS_0;
-	lua_Integer color_shadow = (lua_Integer)COL_MENUCONTENTDARK_PLUS_0;
+	lua_Unsigned color_frame  = (lua_Unsigned)COL_MENUCONTENT_PLUS_6;
+	lua_Unsigned color_body   = (lua_Unsigned)COL_MENUCONTENT_PLUS_0;
+	lua_Unsigned color_shadow = (lua_Unsigned)COL_MENUCONTENTDARK_PLUS_0;
 	std::string tmp1         = "false";
 	std::string btnRed       = "";
 	std::string btnGreen     = "";
@@ -1465,30 +1512,47 @@ int CLuaInstance::CWindowNew(lua_State *L)
 	tableLookup(L, "btnYellow", btnYellow);
 	tableLookup(L, "btnBlue", btnBlue);
 
+	checkMagicMask(color_frame);
+	checkMagicMask(color_body);
+	checkMagicMask(color_shadow);
+
+	tmp1 = "true";
+	tableLookup(L, "show_header"  , tmp1);
+	bool show_header = (tmp1 == "true" || tmp1 == "show" || tmp1 == "yes");
+	tmp1 = "true";
+	tableLookup(L, "show_footer"  , tmp1);
+	bool show_footer = (tmp1 == "true" || tmp1 == "show" || tmp1 == "yes");
+
 	CLuaCWindow **udata = (CLuaCWindow **) lua_newuserdata(L, sizeof(CLuaCWindow *));
 	*udata = new CLuaCWindow();
 	(*udata)->w = new CComponentsWindow(x, y, dx, dy, name.c_str(), icon.c_str(), 0, has_shadow, (fb_pixel_t)color_frame, (fb_pixel_t)color_body, (fb_pixel_t)color_shadow);
 
-	CComponentsFooter* footer = (*udata)->w->getFooterObject();
-	if (footer) {
-		int btnCount = 0;
-		if (btnRed    != "") btnCount++;
-		if (btnGreen  != "") btnCount++;
-		if (btnYellow != "") btnCount++;
-		if (btnBlue   != "") btnCount++;
-		if (btnCount) {
-			fb_pixel_t col = footer->getColorBody();
-			int btnw = (dx-20) / btnCount;
-			int btnh = footer->getHeight();
-			int start = 10;
-			if (btnRed != "")
-				footer->addCCItem(new CComponentsButtonRed(start, CC_CENTERED, btnw, btnh, btnRed, 0, false , true, false, col, col));
-			if (btnGreen != "")
-				footer->addCCItem(new CComponentsButtonGreen(start+=btnw, CC_CENTERED, btnw, btnh, btnGreen, 0, false , true, false, col, col));
-			if (btnYellow != "")
-				footer->addCCItem(new CComponentsButtonYellow(start+=btnw, CC_CENTERED, btnw, btnh, btnYellow, 0, false , true, false, col, col));
-			if (btnBlue != "")
-				footer->addCCItem(new CComponentsButtonBlue(start+=btnw, CC_CENTERED, btnw, btnh, btnBlue, 0, false , true, false, col, col));
+	if (!show_header)
+		(*udata)->w->showHeader(false);
+	if (!show_footer)
+		(*udata)->w->showFooter(false);
+	else {
+		CComponentsFooter* footer = (*udata)->w->getFooterObject();
+		if (footer) {
+			int btnCount = 0;
+			if (btnRed    != "") btnCount++;
+			if (btnGreen  != "") btnCount++;
+			if (btnYellow != "") btnCount++;
+			if (btnBlue   != "") btnCount++;
+			if (btnCount) {
+				fb_pixel_t col = footer->getColorBody();
+				int btnw = (dx-20) / btnCount;
+				int btnh = footer->getHeight();
+				int start = 10;
+				if (btnRed != "")
+					footer->addCCItem(new CComponentsButtonRed(start, CC_CENTERED, btnw, btnh, btnRed, 0, false , true, false, col, col));
+				if (btnGreen != "")
+					footer->addCCItem(new CComponentsButtonGreen(start+=btnw, CC_CENTERED, btnw, btnh, btnGreen, 0, false , true, false, col, col));
+				if (btnYellow != "")
+					footer->addCCItem(new CComponentsButtonYellow(start+=btnw, CC_CENTERED, btnw, btnh, btnYellow, 0, false , true, false, col, col));
+				if (btnBlue != "")
+					footer->addCCItem(new CComponentsButtonBlue(start+=btnw, CC_CENTERED, btnw, btnh, btnBlue, 0, false , true, false, col, col));
+			}
 		}
 	}
 
@@ -1572,6 +1636,7 @@ int CLuaInstance::CWindowGetFooterHeight_dep(lua_State *L)
 	functionDeprecated(L, "footer_height", "footerHeight");
 	return CWindowGetFooterHeight(L);
 }
+
 int CLuaInstance::CWindowGetHeaderHeight(lua_State *L)
 {
 	CLuaCWindow *m = CWindowCheck(L, 1);
@@ -1722,10 +1787,10 @@ int CLuaInstance::ComponentsTextNew(lua_State *L)
 	std::string tmpMode      = "";
 	int         mode         = CTextBox::AUTO_WIDTH;
 	lua_Integer font_text    = SNeutrinoSettings::FONT_TYPE_MENU;
-	lua_Integer color_text   = (lua_Integer)COL_MENUCONTENT_TEXT;
-	lua_Integer color_frame  = (lua_Integer)COL_MENUCONTENT_PLUS_6;
-	lua_Integer color_body   = (lua_Integer)COL_MENUCONTENT_PLUS_0;
-	lua_Integer color_shadow = (lua_Integer)COL_MENUCONTENTDARK_PLUS_0;
+	lua_Unsigned color_text   = (lua_Unsigned)COL_MENUCONTENT_TEXT;
+	lua_Unsigned color_frame  = (lua_Unsigned)COL_MENUCONTENT_PLUS_6;
+	lua_Unsigned color_body   = (lua_Unsigned)COL_MENUCONTENT_PLUS_0;
+	lua_Unsigned color_shadow = (lua_Unsigned)COL_MENUCONTENTDARK_PLUS_0;
 	std::string tmp1         = "false";
 
 	tableLookup(L, "parent"      , (void**)&parent);
@@ -1744,6 +1809,11 @@ int CLuaInstance::ComponentsTextNew(lua_State *L)
 	tableLookup(L, "color_frame" , color_frame);
 	tableLookup(L, "color_body"  , color_body);
 	tableLookup(L, "color_shadow", color_shadow);
+
+	checkMagicMask(color_text);
+	checkMagicMask(color_frame);
+	checkMagicMask(color_body);
+	checkMagicMask(color_shadow);
 
 	if (!tmpMode.empty()) {
 		table_key txt_align[] = {
@@ -1768,6 +1838,7 @@ int CLuaInstance::ComponentsTextNew(lua_State *L)
 	}
 
 	CComponentsForm* pw = (parent && parent->w) ? parent->w->getBodyObject() : NULL;
+
 	CLuaComponentsText **udata = (CLuaComponentsText **) lua_newuserdata(L, sizeof(CLuaComponentsText *));
 	*udata = new CLuaComponentsText();
 	(*udata)->ct = new CComponentsText(x, y, dx, dy, text, mode, g_Font[font_text], pw, has_shadow, (fb_pixel_t)color_text, (fb_pixel_t)color_frame, (fb_pixel_t)color_body, (fb_pixel_t)color_shadow);
@@ -1784,10 +1855,10 @@ int CLuaInstance::ComponentsTextPaint(lua_State *L)
 	lua_assert(lua_istable(L,1));
 	CLuaComponentsText *m = ComponentsTextCheck(L, 1);
 	if (!m) return 0;
+
 	std::string tmp = "true";
 	tableLookup(L, "do_save_bg", tmp);
 	bool do_save_bg = (tmp == "true" || tmp == "1" || tmp == "yes");
-
 
 	m->ct->paint(do_save_bg);
 	CFrameBuffer::getInstance()->blit();
@@ -1799,6 +1870,7 @@ int CLuaInstance::ComponentsTextHide(lua_State *L)
 	lua_assert(lua_istable(L,1));
 	CLuaComponentsText *m = ComponentsTextCheck(L, 1);
 	if (!m) return 0;
+
 	std::string tmp = "false";
 	tableLookup(L, "no_restore", tmp);
 	bool no_restore = (tmp == "true" || tmp == "1" || tmp == "yes");
@@ -1835,10 +1907,10 @@ int CLuaInstance::ComponentsTextScroll(lua_State *L)
 	lua_assert(lua_istable(L,1));
 	CLuaComponentsText *m = ComponentsTextCheck(L, 1);
 	if (!m) return 0;
+
 	std::string tmp = "true";
 	tableLookup(L, "dir", tmp);
 	bool scrollDown = (tmp == "down" || tmp == "1");
-
 
 	//get the textbox instance from lua object and use CTexBbox scroll methods
 	CTextBox* ctb = m->ct->getCTextBoxObject();
@@ -1900,9 +1972,9 @@ int CLuaInstance::CPictureNew(lua_State *L)
 	std::string image_name         = "";
 	lua_Integer alignment          = 0;
 	std::string tmp1             = "false";	// has_shadow
-	lua_Integer color_frame      = (lua_Integer)COL_MENUCONTENT_PLUS_6;
-	lua_Integer color_background = (lua_Integer)COL_MENUCONTENT_PLUS_0;
-	lua_Integer color_shadow     = (lua_Integer)COL_MENUCONTENTDARK_PLUS_0;
+	lua_Unsigned color_frame      = (lua_Unsigned)COL_MENUCONTENT_PLUS_6;
+	lua_Unsigned color_background = (lua_Unsigned)COL_MENUCONTENT_PLUS_0;
+	lua_Unsigned color_shadow     = (lua_Unsigned)COL_MENUCONTENTDARK_PLUS_0;
 
 	/*
 	transparency = CFrameBuffer::TM_BLACK (2): Transparency when black content ('pseudo' transparency)
@@ -1927,6 +1999,10 @@ int CLuaInstance::CPictureNew(lua_State *L)
 	tableLookup(L, "color_background" , color_background);
 	tableLookup(L, "color_shadow"     , color_shadow);
 	tableLookup(L, "transparency"     , transparency);
+
+	checkMagicMask(color_frame);
+	checkMagicMask(color_background);
+	checkMagicMask(color_shadow);
 
 	CComponentsForm* pw = (parent && parent->w) ? parent->w->getBodyObject() : NULL;
 

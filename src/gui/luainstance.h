@@ -1,7 +1,7 @@
 /*
  * neutrino-mp lua to c++ bridge
  *
- * (C) 2013-2014 Stefan Seyfried <seife@tuxboxcvs.slipkontur.de>
+ * (C) 2013 Stefan Seyfried <seife@tuxboxcvs.slipkontur.de>
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -178,6 +178,8 @@ private:
 	void registerFunctions();
 
 	static void functionDeprecated(lua_State *L, const char* oldFunc, const char* newFunc);
+	static lua_Unsigned checkMagicMask(lua_Unsigned &col);
+
 	static int NewWindow(lua_State *L);
 	static int PaintBox(lua_State *L);
 	static int PaintIcon(lua_State *L);
@@ -249,8 +251,10 @@ private:
 	static int CPictureHide(lua_State *L);
 	static int CPictureSetPicture(lua_State *L);
 	static int CPictureDelete(lua_State *L);
+
 	static bool tableLookup(lua_State*, const char*, std::string&);
 	static bool tableLookup(lua_State*, const char*, lua_Integer&);
+	static bool tableLookup(lua_State*, const char*, lua_Unsigned&);
 	static bool tableLookup(lua_State*, const char*, void**);
 };
 
