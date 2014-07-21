@@ -50,6 +50,7 @@
 // C++
 #include <string>
 #include <list>
+#include <sys/stat.h>
 // yhttpd
 #include <yconfig.h>
 #include "ytypes_globals.h"
