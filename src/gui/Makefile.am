@@ -31,8 +31,8 @@ AM_CPPFLAGS += \
 	-I$(top_srcdir)/lib/xmltree \
 	-I$(top_srcdir)/lib/libupnpclient \
 	@CURL_CFLAGS@ \
-	@LUA_CFLAGS@ \
-	@FREETYPE_CFLAGS@
+	@FREETYPE_CFLAGS@ \
+	@SIGC_CFLAGS@
 
 if ENABLE_LUA
 AM_CPPFLAGS += \

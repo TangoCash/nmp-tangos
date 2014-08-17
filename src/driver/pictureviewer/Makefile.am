@@ -7,7 +7,8 @@ AM_CPPFLAGS = \
 	-I$(top_srcdir)/src/zapit/include \
 	-I$(top_srcdir)/lib \
 	-I$(top_srcdir)/lib/libconfigfile \
-	@FREETYPE_CFLAGS@
+	@FREETYPE_CFLAGS@ \
+	@SIGC_CFLAGS@
 
 if BOXTYPE_COOL
 if BOXMODEL_APOLLO

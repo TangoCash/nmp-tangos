@@ -16,7 +16,8 @@ AM_CPPFLAGS = \
 	-I$(top_srcdir)/lib/libconfigfile \
 	-I$(top_srcdir)/lib/libmd5sum \
 	-I$(top_srcdir)/lib/xmltree \
-	@FREETYPE_CFLAGS@
+	@FREETYPE_CFLAGS@ \
+	@SIGC_CFLAGS@
 
 if BOXTYPE_COOL
 if BOXMODEL_APOLLO

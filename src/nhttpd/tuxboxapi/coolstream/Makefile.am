@@ -13,7 +13,8 @@ AM_CPPFLAGS += \
 	-I$(top_srcdir)/lib/libeventserver \
 	-I$(top_srcdir)/lib/libconfigfile \
 	-I$(top_srcdir)/lib/xmltree \
-	@FREETYPE_CFLAGS@
+	@FREETYPE_CFLAGS@ \
+	@SIGC_CFLAGS@
 
 if BOXTYPE_COOL
 if BOXMODEL_APOLLO
