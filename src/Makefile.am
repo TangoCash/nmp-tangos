@@ -26,7 +26,8 @@ AM_CPPFLAGS = \
 	-I$(top_srcdir)/lib/libmd5sum \
 	-I$(top_srcdir)/lib/libupnpclient \
 	@FREETYPE_CFLAGS@ \
-	@LIBCS_CFLAGS@
+	@LIBCS_CFLAGS@ \
+	@SIGC_CFLAGS@
 
 if BOXTYPE_COOL
 if BOXMODEL_APOLLO
