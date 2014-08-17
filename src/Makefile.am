@@ -111,6 +111,7 @@ neutrino_LDADD = \
 	@PNG_LIBS@ \
 	@LIBCS_LIBS@ \
 	$(ADEC_LIBS) \
+	@SIGC_LIBS@ \
 	-ldvbsi++ \
 	-ljpeg \
 	-lOpenThreads \
