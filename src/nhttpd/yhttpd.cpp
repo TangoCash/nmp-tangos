@@ -11,6 +11,7 @@
 #include <grp.h>
 #include <syscall.h>
 #include <stdio.h>
+#include <system/set_threadname.h>
 
 // yhttpd
 #include "yconfig.h"
