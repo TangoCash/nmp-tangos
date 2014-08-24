@@ -43,6 +43,7 @@
 #include <gui/infoclock.h>
 #include <gui/plugins.h>
 #include <gui/videosettings.h>
+#include <gui/widget/messagebox.h>
 #include <driver/screenshot.h>
 #include <driver/volume.h>
 #include <driver/display.h>
@@ -923,7 +924,11 @@ void CMoviePlayerGui::PlayFile(void)
 		if (msg == (neutrino_msg_t) g_settings.mpkey_plugin) {
 			g_PluginList->startPlugin_by_name(g_settings.movieplayer_plugin.c_str ());
 		} else if (msg == (neutrino_msg_t) g_settings.mpkey_stop || (filelist.size() > 0 && msg == (neutrino_msg_t) CRCInput::RC_right)) {
-			playstate = CMoviePlayerGui::STOPPED;
+			bool stop_it = true;
+			if ((timeshift) && (g_settings.temp_timeshift))
+				stop_it = (ShowMsg(LOCALE_RECORDINGMENU_MULTIMENU_TIMESHIFT, LOCALE_RECORDINGMENU_MULTIMENU_TIMESHIFT_STOP, CMessageBox::mbrYes, CMessageBox::mbYes | CMessageBox::mbNo, NULL, 450, 30, false) != CMessageBox::mbrYes);
+			if (stop_it)
+				playstate = CMoviePlayerGui::STOPPED;
 			playback->RequestAbort();
 			if (filelist.size() > 0) {
 				if (filelist_it == filelist.end() && repeat_mode == REPEAT_ALL)
