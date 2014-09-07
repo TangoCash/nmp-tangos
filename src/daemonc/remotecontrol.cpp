@@ -719,7 +719,7 @@ void CRemoteControl::startvideo()
 	{
 		is_video_started= true;
 		//g_Zapit->startPlayBack();
-		CZapit::getInstance()->unlockPlayBack(true); /* TODO: check if sendpmt=false is correct in stopvideo() */
+		g_Zapit->unlockPlayBack(true); /* TODO: check if sendpmt=false is correct in stopvideo() */
 	}
 }
 
@@ -733,7 +733,7 @@ void CRemoteControl::stopvideo()
 		   lockPlayback prevents it from being inadvertently starting */
 		g_Zapit->stopPlayBack(false);
 #endif
-		CZapit::getInstance()->lockPlayBack(false); //g_Zapit->lockPlayBack(false);
+		g_Zapit->lockPlayBack(false); //g_Zapit->lockPlayBack(false);
 	}
 }
 
