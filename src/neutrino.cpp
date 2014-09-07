@@ -3307,7 +3307,6 @@ int CNeutrinoApp::handleMsg(const neutrino_msg_t _msg, neutrino_msg_data_t data)
 		delete[] (unsigned char*) data;
 		return messages_return::handled;
 	}
-#if HAVE_COOL_HARDWARE
 	else if (msg == NeutrinoMessages::EVT_STREAM_START) {
 		int fd = (int) data;
 		printf("NeutrinoMessages::EVT_STREAM_START: fd %d\n", fd);
@@ -3323,7 +3322,6 @@ int CNeutrinoApp::handleMsg(const neutrino_msg_t _msg, neutrino_msg_data_t data)
 		standbyToStandby();
 		return messages_return::handled;
 	}
-#endif
 	else if( msg == NeutrinoMessages::EVT_PMT_CHANGED) {
 		t_channel_id channel_id = *(t_channel_id*) data;
 		CRecordManager::getInstance()->Update(channel_id);

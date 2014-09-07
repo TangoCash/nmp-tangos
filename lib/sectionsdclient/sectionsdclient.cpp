@@ -89,7 +89,7 @@ void CSectionsdClient::registerEvent(const unsigned int eventID, const unsigned 
 	msg2.eventID = eventID;
 	msg2.clientID = clientID;
 
-	strcpy(msg2.udsName, udsName);
+	cstrncpy(msg2.udsName, udsName, sizeof(msg2.udsName));
 
 	send(sectionsd::CMD_registerEvents, (char*)&msg2, sizeof(msg2));
 

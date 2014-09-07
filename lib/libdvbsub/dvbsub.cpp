@@ -152,7 +152,7 @@ int dvbsub_start(int pid)
 	if(!dvbsub_paused && !pid)
 		return 0;
 
-	if(pid > 0 && pid != dvbsub_pid) {
+	if(pid && (pid != dvbsub_pid)) {
 		dvbsub_pause();
 		if(dvbSubtitleConverter)
 			dvbSubtitleConverter->Reset();
@@ -160,7 +160,7 @@ int dvbsub_start(int pid)
 		pid_change_req = 1;
 	}
 printf("[dvb-sub] start, stopped %d pid %x\n", dvbsub_stopped, dvbsub_pid);
-	if(dvbsub_pid > -1) {
+	if(dvbsub_pid) {
 #if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
 		if (isEplayer) {
 			OpenThreads::ScopedLock<OpenThreads::Mutex> m_lock(ass_mutex);
@@ -206,7 +206,7 @@ int dvbsub_getpid()
 
 void dvbsub_setpid(int pid)
 {
-	if(!dvbsub_pid)
+	if(!pid)
 		return;
 
 	dvbsub_pid = pid;

@@ -529,6 +529,8 @@ void CRemoteControl::processAPIDnames()
 		else if (current_PIDs.APIDs[count].is_eac3 &&  !strstr(current_PIDs.APIDs[count].desc, " (EAC3)"))
 			strncat(current_PIDs.APIDs[count].desc, " (EAC3)", DESC_MAX_LEN - strlen(current_PIDs.APIDs[count].desc)-1);
 	}
+	if (! current_PIDs.APIDs.empty())
+		printf("\n");
 
 	if ( has_unresolved_ctags )
 	{
@@ -717,7 +719,7 @@ void CRemoteControl::startvideo()
 	{
 		is_video_started= true;
 		//g_Zapit->startPlayBack();
-		g_Zapit->unlockPlayBack(true); /* TODO: check if sendpmt=false is correct in stopvideo() */
+		CZapit::getInstance()->unlockPlayBack(true); /* TODO: check if sendpmt=false is correct in stopvideo() */
 	}
 }
 
@@ -731,7 +733,7 @@ void CRemoteControl::stopvideo()
 		   lockPlayback prevents it from being inadvertently starting */
 		g_Zapit->stopPlayBack(false);
 #endif
-		g_Zapit->lockPlayBack(false);
+		CZapit::getInstance()->lockPlayBack(false); //g_Zapit->lockPlayBack(false);
 	}
 }
 

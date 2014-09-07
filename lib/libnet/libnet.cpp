@@ -283,8 +283,8 @@ void netGetMacAddr(std::string &ifname, unsigned char *mac)
 	int fd;
 	struct ifreq ifr;
 
-
 	memset(mac, 0, 6);
+	memset(&ifr, 0, sizeof(ifr));
 	fd = socket(AF_INET, SOCK_DGRAM, 0);
 	if(fd < 0)
 		return;
