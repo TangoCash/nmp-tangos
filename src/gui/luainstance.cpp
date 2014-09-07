@@ -393,7 +393,13 @@ void CLuaInstance::runScript(const char *fileName, std::vector<std::string> *arg
 		}
 	}
 	lua_setglobal(lua, "arg");
+#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+	CFrameBuffer::getInstance()->autoBlit();
+#endif
 	status = lua_pcall(lua, 0, LUA_MULTRET, 0);
+#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+	CFrameBuffer::getInstance()->autoBlit(false);
+#endif
 	if (result_code)
 		*result_code = to_string(status);
 	if (result_string && lua_isstring(lua, -1))
@@ -599,7 +605,6 @@ int CLuaInstance::DisplayImage(lua_State *L)
 	if (lua_isnumber(L, 7))
 		trans = luaL_checkint(L, 7);
 	g_PicViewer->DisplayImage(fname, x, y, w, h, trans);
-	CFrameBuffer::getInstance()->blit();
 	return 0;
 }
 
@@ -749,14 +754,11 @@ int CLuaInstance::GCWindow(lua_State *L)
 	return 0;
 }
 
-#if 0
-int CLuaInstance::Blit(lua_State *)
-{
-	return 0;
-}
-#else
 int CLuaInstance::Blit(lua_State *L)
 {
+#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+	CFrameBuffer::getInstance()->autoBlit(false);
+#endif
 	CLuaData *W = CheckData(L, 1);
 	if (W && W->fbwin) {
 		if (lua_isnumber(L, 2))
@@ -766,7 +768,6 @@ int CLuaInstance::Blit(lua_State *L)
 	}
 	return 0;
 }
-#endif
 
 int CLuaInstance::GetLanguage(lua_State *L)
 {
@@ -1618,7 +1619,6 @@ int CLuaInstance::CWindowPaintHeader(lua_State *L)
 	if (header)
 		m->w->showHeader();
 		header->paint();
-		CFrameBuffer::getInstance()->blit();
 
 	return 0;
 }
@@ -1861,7 +1861,6 @@ int CLuaInstance::ComponentsTextPaint(lua_State *L)
 	bool do_save_bg = (tmp == "true" || tmp == "1" || tmp == "yes");
 
 	m->ct->paint(do_save_bg);
-	CFrameBuffer::getInstance()->blit();
 	return 0;
 }
 
@@ -1880,7 +1879,6 @@ int CLuaInstance::ComponentsTextHide(lua_State *L)
 		m->ct->paint();
 	} else
 		m->ct->hide(no_restore);
-	CFrameBuffer::getInstance()->blit();
 		return 0;
 }
 
@@ -1898,7 +1896,6 @@ int CLuaInstance::ComponentsTextSetText(lua_State *L)
 	tableLookup(L, "font_text", font_text);
 
 	m->ct->setText(text, mode, g_Font[font_text]);
-	CFrameBuffer::getInstance()->blit();
 	return 0;
 }
 
@@ -1921,7 +1918,6 @@ int CLuaInstance::ComponentsTextScroll(lua_State *L)
 		else
 			ctb->scrollPageUp(1);
 		ctb->enableBackgroundPaint(false);
-		CFrameBuffer::getInstance()->blit();
 	}
 	return 0;
 }
@@ -2026,7 +2022,6 @@ int CLuaInstance::CPicturePaint(lua_State *L)
 	bool do_save_bg = (tmp == "true" || tmp == "1" || tmp == "yes");
 
 	m->cp->paint(do_save_bg);
-	CFrameBuffer::getInstance()->blit();
 	return 0;
 }
 
@@ -2045,7 +2040,6 @@ int CLuaInstance::CPictureHide(lua_State *L)
 		m->cp->paint();
 	} else
 		m->cp->hide(no_restore);
-	CFrameBuffer::getInstance()->blit();
 	return 0;
 }
 
@@ -2070,7 +2064,6 @@ int CLuaInstance::CPictureDelete(lua_State *L)
 
 	m->cp->hide();
 	delete m;
-	CFrameBuffer::getInstance()->blit();
 	return 0;
 }
 

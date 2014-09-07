@@ -39,6 +39,7 @@
 
 #if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
 #include <png.h>
+#include <pthread.h>
 #endif
 
 #define fb_pixel_t uint32_t
@@ -307,9 +308,14 @@ class CFrameBuffer
 		void set3DMode(Mode3D);
 		Mode3D get3DMode(void);
 	private:
+		bool autoBlitStatus;
+		pthread_t autoBlitThreadId;
+		static void *autoBlitThread(void *arg);
+		void autoBlitThread();
 		enum Mode3D mode3D;
 
 	public:
+		void autoBlit(bool b = true);
 		void blitArea(int src_width, int src_height, int fb_x, int fb_y, int width, int height);
 		void ClearFB(void);
 		void resChange(void);
