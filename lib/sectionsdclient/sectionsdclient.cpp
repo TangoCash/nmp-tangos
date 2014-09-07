@@ -28,6 +28,8 @@
 #include <sectionsdclient/sectionsdclient.h>
 #include <sectionsdclient/sectionsdMsg.h>
 
+#include <system/helpers.h>
+
 #ifdef PEDANTIC_VALGRIND_SETUP
 #define VALGRIND_PARANOIA(x) memset(&x, 0, sizeof(x))
 #else
