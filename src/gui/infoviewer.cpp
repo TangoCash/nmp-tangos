@@ -627,6 +627,14 @@ void CInfoViewer::showMovieTitle(const int playState, const t_channel_id &Channe
 	showLcdPercentOver ();
 	showInfoFile();
 
+	if (access( "/tmp/cover.jpg", F_OK ) != -1) {
+		icon_w = ChanNumWidth;
+		icon_h = BoxEndY - (ChanNameY + time_height) - 6 ;
+		icon_x =  ChanInfoX + 10 + ChanNumWidth / 2 - icon_w / 2;
+		icon_y = (BoxEndY + ChanNameY + time_height) / 2 - icon_h / 2;
+		g_PicViewer->DisplayImage("/tmp/cover.jpg", icon_x, icon_y, icon_w, icon_h, 1);
+	}
+
 	//loop(fadeValue, show_dot , fadeIn);
 	loop(show_dot);
 	aspectRatio = 0;
